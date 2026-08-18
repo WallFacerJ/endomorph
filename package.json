@@ -1,0 +1,11 @@
+{
+  "name": "polymorph",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "dev": "pnpm --filter @polymorph/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint"
+  }
+}
