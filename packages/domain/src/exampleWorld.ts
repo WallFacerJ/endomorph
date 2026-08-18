@@ -1,13 +1,11 @@
-import type {
-  Account,
-  Application,
-  Device,
-  DomainEvent,
-  FileEntity,
-  Organization,
-  Session,
-  User,
-} from "./index";
+import type { Account } from "./account";
+import type { Application } from "./application";
+import type { Device } from "./device";
+import type { DomainEvent } from "./event";
+import type { FileEntity } from "./fileEntity";
+import type { Organization } from "./organization";
+import type { Session } from "./session";
+import type { User } from "./user";
 
 export const exampleOrganization: Organization = {
   id: "org-acme",
