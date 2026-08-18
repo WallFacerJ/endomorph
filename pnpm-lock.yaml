@@ -10,6 +10,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@polymorph/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
       react:
         specifier: ^19.2.8
         version: 19.2.8
@@ -38,6 +41,16 @@ importers:
       vite:
         specifier: ^8.2.0
         version: 8.2.1(@types/node@24.13.3)
+
+  packages/schema:
+    dependencies:
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
 
 packages:
 
@@ -483,6 +496,9 @@ packages:
       yaml:
         optional: true
 
+  zod@4.4.3:
+    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+
 snapshots:
 
   '@oxc-project/types@0.144.0': {}
@@ -749,3 +765,5 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.13.3
       fsevents: 2.3.3
+
+  zod@4.4.3: {}

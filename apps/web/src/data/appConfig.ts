@@ -1,6 +1,6 @@
-import type { AppSpec } from "../schemas/appSchema";
+import { parseAppSpec } from "@polymorph/schema";
 
-export const appConfig: AppSpec = {
+export const appConfig = parseAppSpec({
   name: "Polymorph Security Console",
     actions: [
     {
@@ -145,4 +145,4 @@ export const appConfig: AppSpec = {
       ],
     },
   ],
-};
+});
