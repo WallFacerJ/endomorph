@@ -85,7 +85,11 @@ export const appConfig: AppSpec = {
             id: "investigate-button",
             type: "button",
             label: "Start Investigation",
-            actionId: "start_investigation",
+            actionIds: [
+                "start_investigation",
+                "increase_alerts",
+                "terminal_event",
+            ],
         },
       ],
     },

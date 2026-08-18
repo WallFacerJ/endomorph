@@ -27,7 +27,8 @@ function App() {
     (page) => page.id === activePageId
   );
 
-  const handleAction = (actionId: string) => {
+  const handleActions = (actionIds: string[]) => {
+  actionIds.forEach((actionId) => {
     const action = appConfig.actions.find(
       (action) => action.id === actionId
     );
@@ -58,15 +59,14 @@ function App() {
     ) {
       setTerminalLines((current) => ({
         ...current,
-
         [result.targetId!]: [
           ...(current[result.targetId!] ?? []),
           result.terminalLine!,
         ],
       }));
     }
-  };
-
+  });
+};
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -105,7 +105,7 @@ function App() {
               runtimeTerminalLines={
                 terminalLines[component.id]
               }
-              onAction={handleAction}
+              onActions={handleActions}
             />
           ))}
         </div>

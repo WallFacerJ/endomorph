@@ -7,14 +7,14 @@ interface ComponentRendererProps {
 
   runtimeTerminalLines?: string[];
 
-  onAction: (actionId: string) => void;
+  onActions: (actionIds: string[]) => void;
 }
 
 function ComponentRenderer({
   component,
   runtimeValue,
   runtimeTerminalLines,
-  onAction,
+  onActions,
 }: ComponentRendererProps) {
   switch (component.type) {
     case "stat_card":
@@ -72,20 +72,20 @@ function ComponentRenderer({
       );
 
     case "button":
-      return (
-        <div className="card">
-          <button
-            className="action-button"
-            onClick={() => {
-              if (component.actionId) {
-                onAction(component.actionId);
-              }
-            }}
-          >
-            {component.label}
-          </button>
-        </div>
-      );
+  return (
+    <div className="card">
+      <button
+        className="action-button"
+        onClick={() => {
+          if (component.actionIds) {
+            onActions(component.actionIds);
+          }
+        }}
+      >
+        {component.label}
+      </button>
+    </div>
+  );
 
     case "terminal": {
       const lines = [

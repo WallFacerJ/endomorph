@@ -41,7 +41,7 @@ export interface AppComponent {
   rows?: Record<string, string | number>[];
 
   label?: string;
-  actionId?: string;
+  actionIds?: string[];
 
   lines?: string[];
 }
