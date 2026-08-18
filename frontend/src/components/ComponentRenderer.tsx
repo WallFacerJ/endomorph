@@ -1,25 +1,30 @@
-import { useState } from "react";
 import type { AppComponent } from "../schemas/appSchema";
 
 interface ComponentRendererProps {
   component: AppComponent;
+
+  runtimeValue?: string | number;
+
+  runtimeTerminalLines?: string[];
+
+  onAction: (actionId: string) => void;
 }
 
-function ComponentRenderer({ component }: ComponentRendererProps) {
-  const [message, setMessage] = useState("");
-
-  const handleAction = () => {
-    if (component.action === "start_investigation") {
-      setMessage("Investigation started successfully.");
-    }
-  };
-
+function ComponentRenderer({
+  component,
+  runtimeValue,
+  runtimeTerminalLines,
+  onAction,
+}: ComponentRendererProps) {
   switch (component.type) {
     case "stat_card":
       return (
         <div className="card">
           <h3>{component.title}</h3>
-          <div className="stat-value">{component.value}</div>
+
+          <div className="stat-value">
+            {runtimeValue ?? component.value}
+          </div>
         </div>
       );
 
@@ -40,19 +45,27 @@ function ComponentRenderer({ component }: ComponentRendererProps) {
             <thead>
               <tr>
                 {component.columns?.map((column) => (
-                  <th key={column.key}>{column.label}</th>
+                  <th key={column.key}>
+                    {column.label}
+                  </th>
                 ))}
               </tr>
             </thead>
 
             <tbody>
-              {component.rows?.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {component.columns?.map((column) => (
-                    <td key={column.key}>{row[column.key]}</td>
-                  ))}
-                </tr>
-              ))}
+              {component.rows?.map(
+                (row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {component.columns?.map(
+                      (column) => (
+                        <td key={column.key}>
+                          {row[column.key]}
+                        </td>
+                      )
+                    )}
+                  </tr>
+                )
+              )}
             </tbody>
           </table>
         </div>
@@ -61,33 +74,53 @@ function ComponentRenderer({ component }: ComponentRendererProps) {
     case "button":
       return (
         <div className="card">
-          <button className="action-button" onClick={handleAction}>
+          <button
+            className="action-button"
+            onClick={() => {
+              if (component.actionId) {
+                onAction(component.actionId);
+              }
+            }}
+          >
             {component.label}
           </button>
-
-          {message && <p className="action-message">{message}</p>}
         </div>
       );
 
-    case "terminal":
+    case "terminal": {
+      const lines = [
+        ...(component.lines ?? []),
+        ...(runtimeTerminalLines ?? []),
+      ];
+
       return (
         <div className="terminal">
-          <div className="terminal-header">{component.title}</div>
+          <div className="terminal-header">
+            {component.title}
+          </div>
 
           <div className="terminal-body">
-            {component.lines?.map((line, index) => (
+            {lines.map((line, index) => (
               <div key={index}>
-                <span className="terminal-prompt">$</span> {line}
+                <span className="terminal-prompt">
+                  $
+                </span>{" "}
+                {line}
               </div>
             ))}
           </div>
         </div>
       );
+    }
 
     default:
       return (
         <div className="card">
-          <p>Unsupported component: {component.type}</p>
+          <p>
+            Unsupported component:
+            {" "}
+            {component.type}
+          </p>
         </div>
       );
   }

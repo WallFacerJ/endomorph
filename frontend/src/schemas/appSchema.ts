@@ -6,14 +6,33 @@ export type ComponentType =
   | "form"
   | "terminal";
 
+export type ActionType =
+  | "show_message"
+  | "update_value"
+  | "add_terminal_line";
+
 export interface TableColumn {
   key: string;
   label: string;
 }
 
+export interface AppAction {
+  id: string;
+  type: ActionType;
+
+  targetId?: string;
+
+  message?: string;
+
+  value?: string | number;
+
+  line?: string;
+}
+
 export interface AppComponent {
   id: string;
   type: ComponentType;
+
   title?: string;
   value?: string | number;
   content?: string;
@@ -22,7 +41,7 @@ export interface AppComponent {
   rows?: Record<string, string | number>[];
 
   label?: string;
-  action?: string;
+  actionId?: string;
 
   lines?: string[];
 }
@@ -35,5 +54,8 @@ export interface AppPage {
 
 export interface AppSpec {
   name: string;
+
+  actions: AppAction[];
+
   pages: AppPage[];
 }

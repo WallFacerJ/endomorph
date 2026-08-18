@@ -123,3 +123,12 @@ th {
 .terminal-prompt {
   color: #22c55e;
 }
+
+.global-message {
+  background: #14532d;
+  border: 1px solid #22c55e;
+  color: #dcfce7;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-top: 20px;
+}

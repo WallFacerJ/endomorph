@@ -2,7 +2,27 @@ import type { AppSpec } from "../schemas/appSchema";
 
 export const appConfig: AppSpec = {
   name: "Polymorph Security Console",
+    actions: [
+    {
+      id: "start_investigation",
+      type: "show_message",
+      message: "Investigation started successfully.",
+    },
 
+    {
+      id: "increase_alerts",
+      type: "update_value",
+      targetId: "active-alerts",
+      value: 18,
+    },
+
+    {
+      id: "terminal_event",
+      type: "add_terminal_line",
+      targetId: "terminal-window",
+      line: "Investigation process initialized.",
+    },
+  ],
   pages: [
     {
       id: "dashboard",
@@ -62,10 +82,10 @@ export const appConfig: AppSpec = {
         },
 
         {
-          id: "investigate-button",
-          type: "button",
-          label: "Start Investigation",
-          action: "start_investigation",
+            id: "investigate-button",
+            type: "button",
+            label: "Start Investigation",
+            actionId: "start_investigation",
         },
       ],
     },
