@@ -39,5 +39,18 @@ export function applySimulationEvent(
         },
       };
     }
+
+    case "AUTH_LOGIN_SUCCEEDED":
+    case "AUTH_LOGIN_FAILED":
+    case "PROCESS_STARTED":
+    case "FILE_ACCESSED":
+    case "NETWORK_CONNECTION":
+    case "ENDPOINT_HEARTBEAT":
+    case "ALERT_CREATED":
+      return {
+        ...world,
+        simulationTime:
+          event.timestamp,
+      };
   }
 }
