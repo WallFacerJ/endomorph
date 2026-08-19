@@ -9,6 +9,7 @@ import {
 export type SimulationEventFamily =
   | "authentication"
   | "identity"
+  | "session"
   | "process"
   | "file"
   | "network"
@@ -24,7 +25,12 @@ export function getSimulationEventFamily(
       return "authentication";
 
     case "ACCOUNT_DISABLED":
+    case "ACCOUNT_ENABLED":
       return "identity";
+
+    case "SESSION_STARTED":
+    case "SESSION_REVOKED":
+      return "session";
 
     case "PROCESS_STARTED":
       return "process";

@@ -55,6 +55,43 @@ function createEvent(
         },
       };
 
+    case "ACCOUNT_ENABLED":
+      return {
+        id: "event-account-enabled",
+        type,
+        timestamp:
+          "2026-08-18T09:00:00Z",
+        source: "identity",
+        payload: {
+          accountId: "account-001",
+        },
+      };
+
+    case "SESSION_STARTED":
+      return {
+        id: "event-session-started",
+        type,
+        timestamp:
+          "2026-08-18T09:00:00Z",
+        source: "identity",
+        payload: {
+          sessionId: "session-001",
+          accountId: "account-001",
+        },
+      };
+
+    case "SESSION_REVOKED":
+      return {
+        id: "event-session-revoked",
+        type,
+        timestamp:
+          "2026-08-18T09:30:00Z",
+        source: "identity",
+        payload: {
+          sessionId: "session-001",
+        },
+      };
+
     case "PROCESS_STARTED":
       return {
         id: "event-004",
@@ -159,6 +196,32 @@ describe("getSimulationEventFamily", () => {
         ),
       ),
     ).toBe("identity");
+
+    expect(
+      getSimulationEventFamily(
+        createEvent(
+          "ACCOUNT_ENABLED",
+        ),
+      ),
+    ).toBe("identity");
+  });
+
+  it("classifies session events", () => {
+    expect(
+      getSimulationEventFamily(
+        createEvent(
+          "SESSION_STARTED",
+        ),
+      ),
+    ).toBe("session");
+
+    expect(
+      getSimulationEventFamily(
+        createEvent(
+          "SESSION_REVOKED",
+        ),
+      ),
+    ).toBe("session");
   });
 
   it("classifies telemetry event families", () => {

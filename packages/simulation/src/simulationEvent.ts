@@ -70,8 +70,52 @@ export type AccountDisabledEvent =
     AccountDisabledPayload
   >;
 
+export interface AccountEnabledPayload {
+  accountId: EntityId;
+  reason?: string;
+}
+
+export type AccountEnabledEvent =
+  EventOf<
+    "ACCOUNT_ENABLED",
+    AccountEnabledPayload
+  >;
+
 export type IdentityEvent =
-  AccountDisabledEvent;
+  | AccountDisabledEvent
+  | AccountEnabledEvent;
+
+// -----------------------------------------------------------------------------
+// Sessions
+// -----------------------------------------------------------------------------
+
+export interface SessionStartedPayload {
+  sessionId: EntityId;
+  accountId: EntityId;
+  deviceId?: EntityId;
+  applicationId?: EntityId;
+}
+
+export type SessionStartedEvent =
+  EventOf<
+    "SESSION_STARTED",
+    SessionStartedPayload
+  >;
+
+export interface SessionRevokedPayload {
+  sessionId: EntityId;
+  reason?: string;
+}
+
+export type SessionRevokedEvent =
+  EventOf<
+    "SESSION_REVOKED",
+    SessionRevokedPayload
+  >;
+
+export type SessionEvent =
+  | SessionStartedEvent
+  | SessionRevokedEvent;
 
 // -----------------------------------------------------------------------------
 // Process execution
@@ -204,6 +248,7 @@ export type SecurityEvent =
 export type SimulationEvent =
   | AuthenticationEvent
   | IdentityEvent
+  | SessionEvent
   | ProcessEvent
   | FileEvent
   | NetworkEvent
