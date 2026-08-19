@@ -37,8 +37,7 @@ Build the shared synthetic enterprise domain model, then establish automated tes
 8. Add deterministic event reducers
 9. Add event store and replay
 10. Add projections for SIEM, EDR, identity, and other simulated applications
-11. Add event store and replay
-12. Add projections for SIEM, EDR, identity, and other simulated applications
+
 
 ## Architectural Direction
 
