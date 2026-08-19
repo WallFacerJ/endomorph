@@ -2,6 +2,8 @@ export * from "./worldState";
 export * from "./virtualClock";
 export * from "./seededRandom";
 export * from "./simulationEvent";
+export * from "./assertNever";
+export * from "./eventMetadata";
 export * from "./reducer";
 export * from "./replay";
 export * from "./eventStore";

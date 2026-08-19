@@ -6,6 +6,10 @@ import type {
   SimulationEvent,
 } from "./simulationEvent";
 
+import {
+  assertNever,
+} from "./assertNever";
+
 export function applySimulationEvent(
   world: WorldState,
   event: SimulationEvent,
@@ -52,5 +56,8 @@ export function applySimulationEvent(
         simulationTime:
           event.timestamp,
       };
+
+    default:
+      return assertNever(event);
   }
 }
