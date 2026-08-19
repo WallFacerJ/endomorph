@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Establish persistent project documentation, then convert the existing React prototype into a pnpm workspace/monorepo with runtime schema validation.
+Build the shared synthetic enterprise domain model, then establish automated testing before implementing the deterministic simulation runtime.
 
 ## Completed
 
@@ -17,19 +17,26 @@ Establish persistent project documentation, then convert the existing React prot
 - Behavior engine
 - Chained actions
 - Initial security-console style demo
+- pnpm workspace/monorepo established
+- Existing React application moved to `apps/web`
+- `@polymorph/schema` package created
+- Zod runtime validation added for application specifications
+- `@polymorph/domain` package created
+- Initial Organization, User, Account, Device, File, Session, Application, and Event models
+- Initial interconnected synthetic enterprise fixture
 
 ## Next Milestones
 
-1. Convert repository to pnpm workspaces
-2. Move the existing frontend into `apps/web`
-3. Create `packages/schema`
-4. Add Zod runtime validation
-5. Create `packages/domain`
-6. Model Organization, User, Account, Device, File, Session, Application, and Event
-7. Add Vitest
-8. Add GitHub Actions for build, type-check, lint, and tests
-9. Create `packages/simulation`
-10. Add VirtualClock, seeded randomness, WorldState, and deterministic reducers
+1. Add Vitest
+2. Test domain relationships and deterministic behavior
+3. Add GitHub Actions for build, type-check, lint, and tests
+4. Create `packages/simulation`
+5. Add `WorldState`
+6. Add `VirtualClock`
+7. Add seeded randomness
+8. Add deterministic event reducers
+9. Add event store and replay
+10. Add projections for SIEM, EDR, identity, and other simulated applications
 11. Add event store and replay
 12. Add projections for SIEM, EDR, identity, and other simulated applications
 
