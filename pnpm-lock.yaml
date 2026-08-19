@@ -62,6 +62,16 @@ importers:
         specifier: ~6.0.3
         version: 6.0.3
 
+  packages/simulation:
+    dependencies:
+      '@polymorph/domain':
+        specifier: workspace:*
+        version: link:../domain
+    devDependencies:
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
+
 packages:
 
   '@jridgewell/sourcemap-codec@1.5.5':
