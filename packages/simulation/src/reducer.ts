@@ -1,31 +1,34 @@
-import type {
-  WorldState,
-} from "./worldState";
+import {
+  assertNever,
+} from "./assertNever";
+
+import {
+  validateSimulationEvent,
+} from "./eventValidation";
 
 import type {
   SimulationEvent,
 } from "./simulationEvent";
 
-import {
-  assertNever,
-} from "./assertNever";
+import type {
+  WorldState,
+} from "./worldState";
 
 export function applySimulationEvent(
   world: WorldState,
   event: SimulationEvent,
 ): WorldState {
+  validateSimulationEvent(
+    world,
+    event,
+  );
+
   switch (event.type) {
     case "ACCOUNT_DISABLED": {
       const account =
         world.accounts[
           event.payload.accountId
         ];
-
-      if (!account) {
-        throw new Error(
-          `Account not found: ${event.payload.accountId}`,
-        );
-      }
 
       return {
         ...world,
@@ -49,12 +52,6 @@ export function applySimulationEvent(
         world.accounts[
           event.payload.accountId
         ];
-
-      if (!account) {
-        throw new Error(
-          `Account not found: ${event.payload.accountId}`,
-        );
-      }
 
       return {
         ...world,
@@ -80,42 +77,6 @@ export function applySimulationEvent(
         deviceId,
         applicationId,
       } = event.payload;
-
-      if (
-        world.sessions[sessionId]
-      ) {
-        throw new Error(
-          `Session already exists: ${sessionId}`,
-        );
-      }
-
-      if (
-        !world.accounts[accountId]
-      ) {
-        throw new Error(
-          `Account not found: ${accountId}`,
-        );
-      }
-
-      if (
-        deviceId &&
-        !world.devices[deviceId]
-      ) {
-        throw new Error(
-          `Device not found: ${deviceId}`,
-        );
-      }
-
-      if (
-        applicationId &&
-        !world.applications[
-          applicationId
-        ]
-      ) {
-        throw new Error(
-          `Application not found: ${applicationId}`,
-        );
-      }
 
       return {
         ...world,
@@ -145,12 +106,6 @@ export function applySimulationEvent(
           event.payload.sessionId
         ];
 
-      if (!session) {
-        throw new Error(
-          `Session not found: ${event.payload.sessionId}`,
-        );
-      }
-
       return {
         ...world,
 
@@ -179,6 +134,7 @@ export function applySimulationEvent(
     case "ALERT_CREATED":
       return {
         ...world,
+
         simulationTime:
           event.timestamp,
       };
