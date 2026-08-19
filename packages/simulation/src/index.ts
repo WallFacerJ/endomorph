@@ -4,3 +4,4 @@ export * from "./seededRandom";
 export * from "./simulationEvent";
 export * from "./reducer";
 export * from "./replay";
+export * from "./eventStore";
