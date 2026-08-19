@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Complete the deterministic simulation runtime foundation, then expand the typed cybersecurity event model and begin building projections over shared world state.
+Complete the typed cybersecurity event model and semantic validation foundation, then begin building event-driven projections over shared simulation history.
 
 ## Completed
 
@@ -25,30 +25,32 @@ Complete the deterministic simulation runtime foundation, then expand the typed 
 - Initial Organization, User, Account, Device, File, Session, Application, and Event models
 - Initial interconnected synthetic enterprise fixture
 - Vitest testing foundation established
-- Domain relationship tests added
-- GitHub Actions CI added for build, lint, and tests
+- GitHub Actions CI established
 - `@polymorph/simulation` package created
 - Normalized `WorldState`
 - Deterministic `VirtualClock`
 - Deterministic seeded pseudo-random generator
-- Typed `SimulationEvent` foundation
-- Pure deterministic event reducer
 - Append-only in-memory event store
 - Deterministic event replay
 - Simulation snapshots and snapshot-assisted replay
-- 40 automated tests passing across domain and simulation packages
+- Typed cybersecurity event families for authentication, identity, sessions, processes, files, network activity, endpoints, and alerts
+- Exhaustive event classification with compiler-enforced handling
+- Deterministic account enable/disable reducers
+- Deterministic session creation/revocation reducers
+- Reusable semantic event validation for world/entity references
+- 67 automated tests passing across domain and simulation packages
 
 ## Next Milestones
 
-1. Expand `SimulationEvent` into typed cybersecurity event families
-2. Add authentication and identity lifecycle events
-3. Add process, file, session, and endpoint events
-4. Expand deterministic reducers for those event families
-5. Add semantic validation for entity references and world invariants
-6. Add relationship indexes and serialization/deserialization for world state
-7. Add an event bus abstraction
-8. Build initial SIEM, EDR, and identity projections from shared events
-9. Prove that one event can consistently affect multiple projections
+1. Add an event bus abstraction
+2. Define projection interfaces
+3. Build an identity projection from shared events
+4. Build an EDR projection from shared events
+5. Build a SIEM projection from shared events
+6. Prove that one underlying event can affect multiple projections
+7. Add relationship indexes and broader world semantic validation
+8. Add serialization/deserialization for world state and snapshots
+9. Expand cybersecurity telemetry families where projections require them
 10. Begin the declarative scenario schema and scenario runtime
 
 ## Architectural Direction
@@ -61,6 +63,7 @@ Polymorph should evolve around these principles:
 - Shared synthetic world state
 - Append-only event history
 - Event sourcing and replayable projections
+- Typed cybersecurity event contracts
 - Schema validation plus semantic validation
 - Ground truth separated from analyst-visible knowledge
 - Capability-based authorization
