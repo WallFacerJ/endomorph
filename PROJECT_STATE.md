@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Build the shared synthetic enterprise domain model, then establish automated testing before implementing the deterministic simulation runtime.
+Complete the deterministic simulation runtime foundation, then expand the typed cybersecurity event model and begin building projections over shared world state.
 
 ## Completed
 
@@ -24,21 +24,32 @@ Build the shared synthetic enterprise domain model, then establish automated tes
 - `@polymorph/domain` package created
 - Initial Organization, User, Account, Device, File, Session, Application, and Event models
 - Initial interconnected synthetic enterprise fixture
+- Vitest testing foundation established
+- Domain relationship tests added
+- GitHub Actions CI added for build, lint, and tests
+- `@polymorph/simulation` package created
+- Normalized `WorldState`
+- Deterministic `VirtualClock`
+- Deterministic seeded pseudo-random generator
+- Typed `SimulationEvent` foundation
+- Pure deterministic event reducer
+- Append-only in-memory event store
+- Deterministic event replay
+- Simulation snapshots and snapshot-assisted replay
+- 40 automated tests passing across domain and simulation packages
 
 ## Next Milestones
 
-1. Add Vitest
-2. Test domain relationships and deterministic behavior
-3. Add GitHub Actions for build, type-check, lint, and tests
-4. Create `packages/simulation`
-5. Add `WorldState`
-6. Add `VirtualClock`
-7. Add seeded randomness
-8. Add deterministic event reducers
-9. Add event store and replay
-10. Add projections for SIEM, EDR, identity, and other simulated applications
-11. Add event store and replay
-12. Add projections for SIEM, EDR, identity, and other simulated applications
+1. Expand `SimulationEvent` into typed cybersecurity event families
+2. Add authentication and identity lifecycle events
+3. Add process, file, session, and endpoint events
+4. Expand deterministic reducers for those event families
+5. Add semantic validation for entity references and world invariants
+6. Add relationship indexes and serialization/deserialization for world state
+7. Add an event bus abstraction
+8. Build initial SIEM, EDR, and identity projections from shared events
+9. Prove that one event can consistently affect multiple projections
+10. Begin the declarative scenario schema and scenario runtime
 
 ## Architectural Direction
 
@@ -59,16 +70,23 @@ Polymorph should evolve around these principles:
 - UI as a projection of state rather than the source of truth
 - Strict simulation boundaries with synthetic data and no arbitrary generated host execution
 
-## Planned Technology Direction
+## Technology In Use
 
-Use technologies only when the architecture needs them.
-
-Likely additions:
-
+- React
+- TypeScript
+- Vite
 - pnpm workspaces
 - Zod
 - Vitest
 - GitHub Actions
+- Oxlint
+
+## Planned Technology Direction
+
+Add technologies only when the architecture needs them.
+
+Likely future additions:
+
 - XState when scenario statecharts justify it
 - Fastify when a backend API is introduced
 - PostgreSQL when durable persistence is required
