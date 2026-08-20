@@ -250,6 +250,26 @@ function createScenarioInput():
         ],
       },
     ],
+    objectives: [
+      {
+        id: "objective-session",
+        kind: "session_status",
+        label: "Revoke compromised session",
+        description:
+          "The suspicious session should be revoked.",
+        sessionId: ids.sessionId,
+        expectedStatus: "revoked",
+      },
+      {
+        id: "objective-account",
+        kind: "account_status",
+        label: "Disable compromised account",
+        description:
+          "The compromised account should be disabled.",
+        accountId: ids.accountId,
+        expectedStatus: "disabled",
+      },
+    ],
     investigation: {
       alertId: ids.alertId,
       userId: ids.userId,
@@ -282,9 +302,17 @@ describe("scenario compilation", () => {
         ids.sessionId
       ]?.status,
     ).toBe("active");
+
+    expect(first.outcome.status)
+      .toBe("in_progress");
+    expect(
+      first.outcome.objectives.map(
+        (objective) => objective.met,
+      ),
+    ).toEqual([false, false]);
   });
 
-  it("contains the incident through deterministic response events", () => {
+  it("contains the incident and satisfies all response objectives", () => {
     const scenario =
       compileScenarioDefinition(
         createScenarioInput(),
@@ -307,6 +335,14 @@ describe("scenario compilation", () => {
         ids.accountId
       ]?.status,
     ).toBe("disabled");
+
+    expect(state.outcome.status)
+      .toBe("succeeded");
+    expect(
+      state.outcome.objectives.every(
+        (objective) => objective.met,
+      ),
+    ).toBe(true);
   });
 
   it("keeps identity, EDR, and SIEM views coherent", () => {
@@ -380,6 +416,44 @@ describe("scenario compilation", () => {
       compileScenarioDefinition(input),
     ).toThrow(
       "investigation references missing user",
+    );
+  });
+
+  it("rejects invalid and duplicate objective references", () => {
+    const missing =
+      createScenarioInput();
+
+    missing.objectives = [
+      {
+        id: "objective-missing",
+        kind: "session_status",
+        label: "Missing session",
+        description: "Invalid target.",
+        sessionId: "missing-session",
+        expectedStatus: "revoked",
+      },
+    ];
+
+    expect(() =>
+      compileScenarioDefinition(missing),
+    ).toThrow(
+      "objective objective-missing references missing session",
+    );
+
+    const duplicate =
+      createScenarioInput();
+
+    duplicate.objectives = [
+      duplicate.objectives[0],
+      {
+        ...duplicate.objectives[0],
+      },
+    ];
+
+    expect(() =>
+      compileScenarioDefinition(duplicate),
+    ).toThrow(
+      "defines duplicate objective id: objective-session",
     );
   });
 
