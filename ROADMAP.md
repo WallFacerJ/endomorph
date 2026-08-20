@@ -22,6 +22,7 @@ Completed:
 - Move frontend to `apps/web`
 - Add `packages/schema`
 - Add Zod schemas for externally supplied application configuration
+- Add Zod structural validation for versioned scenario files
 - Add `packages/domain`
 - Add Vitest
 - Add root build, lint, and test commands
@@ -30,7 +31,7 @@ Completed:
 
 Remaining:
 
-- Expand semantic validation for externally supplied definitions and invariants
+- Expand semantic validation for externally supplied definitions and invariants as new definition families are added
 - Improve fresh-clone development/build ergonomics where needed
 
 Exit criteria:
@@ -74,6 +75,7 @@ Implemented runtime:
 - Session temporal invariant validation
 - Versioned deterministic world-state serialization/deserialization
 - Structural and semantic validation at the serialization boundary
+- Author-friendly scenario world seeds compiled into canonical `WorldState`
 
 Remaining:
 
@@ -106,6 +108,7 @@ Implemented:
 - Generic pure projection contract
 - Live projection application and ordered-history rebuild
 - Versioned deterministic snapshot serialization/deserialization
+- Minimal deterministic scenario runtime over opening history and response events
 - Automated determinism and replay-equivalence tests
 
 Remaining:
@@ -113,7 +116,7 @@ Remaining:
 - Additional deterministic reducers
 - Persistent event store abstraction when durable persistence is required
 - Time controls: pause, resume, speed, and jump via snapshot/replay
-- End-to-end proof that same scenario + same seed produces identical event history and final world state
+- End-to-end proof that same scenario + same seed produces identical generated event history and final world state once scenario generation uses seeded variability
 
 Exit criteria:
 
@@ -162,21 +165,34 @@ Exit criteria:
 
 ## Phase 5 - Scenario Engine
 
-Status: ready to start.
+Status: in progress.
 
 Goal: represent incidents as declarative scenarios rather than hardcoded scripts.
 
-- Scenario schema
-- Timeline events
+Implemented:
+
+- Versioned JSON scenario-file envelope
+- Zod structural schema for current world entity and simulation event families
+- Author-friendly initial world seed
+- Ordered opening event timeline
+- Deterministic analyst response actions
+- Investigation focus metadata for alert/user/account/device/session/action pivots
+- Semantic scenario compiler using canonical world/event validation and replay
+- Clear browser validation failures for malformed or semantically invalid scenario files
+- Editable account-compromise example scenario
+- Contributor-selectable local scenario files under `/scenarios/`
+- Scenario authoring documentation
+
+Remaining:
+
 - Preconditions
 - Triggers
-- State transitions
+- Richer state transitions
 - Branches
 - Success/failure conditions
-- Ground-truth timeline
-- Analyst-visible evidence model
+- Ground-truth timeline metadata distinct from analyst-visible evidence
 - MITRE ATT&CK mappings where appropriate
-- Scenario compiler and linter
+- Dedicated scenario linter/headless validation entry point
 
 Potential XState adoption belongs here if statecharts provide clear value.
 
@@ -188,17 +204,27 @@ Exit criteria:
 
 ## Phase 6 - Analyst and Instructor Experience
 
-Status: not started.
+Status: in progress; first analyst slice is playable.
 
 Goal: turn the runtime into a usable cyber-range training platform.
 
-- Analyst workspace
-- Incident queue
+Implemented analyst slice:
+
+- Alert-first investigation workspace
+- Correlated SIEM timeline
+- Identity and endpoint pivots
+- Synthetic process/network evidence views
+- Deterministic containment action
+- Scenario reset/replay
+- Manual browser testing of the first investigation
+
+Remaining:
+
 - Evidence collection
 - Notes/findings
-- Containment/remediation actions
+- Multiple containment/remediation choices
+- Explicit scenario outcomes
 - Instructor controls
-- Scenario reset/replay
 - Hidden ground truth
 - Scoring
 - Timeline comparison
