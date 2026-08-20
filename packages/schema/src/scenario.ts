@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+import {
+  scenarioObjectiveSchema,
+} from "./scenarioObjective";
+
 export const SCENARIO_FILE_VERSION = 1;
 
 const nonEmptyStringSchema =
@@ -413,6 +417,9 @@ export const scenarioSpecSchema =
       z.array(scenarioEventSchema),
     actions:
       z.array(scenarioActionSchema),
+    objectives:
+      z.array(scenarioObjectiveSchema)
+        .min(1),
     investigation:
       scenarioInvestigationSchema,
   }).strict();
