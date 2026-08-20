@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Prove coherent identity, EDR, and SIEM views over the same shared simulation history, then continue the remaining world/runtime foundations needed before declarative scenarios and analyst-facing workflows.
+Finish the remaining shared-world/runtime foundations—relationship indexes, broader semantic validation, and serialization—before beginning declarative scenarios and analyst-facing workflows.
 
 ## Completed
 
@@ -47,15 +47,16 @@ Prove coherent identity, EDR, and SIEM views over the same shared simulation his
 - Deterministic SIEM event-family/type counters and alert correlation metadata
 - Live/replay projection equivalence coverage
 - Multi-subscriber and multi-projection observation of shared events
+- Correlated login → process execution → alert coherence proof across identity, EDR, and SIEM
+- Live/replay equivalence for the correlated cross-projection incident history
 - Automated test coverage across domain and simulation packages
 
 ## Next Milestones
 
-1. Prove coherent identity, EDR, and SIEM views over one correlated security event sequence
-2. Add relationship indexes and broader world semantic validation
-3. Add serialization/deserialization for world state and snapshots
-4. Expand cybersecurity telemetry families where projections require them
-5. Begin the declarative scenario schema and scenario runtime
+1. Add relationship indexes and broader world semantic validation
+2. Add serialization/deserialization for world state and snapshots
+3. Expand cybersecurity telemetry families where projections require them
+4. Begin the declarative scenario schema and scenario runtime
 
 ## Architectural Direction
 
