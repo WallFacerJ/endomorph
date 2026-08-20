@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - chore/web-simulation-workspace-dependency
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
