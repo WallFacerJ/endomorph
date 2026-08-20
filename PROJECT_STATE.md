@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Complete the typed cybersecurity event model and semantic validation foundation, then begin building event-driven projections over shared simulation history.
+Expand event-driven security projections over shared simulation history, starting with EDR and SIEM on top of the deterministic event bus and projection foundation.
 
 ## Completed
 
@@ -38,20 +38,22 @@ Complete the typed cybersecurity event model and semantic validation foundation,
 - Deterministic account enable/disable reducers
 - Deterministic session creation/revocation reducers
 - Reusable semantic event validation for world/entity references
-- 67 automated tests passing across domain and simulation packages
+- Deterministic synchronous in-memory event bus with registration-order delivery and unsubscribe support
+- Generic pure projection contract with live application and ordered-history rebuild
+- Identity activity projection over authentication, account, and session events
+- Live/replay projection equivalence coverage
+- Multi-subscriber and multi-projection observation of one shared event
+- Automated test coverage across domain and simulation packages
 
 ## Next Milestones
 
-1. Add an event bus abstraction
-2. Define projection interfaces
-3. Build an identity projection from shared events
-4. Build an EDR projection from shared events
-5. Build a SIEM projection from shared events
-6. Prove that one underlying event can affect multiple projections
-7. Add relationship indexes and broader world semantic validation
-8. Add serialization/deserialization for world state and snapshots
-9. Expand cybersecurity telemetry families where projections require them
-10. Begin the declarative scenario schema and scenario runtime
+1. Build an EDR projection from shared events
+2. Build a SIEM projection from shared events
+3. Prove that one underlying security event produces coherent identity, EDR, and SIEM views
+4. Add relationship indexes and broader world semantic validation
+5. Add serialization/deserialization for world state and snapshots
+6. Expand cybersecurity telemetry families where projections require them
+7. Begin the declarative scenario schema and scenario runtime
 
 ## Architectural Direction
 

@@ -93,18 +93,19 @@ Implemented:
 
 - `VirtualClock`
 - Seeded pseudo-random generator
-- Typed `SimulationEvent` foundation
+- Typed `SimulationEvent` families
 - Append-only in-memory event store
 - Deterministic world reducer
 - Snapshots
 - Replay
 - Snapshot-assisted replay
-- Automated determinism tests
+- Deterministic synchronous in-memory event bus
+- Generic pure projection contract
+- Live projection application and ordered-history rebuild
+- Automated determinism and replay-equivalence tests
 
 Remaining:
 
-- Expand typed event definitions
-- Event bus abstraction
 - Additional deterministic reducers
 - Persistent event store abstraction
 - Time controls: pause, resume, speed, and jump via snapshot/replay
@@ -118,26 +119,34 @@ Exit criteria:
 
 ## Phase 4 - Cybersecurity Telemetry and Projections
 
-Status: not started.
+Status: in progress.
 
 Goal: make the synthetic world observable through security applications.
 
-Synthetic event families:
+Implemented synthetic event families:
 
 - Authentication
 - Process execution
 - File access
 - Network activity
-- Email activity
 - Account/permission changes
 - Endpoint state changes
 - Security detections
 
-Initial projections:
+Planned event families:
 
-- SIEM
+- Email activity
+- Additional telemetry required by projections and scenarios
+
+Implemented projections:
+
+- Identity activity/audit projection over authentication, account, and session events
+- Shared-event multi-projection delivery foundation
+
+Remaining projections:
+
 - EDR
-- Identity administration
+- SIEM
 - Email
 - Endpoint inventory
 
