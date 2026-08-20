@@ -59,6 +59,17 @@ function createValidFile(): unknown {
           ],
         },
       ],
+      objectives: [
+        {
+          id: "objective-001",
+          kind: "account_status",
+          label: "Disable account",
+          description:
+            "The affected account should be disabled.",
+          accountId: "account-001",
+          expectedStatus: "disabled",
+        },
+      ],
       investigation: {
         alertId: "alert-001",
         userId: "user-001",
@@ -91,6 +102,13 @@ describe("scenario file schema", () => {
       files: [],
       applications: [],
       sessions: [],
+    });
+
+    expect(
+      parsed.scenario.objectives[0],
+    ).toMatchObject({
+      kind: "account_status",
+      expectedStatus: "disabled",
     });
   });
 
@@ -127,6 +145,38 @@ describe("scenario file schema", () => {
 
     expect(() =>
       parseScenarioFile(input),
+    ).toThrow();
+  });
+
+  it("rejects missing or unsupported objectives", () => {
+    const missing =
+      createValidFile() as {
+        scenario: {
+          objectives?: unknown[];
+        };
+      };
+
+    delete missing.scenario.objectives;
+
+    expect(() =>
+      parseScenarioFile(missing),
+    ).toThrow();
+
+    const unsupported =
+      createValidFile() as {
+        scenario: {
+          objectives: Array<
+            Record<string, unknown>
+          >;
+        };
+      };
+
+    unsupported.scenario
+      .objectives[0].kind =
+      "javascript_expression";
+
+    expect(() =>
+      parseScenarioFile(unsupported),
     ).toThrow();
   });
 
