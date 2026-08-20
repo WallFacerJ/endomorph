@@ -17,5 +17,5 @@ export * from "./identityProjection";
 export * from "./edrProjection";
 export * from "./siemProjection";
 export * from "./scenario";
-export * from "./accountCompromiseScenario";
+export * from "./scenarioCompiler";
 export * from "./snapshot";
