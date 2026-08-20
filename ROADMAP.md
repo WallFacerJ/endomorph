@@ -141,11 +141,11 @@ Planned event families:
 Implemented projections:
 
 - Identity activity/audit projection over authentication, account, and session events
+- EDR telemetry projection over endpoint, process, file, network, and alert events
 - Shared-event multi-projection delivery foundation
 
 Remaining projections:
 
-- EDR
 - SIEM
 - Email
 - Endpoint inventory

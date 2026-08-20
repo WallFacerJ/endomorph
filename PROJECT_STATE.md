@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Expand event-driven security projections over shared simulation history, starting with EDR and SIEM on top of the deterministic event bus and projection foundation.
+Expand event-driven security projections over shared simulation history, with SIEM and cross-projection coherence next on top of the deterministic event bus and projection foundation.
 
 ## Completed
 
@@ -41,19 +41,20 @@ Expand event-driven security projections over shared simulation history, startin
 - Deterministic synchronous in-memory event bus with registration-order delivery and unsubscribe support
 - Generic pure projection contract with live application and ordered-history rebuild
 - Identity activity projection over authentication, account, and session events
+- EDR telemetry projection over endpoint, process, file, network, and alert events
+- Latest endpoint observations plus ordered EDR telemetry with shared event correlation ids
 - Live/replay projection equivalence coverage
 - Multi-subscriber and multi-projection observation of one shared event
 - Automated test coverage across domain and simulation packages
 
 ## Next Milestones
 
-1. Build an EDR projection from shared events
-2. Build a SIEM projection from shared events
-3. Prove that one underlying security event produces coherent identity, EDR, and SIEM views
-4. Add relationship indexes and broader world semantic validation
-5. Add serialization/deserialization for world state and snapshots
-6. Expand cybersecurity telemetry families where projections require them
-7. Begin the declarative scenario schema and scenario runtime
+1. Build a SIEM projection from shared events
+2. Prove that one underlying security event produces coherent identity, EDR, and SIEM views
+3. Add relationship indexes and broader world semantic validation
+4. Add serialization/deserialization for world state and snapshots
+5. Expand cybersecurity telemetry families where projections require them
+6. Begin the declarative scenario schema and scenario runtime
 
 ## Architectural Direction
 
