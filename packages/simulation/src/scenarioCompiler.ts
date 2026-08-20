@@ -21,6 +21,10 @@ import type {
   ScenarioInvestigationContext,
 } from "./scenario";
 
+import type {
+  ScenarioObjective,
+} from "./scenarioOutcome";
+
 export interface ScenarioDefinitionInput {
   id: string;
 
@@ -35,6 +39,9 @@ export interface ScenarioDefinitionInput {
 
   actions:
     readonly ScenarioAction[];
+
+  objectives:
+    readonly ScenarioObjective[];
 
   investigation:
     ScenarioInvestigationContext;
@@ -125,6 +132,10 @@ export function compileScenarioDefinition(
             action.events,
           ),
       })),
+    objectives:
+      structuredClone(
+        input.objectives,
+      ),
     investigation: {
       ...input.investigation,
     },
