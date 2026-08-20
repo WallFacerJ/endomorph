@@ -1,0 +1,232 @@
+{
+  "version": 1,
+  "kind": "polymorph-scenario",
+  "scenario": {
+    "id": "scenario-account-compromise-001",
+    "name": "Suspicious PowerShell after account compromise",
+    "description": "Investigate a suspicious login followed by encoded PowerShell activity and a correlated endpoint alert.",
+    "initialWorld": {
+      "simulationTime": "2026-08-20T15:00:00Z",
+      "organizations": [
+        {
+          "id": "org-acme",
+          "name": "Acme Financial",
+          "status": "active",
+          "departments": [
+            "Finance",
+            "Human Resources",
+            "Information Technology",
+            "Security"
+          ]
+        }
+      ],
+      "users": [
+        {
+          "id": "user-sarah-martinez",
+          "organizationId": "org-acme",
+          "displayName": "Sarah Martinez",
+          "email": "sarah.martinez@acme.test",
+          "department": "Finance",
+          "title": "Senior Financial Analyst",
+          "status": "active",
+          "accountIds": [
+            "account-smartinez"
+          ],
+          "deviceIds": [
+            "device-fin-lt-04"
+          ]
+        }
+      ],
+      "accounts": [
+        {
+          "id": "account-smartinez",
+          "organizationId": "org-acme",
+          "userId": "user-sarah-martinez",
+          "username": "smartinez",
+          "provider": "Acme Identity",
+          "status": "active",
+          "roles": [
+            "finance-user"
+          ]
+        }
+      ],
+      "devices": [
+        {
+          "id": "device-fin-lt-04",
+          "organizationId": "org-acme",
+          "hostname": "FIN-LT-04",
+          "operatingSystem": "Windows 11",
+          "status": "active",
+          "ownerUserId": "user-sarah-martinez",
+          "ipAddresses": [
+            "10.20.30.44"
+          ]
+        }
+      ],
+      "files": [],
+      "applications": [
+        {
+          "id": "app-identity",
+          "organizationId": "org-acme",
+          "name": "Acme Identity",
+          "kind": "identity",
+          "status": "active"
+        },
+        {
+          "id": "app-edr",
+          "organizationId": "org-acme",
+          "name": "Acme Endpoint Defense",
+          "kind": "edr",
+          "status": "active"
+        },
+        {
+          "id": "app-siem",
+          "organizationId": "org-acme",
+          "name": "Acme Security Analytics",
+          "kind": "siem",
+          "status": "active"
+        }
+      ],
+      "sessions": []
+    },
+    "openingEvents": [
+      {
+        "id": "event-endpoint-heartbeat",
+        "type": "ENDPOINT_HEARTBEAT",
+        "timestamp": "2026-08-20T15:00:00Z",
+        "source": "edr",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "deviceId": "device-fin-lt-04",
+          "status": "active",
+          "ipAddresses": [
+            "10.20.30.44"
+          ]
+        }
+      },
+      {
+        "id": "event-compromise-login",
+        "type": "AUTH_LOGIN_SUCCEEDED",
+        "timestamp": "2026-08-20T15:01:00Z",
+        "source": "identity",
+        "actorId": "account-smartinez",
+        "subjectId": "user-sarah-martinez",
+        "payload": {
+          "accountId": "account-smartinez",
+          "userId": "user-sarah-martinez",
+          "deviceId": "device-fin-lt-04",
+          "applicationId": "app-identity",
+          "sourceIp": "185.220.101.42"
+        }
+      },
+      {
+        "id": "event-compromise-session",
+        "type": "SESSION_STARTED",
+        "timestamp": "2026-08-20T15:01:01Z",
+        "source": "identity",
+        "actorId": "account-smartinez",
+        "subjectId": "user-sarah-martinez",
+        "payload": {
+          "sessionId": "session-smartinez-compromised",
+          "accountId": "account-smartinez",
+          "deviceId": "device-fin-lt-04",
+          "applicationId": "app-identity"
+        }
+      },
+      {
+        "id": "event-compromise-powershell",
+        "type": "PROCESS_STARTED",
+        "timestamp": "2026-08-20T15:03:15Z",
+        "source": "edr",
+        "actorId": "account-smartinez",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "deviceId": "device-fin-lt-04",
+          "processId": "8420",
+          "image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "commandLine": "powershell.exe -NoProfile -EncodedCommand <synthetic-encoded-command>",
+          "parentProcessId": "6172",
+          "accountId": "account-smartinez"
+        }
+      },
+      {
+        "id": "event-compromise-network",
+        "type": "NETWORK_CONNECTION",
+        "timestamp": "2026-08-20T15:03:19Z",
+        "source": "edr",
+        "actorId": "account-smartinez",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "deviceId": "device-fin-lt-04",
+          "protocol": "tcp",
+          "sourceIp": "10.20.30.44",
+          "destinationIp": "203.0.113.77",
+          "sourcePort": 49722,
+          "destinationPort": 443
+        }
+      },
+      {
+        "id": "event-compromise-alert",
+        "type": "ALERT_CREATED",
+        "timestamp": "2026-08-20T15:03:25Z",
+        "source": "edr",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "alertId": "alert-compromise-powershell",
+          "title": "Suspicious encoded PowerShell after unusual login",
+          "severity": "high",
+          "applicationId": "app-edr",
+          "relatedEventIds": [
+            "event-compromise-login",
+            "event-compromise-powershell",
+            "event-compromise-network"
+          ],
+          "relatedEntityIds": [
+            "user-sarah-martinez",
+            "account-smartinez",
+            "device-fin-lt-04"
+          ]
+        }
+      }
+    ],
+    "actions": [
+      {
+        "id": "contain_incident",
+        "label": "Contain incident",
+        "description": "Revoke the active session and disable the compromised account.",
+        "events": [
+          {
+            "id": "event-containment-session-revoked",
+            "type": "SESSION_REVOKED",
+            "timestamp": "2026-08-20T15:05:00Z",
+            "source": "identity",
+            "subjectId": "user-sarah-martinez",
+            "payload": {
+              "sessionId": "session-smartinez-compromised",
+              "reason": "Analyst containment after correlated endpoint alert."
+            }
+          },
+          {
+            "id": "event-containment-account-disabled",
+            "type": "ACCOUNT_DISABLED",
+            "timestamp": "2026-08-20T15:05:01Z",
+            "source": "identity",
+            "subjectId": "user-sarah-martinez",
+            "payload": {
+              "accountId": "account-smartinez",
+              "reason": "Analyst containment after correlated endpoint alert."
+            }
+          }
+        ]
+      }
+    ],
+    "investigation": {
+      "alertId": "alert-compromise-powershell",
+      "userId": "user-sarah-martinez",
+      "accountId": "account-smartinez",
+      "deviceId": "device-fin-lt-04",
+      "sessionId": "session-smartinez-compromised",
+      "primaryActionId": "contain_incident"
+    }
+  }
+}
