@@ -28,6 +28,20 @@ export interface ScenarioAction {
   events: readonly SimulationEvent[];
 }
 
+export interface ScenarioInvestigationContext {
+  alertId: string;
+
+  userId: string;
+
+  accountId: string;
+
+  deviceId: string;
+
+  sessionId: string;
+
+  primaryActionId: string;
+}
+
 export interface ScenarioDefinition {
   id: string;
 
@@ -40,6 +54,9 @@ export interface ScenarioDefinition {
   openingEvents: readonly SimulationEvent[];
 
   actions: readonly ScenarioAction[];
+
+  investigation:
+    ScenarioInvestigationContext;
 }
 
 export interface ScenarioState {

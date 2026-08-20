@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export * from "./scenario";
+
 export const componentTypeSchema = z.enum([
   "stat_card",
   "table",
@@ -48,8 +50,8 @@ export const appComponentSchema = z.object({
     .array(
       z.record(
         z.string(),
-        scalarValueSchema
-      )
+        scalarValueSchema,
+      ),
     )
     .optional(),
 
@@ -92,6 +94,8 @@ export type AppPage =
 export type AppSpec =
   z.infer<typeof appSpecSchema>;
 
-export function parseAppSpec(input: unknown): AppSpec {
+export function parseAppSpec(
+  input: unknown,
+): AppSpec {
   return appSpecSchema.parse(input);
 }

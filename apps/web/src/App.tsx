@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -6,14 +7,21 @@ import {
 import "./App.css";
 
 import {
-  accountCompromiseScenario,
-  accountCompromiseScenarioIds,
   edrProjection,
   getScenarioState,
   identityProjection,
   rebuildProjection,
   siemProjection,
 } from "./simulationAdapter";
+
+import type {
+  ScenarioDefinition,
+} from "./simulationAdapter";
+
+import {
+  loadScenario,
+  resolveScenarioPath,
+} from "./scenarioLoader";
 
 type WorkspaceView =
   | "alerts"
@@ -49,9 +57,17 @@ function formatTimestamp(
   ).format(new Date(timestamp));
 }
 
-function App() {
-  const ids =
-    accountCompromiseScenarioIds;
+interface ScenarioWorkspaceProps {
+  scenario: ScenarioDefinition;
+  scenarioPath: string;
+}
+
+function ScenarioWorkspace({
+  scenario,
+  scenarioPath,
+}: ScenarioWorkspaceProps) {
+  const context =
+    scenario.investigation;
 
   const [activeView, setActiveView] =
     useState<WorkspaceView>(
@@ -63,10 +79,13 @@ function App() {
   const scenarioState = useMemo(
     () =>
       getScenarioState(
-        accountCompromiseScenario,
+        scenario,
         performedActionIds,
       ),
-    [performedActionIds],
+    [
+      scenario,
+      performedActionIds,
+    ],
   );
 
   const projections = useMemo(
@@ -89,47 +108,80 @@ function App() {
 
   const user =
     scenarioState.world.users[
-      ids.userId
+      context.userId
     ];
   const account =
     scenarioState.world.accounts[
-      ids.accountId
+      context.accountId
     ];
   const device =
     scenarioState.world.devices[
-      ids.deviceId
+      context.deviceId
     ];
   const session =
     scenarioState.world.sessions[
-      ids.sessionId
+      context.sessionId
     ];
 
   const alert =
-    projections.edr.alerts[0];
+    projections.edr.alerts.find(
+      (candidate) =>
+        candidate.alertId ===
+        context.alertId,
+    );
+
   const process =
-    projections.edr.processes[0];
+    projections.edr.processes.find(
+      (candidate) =>
+        alert?.relatedEventIds.includes(
+          candidate.eventId,
+        ),
+    ) ?? projections.edr.processes[0];
+
   const connection =
+    projections.edr.networkConnections.find(
+      (candidate) =>
+        alert?.relatedEventIds.includes(
+          candidate.eventId,
+        ),
+    ) ??
     projections.edr.networkConnections[0];
+
   const loginActivity =
+    projections.identity.activity.find(
+      (activity) =>
+        activity.kind ===
+          "login_succeeded" &&
+        alert?.relatedEventIds.includes(
+          activity.eventId,
+        ),
+    ) ??
     projections.identity.activity.find(
       (activity) =>
         activity.kind ===
         "login_succeeded",
     );
 
+  const primaryAction =
+    scenario.actions.find(
+      (action) =>
+        action.id ===
+        context.primaryActionId,
+    );
+
   const contained =
     performedActionIds.includes(
-      ids.containmentActionId,
+      context.primaryActionId,
     );
 
   const containIncident = () => {
-    if (contained) {
+    if (contained || !primaryAction) {
       return;
     }
 
     setPerformedActionIds((current) => [
       ...current,
-      ids.containmentActionId,
+      primaryAction.id,
     ]);
     setActiveView("timeline");
   };
@@ -150,30 +202,35 @@ function App() {
           <p className="sidebar-copy">
             Synthetic analyst workspace
           </p>
-        </div>
 
-        <nav className="workspace-nav">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={
-                activeView === item.id
-                  ? "nav-item active"
-                  : "nav-item"
-              }
-              onClick={() =>
-                setActiveView(item.id)
-              }
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
+          <nav className="workspace-nav">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={
+                  activeView === item.id
+                    ? "nav-item active"
+                    : "nav-item"
+                }
+                onClick={() =>
+                  setActiveView(item.id)
+                }
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        </div>
 
         <div className="sidebar-footer">
           <span className="status-dot" />
-          Deterministic training run
+          <span>
+            Deterministic run
+            <small>
+              {scenarioPath}
+            </small>
+          </span>
         </div>
       </aside>
 
@@ -184,10 +241,10 @@ function App() {
               Training scenario
             </p>
             <h2>
-              {accountCompromiseScenario.name}
+              {scenario.name}
             </h2>
             <p className="scenario-description">
-              {accountCompromiseScenario.description}
+              {scenario.description}
             </p>
           </div>
 
@@ -238,10 +295,10 @@ function App() {
 
               <h3>
                 {alert?.title ??
-                  "Suspicious PowerShell activity"}
+                  "Security alert"}
               </h3>
               <p>
-                Correlated identity and endpoint telemetry indicates a suspicious login was followed by encoded PowerShell and an outbound connection.
+                Correlated identity and endpoint telemetry indicates activity that requires analyst review.
               </p>
 
               <div className="detail-grid compact">
@@ -302,7 +359,8 @@ function App() {
               >
                 {contained
                   ? "Incident contained"
-                  : "Contain incident"}
+                  : primaryAction?.label ??
+                    "Perform response"}
               </button>
             </div>
 
@@ -426,7 +484,8 @@ function App() {
                   Process execution
                 </p>
                 <h4>
-                  {process?.image ?? "No process telemetry"}
+                  {process?.image ??
+                    "No process telemetry"}
                 </h4>
                 <code>
                   {process?.commandLine ?? "—"}
@@ -530,6 +589,106 @@ function App() {
         )}
       </main>
     </div>
+  );
+}
+
+function App() {
+  const scenarioPath = useMemo(
+    () =>
+      resolveScenarioPath(
+        window.location.search,
+      ),
+    [],
+  );
+
+  const [scenario, setScenario] =
+    useState<ScenarioDefinition | null>(
+      null,
+    );
+  const [error, setError] =
+    useState<string | null>(null);
+  const [reloadToken, setReloadToken] =
+    useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setScenario(null);
+    setError(null);
+
+    loadScenario(scenarioPath)
+      .then((loaded) => {
+        if (!cancelled) {
+          setScenario(loaded);
+        }
+      })
+      .catch((caught: unknown) => {
+        if (cancelled) {
+          return;
+        }
+
+        setError(
+          caught instanceof Error
+            ? caught.message
+            : String(caught),
+        );
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [scenarioPath, reloadToken]);
+
+  if (error) {
+    return (
+      <main className="scenario-load-state">
+        <p className="eyebrow">
+          Scenario validation failed
+        </p>
+        <h1>Polymorph could not load this scenario.</h1>
+        <p>
+          Fix the JSON or semantic error, then retry.
+        </p>
+        <code className="scenario-path">
+          {scenarioPath}
+        </code>
+        <pre className="scenario-error">
+          {error}
+        </pre>
+        <button
+          type="button"
+          className="primary-button"
+          onClick={() =>
+            setReloadToken((current) =>
+              current + 1,
+            )
+          }
+        >
+          Retry scenario
+        </button>
+      </main>
+    );
+  }
+
+  if (!scenario) {
+    return (
+      <main className="scenario-load-state">
+        <p className="eyebrow">
+          Loading scenario
+        </p>
+        <h1>Preparing deterministic training run…</h1>
+        <code className="scenario-path">
+          {scenarioPath}
+        </code>
+      </main>
+    );
+  }
+
+  return (
+    <ScenarioWorkspace
+      scenario={scenario}
+      scenarioPath={scenarioPath}
+    />
   );
 }
 

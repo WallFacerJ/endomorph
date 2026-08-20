@@ -1,12 +1,15 @@
-// Keep the prototype's simulation imports centralized until the web package
-// formally consumes @polymorph/simulation as a workspace dependency.
+// Keep simulation imports centralized until the web package formally
+// consumes @polymorph/simulation as a workspace dependency.
 export {
-  accountCompromiseScenario,
-  accountCompromiseScenarioIds,
-} from "../../../packages/simulation/src/accountCompromiseScenario.ts";
+  compileScenarioDefinition,
+} from "../../../packages/simulation/src/scenarioCompiler.ts";
 
 export {
   getScenarioState,
+} from "../../../packages/simulation/src/scenario.ts";
+
+export type {
+  ScenarioDefinition,
 } from "../../../packages/simulation/src/scenario.ts";
 
 export {
