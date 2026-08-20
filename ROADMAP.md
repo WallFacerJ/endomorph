@@ -142,11 +142,11 @@ Implemented projections:
 
 - Identity activity/audit projection over authentication, account, and session events
 - EDR telemetry projection over endpoint, process, file, network, and alert events
+- SIEM normalized event projection over all current event families
 - Shared-event multi-projection delivery foundation
 
 Remaining projections:
 
-- SIEM
 - Email
 - Endpoint inventory
 

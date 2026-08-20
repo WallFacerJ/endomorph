@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Expand event-driven security projections over shared simulation history, with SIEM and cross-projection coherence next on top of the deterministic event bus and projection foundation.
+Prove coherent identity, EDR, and SIEM views over the same shared simulation history, then continue the remaining world/runtime foundations needed before declarative scenarios and analyst-facing workflows.
 
 ## Completed
 
@@ -43,18 +43,19 @@ Expand event-driven security projections over shared simulation history, with SI
 - Identity activity projection over authentication, account, and session events
 - EDR telemetry projection over endpoint, process, file, network, and alert events
 - Latest endpoint observations plus ordered EDR telemetry with shared event correlation ids
+- SIEM normalized event projection across all current event families
+- Deterministic SIEM event-family/type counters and alert correlation metadata
 - Live/replay projection equivalence coverage
-- Multi-subscriber and multi-projection observation of one shared event
+- Multi-subscriber and multi-projection observation of shared events
 - Automated test coverage across domain and simulation packages
 
 ## Next Milestones
 
-1. Build a SIEM projection from shared events
-2. Prove that one underlying security event produces coherent identity, EDR, and SIEM views
-3. Add relationship indexes and broader world semantic validation
-4. Add serialization/deserialization for world state and snapshots
-5. Expand cybersecurity telemetry families where projections require them
-6. Begin the declarative scenario schema and scenario runtime
+1. Prove coherent identity, EDR, and SIEM views over one correlated security event sequence
+2. Add relationship indexes and broader world semantic validation
+3. Add serialization/deserialization for world state and snapshots
+4. Expand cybersecurity telemetry families where projections require them
+5. Begin the declarative scenario schema and scenario runtime
 
 ## Architectural Direction
 

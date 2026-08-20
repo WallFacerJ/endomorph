@@ -12,4 +12,5 @@ export * from "./eventBus";
 export * from "./projection";
 export * from "./identityProjection";
 export * from "./edrProjection";
+export * from "./siemProjection";
 export * from "./snapshot";
