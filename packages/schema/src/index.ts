@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export * from "./scenario";
+export * from "./scenarioObjective";
 
 export const componentTypeSchema = z.enum([
   "stat_card",
