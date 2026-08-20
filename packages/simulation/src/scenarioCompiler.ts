@@ -1,20 +1,9 @@
 import {
-  parseScenarioFile,
-  parseScenarioJson,
-} from "@polymorph/schema";
+  createWorldState,
+} from "./worldState";
 
 import type {
-  ScenarioEventSpec,
-  ScenarioFile,
-  ScenarioSpec,
-} from "@polymorph/schema";
-
-import {
-  assertNever,
-} from "./assertNever";
-
-import {
-  createWorldState,
+  WorldSeed,
 } from "./worldState";
 
 import type {
@@ -27,29 +16,28 @@ import {
 } from "./scenario";
 
 import type {
+  ScenarioAction,
   ScenarioDefinition,
+  ScenarioInvestigationContext,
 } from "./scenario";
 
-function compileEvent(
-  event: ScenarioEventSpec,
-): SimulationEvent {
-  switch (event.type) {
-    case "AUTH_LOGIN_SUCCEEDED":
-    case "AUTH_LOGIN_FAILED":
-    case "ACCOUNT_DISABLED":
-    case "ACCOUNT_ENABLED":
-    case "SESSION_STARTED":
-    case "SESSION_REVOKED":
-    case "PROCESS_STARTED":
-    case "FILE_ACCESSED":
-    case "NETWORK_CONNECTION":
-    case "ENDPOINT_HEARTBEAT":
-    case "ALERT_CREATED":
-      return event;
+export interface ScenarioDefinitionInput {
+  id: string;
 
-    default:
-      return assertNever(event);
-  }
+  name: string;
+
+  description: string;
+
+  initialWorld: WorldSeed;
+
+  openingEvents:
+    readonly SimulationEvent[];
+
+  actions:
+    readonly ScenarioAction[];
+
+  investigation:
+    ScenarioInvestigationContext;
 }
 
 function requireInvestigationContext(
@@ -112,33 +100,33 @@ function requireInvestigationContext(
   }
 }
 
-export function compileScenarioSpec(
-  spec: ScenarioSpec,
+export function compileScenarioDefinition(
+  input: ScenarioDefinitionInput,
 ): ScenarioDefinition {
   const scenario: ScenarioDefinition = {
-    id: spec.id,
-    name: spec.name,
-    description: spec.description,
+    id: input.id,
+    name: input.name,
+    description: input.description,
     initialWorld:
       createWorldState(
-        spec.initialWorld,
+        input.initialWorld,
       ),
     openingEvents:
-      spec.openingEvents.map(
-        compileEvent,
+      structuredClone(
+        input.openingEvents,
       ),
     actions:
-      spec.actions.map((action) => ({
+      input.actions.map((action) => ({
         id: action.id,
         label: action.label,
         description: action.description,
         events:
-          action.events.map(
-            compileEvent,
+          structuredClone(
+            action.events,
           ),
       })),
     investigation: {
-      ...spec.investigation,
+      ...input.investigation,
     },
   };
 
@@ -146,28 +134,4 @@ export function compileScenarioSpec(
   requireInvestigationContext(scenario);
 
   return scenario;
-}
-
-export function compileScenarioFile(
-  file: ScenarioFile,
-): ScenarioDefinition {
-  return compileScenarioSpec(
-    file.scenario,
-  );
-}
-
-export function compileScenarioInput(
-  input: unknown,
-): ScenarioDefinition {
-  return compileScenarioFile(
-    parseScenarioFile(input),
-  );
-}
-
-export function compileScenarioJson(
-  serialized: string,
-): ScenarioDefinition {
-  return compileScenarioFile(
-    parseScenarioJson(serialized),
-  );
 }
