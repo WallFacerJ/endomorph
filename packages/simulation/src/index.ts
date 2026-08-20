@@ -16,6 +16,7 @@ export * from "./projection";
 export * from "./identityProjection";
 export * from "./edrProjection";
 export * from "./siemProjection";
+export * from "./analystCase";
 export * from "./scenario";
 export * from "./scenarioCompiler";
 export * from "./snapshot";
