@@ -15,7 +15,6 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
       "@polymorph/domain": ["../../packages/domain/src/index.ts"]
     },
