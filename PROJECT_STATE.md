@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Add deterministic serialization/deserialization for world state and snapshots, then begin declarative scenario design and analyst-facing workflows.
+Begin the declarative scenario schema and minimal scenario runtime, using the established shared world, event history, projections, semantic validation, and deterministic serialization foundations.
 
 ## Completed
 
@@ -51,13 +51,17 @@ Add deterministic serialization/deserialization for world state and snapshots, t
 - Live/replay equivalence for the correlated cross-projection incident history
 - Deterministic derived relationship indexes across organizations, users, accounts, devices, files, applications, and sessions
 - Reusable semantic world validation for missing references, organization consistency, bidirectional relationships, and session time invariants
+- Versioned deterministic JSON serialization for world state and simulation snapshots
+- Structural and semantic validation of untrusted serialized runtime state
+- Canonical serialized object-key ordering for stable equivalent-state bytes
 - Automated test coverage across domain and simulation packages
 
 ## Next Milestones
 
-1. Add serialization/deserialization for world state and snapshots
-2. Expand cybersecurity telemetry families where scenario/projection requirements justify them
-3. Begin the declarative scenario schema and scenario runtime
+1. Define the first declarative scenario schema and minimal deterministic scenario runtime
+2. Expand cybersecurity telemetry only where the first scenario requires it
+3. Connect the first scenario to analyst-visible identity, EDR, and SIEM workflows
+4. Add analyst findings, containment/remediation commands, and scoring once the investigation loop is defined
 
 ## Architectural Direction
 

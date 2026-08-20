@@ -42,7 +42,7 @@ Exit criteria:
 
 ## Phase 2 - Synthetic World Engine
 
-Status: in progress.
+Status: core exit criteria established; extension work remains.
 
 Goal: establish one authoritative enterprise world that all applications read from.
 
@@ -72,12 +72,13 @@ Implemented runtime:
 - Semantic world/reference validation
 - Organization and bidirectional relationship consistency checks
 - Session temporal invariant validation
+- Versioned deterministic world-state serialization/deserialization
+- Structural and semantic validation at the serialization boundary
 
 Remaining:
 
-- Serialization/deserialization
-- Additional entity invariants
-- Broader deterministic reducers
+- Additional entity invariants as scenario requirements expose them
+- Broader deterministic reducers as scenario requirements expose them
 
 Exit criteria:
 
@@ -104,12 +105,13 @@ Implemented:
 - Deterministic synchronous in-memory event bus
 - Generic pure projection contract
 - Live projection application and ordered-history rebuild
+- Versioned deterministic snapshot serialization/deserialization
 - Automated determinism and replay-equivalence tests
 
 Remaining:
 
 - Additional deterministic reducers
-- Persistent event store abstraction
+- Persistent event store abstraction when durable persistence is required
 - Time controls: pause, resume, speed, and jump via snapshot/replay
 - End-to-end proof that same scenario + same seed produces identical event history and final world state
 
@@ -160,7 +162,7 @@ Exit criteria:
 
 ## Phase 5 - Scenario Engine
 
-Status: not started.
+Status: ready to start.
 
 Goal: represent incidents as declarative scenarios rather than hardcoded scripts.
 
