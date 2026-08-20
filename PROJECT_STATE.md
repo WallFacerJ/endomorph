@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Begin the declarative scenario schema and minimal scenario runtime, using the established shared world, event history, projections, semantic validation, and deterministic serialization foundations.
+Finish the first versioned JSON scenario-authoring path and use it to evolve the playable investigation into an analyst loop with evidence, findings, response actions, and explicit scenario outcomes.
 
 ## Completed
 
@@ -54,14 +54,27 @@ Begin the declarative scenario schema and minimal scenario runtime, using the es
 - Versioned deterministic JSON serialization for world state and simulation snapshots
 - Structural and semantic validation of untrusted serialized runtime state
 - Canonical serialized object-key ordering for stable equivalent-state bytes
-- Automated test coverage across domain and simulation packages
+- Minimal deterministic scenario runtime with ordered opening history and analyst response actions
+- First playable alert-first account-compromise investigation across identity, EDR, and SIEM views
+- Deterministic containment that revokes the compromised session and disables the account
+- Browser reset/replay for the playable scenario
+- Manual browser validation of the first playable investigation
+- Versioned Zod-backed JSON scenario file contract for all current world entities and event families
+- Semantic scenario compiler that normalizes author-friendly world seeds and reuses runtime validation/replay
+- Investigation focus metadata that removes hardcoded scenario entity ids from the analyst workspace
+- Editable account-compromise JSON scenario with browser loading and validation feedback
+- Scenario selection through local `/scenarios/` query paths for contributor-authored variants
+- Scenario authoring guide and automated fixture-compilation coverage
+- Automated test coverage across domain, schema, simulation, and scenario integration boundaries
 
 ## Next Milestones
 
-1. Define the first declarative scenario schema and minimal deterministic scenario runtime
-2. Expand cybersecurity telemetry only where the first scenario requires it
-3. Connect the first scenario to analyst-visible identity, EDR, and SIEM workflows
-4. Add analyst findings, containment/remediation commands, and scoring once the investigation loop is defined
+1. Manually exercise a contributor-authored JSON scenario variation before merging the authoring milestone
+2. Add analyst evidence collection and findings/notes to the investigation workspace
+3. Turn response actions into explicit scenario commands with success/failure conditions
+4. Add deterministic scoring and post-incident outcome summaries after the investigation loop is defined
+5. Add branching, triggers, and richer scenario state transitions only when the first investigation loop requires them
+6. Expand cybersecurity telemetry only where scenario or projection requirements justify it
 
 ## Architectural Direction
 
