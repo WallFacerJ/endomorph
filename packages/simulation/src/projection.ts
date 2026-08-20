@@ -44,10 +44,14 @@ export class LiveProjection<
 > {
   private currentState: TState;
 
+  private readonly projection:
+    Projection<TState, TEvent>;
+
   constructor(
-    private readonly projection:
+    projection:
       Projection<TState, TEvent>,
   ) {
+    this.projection = projection;
     this.currentState =
       projection.createInitialState();
   }
