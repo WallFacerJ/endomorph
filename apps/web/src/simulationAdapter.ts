@@ -27,3 +27,10 @@ export {
 export {
   siemProjection,
 } from "../../../packages/simulation/src/siemProjection.ts";
+
+export {
+  addAnalystFinding,
+  collectAnalystEvidence,
+  createAnalystCaseState,
+  resolveCollectedEvidence,
+} from "../../../packages/simulation/src/analystCase.ts";
