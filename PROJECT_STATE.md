@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Finish the first versioned JSON scenario-authoring path and use it to evolve the playable investigation into an analyst loop with evidence, findings, response actions, and explicit scenario outcomes.
+Evolve the first playable investigation into a complete analyst loop with evidence-backed findings, explicit response outcomes, and deterministic scoring while preserving the separation between canonical world state, scenario ground truth, and analyst knowledge.
 
 ## Completed
 
@@ -65,14 +65,20 @@ Finish the first versioned JSON scenario-authoring path and use it to evolve the
 - Editable account-compromise JSON scenario with browser loading and validation feedback
 - Scenario selection through local `/scenarios/` query paths for contributor-authored variants
 - Scenario authoring guide and automated fixture-compilation coverage
-- Automated test coverage across domain, schema, simulation, and scenario integration boundaries
+- First-class analyst case state separated from canonical world state and scenario ground truth
+- Evidence collection by immutable simulation event id without duplicating telemetry payloads
+- Evidence collection from SIEM timeline, endpoint telemetry, and identity activity
+- Analyst-authored findings with validated links to collected evidence
+- Case state that survives containment and clears on scenario reset
+- Automated analyst-case invariants for missing, duplicate, and uncollected evidence references
+- Automated test coverage across domain, schema, simulation, scenario, and analyst-case boundaries
 
 ## Next Milestones
 
-1. Manually exercise a contributor-authored JSON scenario variation before merging the authoring milestone
-2. Add analyst evidence collection and findings/notes to the investigation workspace
-3. Turn response actions into explicit scenario commands with success/failure conditions
-4. Add deterministic scoring and post-incident outcome summaries after the investigation loop is defined
+1. Formalize `apps/web` consumption of `@polymorph/simulation` through the pnpm workspace package boundary
+2. Turn response actions into explicit scenario commands with success/failure conditions
+3. Add deterministic scoring and post-incident outcome summaries after response outcomes are explicit
+4. Add hidden ground-truth metadata and instructor-facing evaluation only after the student investigation loop is stable
 5. Add branching, triggers, and richer scenario state transitions only when the first investigation loop requires them
 6. Expand cybersecurity telemetry only where scenario or projection requirements justify it
 
