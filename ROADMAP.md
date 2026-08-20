@@ -33,6 +33,7 @@ Remaining:
 
 - Expand semantic validation for externally supplied definitions and invariants as new definition families are added
 - Improve fresh-clone development/build ergonomics where needed
+- Formalize `apps/web` consumption of `@polymorph/simulation` through the workspace package boundary
 
 Exit criteria:
 
@@ -204,7 +205,7 @@ Exit criteria:
 
 ## Phase 6 - Analyst and Instructor Experience
 
-Status: in progress; first analyst slice is playable.
+Status: in progress; first evidence-backed analyst loop is playable.
 
 Goal: turn the runtime into a usable cyber-range training platform.
 
@@ -217,16 +218,19 @@ Implemented analyst slice:
 - Deterministic containment action
 - Scenario reset/replay
 - Manual browser testing of the first investigation
+- First-class analyst case state separate from canonical world state and scenario ground truth
+- Evidence collection by immutable simulation event id
+- Evidence collection from investigation, endpoint, and identity views
+- Analyst-authored findings with validated evidence links
+- Case state preserved through containment and cleared by reset
 
 Remaining:
 
-- Evidence collection
-- Notes/findings
 - Multiple containment/remediation choices
 - Explicit scenario outcomes
 - Instructor controls
 - Hidden ground truth
-- Scoring
+- Deterministic scoring
 - Timeline comparison
 - Post-incident report
 
