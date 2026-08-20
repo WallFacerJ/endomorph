@@ -1,4 +1,6 @@
 export * from "./worldState";
+export * from "./worldRelationships";
+export * from "./worldValidation";
 export * from "./virtualClock";
 export * from "./seededRandom";
 export * from "./simulationEvent";

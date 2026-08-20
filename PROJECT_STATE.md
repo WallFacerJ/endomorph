@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Finish the remaining shared-world/runtime foundations—relationship indexes, broader semantic validation, and serialization—before beginning declarative scenarios and analyst-facing workflows.
+Add deterministic serialization/deserialization for world state and snapshots, then begin declarative scenario design and analyst-facing workflows.
 
 ## Completed
 
@@ -49,14 +49,15 @@ Finish the remaining shared-world/runtime foundations—relationship indexes, br
 - Multi-subscriber and multi-projection observation of shared events
 - Correlated login → process execution → alert coherence proof across identity, EDR, and SIEM
 - Live/replay equivalence for the correlated cross-projection incident history
+- Deterministic derived relationship indexes across organizations, users, accounts, devices, files, applications, and sessions
+- Reusable semantic world validation for missing references, organization consistency, bidirectional relationships, and session time invariants
 - Automated test coverage across domain and simulation packages
 
 ## Next Milestones
 
-1. Add relationship indexes and broader world semantic validation
-2. Add serialization/deserialization for world state and snapshots
-3. Expand cybersecurity telemetry families where projections require them
-4. Begin the declarative scenario schema and scenario runtime
+1. Add serialization/deserialization for world state and snapshots
+2. Expand cybersecurity telemetry families where scenario/projection requirements justify them
+3. Begin the declarative scenario schema and scenario runtime
 
 ## Architectural Direction
 

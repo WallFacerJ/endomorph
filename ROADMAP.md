@@ -30,7 +30,7 @@ Completed:
 
 Remaining:
 
-- Expand semantic validation for cross-references and invariants
+- Expand semantic validation for externally supplied definitions and invariants
 - Improve fresh-clone development/build ergonomics where needed
 
 Exit criteria:
@@ -68,11 +68,13 @@ Implemented runtime:
 - Entity identifiers and references
 - Normalized entity collections
 - Initial deterministic reducer foundation
+- Deterministic derived relationship indexes
+- Semantic world/reference validation
+- Organization and bidirectional relationship consistency checks
+- Session temporal invariant validation
 
 Remaining:
 
-- Relationship indexes
-- Semantic reference validation
 - Serialization/deserialization
 - Additional entity invariants
 - Broader deterministic reducers
