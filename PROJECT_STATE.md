@@ -71,16 +71,19 @@ Evolve the first playable investigation into a complete analyst loop with eviden
 - Analyst-authored findings with validated links to collected evidence
 - Case state that survives containment and clears on scenario reset
 - Automated analyst-case invariants for missing, duplicate, and uncollected evidence references
+- Formal pnpm workspace dependency from `apps/web` to `@polymorph/simulation` with declared simulation-to-schema dependency
+- Web simulation imports routed through the package export instead of relative source paths
+- Fresh development startup builds the simulation dependency chain before launching Vite
+- pnpm-generated lockfile validated by frozen-install CI
 - Automated test coverage across domain, schema, simulation, scenario, and analyst-case boundaries
 
 ## Next Milestones
 
-1. Formalize `apps/web` consumption of `@polymorph/simulation` through the pnpm workspace package boundary
-2. Turn response actions into explicit scenario commands with success/failure conditions
-3. Add deterministic scoring and post-incident outcome summaries after response outcomes are explicit
-4. Add hidden ground-truth metadata and instructor-facing evaluation only after the student investigation loop is stable
-5. Add branching, triggers, and richer scenario state transitions only when the first investigation loop requires them
-6. Expand cybersecurity telemetry only where scenario or projection requirements justify it
+1. Turn response actions into explicit scenario commands with success/failure conditions
+2. Add deterministic scoring and post-incident outcome summaries after response outcomes are explicit
+3. Add hidden ground-truth metadata and instructor-facing evaluation only after the student investigation loop is stable
+4. Add branching, triggers, and richer scenario state transitions only when the first investigation loop requires them
+5. Expand cybersecurity telemetry only where scenario or projection requirements justify it
 
 ## Architectural Direction
 

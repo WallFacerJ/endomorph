@@ -18,7 +18,8 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@polymorph/domain": "workspace:*"
+    "@polymorph/domain": "workspace:*",
+    "@polymorph/schema": "workspace:*"
   },
   "devDependencies": {
     "typescript": "~6.0.3"

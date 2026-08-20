@@ -28,12 +28,14 @@ Completed:
 - Add root build, lint, and test commands
 - Add GitHub Actions CI
 - Begin Architecture Decision Records (ADRs)
+- Formalize `apps/web` consumption of `@polymorph/simulation` through the workspace package boundary
+- Declare the simulation package's schema/runtime dependency graph explicitly
+- Regenerate and validate the workspace lockfile with pnpm
 
 Remaining:
 
 - Expand semantic validation for externally supplied definitions and invariants as new definition families are added
 - Improve fresh-clone development/build ergonomics where needed
-- Formalize `apps/web` consumption of `@polymorph/simulation` through the workspace package boundary
 
 Exit criteria:
 

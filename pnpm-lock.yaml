@@ -17,6 +17,9 @@ importers:
       '@polymorph/schema':
         specifier: workspace:*
         version: link:../../packages/schema
+      '@polymorph/simulation':
+        specifier: workspace:*
+        version: link:../../packages/simulation
       react:
         specifier: ^19.2.8
         version: 19.2.8
@@ -67,6 +70,9 @@ importers:
       '@polymorph/domain':
         specifier: workspace:*
         version: link:../domain
+      '@polymorph/schema':
+        specifier: workspace:*
+        version: link:../schema
     devDependencies:
       typescript:
         specifier: ~6.0.3

@@ -4,13 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "pnpm --filter @polymorph/simulation... build && vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
     "@polymorph/schema": "workspace:*",
+    "@polymorph/simulation": "workspace:*",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
