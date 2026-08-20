@@ -220,6 +220,24 @@
         ]
       }
     ],
+    "objectives": [
+      {
+        "id": "objective-revoke-session",
+        "kind": "session_status",
+        "label": "Revoke compromised session",
+        "description": "The suspicious identity session should no longer be active.",
+        "sessionId": "session-smartinez-compromised",
+        "expectedStatus": "revoked"
+      },
+      {
+        "id": "objective-disable-account",
+        "kind": "account_status",
+        "label": "Disable compromised account",
+        "description": "The affected account should be disabled to prevent further access.",
+        "accountId": "account-smartinez",
+        "expectedStatus": "disabled"
+      }
+    ],
     "investigation": {
       "alertId": "alert-compromise-powershell",
       "userId": "user-sarah-martinez",
