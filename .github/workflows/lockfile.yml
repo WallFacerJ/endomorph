@@ -4,12 +4,9 @@ on:
   push:
     branches:
       - chore/web-simulation-workspace-dependency
-  pull_request:
-    branches:
-      - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   lockfile:
@@ -18,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          ref: chore/web-simulation-workspace-dependency
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
@@ -31,9 +30,15 @@ jobs:
       - name: Regenerate lockfile
         run: pnpm install --lockfile-only --no-frozen-lockfile
 
-      - name: Upload lockfile
-        uses: actions/upload-artifact@v4
-        with:
-          name: regenerated-lockfile
-          path: pnpm-lock.yaml
-          if-no-files-found: error
+      - name: Commit generated lockfile
+        shell: bash
+        run: |
+          if git diff --quiet -- pnpm-lock.yaml; then
+            echo "Lockfile already matches workspace manifests."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- pnpm-lock.yaml
+          git commit -m "chore: regenerate pnpm lockfile"
+          git push origin HEAD:chore/web-simulation-workspace-dependency
