@@ -5,6 +5,8 @@ export {
   createAnalystCaseState,
   edrProjection,
   finalizeScenarioState,
+  getEdrEndpointInvestigation,
+  getObservedEdrDeviceIds,
   getScenarioState,
   identityProjection,
   rebuildProjection,
@@ -14,6 +16,9 @@ export {
 } from "@polymorph/simulation";
 
 export type {
+  EdrEndpointInvestigation,
+  EdrProcessTreeNode,
+  EdrProjectionState,
   ScenarioAction,
   ScenarioDefinition,
   ScenarioOutcomeStatus,

@@ -145,6 +145,15 @@
           "path": "C:\\Users\\smartinez\\Documents\\Q3-forecast.xlsx",
           "ownerUserId": "user-sarah-martinez",
           "classification": "confidential"
+        },
+        {
+          "id": "file-fin-quarterly-review-docm",
+          "organizationId": "org-acme",
+          "name": "QuarterlyReview.docm",
+          "path": "C:\\Users\\smartinez\\Downloads\\QuarterlyReview.docm",
+          "classification": "internal",
+          "ownerUserId": "user-sarah-martinez",
+          "deviceId": "device-fin-lt-04"
         }
       ],
       "applications": [
@@ -351,6 +360,21 @@
           "commandLine": "powershell.exe Get-Service AcmeBackupAgent",
           "parentProcessId": "1784",
           "accountId": "account-mchen"
+        }
+      },
+      {
+        "id": "event-fin-explorer",
+        "type": "PROCESS_STARTED",
+        "timestamp": "2026-08-20T14:53:00Z",
+        "source": "edr",
+        "actorId": "account-smartinez",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "deviceId": "device-fin-lt-04",
+          "processId": "1020",
+          "image": "C:\\Windows\\explorer.exe",
+          "commandLine": "C:\\Windows\\explorer.exe",
+          "accountId": "account-smartinez"
         }
       },
       {
@@ -577,6 +601,36 @@
         }
       },
       {
+        "id": "event-compromise-file-executed",
+        "type": "FILE_ACCESSED",
+        "timestamp": "2026-08-20T15:03:05Z",
+        "source": "edr",
+        "actorId": "account-smartinez",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "fileId": "file-fin-quarterly-review-docm",
+          "operation": "execute",
+          "deviceId": "device-fin-lt-04",
+          "accountId": "account-smartinez"
+        }
+      },
+      {
+        "id": "event-compromise-winword",
+        "type": "PROCESS_STARTED",
+        "timestamp": "2026-08-20T15:03:10Z",
+        "source": "edr",
+        "actorId": "account-smartinez",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "deviceId": "device-fin-lt-04",
+          "processId": "6172",
+          "image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+          "commandLine": "WINWORD.EXE \"C:\\Users\\smartinez\\Downloads\\QuarterlyReview.docm\"",
+          "parentProcessId": "1020",
+          "accountId": "account-smartinez"
+        }
+      },
+      {
         "id": "event-compromise-powershell",
         "type": "PROCESS_STARTED",
         "timestamp": "2026-08-20T15:03:15Z",
@@ -637,6 +691,8 @@
           "applicationId": "app-edr",
           "relatedEventIds": [
             "event-compromise-login",
+            "event-compromise-file-executed",
+            "event-compromise-winword",
             "event-compromise-powershell",
             "event-compromise-network"
           ],
@@ -749,6 +805,14 @@
         {
           "eventId": "event-compromise-session",
           "significance": "The attacker-established identity session is the session that should be revoked."
+        },
+        {
+          "eventId": "event-compromise-file-executed",
+          "significance": "A macro-enabled document in the user Downloads folder was executed immediately before suspicious child processes appeared."
+        },
+        {
+          "eventId": "event-compromise-winword",
+          "significance": "WINWORD.EXE opened the synthetic macro-enabled document and became the observed parent of the encoded PowerShell process."
         },
         {
           "eventId": "event-compromise-powershell",

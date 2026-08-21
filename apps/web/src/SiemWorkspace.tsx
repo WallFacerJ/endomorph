@@ -15,6 +15,7 @@ import "./SiemWorkspace.css";
 
 interface SiemWorkspaceProps {
   records: readonly SiemEventRecord[];
+  initialQuery?: string;
   finalized: boolean;
   isCollected: (eventId: string) => boolean;
   onCollect: (eventId: string) => void;
@@ -78,12 +79,13 @@ function fieldDisplayValue(
 
 export function SiemWorkspace({
   records,
+  initialQuery,
   finalized,
   isCollected,
   onCollect,
   onOpenCase,
 }: SiemWorkspaceProps) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery ?? "");
   const [timePreset, setTimePreset] =
     useState<TimePreset>("all");
   const [selectedEventId, setSelectedEventId] =

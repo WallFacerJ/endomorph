@@ -32,6 +32,10 @@ import {
 } from "./SiemWorkspace";
 
 import {
+  EdrWorkspace,
+} from "./EdrWorkspace";
+
+import {
   addAnalystFinding,
   collectAnalystEvidence,
   createAnalystCaseState,
@@ -125,6 +129,11 @@ function ScenarioWorkspace({
     useState<string[]>([]);
   const [caseError, setCaseError] =
     useState<string | null>(null);
+  const [siemPivot, setSiemPivot] =
+    useState({
+      query: "",
+      nonce: 0,
+    });
 
   const scenarioState = useMemo(
     () =>
@@ -210,23 +219,6 @@ function ScenarioWorkspace({
         candidate.alertId ===
         context.alertId,
     );
-
-  const process =
-    projections.edr.processes.find(
-      (candidate) =>
-        alert?.relatedEventIds.includes(
-          candidate.eventId,
-        ),
-    ) ?? projections.edr.processes[0];
-
-  const connection =
-    projections.edr.networkConnections.find(
-      (candidate) =>
-        alert?.relatedEventIds.includes(
-          candidate.eventId,
-        ),
-    ) ??
-    projections.edr.networkConnections[0];
 
   const loginActivity =
     projections.identity.activity.find(
@@ -387,6 +379,16 @@ function ScenarioWorkspace({
 
     setFinalized(true);
     setActiveView("timeline");
+  };
+
+  const openSiem = (
+    query: string,
+  ) => {
+    setSiemPivot((current) => ({
+      query,
+      nonce: current.nonce + 1,
+    }));
+    setActiveView("siem");
   };
 
   const resetScenario = () => {
@@ -564,7 +566,9 @@ function ScenarioWorkspace({
         {activeView === "siem" && (
           <section className="workspace-section siem-section">
             <SiemWorkspace
+              key={`siem-${siemPivot.nonce}`}
               records={projections.siem.events}
+              initialQuery={siemPivot.query}
               finalized={scenarioState.finalized}
               isCollected={isEvidenceCollected}
               onCollect={collectEvidence}
@@ -723,127 +727,17 @@ function ScenarioWorkspace({
         )}
 
         {activeView === "endpoint" && (
-          <section className="workspace-section">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">
-                  EDR projection
-                </p>
-                <h3>
-                  {device?.hostname ?? "Endpoint"}
-                </h3>
-              </div>
-            </div>
-
-            <div className="detail-grid">
-              <div>
-                <span>Operating system</span>
-                <strong>
-                  {device?.operatingSystem ?? "—"}
-                </strong>
-              </div>
-              <div>
-                <span>IP address</span>
-                <strong>
-                  {device?.ipAddresses[0] ?? "—"}
-                </strong>
-              </div>
-              <div>
-                <span>Owner</span>
-                <strong>
-                  {user?.displayName ?? "—"}
-                </strong>
-              </div>
-              <div>
-                <span>Alert count</span>
-                <strong>
-                  {projections.edr.alerts.length}
-                </strong>
-              </div>
-            </div>
-
-            <div className="evidence-grid">
-              <article className="evidence-card">
-                <p className="eyebrow">
-                  Process execution
-                </p>
-                <h4>
-                  {process?.image ??
-                    "No process telemetry"}
-                </h4>
-                <code>
-                  {process?.commandLine ?? "—"}
-                </code>
-                <small>
-                  PID {process?.processId ?? "—"} · {formatTimestamp(process?.timestamp)}
-                </small>
-                <button
-                  type="button"
-                  className="evidence-button"
-                  onClick={() =>
-                    collectEvidence(
-                      process?.eventId,
-                    )
-                  }
-                  disabled={
-                    scenarioState.finalized ||
-                    !process ||
-                    isEvidenceCollected(
-                      process.eventId,
-                    )
-                  }
-                >
-                  {isEvidenceCollected(
-                    process?.eventId,
-                  )
-                    ? "Evidence collected"
-                    : "Collect process evidence"}
-                </button>
-              </article>
-
-              <article className="evidence-card">
-                <p className="eyebrow">
-                  Network connection
-                </p>
-                <h4>
-                  {connection
-                    ? `${connection.sourceIp} → ${connection.destinationIp}`
-                    : "No connection telemetry"}
-                </h4>
-                <code>
-                  {connection
-                    ? `${connection.protocol.toUpperCase()} ${connection.destinationPort ?? "—"}`
-                    : "—"}
-                </code>
-                <small>
-                  {formatTimestamp(
-                    connection?.timestamp,
-                  )}
-                </small>
-                <button
-                  type="button"
-                  className="evidence-button"
-                  onClick={() =>
-                    collectEvidence(
-                      connection?.eventId,
-                    )
-                  }
-                  disabled={
-                    scenarioState.finalized ||
-                    !connection ||
-                    isEvidenceCollected(
-                      connection.eventId,
-                    )
-                  }
-                >
-                  {isEvidenceCollected(
-                    connection?.eventId,
-                  )
-                    ? "Evidence collected"
-                    : "Collect network evidence"}
-                </button>
-              </article>
-            </div>
+          <section className="workspace-section edr-section">
+            <EdrWorkspace
+              state={projections.edr}
+              devices={Object.values(scenarioState.world.devices)}
+              initialDeviceId={context.deviceId}
+              finalized={scenarioState.finalized}
+              isCollected={isEvidenceCollected}
+              onCollect={collectEvidence}
+              onSearchSiem={openSiem}
+              onOpenCase={() => setActiveView("case")}
+            />
           </section>
         )}
 

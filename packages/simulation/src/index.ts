@@ -15,6 +15,7 @@ export * from "./eventBus";
 export * from "./projection";
 export * from "./identityProjection";
 export * from "./edrProjection";
+export * from "./edrInvestigation";
 export * from "./siemProjection";
 export * from "./siemQuery";
 export * from "./analystCase";
