@@ -873,3 +873,8 @@ textarea:focus-visible {
   font-size: 0.82rem;
   opacity: 0.82;
 }
+
+.incident-state.resumed {
+  border-color: rgba(148, 163, 184, 0.45);
+  opacity: 0.85;
+}

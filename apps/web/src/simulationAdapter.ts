@@ -28,6 +28,8 @@ export type {
   EdrProjectionState,
   EvidenceGraph,
   EvidenceGraphNode,
+  AnalystCaseState,
+  AnalystFinding,
   IncidentCaseState,
   IncidentIndicator,
   IncidentPhase,

@@ -78,6 +78,13 @@ import {
   resolveScenarioPath,
 } from "./scenarioLoader";
 
+import {
+  clearRun,
+  isRunMeaningful,
+  loadRun,
+  saveRun,
+} from "./runPersistence";
+
 type WorkspaceView =
   | "alerts"
   | "timeline"
@@ -130,30 +137,52 @@ function ScenarioWorkspace({
   const context =
     scenario.investigation;
 
+  // Resume a run for this scenario if one was left behind.
+  const restored = useMemo(
+    () => loadRun(scenarioPath),
+    [scenarioPath],
+  );
+
   const [activeView, setActiveView] =
     useState<WorkspaceView>(
       "alerts",
     );
   const [performedActionIds, setPerformedActionIds] =
-    useState<string[]>([]);
+    useState<string[]>(
+      () =>
+        restored?.performedActionIds ??
+        [],
+    );
   const [finalized, setFinalized] =
-    useState(false);
+    useState(
+      () => restored?.finalized ?? false,
+    );
   const [analystCase, setAnalystCase] =
-    useState(() =>
-      createAnalystCaseState(),
+    useState(
+      () =>
+        restored?.analystCase ??
+        createAnalystCaseState(),
     );
   const [incidentCase, setIncidentCase] =
-    useState(() =>
-      createIncidentCaseState(),
+    useState(
+      () =>
+        restored?.incidentCase ??
+        createIncidentCaseState(),
     );
+  const [resumed, setResumed] = useState(
+    () =>
+      restored !== undefined &&
+      isRunMeaningful(restored),
+  );
   const [assistance, setAssistance] =
     useState<AssistanceMode>(
       readInitialAssistance,
     );
   const [questionAnswers, setQuestionAnswers] =
-    useState<
-      Record<string, string>
-    >({});
+    useState<Record<string, string>>(
+      () =>
+        restored?.questionAnswers ?? {},
+    );
   const [findingTitle, setFindingTitle] =
     useState("");
   const [findingSummary, setFindingSummary] =
@@ -242,6 +271,24 @@ function ScenarioWorkspace({
       analystCase.collectedEventIds,
     ],
   );
+
+  useEffect(() => {
+    saveRun({
+      scenarioPath,
+      performedActionIds,
+      finalized,
+      analystCase,
+      incidentCase,
+      questionAnswers,
+    });
+  }, [
+    scenarioPath,
+    performedActionIds,
+    finalized,
+    analystCase,
+    incidentCase,
+    questionAnswers,
+  ]);
 
   const collectedEvidence = useMemo(
     () =>
@@ -449,6 +496,8 @@ function ScenarioWorkspace({
       createIncidentCaseState(),
     );
     setQuestionAnswers({});
+    setResumed(false);
+    clearRun(scenarioPath);
     setFindingTitle("");
     setFindingSummary("");
     setSelectedEvidenceIds([]);
@@ -538,6 +587,15 @@ function ScenarioWorkspace({
             >
               {runStatusLabel}
             </span>
+            {resumed &&
+              !scenarioState.finalized && (
+                <span
+                  className="incident-state resumed"
+                  title="Your previous work on this scenario was restored."
+                >
+                  Run resumed
+                </span>
+              )}
             <button
               type="button"
               className="secondary-button"
