@@ -1,29 +1,57 @@
 # Polymorph Project State
 
-## Project Identity
+## Project identity
 
-Polymorph is a deterministic, schema-driven cybersecurity simulation and training runtime. It models one shared synthetic enterprise world, applies typed append-only events, rebuilds security-application projections from that history, and runs validated declarative scenarios through student and instructor workflows.
+Polymorph is evolving from a deterministic cybersecurity training simulator into a **deterministic cyber-operations digital twin and enterprise cyber-readiness platform**.
 
-Polymorph is not a phishing kit, credential-harvesting system, arbitrary code-execution environment, or production security-control platform. Current scenarios and data are synthetic only.
+The foundation remains one shared synthetic enterprise world with typed append-only events, deterministic replay, validated declarative scenarios, and multiple security-tool projections over the same history. Post-v1 work now prioritizes substantially deeper investigation, interactive systems, enterprise incident handling, team readiness, and customer-specific digital twins.
 
-## Current Milestone
+Polymorph remains for synthetic, isolated security simulation. It must not become a credential-harvesting product, uncontrolled arbitrary code-execution service, or system for attacking external targets.
 
-**Polymorph v1 product scope is complete.**
+## Current milestone
 
-The active release slice is the final v1 packaging, browser-regression, documentation, and public-hosting pass. The release branch is `release/v1` and the release PR is #40.
+**Enterprise Evolution Phase 1: deep investigation and professional tool identity.**
 
-The v1 exit condition is:
+Polymorph v1.0.0 is complete. The v1 architecture proved deterministic scenarios, correlated identity/EDR/SIEM projections, analyst case state, response outcomes, instructor review, and browser delivery.
 
-- frozen dependency install succeeds;
-- workspace build succeeds;
-- lint succeeds;
-- deterministic unit/integration suite succeeds;
-- Chromium Playwright critical-path suite succeeds;
-- the hosted GitHub Pages build loads all three scenarios correctly under the repository base path;
-- first-time tester documentation is published;
-- the release PR is merged and tagged `v1.0.0`.
+First-time tester feedback exposed the main product gap: the experience is coherent but too shallow, too course-like, too visually uniform, and not sufficiently technical to feel like a serious cyber-operations product.
 
-## V1 Product Surface
+The current north star and competitive requirements are documented in:
+
+- `COMPETITIVE_RESEARCH.md`
+- `ENTERPRISE_VISION.md`
+- `ROADMAP.md`
+
+## Direct tester feedback driving the reset
+
+Recurring feedback from first-time users:
+
+- the current investigations feel juvenile and surface-level;
+- response selection resembles an entry-level multiple-choice course more than incident response;
+- technical depth is too low and the interface feels simplistic;
+- SIEM/EDR/identity/case sections do not feel sufficiently differentiated;
+- Case feels optional rather than necessary to operate the investigation;
+- the product does not yet have a strong identity or sense of scale;
+- testers want the ability to enter isolated synthetic/virtualized enterprise systems, acquire evidence, and perform red/blue incident work directly.
+
+These are now product requirements, not polish suggestions.
+
+## Product north star
+
+A mature Polymorph run should feel like operating a living enterprise during an incident:
+
+- investigate an ambiguous alert among normal/noisy activity;
+- query a real-feeling SIEM rather than scroll a curated event list;
+- pivot into distinct EDR, Identity, Network, Email, Cloud, Threat Intel, and other tools;
+- inspect deep entity history and relationships;
+- enter isolated investigation-critical systems through a safe Range layer;
+- inspect processes, files, configuration, logs, services, connections, and artifacts;
+- build and manage a connected incident case with evidence, hypotheses, tasks, owners, actions, and decisions;
+- contain, eradicate, recover, validate, and document the incident;
+- replay or branch the run later to understand alternative outcomes;
+- support teams, instructors/managers, red/purple exercises, and eventually AI-agent validation over the same deterministic enterprise.
+
+## Existing foundation
 
 ### Deterministic runtime
 
@@ -31,7 +59,7 @@ The v1 exit condition is:
 - canonical normalized `WorldState`
 - deterministic virtual clock and seeded pseudo-random generator
 - typed authentication, identity, session, process, file, network, endpoint, and alert events
-- append-only in-memory event store
+- append-only event store
 - deterministic reducers, replay, snapshots, and snapshot-assisted replay
 - semantic world/event/reference validation
 - deterministic serialization/deserialization
@@ -52,91 +80,83 @@ The v1 exit condition is:
 - investigation focus metadata
 - declarative account/session objectives
 - deterministic active/finalized outcome evaluation
-- explicit finalization boundary that does not append fake simulation events
-- deterministic partial/full objective scoring
-- optional authored response-quality penalties and rationale
-- optional ground-truth incident summary and event annotations
+- deterministic scoring and response-quality penalties
+- optional ground-truth incident metadata
 - semantic validation of response actions, objectives, and ground-truth references
 
-### Student investigation experience
+### Current analyst/instructor surface
 
-- alert-first workspace
-- correlated SIEM timeline
+- alert-first browser workspace
+- correlated timeline
 - endpoint and identity pivots
-- evidence collection by immutable event ID
-- analyst case state separate from canonical world state
-- analyst-authored findings linked to collected evidence
-- scenario-declared response-action chooser
-- beneficial and harmful response choices
-- explicit investigation finalization
-- 0%, partial, and full objective outcomes
-- post-finalization response-quality penalty and final score
-- finalized case becomes read-only until reset
-- reset reconstructs a clean deterministic run
+- evidence collection by event ID
+- analyst findings linked to evidence
+- response-action chooser
+- explicit finalization and score/result
+- finalized read-only case
+- instructor ground-truth review
+- three JSON-authored scenarios
+- scenario selector and visual themes
+- Playwright browser-regression suite
+- GitHub Pages/public testing workflow
 
-### Instructor review
+This surface is now considered the v1 baseline to be replaced/refactored where needed for enterprise depth.
 
-- explicit local Instructor mode
-- ground truth hidden during active student workflow
-- post-finalization ground-truth incident summary
-- annotated source-event timeline
-- performed response-action review
-- authored rationale for assessed actions
-- objective score, penalty, and final score review
+## Immediate implementation priorities
 
-Instructor mode in v1 is a presentation boundary, not real authentication/authorization.
+1. Build a real SIEM workspace with search/query, time controls, facets, raw events, pivots, and enough noisy telemetry to require analysis.
+2. Build a real EDR workspace with endpoint inventory, process trees, file/network context, and endpoint-scoped actions.
+3. Expand Identity into account/session/access/risk/history analysis rather than a summary panel.
+4. Redesign Case into an incident-command graph connecting evidence, entities, hypotheses, tasks, findings, decisions, and response actions.
+5. Move professional response work out of obvious multiple-choice cards and into the relevant tool/system context.
+6. Hide explicit objectives/scores during active professional-mode runs by default; preserve guided assistance as an optional mode.
+7. Design and build the Synthetic Infrastructure Fabric fidelity ladder: deterministic synthetic hosts -> isolated containers -> microVM/full VM where necessary.
+8. Add telemetry domains and scenario complexity only in service of genuinely deeper incidents.
 
-### V1 scenario set
+## Enterprise requirements are now first-class
 
-1. Finance account compromise with suspicious login, encoded PowerShell, and correlated outbound activity.
-2. HR malware-beacon incident with a compromised session and unsigned executable activity.
-3. Cloud-admin compromise with suspicious privileged tooling and outbound activity.
+The product is intended to become marketable/sellable to organizations. Future architecture must account for:
 
-All three are ordinary JSON scenarios using the same compiler/runtime/UI; there is no scenario-specific TypeScript execution path.
+- durable server-backed runs;
+- organizations/tenants;
+- teams, users, cohorts, and roles;
+- SSO/SAML/OIDC and SCIM;
+- server-enforced authorization;
+- auditability and retention;
+- assignments/campaigns and collaboration;
+- readiness baselines and skill-gap analytics;
+- ATT&CK/NICE mapping;
+- incident-process metrics and reporting;
+- APIs/webhooks/integrations;
+- managed/private/on-prem deployment options when justified;
+- capacity/cost controls for interactive range infrastructure.
 
-### Release/testability
+## Architecture policy change after v1 feedback
 
-- in-product scenario selector
-- Student/Instructor mode control
-- preserved scenario deep links
-- first-time tester guide with feedback template
-- Playwright browser-regression suite for the critical v1 workflows
-- GitHub Actions CI
-- GitHub Pages deployment workflow for a no-install friend-testing URL
-- base-path-safe Vite/scenario loading for repository-hosted deployment
+Earlier project guidance intentionally deferred heavy infrastructure until a demonstrated requirement existed. That requirement now exists for interactive enterprise systems and durable multi-user operation.
 
-## Post-v1 Priorities
+Therefore:
 
-Do not expand architecture merely to make the repository look larger. The next work should be driven by actual tester feedback and concrete product needs.
+- container-backed and eventually VM-backed range infrastructure is explicitly in scope;
+- a server runtime and database are explicitly in scope;
+- orchestration, queues, caches, search engines, and service decomposition may be introduced when measured scale/reliability requirements justify them;
+- Kubernetes, Redis, Kafka, OpenSearch, etc. are still implementation choices rather than status symbols and should not be added prematurely.
 
-Likely post-v1 sequence:
+## Product identity
 
-1. Collect first-time user feedback and fix usability defects exposed by real testers.
-2. Add durable run persistence and a small server runtime when saved/resumable runs are required.
-3. Add real student/instructor authentication and authorization before using hidden answers for real assessment.
-4. Add a headless scenario validation/run CLI.
-5. Expand scenario transitions, triggers, branches, and telemetry only when new scenarios require them.
-6. Add additional projections such as email or endpoint inventory only when a scenario needs them.
-7. Design a plugin SDK only after at least one external extension requirement is concrete.
-8. Explore AI-assisted scenario compilation only as an untrusted compiler frontend into validated declarative specs.
+Working product layers are documented in `ENTERPRISE_VISION.md`:
 
-## Explicitly Deferred
+- **Polymorph Fabric** - shared enterprise digital twin
+- **Polymorph Ops** - distinct professional security applications
+- **Polymorph Range** - interactive isolated systems
+- **Polymorph Case** - investigation/incident command graph
+- **Polymorph Replay** - rewind/branch/compare time machine
+- **Polymorph Forge** - scenario/digital-twin authoring
+- **Polymorph Control** - enterprise management/readiness plane
 
-Until requirements justify them, do not add:
+These names are working architecture/product concepts, not locked branding.
 
-- Kafka
-- Kubernetes
-- Redis
-- RabbitMQ
-- microservices
-- GraphQL
-- OpenSearch / Elasticsearch
-- Temporal
-- multiple databases
-- service meshes
-- arbitrary generated code execution
-
-## Technology In Use
+## Technology currently in use
 
 - React
 - TypeScript
@@ -149,14 +169,19 @@ Until requirements justify them, do not add:
 - GitHub Pages
 - Oxlint
 
-## Continuity Rule
+Expected future technologies will be selected per the enterprise roadmap, with server/runtime and isolated execution infrastructure now justified.
+
+## Continuity rule
 
 At the beginning of future development sessions, read:
 
 1. `PROJECT_STATE.md`
-2. `ROADMAP.md`
-3. `ARCHITECTURE.md`
-4. `TESTER_GUIDE.md`
-5. the latest open issues/PRs and recent tester feedback
+2. `ENTERPRISE_VISION.md`
+3. `COMPETITIVE_RESEARCH.md`
+4. `ROADMAP.md`
+5. `ARCHITECTURE.md`
+6. the latest open issues/PRs and tester feedback
 
-The immediate post-v1 planning input should be real tester feedback, not speculative infrastructure work.
+Future feature proposals should be evaluated against one question:
+
+> **Does this make Polymorph feel more like a living, technically deep enterprise cyber-operations environment and less like a quiz or course?**

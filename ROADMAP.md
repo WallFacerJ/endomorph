@@ -1,235 +1,368 @@
 # Polymorph Roadmap
 
-Polymorph follows one rule: **complexity should emerge from demonstrated product requirements.** Infrastructure or abstractions are not milestones by themselves.
+Polymorph v1 proved the deterministic scenario/runtime architecture. Tester feedback and competitive research now justify a broader product goal: **build a deterministic cyber-operations digital twin and enterprise cyber-readiness platform, not a shallow training website.**
 
-## V1 - Local deterministic training product
+See `COMPETITIVE_RESEARCH.md` and `ENTERPRISE_VISION.md` for the market evidence and product north star.
 
-Status: **complete; release validation/deployment in progress on PR #40.**
+## Historical milestone - v1 deterministic training product
 
-V1 proves that one reusable deterministic runtime can power a student investigation, a scored response, an instructor review, and multiple declarative cybersecurity scenarios without hardcoding each incident into the UI.
+Status: **complete.**
 
-### Foundation - complete
+V1 established:
 
-- pnpm workspace with `apps/web`, `packages/domain`, `packages/schema`, and `packages/simulation`
-- TypeScript, React, Vite, Zod, Vitest, Oxlint, GitHub Actions
-- canonical normalized synthetic world models
-- semantic entity/reference validation
-- deterministic virtual clock and seeded random foundation
-- deterministic serialization/deserialization
+- canonical synthetic enterprise world state;
+- deterministic events/replay/snapshots/serialization;
+- identity, EDR, and SIEM projections over shared history;
+- declarative JSON scenarios;
+- analyst evidence/findings and response actions;
+- objective/result evaluation;
+- student and instructor views;
+- three scenarios;
+- Playwright browser coverage and public/static deployment support.
 
-### Event/runtime - complete for v1
-
-- typed authentication, account, session, process, file, network, endpoint, and alert event families
-- append-only event store
-- deterministic world reducers
-- replay and snapshots
-- synchronous event bus
-- pure projection framework
-- identity, EDR, and SIEM projections
-- cross-projection event/entity coherence coverage
-
-### Declarative scenarios - complete for v1
-
-- versioned JSON scenario contract
-- Zod structural validation
-- semantic scenario compiler
-- opening timelines and deterministic response actions
-- investigation focus metadata
-- declarative objectives
-- explicit finalization
-- deterministic objective scoring
-- authored response-quality penalties
-- authored ground-truth timeline metadata
-- validation of objective, response-action, and ground-truth references
-
-### Analyst experience - complete for v1
-
-- alert-first investigation workspace
-- SIEM timeline
-- endpoint and identity pivots
-- evidence collection
-- analyst-authored findings with evidence links
-- beneficial and harmful response choices
-- partial/full objective progress
-- explicit investigation submission
-- success/failure results
-- transparent objective score, response penalty, and final score
-- finalized read-only case
-- deterministic reset
-
-### Instructor experience - complete for v1
-
-- explicit local Instructor mode
-- ground truth hidden during the active student workflow
-- post-finalization incident summary and annotated source timeline
-- performed-action review and authored penalty rationale
-- deterministic score review
-
-V1 instructor mode is intentionally **not** a real authorization boundary.
-
-### V1 content - complete
-
-- Finance account compromise / encoded PowerShell
-- HR malware beacon / unsigned updater
-- privileged cloud-admin compromise / suspicious administrative tooling
-
-All are JSON-authored and execute through the same compiler/runtime/UI.
-
-### V1 release quality - final release slice
-
-- scenario selector
-- Student/Instructor mode control
-- first-time tester guide and feedback template
-- Playwright critical-path browser suite
-- CI coverage for build, lint, unit/integration, and browser tests
-- GitHub Pages deployment for public friend testing
-- v1.0.0 package/release marker
-
-Exit criteria:
-
-- fresh clone installs with the frozen lockfile;
-- root build/lint/unit/integration tests pass;
-- Chromium browser tests pass;
-- all three scenarios work in the hosted build;
-- public test URL and tester guide are shareable;
-- release is tagged `v1.0.0`.
+V1 should now be treated as a proof of the runtime model, not the target enterprise experience.
 
 ---
 
-## Post-v1 Phase A - Tester-driven polish
+# Enterprise evolution
 
-Status: next.
+## Phase 1 - Deep investigation and professional tool identity
 
-Goal: learn from people who were not involved in development.
+Status: **next.**
 
-Priorities:
+Goal: eliminate the "juvenile / surface-level / multiple-choice" feel before adding expensive infrastructure.
 
-- run first-time student tests with several people;
-- categorize confusion vs bugs vs content issues;
-- improve onboarding and navigation where evidence supports it;
-- tune scenario difficulty and response wording where tests show the answer is too obvious or unclear;
-- expand accessibility/keyboard/mobile behavior if testers need it;
-- add browser coverage for every regression discovered in real tests.
+### SIEM workspace
+
+- query language/search bar with useful operators;
+- time-range controls;
+- filters/facets;
+- saved searches;
+- event detail drawer/raw record view;
+- field pivots and entity pivots;
+- correlations and grouped timelines;
+- noise/benign events mixed with malicious activity;
+- large enough datasets that an analyst has to search rather than scroll a curated list.
+
+### EDR workspace
+
+- endpoint inventory;
+- process tree;
+- parent/child process pivots;
+- command lines, users, hashes, signatures, network/file activity;
+- endpoint timeline;
+- response operations attached to the endpoint context;
+- artifact acquisition hooks for the future Range layer.
+
+### Identity workspace
+
+- users/accounts/sessions/applications;
+- authentication history;
+- source/device/location/risk context;
+- privilege/group/role relationships;
+- session lifecycle;
+- identity-specific containment and access review.
+
+### Case / incident command redesign
+
+- evidence graph instead of a simple list;
+- hypotheses and findings;
+- indicators;
+- tasks, owners, status, and incident phase;
+- decisions and response actions;
+- bidirectional pivots to source evidence/tools;
+- unified incident timeline;
+- generated incident report from actual case state.
+
+### Assessment model
+
+- professional mode hides explicit score/objectives during active work by default;
+- response actions move into relevant tool/system context rather than obvious answer cards;
+- retain optional guided mode for learning;
+- score investigation coverage, state outcomes, harmful actions, timing/process, and evidence quality where deterministically measurable.
 
 Exit criteria:
 
-- recurring first-time-user blockers are resolved;
-- test feedback shows users can understand the investigation/submission loop without coaching.
+- an experienced tester can spend at least 30 minutes investigating the default scenario without exhausting the evidence surface;
+- the SIEM, EDR, Identity, and Case sections feel like different professional applications;
+- a tester can explain why Case is operationally useful;
+- successful response does not feel like choosing the obvious answer from a list.
 
-## Post-v1 Phase B - Server runtime and durable runs
+---
 
-Status: not started.
+## Phase 2 - Synthetic Infrastructure Fabric
 
-Add only when saved/resumable or multi-user runs are required.
+Status: **planned; now justified by tester feedback.**
 
-Likely scope:
+Goal: let analysts enter and manipulate investigation-critical systems rather than only reading dashboards.
 
-- small API service, probably Fastify;
-- durable storage, probably PostgreSQL + Drizzle;
-- persisted scenarios, runs, events, case state, findings, and scores;
-- resume/replay across process/browser restarts;
-- server-side validation at trust boundaries.
+### Stage 2A - deterministic synthetic hosts
+
+Implement a safe host runtime attached to Fabric assets:
+
+- virtual filesystem;
+- files and hashes/metadata;
+- processes and parent/child relationships;
+- services;
+- users/groups;
+- configuration/registry-like state;
+- local event logs;
+- connections/listeners;
+- controlled investigation command API;
+- deterministic snapshots/reset;
+- host actions recorded into run history.
+
+This stage provides depth cheaply and preserves deterministic replay.
+
+### Stage 2B - ephemeral container-backed assets
+
+Add server-side isolated workloads for scenarios requiring real Linux/service behavior:
+
+- prebuilt immutable images;
+- per-run network namespaces;
+- CPU/memory/time quotas;
+- denied unrestricted internet by default;
+- health checks and deterministic reset/snapshot strategy;
+- terminal streaming through the product;
+- instrumentation into Polymorph telemetry;
+- automatic teardown/cleanup.
+
+### Stage 2C - microVM/full-VM fidelity
+
+Use Firecracker/QEMU/other VM technology only where containers are insufficient, especially Windows/AD/appliance fidelity.
+
+Requirements before broad rollout:
+
+- strong isolation model;
+- capacity scheduling;
+- image versioning;
+- snapshot/startup SLOs;
+- observability;
+- cost controls;
+- environment cleanup guarantees.
 
 Exit criteria:
 
-- a run survives browser/process restart;
-- deterministic replay from persisted data matches the original run.
+- a scenario can mix inexpensive synthetic assets with one or more interactive runtime-backed systems;
+- an analyst can acquire evidence from an instance and have it appear coherently in Case and tool projections;
+- containment/recovery actions materially change both the system and its telemetry;
+- reset restores a known-good scenario state reliably.
 
-## Post-v1 Phase C - Real student/instructor roles
+---
 
-Status: not started.
+## Phase 3 - Enterprise telemetry breadth and digital-twin depth
 
-Requires the server/runtime work above.
+Status: planned.
 
-Scope:
+Expand the shared Fabric only where it enables deeper incidents.
 
-- authentication;
-- real authorization/capability checks;
-- server-enforced separation of student-visible data and instructor ground truth;
-- instructor run management and review;
-- durable assessment history.
+Domains:
+
+- email/mailboxes/messages/headers/attachments/links;
+- DNS/DHCP/proxy/firewall/NDR/PCAP-like network evidence;
+- cloud resources, IAM, control plane, audit logs, storage, workloads;
+- SaaS applications and OAuth/service principals;
+- Active Directory-style domain relationships and policy;
+- vulnerability/asset/configuration context;
+- data stores and sensitive-data/business criticality;
+- security controls/detections and control-health state;
+- background user/service behavior and normal traffic.
+
+Applications:
+
+- Email Security;
+- Network/NDR;
+- Cloud Security;
+- Threat Intelligence;
+- Malware/Sandbox;
+- Asset/Vulnerability context.
 
 Exit criteria:
 
-- a student cannot retrieve hidden ground truth through the client;
-- instructors can manage/review assigned runs through enforced roles.
+- at least one multi-stage incident crosses four or more distinct security domains;
+- every view remains explainably derived from the same run/world state;
+- raw evidence can be traced back to its causal event/system state.
 
-## Post-v1 Phase D - Headless tooling
+---
 
-Status: not started.
+## Phase 4 - Rich scenario engine and adversary orchestration
 
-Potential commands:
+Status: planned.
 
-- `polymorph validate <scenario>`
-- `polymorph run <scenario>`
-- `polymorph replay <run>`
-- `polymorph inspect <entity>`
+Goal: incidents evolve rather than replaying a static opening timeline.
 
-Goal: make scenario validation and deterministic execution useful outside React/browser workflows.
-
-## Post-v1 Phase E - Richer scenario engine
-
-Status: deferred until scenario requirements justify it.
-
-Possible additions:
+Capabilities:
 
 - preconditions;
 - triggers;
 - branches;
-- richer state transitions;
-- time controls;
-- more objective kinds;
-- MITRE ATT&CK metadata;
-- seeded generated variation.
+- virtual-time scheduling;
+- asynchronous background activity;
+- attacker/adversary plans mapped to ATT&CK;
+- adaptive paths based on defender action;
+- delayed/missing telemetry;
+- false positives and benign administrative behavior;
+- seeded variation;
+- recovery and re-compromise possibilities;
+- multi-stage incident objectives hidden from participants.
 
-XState belongs here only if authored statecharts become complex enough to justify it.
+Red/blue/purple support:
 
-## Post-v1 Phase F - More telemetry and projections
+- deterministic/sandboxed adversary actions;
+- live red-team operator actions where an interactive range is provisioned;
+- purple-team detection/control validation;
+- replayable attack-vs-response timeline.
 
-Status: demand-driven.
+Exit criteria:
 
-Potential additions:
+- the same scenario can meaningfully diverge based on defender choices;
+- different runs remain reproducible when given the same seed/actions;
+- attack, system, and defense actions share one audit/replay model.
 
-- email activity/projection;
-- endpoint inventory;
-- cloud-specific events/projections;
-- file activity depth;
-- richer detection/correlation metadata.
+---
 
-New event families should be added because scenarios need them, not to maximize schema size.
+## Phase 5 - Enterprise server and control plane
 
-## Post-v1 Phase G - Plugin SDK
+Status: planned.
 
-Status: not started.
+Goal: make Polymorph deployable, governable, and purchasable by organizations.
 
-Design only after at least one concrete external extension needs to add routes, projections, commands, or event producers without modifying core.
+Core platform:
 
-## Post-v1 Phase H - AI-assisted compilation
+- API/service runtime;
+- PostgreSQL-backed durable state;
+- run persistence/resume/replay;
+- organizations/tenants;
+- users, teams, cohorts, and roles;
+- SSO (SAML/OIDC) and SCIM;
+- real authorization boundaries;
+- assignments/campaigns/exercises;
+- run scheduling and concurrency/capacity management;
+- audit logs;
+- retention/data governance;
+- API/webhooks;
+- export/reporting.
 
-Status: not started.
+Manager/instructor experience:
 
-Goal: natural-language scenario/environment requests compile into validated declarative Polymorph definitions.
+- readiness baseline and progression;
+- ATT&CK/NICE coverage;
+- skill gaps by team/role;
+- investigation/containment/recovery metrics;
+- MTTD/MTTR and incident-process metrics;
+- case quality and missed-scope review;
+- run playback/comparison;
+- organization content library and approvals.
 
-Required boundary:
+Exit criteria:
 
-`natural language -> generated definition -> structural validation -> semantic validation -> deterministic runtime`
+- multiple users can collaborate on/resume a durable exercise;
+- tenant/role boundaries are enforced server-side;
+- managers can answer whether their team is improving and where it is weak;
+- enterprise data lifecycle is auditable.
 
-AI output remains untrusted data. It must not become arbitrary generated host execution.
+---
 
-## Advanced engineering - deferred until measured need
+## Phase 6 - Replay, rewind, branch, and compare
 
-Do not add these just because they are common platform technologies:
+Status: architecture-supported, product work not started.
 
-- Kafka
-- Kubernetes
-- Redis
-- RabbitMQ
-- microservices
-- GraphQL
-- OpenSearch / Elasticsearch
-- Temporal
-- service meshes
-- multiple databases
-- Rust / WebAssembly
+This should become a signature Polymorph capability.
 
-Add observability, search, performance infrastructure, or alternative runtimes only when profiling or product requirements justify them.
+Capabilities:
+
+- point-in-time state inspection;
+- replay scrubbing;
+- branch from checkpoint;
+- compare alternative response paths;
+- explain why a tool displayed an observation;
+- compare analyst/team decisions;
+- instructor playback;
+- export/import deterministic run bundles;
+- after-action timeline reconstruction.
+
+Exit criteria:
+
+- an instructor can rewind a completed incident, fork an alternative containment decision, and compare resulting impact;
+- any scored result can be explained and reproduced from run data.
+
+---
+
+## Phase 7 - Polymorph Forge: digital-twin/scenario authoring
+
+Status: planned.
+
+Goal: make deep enterprise ranges cheaper to create than incumbent high-touch cyber ranges.
+
+Capabilities:
+
+- topology/world visual builder;
+- reusable enterprise templates;
+- identity/network/cloud/application templates;
+- security-stack templates;
+- scenario/adversary timeline builder;
+- ATT&CK mapping;
+- normal-activity generators;
+- telemetry-source selection;
+- per-asset fidelity selection: synthetic / container / VM;
+- authored assessment policies;
+- validation and preview;
+- versioning, review, approvals, publishing;
+- customer environment import/adapters where safe and appropriate.
+
+Exit criteria:
+
+- a trained author can create a multi-domain scenario without editing application code;
+- changing an asset's fidelity does not require redesigning the scenario's logical world.
+
+---
+
+## Phase 8 - Deployment, integrations, and enterprise ecosystem
+
+Potential scope:
+
+- managed cloud;
+- private cloud/VPC deployment;
+- on-prem installation where customers require it;
+- SIEM/EDR/security-tool adapters;
+- LMS/LTI integrations where training buyers need them;
+- ticketing/case-platform integrations;
+- identity-provider integrations;
+- reporting/data export;
+- plugin/extension SDK once external integration requirements are concrete.
+
+Infrastructure such as Kubernetes, Redis, queues, search engines, or service decomposition is allowed when scale/reliability requirements justify it. They are still implementation choices, not product goals.
+
+---
+
+## Phase 9 - AI and autonomous-agent proving ground
+
+Status: future.
+
+Use cases:
+
+- AI-assisted scenario/digital-twin authoring as untrusted compilation into validated definitions;
+- analyst copilots with measurable effects on performance;
+- adversary-agent simulation within isolated range policy;
+- evaluation of AI SOC agents against deterministic incidents;
+- human-vs-agent and human+agent comparison;
+- precision-labeled synthetic telemetry/training data generated from known ground truth.
+
+Safety boundary:
+
+AI output must remain constrained by validated scenario/range capabilities. No unrestricted arbitrary host execution or uncontrolled external attack capability.
+
+---
+
+# Product rules going forward
+
+1. **Depth over scenario count.** A deeply explorable incident is worth more than many shallow exercises.
+2. **Professional work over courseware.** The platform should feel like cyber operations first.
+3. **One causal world.** Tool views must stay interconnected.
+4. **Interactive systems where they create real investigative value.**
+5. **Reliability is a feature.** High-fidelity labs that do not start/reset reliably fail the product.
+6. **Progressive assistance, not forced simplicity.** Beginners and experts use the same underlying world at different assistance levels.
+7. **Deterministic replay remains non-negotiable wherever technically possible.**
+8. **Enterprise requirements are now first-class:** security, roles, auditability, readiness analytics, integrations, deployment controls, and cost/capacity management.
+9. **Do not copy competitors' surface UI.** Adopt proven strengths while using Polymorph's coherent digital twin and replay architecture to create a distinct experience.
+10. **Every major feature should answer:** does this make Polymorph feel more like a living enterprise and less like a quiz?
