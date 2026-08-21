@@ -7,7 +7,7 @@ import {
 async function openInvestigation(
   page: Page,
 ) {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
   await page.getByRole(
     "button",
     { name: "Open investigation" },
@@ -81,7 +81,7 @@ async function performCleanResponse(
 test("loads and switches among the shipped v1 scenarios", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   await expect(
     page.getByRole("heading", {
@@ -288,7 +288,7 @@ test("finalized analyst case is read-only until reset", async ({
 test("instructor mode reveals ground truth only after finalization", async ({
   page,
 }) => {
-  await page.goto("/?mode=instructor");
+  await page.goto("/?scenario=/scenarios/account-compromise.json&mode=instructor");
   await page.getByRole(
     "button",
     { name: "Open investigation" },
@@ -338,7 +338,7 @@ test("instructor mode reveals ground truth only after finalization", async ({
 test("first-run orientation is present and dismissible", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   // Onboarding used to hide behind a "Quick test" dropdown in the control
   // row, which made it look like a setting and gave someone arriving cold
@@ -387,7 +387,7 @@ test("first-run orientation is present and dismissible", async ({
 test("interface style persists across reloads", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   const styleSelector = page.getByLabel(
     "Select interface style",

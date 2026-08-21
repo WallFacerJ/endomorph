@@ -46,8 +46,16 @@ export const SHIPPED_SCENARIOS:
     },
   ];
 
+/**
+ * A generated scenario is the default.
+ *
+ * The hand-authored v1 scenarios predate the generator and carry no ATT&CK
+ * mapping, no investigation questions, and no analytical reasoning in their
+ * ground truth. Landing a first-time visitor on one showed them the
+ * thinnest version of the product.
+ */
 export const DEFAULT_SCENARIO_PATH =
-  SHIPPED_SCENARIOS[0].path;
+  "/scenarios/generated-enterprise.json";
 
 export function resolveScenarioPath(
   search: string,

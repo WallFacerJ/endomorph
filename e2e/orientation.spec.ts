@@ -11,7 +11,7 @@ import {
 test("navigation groups tools by phase and says what each is for", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   const nav = page.getByRole(
     "navigation",
@@ -44,7 +44,7 @@ test("navigation groups tools by phase and says what each is for", async ({
 test("assistance is one scale, not two overlapping controls", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   const group = page.getByRole(
     "radiogroup",
@@ -105,7 +105,7 @@ test("assistance is one scale, not two overlapping controls", async ({
 test("guided sits between professional and instructor", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   const group = page.getByRole(
     "radiogroup",
@@ -190,7 +190,7 @@ test("walkthrough steps explain reasoning, not just what happened", async ({
 test("the result reports coverage and names what was missed", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   // Finalize immediately: correct containment is possible without ever
   // scoping the intrusion, and objective scoring cannot tell the two apart.
@@ -220,4 +220,39 @@ test("the result reports coverage and names what was missed", async ({
   await expect(result).toContainText(
     "Never opened",
   );
+});
+
+test("the default scenario is a generated one", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  // The hand-authored v1 scenarios carry no ATT&CK mapping, no questions,
+  // and no analytical reasoning. Landing a first-time visitor on one showed
+  // them the thinnest version of the product.
+  await expect(
+    page.getByRole("combobox", {
+      name: "Select training scenario",
+    }),
+  ).toHaveValue(
+    "/scenarios/generated-enterprise.json",
+  );
+
+  await page
+    .getByRole("navigation")
+    .getByRole("button", {
+      name: "Investigation",
+    })
+    .click();
+
+  // The depth that makes it worth defaulting to.
+  await expect(
+    page.getByRole("region", {
+      name: "Investigation brief",
+    }),
+  ).toBeVisible();
+
+  await expect(
+    page.locator("body"),
+  ).toContainText("MITRE ATT&CK");
 });

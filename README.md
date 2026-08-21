@@ -95,10 +95,10 @@ Endomorph includes:
 
 | Scenario | Entities | Events | Notes |
 | --- | --- | --- | --- |
-| **Finance account compromise** | 15 | 34 | Suspicious login, encoded PowerShell, correlated outbound activity. Default. |
+| **Finance account compromise** | 15 | 34 | Suspicious login, encoded PowerShell, correlated outbound activity. |
 | **HR malware beacon** | 7 | 6 | Compromised HR session, unsigned executable, outbound beacon. |
 | **Cloud-admin compromise** | 7 | 6 | Privileged identity compromise and suspicious administrative tooling. |
-| **Generated: external credential compromise** | 444 | ~17.9k | Password spray from hosting infrastructure, encoded PowerShell, C2 beacon, lateral movement. |
+| **Generated: external credential compromise** | 444 | ~17.9k | Password spray from hosting infrastructure, encoded PowerShell, C2 beacon, lateral movement. **Default.** |
 | **Generated: privileged insider** | 444 | ~17.8k | No external address anywhere. A valid admin account, its own workstation, deviation from its own baseline. |
 | **Generated: service account abuse** | 444 | ~17.8k | A valid privileged credential used from a host it has no history with. All traffic internal. |
 

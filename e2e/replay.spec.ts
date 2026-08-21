@@ -150,7 +150,10 @@ test("walks backward through the incident step by step", async ({
 test("refuses response actions while rewound", async ({
   page,
 }) => {
-  await page.goto("/");
+  // A small scenario is enough here; this asserts refusal, not scale.
+  await page.goto(
+    "/?scenario=/scenarios/account-compromise.json",
+  );
   await page
     .getByRole("button", {
       name: "Open investigation",

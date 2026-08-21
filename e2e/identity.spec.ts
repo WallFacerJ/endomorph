@@ -6,7 +6,7 @@ import {
 test("Identity distinguishes authentication provenance and pivots the same event into SIEM and Case", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   await page.getByRole(
     "button",
@@ -113,7 +113,7 @@ test("Identity distinguishes authentication provenance and pivots the same event
 test("Identity performs session and account containment from the affected account context", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   await page.getByRole(
     "button",

@@ -6,7 +6,7 @@ import {
 test("EDR traces process ancestry and pivots the same event into SIEM and Case", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   await page.getByRole(
     "button",
@@ -118,7 +118,7 @@ test("EDR traces process ancestry and pivots the same event into SIEM and Case",
 test("EDR endpoint activity separates process, network, file, and alert investigations", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
   await page.getByRole(
     "button",
     { name: "Endpoint" },

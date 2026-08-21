@@ -15,7 +15,7 @@ import {
 async function openInvestigation(
   page: import("@playwright/test").Page,
 ) {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
   await page
     .getByRole("button", {
       name: "Open investigation",

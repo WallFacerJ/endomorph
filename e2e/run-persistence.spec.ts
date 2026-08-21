@@ -12,7 +12,7 @@ import {
 test("a run survives a reload", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
   await page
     .getByRole("button", {
       name: "Open investigation",
@@ -68,7 +68,7 @@ test("a run survives a reload", async ({
 test("resetting the scenario clears the saved run", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
   await page
     .getByRole("button", {
       name: "Open investigation",
@@ -103,7 +103,7 @@ test("resetting the scenario clears the saved run", async ({
 test("a fresh scenario does not claim to be resumed", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   await expect(
     page.getByText("Run resumed"),

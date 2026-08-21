@@ -6,7 +6,7 @@ import {
 test("SIEM search filters noisy telemetry and preserves evidence in Case", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
 
   await page.getByRole(
     "button",
@@ -91,7 +91,7 @@ test("SIEM search filters noisy telemetry and preserves evidence in Case", async
 test("SIEM supports field pivots and run-local saved searches", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?scenario=/scenarios/account-compromise.json");
   await page.getByRole(
     "button",
     { name: "SIEM Search" },
