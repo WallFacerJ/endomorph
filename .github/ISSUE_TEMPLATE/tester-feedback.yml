@@ -1,0 +1,83 @@
+name: Polymorph v1 tester feedback
+description: Share first-time user feedback or a reproducible v1 testing problem.
+title: "tester feedback: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing Polymorph v1. Please avoid including real credentials, secrets, personal information, or production incident data.
+
+  - type: dropdown
+    id: experience
+    attributes:
+      label: Cybersecurity experience
+      options:
+        - None
+        - Some / student
+        - Professional
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and operating system
+      placeholder: "Chrome on Windows 11"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scenario
+    attributes:
+      label: Scenario tested
+      options:
+        - Finance account compromise
+        - HR malware beacon
+        - Cloud-admin compromise
+        - Multiple scenarios
+    validations:
+      required: true
+
+  - type: textarea
+    id: first-impression
+    attributes:
+      label: What did you think your goal was when the page first loaded?
+    validations:
+      required: true
+
+  - type: textarea
+    id: confusion
+    attributes:
+      label: Where did you first get confused or slowed down?
+    validations:
+      required: true
+
+  - type: textarea
+    id: response
+    attributes:
+      label: Which response action(s) did you choose, and why?
+
+  - type: textarea
+    id: scoring
+    attributes:
+      label: Did the final result and score make sense?
+      description: Mention anything unclear about objectives, penalties, or final score.
+
+  - type: textarea
+    id: realism
+    attributes:
+      label: What felt most realistic/useful, and what felt artificial or too obvious?
+
+  - type: textarea
+    id: bug
+    attributes:
+      label: Bugs or unexpected behavior
+      description: Include steps to reproduce, expected result, actual result, and screenshots/video if useful.
+
+  - type: textarea
+    id: one-change
+    attributes:
+      label: What is the one change that would most improve the experience?
+    validations:
+      required: true

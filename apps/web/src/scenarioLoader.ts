@@ -10,8 +10,29 @@ import type {
   ScenarioDefinition,
 } from "./simulationAdapter";
 
+export interface ShippedScenario {
+  path: string;
+  label: string;
+}
+
+export const SHIPPED_SCENARIOS:
+  readonly ShippedScenario[] = [
+    {
+      path: "/scenarios/account-compromise.json",
+      label: "Finance account compromise",
+    },
+    {
+      path: "/scenarios/hr-malware-beacon.json",
+      label: "HR malware beacon",
+    },
+    {
+      path: "/scenarios/cloud-admin-compromise.json",
+      label: "Cloud-admin compromise",
+    },
+  ];
+
 export const DEFAULT_SCENARIO_PATH =
-  "/scenarios/account-compromise.json";
+  SHIPPED_SCENARIOS[0].path;
 
 export function resolveScenarioPath(
   search: string,
@@ -31,6 +52,17 @@ export function resolveScenarioPath(
   return DEFAULT_SCENARIO_PATH;
 }
 
+function resolveHostedScenarioPath(
+  path: string,
+): string {
+  const relativePath =
+    path.startsWith("/")
+      ? path.slice(1)
+      : path;
+
+  return `${import.meta.env.BASE_URL}${relativePath}`;
+}
+
 export function compileScenarioPayload(
   input: unknown,
 ): ScenarioDefinition {
@@ -45,9 +77,12 @@ export function compileScenarioPayload(
 export async function loadScenario(
   path: string,
 ): Promise<ScenarioDefinition> {
-  const response = await fetch(path, {
-    cache: "no-store",
-  });
+  const response = await fetch(
+    resolveHostedScenarioPath(path),
+    {
+      cache: "no-store",
+    },
+  );
 
   if (!response.ok) {
     throw new Error(

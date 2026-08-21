@@ -1,134 +1,140 @@
 # Polymorph Project State
 
-## Current Goal
+## Project Identity
 
-Build a deterministic cybersecurity simulation platform capable of rendering multiple interconnected applications over one shared synthetic enterprise world.
+Polymorph is a deterministic, schema-driven cybersecurity simulation and training runtime. It models one shared synthetic enterprise world, applies typed append-only events, rebuilds security-application projections from that history, and runs validated declarative scenarios through student and instructor workflows.
+
+Polymorph is not a phishing kit, credential-harvesting system, arbitrary code-execution environment, or production security-control platform. Current scenarios and data are synthetic only.
 
 ## Current Milestone
 
-Validate the finalized success/failure analyst loop hands-on, then introduce response-quality evaluation only when a scenario contains a genuinely unnecessary or harmful response choice.
+**Polymorph v1 product scope is complete.**
 
-## Completed
+The active release slice is the final v1 packaging, browser-regression, documentation, and public-hosting pass. The release branch is `release/v1` and the release PR is #40.
 
-- GitHub repository established
-- React + TypeScript + Vite frontend prototype
-- Schema-driven page renderer
-- Reusable component renderer
-- Behavior engine
-- Chained actions
-- Initial security-console style demo
-- pnpm workspace/monorepo established
-- Existing React application moved to `apps/web`
-- `@polymorph/schema` package created
-- Zod runtime validation added for application specifications
-- `@polymorph/domain` package created
-- Initial Organization, User, Account, Device, File, Session, Application, and Event models
-- Initial interconnected synthetic enterprise fixture
-- Vitest testing foundation established
-- GitHub Actions CI established
-- `@polymorph/simulation` package created
-- Normalized `WorldState`
-- Deterministic `VirtualClock`
-- Deterministic seeded pseudo-random generator
-- Append-only in-memory event store
-- Deterministic event replay
-- Simulation snapshots and snapshot-assisted replay
-- Typed cybersecurity event families for authentication, identity, sessions, processes, files, network activity, endpoints, and alerts
-- Exhaustive event classification with compiler-enforced handling
-- Deterministic account enable/disable reducers
-- Deterministic session creation/revocation reducers
-- Reusable semantic event validation for world/entity references
-- Deterministic synchronous in-memory event bus with registration-order delivery and unsubscribe support
-- Generic pure projection contract with live application and ordered-history rebuild
-- Identity activity projection over authentication, account, and session events
-- EDR telemetry projection over endpoint, process, file, network, and alert events
-- Latest endpoint observations plus ordered EDR telemetry with shared event correlation ids
-- SIEM normalized event projection across all current event families
-- Deterministic SIEM event-family/type counters and alert correlation metadata
-- Live/replay projection equivalence coverage
-- Multi-subscriber and multi-projection observation of shared events
-- Correlated login → process execution → alert coherence proof across identity, EDR, and SIEM
-- Live/replay equivalence for the correlated cross-projection incident history
-- Deterministic derived relationship indexes across organizations, users, accounts, devices, files, applications, and sessions
-- Reusable semantic world validation for missing references, organization consistency, bidirectional relationships, and session time invariants
-- Versioned deterministic JSON serialization for world state and simulation snapshots
-- Structural and semantic validation of untrusted serialized runtime state
-- Canonical serialized object-key ordering for stable equivalent-state bytes
-- Minimal deterministic scenario runtime with ordered opening history and analyst response actions
-- First playable alert-first account-compromise investigation across identity, EDR, and SIEM views
-- Deterministic containment that revokes the compromised session and disables the account
-- Browser reset/replay for the playable scenario
-- Manual browser validation of the first playable investigation
-- Versioned Zod-backed JSON scenario file contract for all current world entities and event families
-- Semantic scenario compiler that normalizes author-friendly world seeds and reuses runtime validation/replay
-- Investigation focus metadata that removes hardcoded scenario entity ids from the analyst workspace
-- Editable account-compromise JSON scenario with browser loading and validation feedback
-- Scenario selection through local `/scenarios/` query paths for contributor-authored variants
-- Scenario authoring guide and automated fixture-compilation coverage
-- First-class analyst case state separated from canonical world state and scenario ground truth
-- Evidence collection by immutable simulation event id without duplicating telemetry payloads
-- Evidence collection from SIEM timeline, endpoint telemetry, and identity activity
-- Analyst-authored findings with validated links to collected evidence
-- Case state that survives containment and clears on scenario reset
-- Automated analyst-case invariants for missing, duplicate, and uncollected evidence references
-- Formal pnpm workspace dependency from `apps/web` to `@polymorph/simulation` with declared simulation-to-schema dependency
-- Web simulation imports routed through the package export instead of relative source paths
-- Fresh development startup builds the simulation dependency chain before launching Vite
-- pnpm-generated lockfile validated by frozen-install CI
-- Declarative typed scenario objectives for account and session status without executable predicates
-- Unique objective-id and semantic target validation against deterministic scenario state
-- Pure deterministic scenario outcome evaluation with active `in_progress` and `succeeded` states
-- Account-compromise response goals requiring session revocation and account disablement
-- Investigation objective-progress UI driven directly by runtime outcome state
-- Reset returns objective progress to the initial deterministic state
-- Pure equal-weight deterministic scenario score derived from objective completion
-- Scenario state exposes completed-objective count, total-objective count, and deterministic percentage
-- Post-incident report shows response-action, evidence, and finding counts without secretly grading analyst-authored content
-- Deterministic score coverage for zero, partial, full, repeated, and reset evaluation
-- Ordered multi-action investigation response metadata with backward-compatible primary-action normalization
-- Semantic validation for empty, duplicate, missing, and inconsistent response-action declarations
-- Account-compromise containment split into independent session-revocation and account-disablement actions
-- Deterministic 50% partial objective progress after either response action and 100% success after both
-- Alternate response ordering produces the same final world while preserving performed-action order
-- Analyst remediation chooser renders scenario-declared actions, performed state, and runtime score
-- Case evidence and findings remain intact across individual remediation actions and clear only on reset
-- Explicit deterministic investigation finalization separated from cybersecurity event history
-- Scenario outcome status supports finalized `failed` without treating intermediate incomplete states as failure
-- Finalizing zero or partial progress preserves the deterministic 0% or 50% score while ending the run as failed
-- Finalizing complete remediation preserves 100% and succeeds
-- Finalization does not mutate canonical world state or append synthetic events
-- Finalized runs freeze further remediation actions until reset
-- Post-incident results render both succeeded and failed submissions with objective and case context
-- Reset reconstructs a fresh active, non-finalized run
-- Automated test coverage across domain, schema, simulation, scenario, analyst-case, outcome, scoring, remediation-choice, and finalization boundaries
+The v1 exit condition is:
 
-## Next Milestones
+- frozen dependency install succeeds;
+- workspace build succeeds;
+- lint succeeds;
+- deterministic unit/integration suite succeeds;
+- Chromium Playwright critical-path suite succeeds;
+- the hosted GitHub Pages build loads all three scenarios correctly under the repository base path;
+- first-time tester documentation is published;
+- the release PR is merged and tagged `v1.0.0`.
 
-1. Manually validate the 0%, 50%, and 100% finalized investigation paths in the browser before merging the finalization slice
-2. Add a genuinely unnecessary or harmful response choice before introducing response-quality penalties or weighted evaluation
-3. Add hidden ground-truth metadata and instructor-facing evaluation only after the student investigation loop is stable
-4. Add branching, triggers, and richer scenario transitions only when demonstrated scenarios require them
-5. Expand cybersecurity telemetry only where scenario or projection requirements justify it
+## V1 Product Surface
 
-## Architectural Direction
+### Deterministic runtime
 
-Polymorph should evolve around these principles:
+- pnpm workspace/monorepo
+- canonical normalized `WorldState`
+- deterministic virtual clock and seeded pseudo-random generator
+- typed authentication, identity, session, process, file, network, endpoint, and alert events
+- append-only in-memory event store
+- deterministic reducers, replay, snapshots, and snapshot-assisted replay
+- semantic world/event/reference validation
+- deterministic serialization/deserialization
+- synchronous event bus
+- pure replayable projection contract
+- identity projection
+- EDR projection
+- SIEM projection
+- cross-projection coherence tests over shared event IDs/entity IDs
 
-- Deterministic simulation
-- Seeded randomness
-- Virtual simulation clock
-- Shared synthetic world state
-- Append-only event history
-- Event sourcing and replayable projections
-- Typed cybersecurity event contracts
-- Schema validation plus semantic validation
-- Ground truth separated from analyst-visible knowledge
-- Capability-based authorization
-- Plugin SDK
-- Headless API and CLI support
-- AI as a compiler frontend rather than the runtime
-- UI as a projection of state rather than the source of truth
-- Strict simulation boundaries with synthetic data and no arbitrary generated host execution
+### Declarative scenario runtime
+
+- versioned Zod-backed JSON scenario contract
+- semantic scenario compiler
+- author-friendly world seeds compiled into canonical world state
+- ordered opening event history
+- ordered deterministic response actions
+- investigation focus metadata
+- declarative account/session objectives
+- deterministic active/finalized outcome evaluation
+- explicit finalization boundary that does not append fake simulation events
+- deterministic partial/full objective scoring
+- optional authored response-quality penalties and rationale
+- optional ground-truth incident summary and event annotations
+- semantic validation of response actions, objectives, and ground-truth references
+
+### Student investigation experience
+
+- alert-first workspace
+- correlated SIEM timeline
+- endpoint and identity pivots
+- evidence collection by immutable event ID
+- analyst case state separate from canonical world state
+- analyst-authored findings linked to collected evidence
+- scenario-declared response-action chooser
+- beneficial and harmful response choices
+- explicit investigation finalization
+- 0%, partial, and full objective outcomes
+- post-finalization response-quality penalty and final score
+- finalized case becomes read-only until reset
+- reset reconstructs a clean deterministic run
+
+### Instructor review
+
+- explicit local Instructor mode
+- ground truth hidden during active student workflow
+- post-finalization ground-truth incident summary
+- annotated source-event timeline
+- performed response-action review
+- authored rationale for assessed actions
+- objective score, penalty, and final score review
+
+Instructor mode in v1 is a presentation boundary, not real authentication/authorization.
+
+### V1 scenario set
+
+1. Finance account compromise with suspicious login, encoded PowerShell, and correlated outbound activity.
+2. HR malware-beacon incident with a compromised session and unsigned executable activity.
+3. Cloud-admin compromise with suspicious privileged tooling and outbound activity.
+
+All three are ordinary JSON scenarios using the same compiler/runtime/UI; there is no scenario-specific TypeScript execution path.
+
+### Release/testability
+
+- in-product scenario selector
+- Student/Instructor mode control
+- preserved scenario deep links
+- first-time tester guide with feedback template
+- Playwright browser-regression suite for the critical v1 workflows
+- GitHub Actions CI
+- GitHub Pages deployment workflow for a no-install friend-testing URL
+- base-path-safe Vite/scenario loading for repository-hosted deployment
+
+## Post-v1 Priorities
+
+Do not expand architecture merely to make the repository look larger. The next work should be driven by actual tester feedback and concrete product needs.
+
+Likely post-v1 sequence:
+
+1. Collect first-time user feedback and fix usability defects exposed by real testers.
+2. Add durable run persistence and a small server runtime when saved/resumable runs are required.
+3. Add real student/instructor authentication and authorization before using hidden answers for real assessment.
+4. Add a headless scenario validation/run CLI.
+5. Expand scenario transitions, triggers, branches, and telemetry only when new scenarios require them.
+6. Add additional projections such as email or endpoint inventory only when a scenario needs them.
+7. Design a plugin SDK only after at least one external extension requirement is concrete.
+8. Explore AI-assisted scenario compilation only as an untrusted compiler frontend into validated declarative specs.
+
+## Explicitly Deferred
+
+Until requirements justify them, do not add:
+
+- Kafka
+- Kubernetes
+- Redis
+- RabbitMQ
+- microservices
+- GraphQL
+- OpenSearch / Elasticsearch
+- Temporal
+- multiple databases
+- service meshes
+- arbitrary generated code execution
 
 ## Technology In Use
 
@@ -138,56 +144,19 @@ Polymorph should evolve around these principles:
 - pnpm workspaces
 - Zod
 - Vitest
+- Playwright
 - GitHub Actions
+- GitHub Pages
 - Oxlint
-
-## Planned Technology Direction
-
-Add technologies only when the architecture needs them.
-
-Likely future additions:
-
-- XState when scenario statecharts justify it
-- Fastify when a backend API is introduced
-- PostgreSQL when durable persistence is required
-- Drizzle for typed database access
-- TanStack Query for server-state synchronization in the web app
-- Playwright for end-to-end workflows
-- Storybook when the component library becomes substantial
-- Docker Compose when API + database infrastructure exists
-- OpenTelemetry when backend/runtime observability becomes useful
-
-## Explicitly Deferred
-
-Do not introduce these unless a concrete requirement or measurement justifies them:
-
-- Kafka
-- Kubernetes
-- Redis
-- RabbitMQ
-- Microservices
-- GraphQL
-- OpenSearch / Elasticsearch
-- Temporal
-- Rust / WebAssembly
-- Service meshes
-- Multiple databases
-
-## Project Identity
-
-Polymorph is a deterministic, schema-driven cybersecurity simulation runtime.
-
-It is not an AI website generator, phishing kit, credential-harvesting platform, arbitrary code execution environment, or collection of unrelated fake dashboards.
 
 ## Continuity Rule
 
-This file is the canonical short-form handoff document for future development sessions.
-
-At the beginning of a new session, read:
+At the beginning of future development sessions, read:
 
 1. `PROJECT_STATE.md`
 2. `ROADMAP.md`
 3. `ARCHITECTURE.md`
-4. The latest commits and open pull requests
+4. `TESTER_GUIDE.md`
+5. the latest open issues/PRs and recent tester feedback
 
-Update this file whenever a substantial milestone is completed or the architectural direction changes.
+The immediate post-v1 planning input should be real tester feedback, not speculative infrastructure work.

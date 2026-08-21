@@ -1,39 +1,134 @@
 # Polymorph
 
-Polymorph is a deterministic, schema-driven cybersecurity simulation platform for building interconnected synthetic enterprise environments and replayable security scenarios.
+Polymorph v1 is a deterministic, schema-driven cybersecurity training simulation. A student investigates synthetic identity, endpoint, and SIEM telemetry over one shared world, collects evidence, writes findings, chooses response actions, submits the investigation, and receives a reproducible result. In instructor mode, a completed run can be compared with authored ground truth.
 
-Rather than generating a separate hardcoded application for each prompt, Polymorph is being designed as a reusable runtime with a shared synthetic world, event-driven behavior, multiple application projections, scenario replay, and controlled AI-assisted environment generation.
+## Try Polymorph v1
 
-## Project Goals
+**Hosted app:** https://wallfacerj.github.io/polymorph/
 
-Polymorph aims to support:
+The hosted build is deployed from `main` with GitHub Pages. If the deployment is temporarily unavailable, use the local quick start below.
 
-- Synthetic organizations, users, accounts, devices, files, sessions, and applications
-- Multiple simulated applications backed by one shared world state
-- Deterministic scenarios using a virtual clock and seeded randomness
-- Append-only security and business events with replayable projections
-- SIEM, EDR, identity, email, cloud, HR, and other application views over shared data
-- Scenario authoring, validation, snapshots, replay, scoring, and ground truth
-- Capability-based authorization for simulated users and analysts
-- A plugin SDK for extending applications and event projections
-- Headless execution through an API and CLI
-- AI-assisted compilation from natural language into validated Polymorph specifications
-- Strict simulation boundaries: synthetic data only, no credential harvesting, and no arbitrary generated host execution
+If you are testing Polymorph for the first time, start with [TESTER_GUIDE.md](TESTER_GUIDE.md). It includes a 10–15 minute unscripted test, edge cases worth trying, and a copy/paste feedback template.
 
-## What Polymorph Is Not
+## What ships in v1
 
-Polymorph is not intended to be:
+Polymorph v1 includes:
 
-- An AI website generator
-- A phishing kit
-- A credential-capture system
-- An arbitrary code execution framework
-- A collection of disconnected fake dashboards
+- one deterministic synthetic enterprise world per scenario;
+- shared identity, EDR, and SIEM projections over the same event history;
+- an alert-first analyst workspace with timeline, endpoint, identity, and case views;
+- evidence collection by immutable event ID;
+- analyst-authored findings linked to collected evidence;
+- multiple deterministic response choices, including an intentionally harmful choice;
+- explicit investigation finalization with success/failure and partial completion;
+- transparent objective score, response-quality penalty, and final score;
+- a read-only finalized case until reset;
+- post-finalization instructor ground-truth review;
+- three JSON-authored scenarios selectable in the UI;
+- deterministic replay/unit/integration coverage plus browser-level Playwright tests.
 
-## Current Status
+## Included scenarios
 
-The repository currently contains a React + TypeScript + Vite prototype that demonstrates schema-driven pages, reusable components, a behavior engine, and chained actions.
+1. **Finance account compromise** — suspicious login, encoded PowerShell, and correlated outbound activity.
+2. **HR malware beacon** — compromised HR session, unsigned executable activity, and an outbound beacon.
+3. **Cloud-admin compromise** — privileged identity compromise followed by suspicious administrative tooling and network activity.
 
-The next architectural milestone is to convert the repository into a pnpm workspace/monorepo and separate the UI from the domain, schema, and simulation runtimes.
+Use the **Scenario** selector in the application to switch between them. Direct deep links using `?scenario=/scenarios/<file>.json` are also supported for local/custom authoring.
 
-See [PROJECT_STATE.md](PROJECT_STATE.md), [ROADMAP.md](ROADMAP.md), and [ARCHITECTURE.md](ARCHITECTURE.md) for the current plan and design direction.
+## Student workflow
+
+A normal run is intentionally simple:
+
+1. Open an alert.
+2. Investigate the correlated timeline.
+3. Pivot to endpoint and identity context as needed.
+4. Collect evidence.
+5. Build an evidence-backed case finding.
+6. Choose response actions based on the evidence.
+7. Finalize the investigation.
+8. Review objective completion, any response penalty, and the final score.
+9. Reset or switch scenarios for another deterministic run.
+
+Student mode does not reveal ground truth or authored response-quality rationale before submission.
+
+## Instructor mode
+
+Use the **Instructor mode** control in the app, or add `?mode=instructor` to a scenario URL. Ground truth is shown only after the investigation is finalized.
+
+Instructor mode is a **presentation boundary, not an authentication/security boundary** in v1. The current product is a local/static client application. Do not use this mode to protect assessment answers in a real classroom deployment; real role enforcement belongs in a future server-backed runtime.
+
+## Local quick start
+
+Requirements:
+
+- Node.js 24
+- pnpm 11.22.0 (the repository declares the package-manager version)
+
+```bash
+git clone https://github.com/WallFacerJ/polymorph.git
+cd polymorph
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+Open the Vite URL printed in the terminal, normally `http://localhost:5173`.
+
+## Validation commands
+
+```bash
+pnpm build
+pnpm lint
+pnpm test:run
+```
+
+For browser regression tests:
+
+```bash
+pnpm exec playwright install chromium
+pnpm test:e2e
+```
+
+CI runs frozen dependency installation, build, lint, deterministic unit/integration tests, and the Chromium Playwright suite.
+
+## First-time user testing
+
+For friend/user testing, share two things:
+
+1. the hosted app: https://wallfacerj.github.io/polymorph/
+2. the first-time protocol: [TESTER_GUIDE.md](TESTER_GUIDE.md)
+
+The most valuable first test is **not** a guided demo. Ask the tester to stay in Student mode, investigate one scenario without being told the correct response, finalize it, then explain where they were confused and whether the result made sense. The guide includes a structured feedback template and optional failure/penalty/read-only checks.
+
+## Scenario authoring
+
+Shipped scenarios live in `apps/web/public/scenarios/` and use the versioned `polymorph-scenario` JSON contract. The scenario compiler performs structural validation with Zod, semantic world/event/reference validation, deterministic replay validation, objective validation, response-action validation, and ground-truth reference validation before a scenario is allowed into the workspace.
+
+See [SCENARIO_AUTHORING.md](SCENARIO_AUTHORING.md) for the authoring contract and workflow.
+
+## Architecture boundaries
+
+Polymorph v1 deliberately keeps these concepts separate:
+
+- **World state** is the canonical synthetic enterprise state.
+- **Simulation events** form append-only deterministic history.
+- **Identity / EDR / SIEM** are projections of shared history, not private sources of truth.
+- **Analyst case state** stores collected event IDs and analyst-authored findings, not duplicated canonical telemetry.
+- **Objectives** grade resulting canonical state.
+- **Response-quality penalties** come only from declarative scenario metadata for performed actions.
+- **Ground truth** is authored assessment metadata and is not student-visible during an active investigation.
+
+The current hosted application is intentionally client-only and in-memory. Refreshing the page starts a fresh run. Durable users/runs, real authentication/authorization, persistence, plugins, and server APIs are post-v1 work.
+
+## Safety boundary
+
+Polymorph is for synthetic simulation only. It is not a phishing kit, credential-capture system, arbitrary code-execution framework, or production security-control platform. Do not enter real credentials, secrets, personal information, or production incident data into test findings.
+
+## Repository map
+
+- `apps/web` — React + TypeScript + Vite analyst/instructor experience
+- `packages/domain` — canonical synthetic enterprise domain models
+- `packages/schema` — versioned external/scenario validation contracts
+- `packages/simulation` — deterministic world/event/replay/projection/scenario runtime
+- `e2e` — Playwright v1 browser regression tests
+
+For architectural continuity and future work, see [PROJECT_STATE.md](PROJECT_STATE.md), [ROADMAP.md](ROADMAP.md), and [ARCHITECTURE.md](ARCHITECTURE.md).

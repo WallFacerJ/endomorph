@@ -1,6 +1,6 @@
 {
   "name": "polymorph",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@11.22.0",
   "scripts": {
@@ -8,9 +8,11 @@
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run --exclude e2e/**",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "vitest": "^4.1.10"
   }
 }

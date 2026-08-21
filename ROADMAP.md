@@ -1,320 +1,160 @@
 # Polymorph Roadmap
 
-## Phase 0 - Prototype Foundation
+Polymorph follows one rule: **complexity should emerge from demonstrated product requirements.** Infrastructure or abstractions are not milestones by themselves.
 
-Status: substantially complete.
+## V1 - Local deterministic training product
 
-- React + TypeScript + Vite
-- Schema-driven page rendering
-- Reusable components
-- Behavior engine
-- Chained actions
+Status: **complete; release validation/deployment in progress on PR #40.**
 
-## Phase 1 - Platform Foundation
+V1 proves that one reusable deterministic runtime can power a student investigation, a scored response, an instructor review, and multiple declarative cybersecurity scenarios without hardcoding each incident into the UI.
 
-Status: substantially complete.
+### Foundation - complete
 
-Goal: separate the product into clear packages and establish runtime validation and automated quality gates.
+- pnpm workspace with `apps/web`, `packages/domain`, `packages/schema`, and `packages/simulation`
+- TypeScript, React, Vite, Zod, Vitest, Oxlint, GitHub Actions
+- canonical normalized synthetic world models
+- semantic entity/reference validation
+- deterministic virtual clock and seeded random foundation
+- deterministic serialization/deserialization
 
-Completed:
+### Event/runtime - complete for v1
 
-- Convert repository to pnpm workspaces
-- Move frontend to `apps/web`
-- Add `packages/schema`
-- Add Zod schemas for externally supplied application configuration
-- Add Zod structural validation for versioned scenario files
-- Add `packages/domain`
-- Add Vitest
-- Add root build, lint, and test commands
-- Add GitHub Actions CI
-- Begin Architecture Decision Records (ADRs)
-- Formalize `apps/web` consumption of `@polymorph/simulation` through the workspace package boundary
-- Declare the simulation package's schema/runtime dependency graph explicitly
-- Regenerate and validate the workspace lockfile with pnpm
+- typed authentication, account, session, process, file, network, endpoint, and alert event families
+- append-only event store
+- deterministic world reducers
+- replay and snapshots
+- synchronous event bus
+- pure projection framework
+- identity, EDR, and SIEM projections
+- cross-projection event/entity coherence coverage
 
-Remaining:
+### Declarative scenarios - complete for v1
 
-- Expand semantic validation for externally supplied definitions and invariants as new definition families are added
-- Improve fresh-clone development/build ergonomics where needed
+- versioned JSON scenario contract
+- Zod structural validation
+- semantic scenario compiler
+- opening timelines and deterministic response actions
+- investigation focus metadata
+- declarative objectives
+- explicit finalization
+- deterministic objective scoring
+- authored response-quality penalties
+- authored ground-truth timeline metadata
+- validation of objective, response-action, and ground-truth references
 
-Exit criteria:
+### Analyst experience - complete for v1
 
-- Fresh clone installs with one command
-- One root command builds all packages
-- CI runs on every pull request
-- Invalid application/scenario definitions are rejected before runtime
+- alert-first investigation workspace
+- SIEM timeline
+- endpoint and identity pivots
+- evidence collection
+- analyst-authored findings with evidence links
+- beneficial and harmful response choices
+- partial/full objective progress
+- explicit investigation submission
+- success/failure results
+- transparent objective score, response penalty, and final score
+- finalized read-only case
+- deterministic reset
 
-## Phase 2 - Synthetic World Engine
+### Instructor experience - complete for v1
 
-Status: core exit criteria established; extension work remains.
+- explicit local Instructor mode
+- ground truth hidden during the active student workflow
+- post-finalization incident summary and annotated source timeline
+- performed-action review and authored penalty rationale
+- deterministic score review
 
-Goal: establish one authoritative enterprise world that all applications read from.
+V1 instructor mode is intentionally **not** a real authorization boundary.
 
-Implemented entities:
+### V1 content - complete
 
-- Organization
-- User
-- Account
-- Device
-- Application
-- Session
-- File
+- Finance account compromise / encoded PowerShell
+- HR malware beacon / unsigned updater
+- privileged cloud-admin compromise / suspicious administrative tooling
 
-Planned entities and concepts:
+All are JSON-authored and execute through the same compiler/runtime/UI.
 
-- Department
-- Role
-- Capability
+### V1 release quality - final release slice
 
-Implemented runtime:
-
-- `WorldState`
-- Entity identifiers and references
-- Normalized entity collections
-- Initial deterministic reducer foundation
-- Deterministic derived relationship indexes
-- Semantic world/reference validation
-- Organization and bidirectional relationship consistency checks
-- Session temporal invariant validation
-- Versioned deterministic world-state serialization/deserialization
-- Structural and semantic validation at the serialization boundary
-- Author-friendly scenario world seeds compiled into canonical `WorldState`
-
-Remaining:
-
-- Additional entity invariants as scenario requirements expose them
-- Broader deterministic reducers as scenario requirements expose them
-
-Exit criteria:
-
-- A seeded world can be generated and serialized
-- Multiple UI projections can read the same entities
-- Entity references are validated
-
-## Phase 3 - Deterministic Simulation Runtime
-
-Status: in progress, core foundation established.
-
-Goal: make scenarios reproducible and replayable.
-
-Implemented:
-
-- `VirtualClock`
-- Seeded pseudo-random generator
-- Typed `SimulationEvent` families
-- Append-only in-memory event store
-- Deterministic world reducer
-- Snapshots
-- Replay
-- Snapshot-assisted replay
-- Deterministic synchronous in-memory event bus
-- Generic pure projection contract
-- Live projection application and ordered-history rebuild
-- Versioned deterministic snapshot serialization/deserialization
-- Minimal deterministic scenario runtime over opening history and response events
-- Pure deterministic scenario objective/outcome evaluation
-- Pure equal-weight deterministic scenario scoring from objective completion
-- Deterministic alternate-order response replay with equivalent final world state
-- Explicit deterministic run finalization that does not append simulation events or mutate canonical world state
-- Automated determinism and replay-equivalence tests
-
-Remaining:
-
-- Additional deterministic reducers
-- Persistent event store abstraction when durable persistence is required
-- Time controls: pause, resume, speed, and jump via snapshot/replay
-- End-to-end proof that same scenario + same seed produces identical generated event history and final world state once scenario generation uses seeded variability
+- scenario selector
+- Student/Instructor mode control
+- first-time tester guide and feedback template
+- Playwright critical-path browser suite
+- CI coverage for build, lint, unit/integration, and browser tests
+- GitHub Pages deployment for public friend testing
+- v1.0.0 package/release marker
 
 Exit criteria:
 
-- Same scenario + same seed produces identical events and final world state
-- A saved snapshot plus subsequent events reproduces the same state
-- Tests verify determinism
+- fresh clone installs with the frozen lockfile;
+- root build/lint/unit/integration tests pass;
+- Chromium browser tests pass;
+- all three scenarios work in the hosted build;
+- public test URL and tester guide are shareable;
+- release is tagged `v1.0.0`.
 
-## Phase 4 - Cybersecurity Telemetry and Projections
+---
 
-Status: in progress.
+## Post-v1 Phase A - Tester-driven polish
 
-Goal: make the synthetic world observable through security applications.
+Status: next.
 
-Implemented synthetic event families:
+Goal: learn from people who were not involved in development.
 
-- Authentication
-- Process execution
-- File access
-- Network activity
-- Account/permission changes
-- Endpoint state changes
-- Security detections
+Priorities:
 
-Planned event families:
-
-- Email activity
-- Additional telemetry required by projections and scenarios
-
-Implemented projections:
-
-- Identity activity/audit projection over authentication, account, and session events
-- EDR telemetry projection over endpoint, process, file, network, and alert events
-- SIEM normalized event projection over all current event families
-- Shared-event multi-projection delivery foundation
-- Correlated login → process execution → alert coherence proof across identity, EDR, and SIEM
-
-Remaining projections:
-
-- Email
-- Endpoint inventory
+- run first-time student tests with several people;
+- categorize confusion vs bugs vs content issues;
+- improve onboarding and navigation where evidence supports it;
+- tune scenario difficulty and response wording where tests show the answer is too obvious or unclear;
+- expand accessibility/keyboard/mobile behavior if testers need it;
+- add browser coverage for every regression discovered in real tests.
 
 Exit criteria:
 
-- One underlying event can affect multiple projections
-- No application maintains a contradictory private copy of canonical world data
+- recurring first-time-user blockers are resolved;
+- test feedback shows users can understand the investigation/submission loop without coaching.
 
-## Phase 5 - Scenario Engine
-
-Status: in progress.
-
-Goal: represent incidents as declarative scenarios rather than hardcoded scripts.
-
-Implemented:
-
-- Versioned JSON scenario-file envelope
-- Zod structural schema for current world entity and simulation event families
-- Author-friendly initial world seed
-- Ordered opening event timeline
-- Deterministic analyst response actions
-- Investigation focus metadata for alert/user/account/device/session/action pivots
-- Ordered multi-action investigation response metadata with backward-compatible primary-action normalization
-- Semantic validation for response-action collection uniqueness and declared-action references
-- Semantic scenario compiler using canonical world/event validation and replay
-- Clear browser validation failures for malformed or semantically invalid scenario files
-- Editable account-compromise example scenario
-- Contributor-selectable local scenario files under `/scenarios/`
-- Scenario authoring documentation
-- Typed declarative account-status and session-status objectives
-- Unique objective-id and semantic target validation
-- Deterministic active `in_progress | succeeded` outcome evaluation from canonical state
-- Explicit finalized `failed` outcome when the analyst submits incomplete exposed objectives
-- Account-compromise response objectives for compromised-session revocation and account disablement
-- Independent deterministic session-revocation and account-disablement response actions
-
-Remaining:
-
-- Preconditions
-- Triggers
-- Richer state transitions
-- Branches
-- Genuinely harmful/unnecessary response choices and explicit authored consequences when scenarios require them
-- Ground-truth timeline metadata distinct from analyst-visible evidence
-- MITRE ATT&CK mappings where appropriate
-- Dedicated scenario linter/headless validation entry point
-
-Potential XState adoption belongs here if statecharts provide clear value.
-
-Exit criteria:
-
-- Scenario files can be validated and executed headlessly
-- Ground truth and analyst knowledge remain separate
-- Scenario authors receive useful validation errors
-
-## Phase 6 - Analyst and Instructor Experience
-
-Status: in progress; the first evidence-backed analyst loop now supports analyst-selected remediation, explicit submission, deterministic success/failure, and deterministic scoring.
-
-Goal: turn the runtime into a usable cyber-range training platform.
-
-Implemented analyst slice:
-
-- Alert-first investigation workspace
-- Correlated SIEM timeline
-- Identity and endpoint pivots
-- Synthetic process/network evidence views
-- Analyst-selected deterministic remediation actions
-- Response-action chooser with descriptions and performed state
-- Deterministic 50% partial objective score after either account-compromise response action
-- Full 100% objective completion after both response actions in either order
-- Explicit `Finalize investigation` submission boundary
-- Finalized incomplete responses render failed results while preserving their partial score
-- Finalized complete responses render succeeded results at 100%
-- Finalized runs freeze further remediation actions until reset
-- Post-incident result panel distinguishes succeeded and failed submissions
-- Scenario reset/replay
-- Manual browser testing of the first investigation
-- First-class analyst case state separate from canonical world state and scenario ground truth
-- Evidence collection by immutable simulation event id
-- Evidence collection from investigation, endpoint, and identity views
-- Analyst-authored findings with validated evidence links
-- Case state preserved through remediation/finalization and cleared by reset
-- Analyst-visible response objectives driven by runtime outcome state
-- Equal-weight deterministic objective-completion score
-- Evidence and findings remain visible in results but are not secretly graded
-- Reset returns objective progress, score, and finalization to their deterministic initial state
-
-Remaining:
-
-- Manual browser validation of zero-, partial-, and full-score finalization paths
-- Response-quality scoring only after scenarios include genuinely unnecessary or harmful choices
-- Instructor controls
-- Hidden ground truth
-- Timeline comparison
-- Richer post-incident report
-
-Exit criteria:
-
-- A student can complete an investigation without access to ground truth
-- An instructor can replay and grade the same deterministic scenario
-
-## Phase 7 - Persistence and Server Runtime
+## Post-v1 Phase B - Server runtime and durable runs
 
 Status: not started.
 
-Goal: support durable, multi-session simulations.
+Add only when saved/resumable or multi-user runs are required.
 
-Likely stack when needed:
+Likely scope:
 
-- Fastify API
-- PostgreSQL
-- Drizzle
-- TanStack Query in web client
-- Docker Compose for local API/database stack
-
-Persist:
-
-- Worlds
-- Events
-- Snapshots
-- Scenarios
-- Runs
-- Users/roles
-- Findings/scores
+- small API service, probably Fastify;
+- durable storage, probably PostgreSQL + Drizzle;
+- persisted scenarios, runs, events, case state, findings, and scores;
+- resume/replay across process/browser restarts;
+- server-side validation at trust boundaries.
 
 Exit criteria:
 
-- Simulation can survive process restarts
-- Runs can be resumed and replayed
+- a run survives browser/process restart;
+- deterministic replay from persisted data matches the original run.
 
-## Phase 8 - Plugin SDK
+## Post-v1 Phase C - Real student/instructor roles
 
 Status: not started.
 
-Goal: make Polymorph extensible without modifying core runtime code.
+Requires the server/runtime work above.
 
-Plugin capabilities may include:
+Scope:
 
-- Routes/views
-- UI components
-- Event subscriptions
-- Event producers
-- Commands
-- Projections
-- Capabilities/permissions
-- Scenario extensions
+- authentication;
+- real authorization/capability checks;
+- server-enforced separation of student-visible data and instructor ground truth;
+- instructor run management and review;
+- durable assessment history.
 
 Exit criteria:
 
-- A new simulated application can be added through a documented plugin API
+- a student cannot retrieve hidden ground truth through the client;
+- instructors can manage/review assigned runs through enforced roles.
 
-## Phase 9 - Headless CLI and Automation
+## Post-v1 Phase D - Headless tooling
 
 Status: not started.
 
@@ -322,50 +162,74 @@ Potential commands:
 
 - `polymorph validate <scenario>`
 - `polymorph run <scenario>`
+- `polymorph replay <run>`
 - `polymorph inspect <entity>`
-- `polymorph events ...`
-- `polymorph snapshot ...`
-- `polymorph replay ...`
 
-Exit criteria:
+Goal: make scenario validation and deterministic execution useful outside React/browser workflows.
 
-- Core simulation does not depend on React or a browser
+## Post-v1 Phase E - Richer scenario engine
 
-## Phase 10 - AI-Assisted Compilation
+Status: deferred until scenario requirements justify it.
+
+Possible additions:
+
+- preconditions;
+- triggers;
+- branches;
+- richer state transitions;
+- time controls;
+- more objective kinds;
+- MITRE ATT&CK metadata;
+- seeded generated variation.
+
+XState belongs here only if authored statecharts become complex enough to justify it.
+
+## Post-v1 Phase F - More telemetry and projections
+
+Status: demand-driven.
+
+Potential additions:
+
+- email activity/projection;
+- endpoint inventory;
+- cloud-specific events/projections;
+- file activity depth;
+- richer detection/correlation metadata.
+
+New event families should be added because scenarios need them, not to maximize schema size.
+
+## Post-v1 Phase G - Plugin SDK
 
 Status: not started.
 
-Goal: use AI to author structured simulations without making AI-generated executable code the core architecture.
+Design only after at least one concrete external extension needs to add routes, projections, commands, or event producers without modifying core.
 
-Pipeline:
+## Post-v1 Phase H - AI-assisted compilation
 
-Natural language -> generated definition -> schema validation -> semantic validation -> Polymorph IR -> deterministic runtime
+Status: not started.
 
-Potential inputs:
+Goal: natural-language scenario/environment requests compile into validated declarative Polymorph definitions.
 
-- Natural-language scenario descriptions
-- Synthetic organization requirements
-- Authorized screenshots/reference layouts for visual approximation
+Required boundary:
 
-Exit criteria:
+`natural language -> generated definition -> structural validation -> semantic validation -> deterministic runtime`
 
-- AI output is treated as untrusted input
-- Invalid or unsafe definitions never reach the runtime
+AI output remains untrusted data. It must not become arbitrary generated host execution.
 
-## Phase 11 - Advanced Engineering
+## Advanced engineering - deferred until measured need
 
-Status: deferred until justified.
+Do not add these just because they are common platform technologies:
 
-Add only when justified:
+- Kafka
+- Kubernetes
+- Redis
+- RabbitMQ
+- microservices
+- GraphQL
+- OpenSearch / Elasticsearch
+- Temporal
+- service meshes
+- multiple databases
+- Rust / WebAssembly
 
-- OpenTelemetry for platform traces/metrics/logs
-- Playwright end-to-end suites
-- Storybook for mature component library
-- Schema migrations/versioning
-- Performance profiling and load testing
-- Search infrastructure if event volumes require it
-- Alternative execution runtimes only if profiling proves a need
-
-## Guiding Rule
-
-Complexity should emerge from requirements. Do not add technologies solely to make the repository appear advanced.
+Add observability, search, performance infrastructure, or alternative runtimes only when profiling or product requirements justify them.

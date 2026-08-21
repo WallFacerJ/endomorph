@@ -24,6 +24,10 @@ import {
 } from "./InstructorReviewPanel";
 
 import {
+  ScenarioControls,
+} from "./ScenarioControls";
+
+import {
   addAnalystFinding,
   collectAnalystEvidence,
   createAnalystCaseState,
@@ -456,6 +460,10 @@ function ScenarioWorkspace({
           </div>
 
           <div className="topbar-actions">
+            <ScenarioControls
+              scenarioPath={scenarioPath}
+              instructorMode={instructorMode}
+            />
             <span
               className={
                 scenarioState.finalized &&
