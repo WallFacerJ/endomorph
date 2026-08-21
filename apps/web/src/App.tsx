@@ -16,6 +16,14 @@ import {
 } from "./InvestigationBrief";
 
 import {
+  Walkthrough,
+} from "./Walkthrough";
+
+import {
+  PopOutWindow,
+} from "./PopOutWindow";
+
+import {
   ScenarioOutcomePanel,
 } from "./ScenarioOutcomePanel";
 
@@ -178,6 +186,12 @@ function ScenarioWorkspace({
     useState<AssistanceMode>(
       readInitialAssistance,
     );
+  const [walkthroughOpen, setWalkthroughOpen] =
+    useState(false);
+  const [walkthroughDetached, setWalkthroughDetached] =
+    useState(false);
+  const [popOutBlocked, setPopOutBlocked] =
+    useState(false);
   const [questionAnswers, setQuestionAnswers] =
     useState<Record<string, string>>(
       () =>
@@ -289,6 +303,30 @@ function ScenarioWorkspace({
     incidentCase,
     questionAnswers,
   ]);
+
+  const walkthroughAvailable =
+    instructorMode ||
+    scenarioState.finalized;
+
+  const walkthroughNode = (
+    <Walkthrough
+      scenario={scenario}
+      records={projections.siem.events}
+      detached={walkthroughDetached}
+      popOutBlocked={popOutBlocked}
+      onPopOut={() => {
+        setPopOutBlocked(false);
+        setWalkthroughDetached(true);
+      }}
+      onClose={() => {
+        if (walkthroughDetached) {
+          setWalkthroughDetached(false);
+        } else {
+          setWalkthroughOpen(false);
+        }
+      }}
+    />
+  );
 
   const collectedEvidence = useMemo(
     () =>
@@ -587,6 +625,39 @@ function ScenarioWorkspace({
             >
               {runStatusLabel}
             </span>
+            {walkthroughAvailable && (
+              <button
+                type="button"
+                className={
+                  walkthroughOpen ||
+                  walkthroughDetached
+                    ? "secondary-button walkthrough-toggle active"
+                    : "secondary-button walkthrough-toggle"
+                }
+                onClick={() => {
+                  if (
+                    walkthroughDetached
+                  ) {
+                    setWalkthroughDetached(
+                      false,
+                    );
+                    setWalkthroughOpen(
+                      true,
+                    );
+                    return;
+                  }
+
+                  setWalkthroughOpen(
+                    (current) => !current,
+                  );
+                }}
+              >
+                {walkthroughOpen ||
+                walkthroughDetached
+                  ? "Hide walkthrough"
+                  : "Walkthrough"}
+              </button>
+            )}
             {resumed &&
               !scenarioState.finalized && (
                 <span
@@ -605,6 +676,35 @@ function ScenarioWorkspace({
             </button>
           </div>
         </header>
+
+        {walkthroughDetached &&
+          walkthroughAvailable && (
+            <PopOutWindow
+              title="Endomorph walkthrough"
+              onClose={() =>
+                setWalkthroughDetached(
+                  false,
+                )
+              }
+              onBlocked={() => {
+                setPopOutBlocked(true);
+                setWalkthroughDetached(
+                  false,
+                );
+                setWalkthroughOpen(true);
+              }}
+            >
+              {walkthroughNode}
+            </PopOutWindow>
+          )}
+
+        {walkthroughOpen &&
+          !walkthroughDetached &&
+          walkthroughAvailable && (
+            <div className="walkthrough-dock">
+              {walkthroughNode}
+            </div>
+          )}
 
         {activeView === "alerts" && (
           <section className="workspace-section">

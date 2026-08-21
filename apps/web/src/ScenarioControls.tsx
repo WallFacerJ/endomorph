@@ -199,9 +199,26 @@ export function ScenarioControls({
           )
         }
       >
-        {instructorMode
-          ? "Student mode"
-          : "Instructor mode"}
+        {/*
+          Label the current state, not the destination. The old label read
+          "Instructor mode" while in student mode, which reads as a
+          statement about where you are rather than where the click takes
+          you -- the single most common reason nobody could tell which mode
+          they were in.
+        */}
+        <span className="mode-button-label">
+          Role
+        </span>
+        <span className="mode-button-value">
+          {instructorMode
+            ? "Instructor"
+            : "Student"}
+        </span>
+        <span className="mode-button-hint">
+          {instructorMode
+            ? "answers visible"
+            : "answers hidden"}
+        </span>
       </button>
 
       <details className="quick-test-menu">

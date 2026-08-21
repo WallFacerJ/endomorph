@@ -878,3 +878,12 @@ textarea:focus-visible {
   border-color: rgba(148, 163, 184, 0.45);
   opacity: 0.85;
 }
+
+.walkthrough-dock {
+  margin-bottom: 1.25rem;
+}
+
+.walkthrough-toggle.active {
+  border-color: rgba(56, 189, 248, 0.75);
+  color: rgba(56, 189, 248, 1);
+}

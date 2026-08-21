@@ -297,10 +297,10 @@ test("instructor mode reveals ground truth only after finalization", async ({
     "The successful authentication from an unusual source is the initial compromise signal.",
   );
 
-  await page.getByRole(
-    "button",
-    { name: "Student mode" },
-  ).click();
+  // The role control now states the current role rather than the
+  // destination, so it is targeted by class instead of by a label that
+  // changed meaning.
+  await page.locator(".mode-button").click();
   await expect(page).not.toHaveURL(
     /mode=instructor/,
   );

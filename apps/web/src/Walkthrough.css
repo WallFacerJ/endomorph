@@ -1,0 +1,234 @@
+.walkthrough {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.1rem 1.2rem 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-left: 3px solid rgba(56, 189, 248, 0.7);
+  border-radius: 12px;
+  background: rgba(148, 163, 184, 0.06);
+}
+
+.walkthrough.detached {
+  border: none;
+  border-radius: 0;
+  min-height: 100vh;
+}
+
+.walkthrough-popout-root {
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+  background: var(--surface-base, #07101b);
+  color: var(--text-primary, #e2e8f0);
+}
+
+.walkthrough-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.walkthrough-header h3 {
+  margin: 0.2rem 0 0.35rem;
+}
+
+.walkthrough-eyebrow {
+  margin: 0;
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(56, 189, 248, 0.95);
+}
+
+.walkthrough-copy {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.75;
+  max-width: 46ch;
+}
+
+.walkthrough-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.walkthrough-actions button,
+.walkthrough-controls button {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: transparent;
+  color: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.walkthrough-actions button:hover,
+.walkthrough-controls button:hover {
+  border-color: rgba(148, 163, 184, 0.75);
+}
+
+.walkthrough-notice {
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  border: 1px dashed rgba(248, 113, 113, 0.5);
+  font-size: 0.78rem;
+}
+
+.walkthrough-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.walkthrough-progress {
+  font-size: 0.72rem;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+
+.walkthrough-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.walkthrough-step {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.walkthrough-step.open {
+  border-color: rgba(56, 189, 248, 0.55);
+}
+
+.walkthrough-step-head {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.5rem 0.65rem;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.walkthrough-step-head:hover {
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.walkthrough-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.walkthrough-step.open .walkthrough-index {
+  border-color: rgba(56, 189, 248, 0.8);
+}
+
+.walkthrough-step-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.walkthrough-time {
+  font-size: 0.72rem;
+  opacity: 0.65;
+  font-variant-numeric: tabular-nums;
+}
+
+.walkthrough-step-body {
+  padding: 0 0.65rem 0.7rem 2.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.walkthrough-step-body p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.walkthrough-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.walkthrough-meta dt {
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.walkthrough-meta dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.walkthrough-attack h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.85rem;
+}
+
+.walkthrough-attack ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.walkthrough-attack li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-size: 0.76rem;
+}
+
+.walkthrough-attack code {
+  font-weight: 600;
+  min-width: 5.5rem;
+}
+
+.walkthrough-summary {
+  font-size: 0.8rem;
+}
+
+.walkthrough-summary summary {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.walkthrough-summary p {
+  margin: 0.5rem 0 0;
+  line-height: 1.5;
+  white-space: pre-line;
+}
