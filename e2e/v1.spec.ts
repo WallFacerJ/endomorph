@@ -150,6 +150,13 @@ test("harmful response is hidden during work and penalized after submission", as
   ).click();
   await performCleanResponse(page);
 
+  // The running score only exists in guided mode; professional runs hide it
+  // during active work. The behaviour under test here is the penalty, so
+  // switch modes rather than drop the check.
+  await page
+    .getByLabel("Select assistance mode")
+    .selectOption("guided");
+
   await expect(
     page.getByRole("region", {
       name: "Response actions",

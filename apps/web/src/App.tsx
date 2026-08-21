@@ -28,7 +28,12 @@ import {
 } from "./InstructorReviewPanel";
 
 import {
+  readInitialAssistance,
   ScenarioControls,
+} from "./ScenarioControls";
+
+import type {
+  AssistanceMode,
 } from "./ScenarioControls";
 
 import {
@@ -133,6 +138,10 @@ function ScenarioWorkspace({
   const [incidentCase, setIncidentCase] =
     useState(() =>
       createIncidentCaseState(),
+    );
+  const [assistance, setAssistance] =
+    useState<AssistanceMode>(
+      readInitialAssistance,
     );
   const [findingTitle, setFindingTitle] =
     useState("");
@@ -472,6 +481,10 @@ function ScenarioWorkspace({
             <ScenarioControls
               scenarioPath={scenarioPath}
               instructorMode={instructorMode}
+              assistance={assistance}
+              onAssistanceChange={
+                setAssistance
+              }
             />
             <span
               className={
@@ -600,14 +613,23 @@ function ScenarioWorkspace({
               </button>
             </div>
 
-            <ScenarioOutcomePanel
-              outcome={scenarioState.outcome}
-            />
+            {(assistance === "guided" ||
+              scenarioState.finalized) && (
+              <ScenarioOutcomePanel
+                outcome={
+                  scenarioState.outcome
+                }
+              />
+            )}
 
             <ResponseActionPanel
               actions={responseActions}
               performedActionIds={scenarioState.performedActionIds}
               score={scenarioState.score}
+              showScore={
+                assistance === "guided" ||
+                scenarioState.finalized
+              }
               finalized={scenarioState.finalized}
               onPerform={performResponseAction}
             />

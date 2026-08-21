@@ -13,6 +13,37 @@ import "./themes.css";
 interface ScenarioControlsProps {
   scenarioPath: string;
   instructorMode: boolean;
+  assistance: AssistanceMode;
+  onAssistanceChange: (
+    next: AssistanceMode,
+  ) => void;
+}
+
+/**
+ * How much scaffolding the run shows.
+ *
+ * Professional is the default because the product should feel like work
+ * rather than school: no live objective checklist, no running score. Guided
+ * keeps that scaffolding for onboarding, as an option layered onto the same
+ * environment rather than a separate shallow product.
+ */
+export type AssistanceMode =
+  | "professional"
+  | "guided";
+
+const ASSISTANCE_STORAGE_KEY =
+  "endomorph-assistance-mode";
+
+export function readInitialAssistance(): AssistanceMode {
+  try {
+    return window.localStorage.getItem(
+      ASSISTANCE_STORAGE_KEY,
+    ) === "guided"
+      ? "guided"
+      : "professional";
+  } catch {
+    return "professional";
+  }
 }
 
 type InterfaceStyle =
@@ -61,6 +92,8 @@ function navigateWith(
 export function ScenarioControls({
   scenarioPath,
   instructorMode,
+  assistance,
+  onAssistanceChange,
 }: ScenarioControlsProps) {
   const [interfaceStyle, setInterfaceStyle] =
     useState<InterfaceStyle>(
@@ -75,6 +108,17 @@ export function ScenarioControls({
       interfaceStyle,
     );
   }, [interfaceStyle]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        ASSISTANCE_STORAGE_KEY,
+        assistance,
+      );
+    } catch {
+      // A blocked storage API must not break the run.
+    }
+  }, [assistance]);
 
   const isShipped =
     SHIPPED_SCENARIOS.some(
@@ -123,6 +167,27 @@ export function ScenarioControls({
               Custom scenario
             </option>
           )}
+        </select>
+      </label>
+
+      <label>
+        <span>Mode</span>
+        <select
+          aria-label="Select assistance mode"
+          value={assistance}
+          onChange={(event) =>
+            onAssistanceChange(
+              event.target
+                .value as AssistanceMode,
+            )
+          }
+        >
+          <option value="professional">
+            Professional
+          </option>
+          <option value="guided">
+            Guided
+          </option>
         </select>
       </label>
 
