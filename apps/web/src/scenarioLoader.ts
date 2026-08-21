@@ -32,7 +32,17 @@ export const SHIPPED_SCENARIOS:
     {
       path: "/scenarios/generated-enterprise.json",
       label:
-        "Generated enterprise (444 entities, 17.9k events)",
+        "Generated: external credential compromise",
+    },
+    {
+      path: "/scenarios/generated-insider.json",
+      label:
+        "Generated: privileged insider (advanced)",
+    },
+    {
+      path: "/scenarios/generated-service-account.json",
+      label:
+        "Generated: service account abuse (advanced)",
     },
   ];
 

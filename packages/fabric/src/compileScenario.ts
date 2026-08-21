@@ -148,7 +148,7 @@ export function compileScenario(
   const scenario = {
     id: options.id,
     name: options.name,
-    description: options.description,
+    description: `${options.description} Incident: ${incident.planName} (${incident.difficulty}).`,
 
     initialWorld: {
       simulationTime:
@@ -310,10 +310,12 @@ export function compileScenario(
     },
 
     groundTruth: {
-      summary: incident.summary,
+      summary: `${incident.summary}
+
+What this incident teaches: ${incident.lesson}`,
       timeline: incident.timeline,
       techniques: incident.techniques,
-      severity: "high",
+      severity: incident.alertSeverity,
     },
 
     questions: incident.questions,

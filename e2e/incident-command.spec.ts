@@ -1,7 +1,45 @@
 import {
+  readFileSync,
+} from "node:fs";
+
+import {
+  join,
+} from "node:path";
+
+import {
   expect,
   test,
 } from "@playwright/test";
+
+/**
+ * Read the expected values out of the generated scenario rather than
+ * hard-coding them. The attacker address and the victim change whenever the
+ * generator's cursor structure changes, and a test that pins them breaks for
+ * reasons that have nothing to do with what it is testing.
+ */
+const scenario = JSON.parse(
+  readFileSync(
+    join(
+      process.cwd(),
+      "apps",
+      "web",
+      "public",
+      "scenarios",
+      "generated-enterprise.json",
+    ),
+    "utf8",
+  ),
+).scenario;
+
+const attackerIp: string =
+  scenario.questions[0].accepted[0];
+
+const victimName: string =
+  scenario.initialWorld.users.find(
+    (user: { id: string }) =>
+      user.id ===
+      scenario.investigation.userId,
+  ).displayName;
 
 const GENERATED_SCENARIO =
   "/?scenario=/scenarios/generated-enterprise.json";
@@ -27,7 +65,7 @@ test("case derives the incident picture from collected evidence", async ({
   await page
     .locator("input")
     .first()
-    .fill("sourceIp:91.219.236.18");
+    .fill(`sourceIp:${attackerIp}`);
 
   const rows = page.locator(
     ".siem-results-table tbody tr",
@@ -82,15 +120,16 @@ test("case derives the incident picture from collected evidence", async ({
   // The graph is derived, not typed: the compromised account, its owner,
   // the workstation, and the attacker address all arrive on their own.
   await expect(
-    command.getByText(
-      "91.219.236.18",
-      { exact: false },
-    ).first(),
+    command
+      .getByText(attackerIp, {
+        exact: false,
+      })
+      .first(),
   ).toBeVisible();
 
   await expect(
     command
-      .getByText("Yuki Lee", {
+      .getByText(victimName, {
         exact: false,
       })
       .first(),

@@ -44,9 +44,15 @@ Endomorph includes:
 | **Finance account compromise** | 15 | 34 | Suspicious login, encoded PowerShell, correlated outbound activity. Default. |
 | **HR malware beacon** | 7 | 6 | Compromised HR session, unsigned executable, outbound beacon. |
 | **Cloud-admin compromise** | 7 | 6 | Privileged identity compromise and suspicious administrative tooling. |
-| **Generated enterprise** | 444 | 17,904 | A generated 120-person company with five days of working history and a compromised Finance account on the last day. |
+| **Generated: external credential compromise** | 444 | ~17.9k | Password spray from hosting infrastructure, encoded PowerShell, C2 beacon, lateral movement. |
+| **Generated: privileged insider** | 444 | ~17.8k | No external address anywhere. A valid admin account, its own workstation, deviation from its own baseline. |
+| **Generated: service account abuse** | 444 | ~17.8k | A valid privileged credential used from a host it has no history with. All traffic internal. |
 
-The first three are hand-authored and deliberately small. The fourth is generated, and is the one to open if you want to see what the tools do when an analyst actually has to search.
+The first three are hand-authored and deliberately small. The rest are generated.
+
+The three generated incidents deliberately teach different lessons. The first trains the obvious heuristic — an unfamiliar external address is suspicious. The second breaks it: everything originates from a legitimate admin on their own workstation, and the only signal is deviation from that person's own baseline. The third breaks it again: the credential is valid and the traffic is internal, but the account is being used from a host it has never authenticated from. An analyst who learns "look for the foreign IP" from the first will fail the other two.
+
+Generated scenarios are **build artifacts, not source** — `pnpm build` produces them and they are not committed.
 
 Use the **Scenario** selector in the application to switch between them. Direct deep links using `?scenario=/scenarios/<file>.json` are also supported for local/custom authoring.
 
@@ -76,6 +82,7 @@ pnpm generate:scenario -- \
 | `--start-time` | `2026-08-20T08:00:00.000Z` | Virtual start of the working day. |
 | `--duration-hours` | `10` | Length of each generated working day. |
 | `--out` | `apps/web/public/scenarios/generated-enterprise.json` | Output path, relative to the repository root. |
+| `--plan` | chosen by seed | `credential-compromise`, `privileged-insider`, or `service-account-abuse`. |
 | `--pretty` | off | Indent the JSON. Roughly doubles file size. |
 
 Register a new file in `apps/web/src/scenarioLoader.ts` to make it appear in the selector, or open it directly with `?scenario=/scenarios/<file>.json`.

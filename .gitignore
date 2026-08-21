@@ -17,3 +17,4 @@ test-results/
 playwright-report/
 .shots/
 dist-standalone/
+apps/web/public/scenarios/generated-*.json

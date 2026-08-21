@@ -5,3 +5,5 @@ export * from "./generateEnterprise.js";
 export * from "./backgroundActivity.js";
 export * from "./generateIncident.js";
 export * from "./compileScenario.js";
+export * from "./attackPlan.js";
+export * from "./attackPlanLibrary.js";

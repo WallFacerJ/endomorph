@@ -41,6 +41,7 @@ interface CliOptions {
   startTime: string;
   durationHours: number;
   pretty: boolean;
+  planId?: string;
 }
 
 /**
@@ -183,6 +184,10 @@ export function parseArgs(
           Number(value);
         break;
 
+      case "plan":
+        options.planId = value;
+        break;
+
       default:
         throw new Error(
           `Unknown flag: --${key}`,
@@ -214,6 +219,9 @@ function main(): void {
       durationHours:
         options.durationHours,
     },
+    incident: options.planId
+      ? { planId: options.planId }
+      : undefined,
   });
 
   const outputPath = resolve(
@@ -253,6 +261,9 @@ function main(): void {
       `  background    ${compiled.backgroundEventCount} events`,
       `  incident      ${compiled.incident.events.length} events`,
       `  total         ${compiled.totalEventCount} events`,
+      `  plan          ${compiled.incident.planId} (${compiled.incident.difficulty})`,
+      `  techniques    ${compiled.incident.techniques.length}`,
+      `  questions     ${compiled.incident.questions.length}`,
       `  victim        ${compiled.incident.victimUserId}`,
       `  written       ${options.out}`,
       "",

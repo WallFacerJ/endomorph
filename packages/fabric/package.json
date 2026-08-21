@@ -18,6 +18,7 @@
     "build": "tsc -p tsconfig.json",
     "lint": "oxlint --deny-warnings",
     "generate:scenario": "node dist/cli.js",
+    "generate:all": "node dist/generateAll.js",
     "bundle:standalone": "node dist/bundleStandalone.js"
   },
   "dependencies": {

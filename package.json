@@ -5,7 +5,7 @@
   "packageManager": "pnpm@11.22.0",
   "scripts": {
     "dev": "pnpm --filter @endomorph/web dev",
-    "build": "pnpm -r build",
+    "build": "pnpm --filter ./packages/** -r build && pnpm --filter @endomorph/fabric generate:all && pnpm --filter @endomorph/web build",
     "lint": "pnpm -r lint",
     "test": "vitest",
     "test:run": "vitest run --exclude 'e2e/**'",
