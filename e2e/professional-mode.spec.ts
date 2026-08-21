@@ -32,10 +32,17 @@ test("professional mode is the default and hides objectives during active work",
   await openInvestigation(page);
 
   await expect(
-    page.getByLabel(
-      "Select assistance mode",
-    ),
-  ).toHaveValue("professional");
+    page
+      .getByRole("radiogroup", {
+        name: "Assistance level",
+      })
+      .getByRole("radio", {
+        name: "Professional",
+      }),
+  ).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
 
   await expect(
     page.getByRole("region", {
@@ -60,8 +67,11 @@ test("guided mode restores the scaffolding on the same environment", async ({
   await openInvestigation(page);
 
   await page
-    .getByLabel("Select assistance mode")
-    .selectOption("guided");
+    .getByRole("radiogroup", {
+      name: "Assistance level",
+    })
+    .getByRole("radio", { name: "Guided" })
+    .click();
 
   await expect(
     page.getByRole("region", {
@@ -109,14 +119,24 @@ test("the assistance choice survives a reload", async ({
   await openInvestigation(page);
 
   await page
-    .getByLabel("Select assistance mode")
-    .selectOption("guided");
+    .getByRole("radiogroup", {
+      name: "Assistance level",
+    })
+    .getByRole("radio", { name: "Guided" })
+    .click();
 
   await page.reload();
 
   await expect(
-    page.getByLabel(
-      "Select assistance mode",
-    ),
-  ).toHaveValue("guided");
+    page
+      .getByRole("radiogroup", {
+        name: "Assistance level",
+      })
+      .getByRole("radio", {
+        name: "Guided",
+      }),
+  ).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
 });

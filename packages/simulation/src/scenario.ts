@@ -61,6 +61,9 @@ export interface ScenarioGroundTruthEvent {
 
   /** MITRE ATT&CK technique this step maps to. */
   techniqueId?: string;
+
+  /** What an analyst should conclude, and what to check next. */
+  reasoning?: string;
 }
 
 export interface ScenarioTechnique {

@@ -482,3 +482,53 @@
     overflow-x: auto;
   }
 }
+
+/* Sections in the detail pane read as one continuous surface without a
+   deliberate boundary, which is what makes the pane feel like a pile of
+   related facts rather than an ordered readout. */
+.identity-detail-pane {
+  display: grid;
+  gap: 0;
+}
+
+.identity-response-operations,
+.identity-selected-detail {
+  padding: 1rem 1.05rem 1.15rem;
+}
+
+.identity-response-operations {
+  border-bottom: 2px solid var(--border);
+}
+
+.identity-response-operations .eyebrow,
+.identity-selected-detail .eyebrow {
+  display: inline-block;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid rgba(56, 189, 248, 0.55);
+  margin-bottom: 0.15rem;
+}
+
+/* A labelled band before each group, so the reader is told what the next
+   block of facts is before reading it rather than inferring afterwards. */
+.identity-section-label {
+  margin: 0.9rem 0 0.2rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.identity-detail-heading code {
+  display: inline-block;
+  margin-top: 0.3rem;
+  padding: 0.12rem 0.4rem;
+  border-radius: 5px;
+  background: rgba(148, 163, 184, 0.12);
+  font-size: 0.72rem;
+}
+
+.identity-detail-fields div:last-child {
+  border-bottom: none;
+}

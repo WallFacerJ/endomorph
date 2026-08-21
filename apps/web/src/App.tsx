@@ -49,11 +49,13 @@ import {
 } from "./ScenarioControls";
 
 import {
-  readInitialAssistance,
+  readInitialSessionMode,
+  showsAnswers,
+  showsScaffolding,
 } from "./assistanceMode";
 
 import type {
-  AssistanceMode,
+  SessionMode,
 } from "./assistanceMode";
 
 import {
@@ -106,16 +108,77 @@ type WorkspaceView =
   | "identity"
   | "case";
 
-const navItems: ReadonlyArray<{
-  id: WorkspaceView;
-  label: string;
+/**
+ * Navigation grouped by the phase of work it belongs to.
+ *
+ * A flat list of six tool names answers "what exists" but not "what is this
+ * and when would I go there", which is the question a newcomer actually
+ * has. Grouping by incident phase and giving each entry a purpose line
+ * makes the sidebar readable without instruction.
+ */
+const navGroups: ReadonlyArray<{
+  phase: string;
+  hint: string;
+  items: ReadonlyArray<{
+    id: WorkspaceView;
+    label: string;
+    purpose: string;
+  }>;
 }> = [
-  { id: "alerts", label: "Alerts" },
-  { id: "timeline", label: "Investigation" },
-  { id: "siem", label: "SIEM Search" },
-  { id: "endpoint", label: "Endpoint" },
-  { id: "identity", label: "Identity" },
-  { id: "case", label: "Case" },
+  {
+    phase: "Triage",
+    hint: "Start here",
+    items: [
+      {
+        id: "alerts",
+        label: "Alerts",
+        purpose:
+          "What fired, and on which host",
+      },
+      {
+        id: "timeline",
+        label: "Investigation",
+        purpose:
+          "The brief, questions, and correlated timeline",
+      },
+    ],
+  },
+  {
+    phase: "Investigate",
+    hint: "Find the evidence",
+    items: [
+      {
+        id: "siem",
+        label: "SIEM Search",
+        purpose:
+          "Query all telemetry; start when you have a value to pivot on",
+      },
+      {
+        id: "endpoint",
+        label: "Endpoint",
+        purpose:
+          "Process trees, network and file activity for one host",
+      },
+      {
+        id: "identity",
+        label: "Identity",
+        purpose:
+          "Sign-in history, sessions, and privilege for one account",
+      },
+    ],
+  },
+  {
+    phase: "Coordinate",
+    hint: "Build the case",
+    items: [
+      {
+        id: "case",
+        label: "Case",
+        purpose:
+          "Evidence graph, indicators, hypotheses, and response decisions",
+      },
+    ],
+  },
 ];
 
 function formatTimestamp(
@@ -139,13 +202,11 @@ function formatTimestamp(
 interface ScenarioWorkspaceProps {
   scenario: ScenarioDefinition;
   scenarioPath: string;
-  instructorMode: boolean;
 }
 
 function ScenarioWorkspace({
   scenario,
   scenarioPath,
-  instructorMode,
 }: ScenarioWorkspaceProps) {
   const context =
     scenario.investigation;
@@ -187,10 +248,16 @@ function ScenarioWorkspace({
       restored !== undefined &&
       isRunMeaningful(restored),
   );
-  const [assistance, setAssistance] =
-    useState<AssistanceMode>(
-      readInitialAssistance,
+  const [sessionMode, setSessionMode] =
+    useState<SessionMode>(
+      readInitialSessionMode,
     );
+
+  const scaffolding =
+    showsScaffolding(sessionMode);
+
+  const instructorMode =
+    showsAnswers(sessionMode);
   const [replayPosition, setReplayPosition] =
     useState<number | null>(null);
   const [walkthroughOpen, setWalkthroughOpen] =
@@ -619,27 +686,71 @@ function ScenarioWorkspace({
           </p>
 
           <nav className="workspace-nav">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={
-                  activeView === item.id
-                    ? "nav-item active"
-                    : "nav-item"
-                }
-                onClick={() =>
-                  setActiveView(item.id)
-                }
+            {navGroups.map((group) => (
+              <div
+                key={group.phase}
+                className="nav-group"
               >
-                {item.label}
-                {item.id === "case" &&
-                  analystCase.collectedEventIds.length > 0 && (
-                    <span className="nav-count">
-                      {analystCase.collectedEventIds.length}
-                    </span>
-                  )}
-              </button>
+                <p className="nav-group-head">
+                  <span className="nav-group-phase">
+                    {group.phase}
+                  </span>
+                  <span className="nav-group-hint">
+                    {group.hint}
+                  </span>
+                </p>
+
+                {group.items.map(
+                  (item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      /*
+                        The purpose line is supplementary guidance for
+                        scanning, not part of the control's identity.
+                        Folding it into the accessible name would make
+                        every nav item announce a sentence.
+                      */
+                      aria-label={item.label}
+                      className={
+                        activeView ===
+                        item.id
+                          ? "nav-item active"
+                          : "nav-item"
+                      }
+                      onClick={() =>
+                        setActiveView(
+                          item.id,
+                        )
+                      }
+                    >
+                      <span className="nav-item-label">
+                        {item.label}
+                        {item.id ===
+                          "case" &&
+                          analystCase
+                            .collectedEventIds
+                            .length >
+                            0 && (
+                            <span className="nav-count">
+                              {
+                                analystCase
+                                  .collectedEventIds
+                                  .length
+                              }
+                            </span>
+                          )}
+                      </span>
+                      <span
+                        className="nav-item-purpose"
+                        aria-hidden="true"
+                      >
+                        {item.purpose}
+                      </span>
+                    </button>
+                  ),
+                )}
+              </div>
             ))}
           </nav>
         </div>
@@ -672,10 +783,9 @@ function ScenarioWorkspace({
           <div className="topbar-actions">
             <ScenarioControls
               scenarioPath={scenarioPath}
-              instructorMode={instructorMode}
-              assistance={assistance}
-              onAssistanceChange={
-                setAssistance
+              sessionMode={sessionMode}
+              onSessionModeChange={
+                setSessionMode
               }
             />
             <span
@@ -925,7 +1035,7 @@ function ScenarioWorkspace({
               </button>
             </div>
 
-            {(assistance === "guided" ||
+            {(scaffolding ||
               scenarioState.finalized) && (
               <ScenarioOutcomePanel
                 outcome={
@@ -934,15 +1044,14 @@ function ScenarioWorkspace({
               />
             )}
 
-            {assistance === "guided" ||
+            {scaffolding ||
             scenarioState.finalized ? (
               <ResponseActionPanel
                 actions={responseActions}
                 performedActionIds={scenarioState.performedActionIds}
                 score={scenarioState.score}
                 showScore={
-                  assistance ===
-                    "guided" ||
+                  scaffolding ||
                   scenarioState.finalized
                 }
                 finalized={scenarioState.finalized}
@@ -1348,14 +1457,6 @@ function ScenarioWorkspace({
 }
 
 function App() {
-  const instructorMode = useMemo(
-    () =>
-      new URLSearchParams(
-        window.location.search,
-      ).get("mode") === "instructor",
-    [],
-  );
-
   const scenarioPath = useMemo(
     () =>
       resolveScenarioPath(
@@ -1451,7 +1552,6 @@ function App() {
     <ScenarioWorkspace
       scenario={scenario}
       scenarioPath={scenarioPath}
-      instructorMode={instructorMode}
     />
   );
 }

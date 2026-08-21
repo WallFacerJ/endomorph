@@ -102,6 +102,18 @@ export interface AttackStep {
     cast: IncidentCast,
   ) => string;
 
+  /**
+   * What an analyst should conclude from this step, and what to check next.
+   *
+   * The significance line says what happened; on its own that reads as a
+   * narration of the answer rather than teaching. Reasoning is the part
+   * that transfers: why this observation is suspicious, what it rules in or
+   * out, and where it points.
+   */
+  readonly reasoning?: (
+    cast: IncidentCast,
+  ) => string;
+
   /** Minutes to advance after this step. */
   readonly advanceBy: number;
 

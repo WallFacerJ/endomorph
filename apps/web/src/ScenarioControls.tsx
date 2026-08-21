@@ -8,11 +8,12 @@ import {
 } from "./scenarioLoader";
 
 import {
-  persistAssistance,
+  persistSessionMode,
+  SESSION_MODES,
 } from "./assistanceMode";
 
 import type {
-  AssistanceMode,
+  SessionMode,
 } from "./assistanceMode";
 
 import "./ScenarioControls.css";
@@ -20,10 +21,9 @@ import "./themes.css";
 
 interface ScenarioControlsProps {
   scenarioPath: string;
-  instructorMode: boolean;
-  assistance: AssistanceMode;
-  onAssistanceChange: (
-    next: AssistanceMode,
+  sessionMode: SessionMode;
+  onSessionModeChange: (
+    next: SessionMode,
   ) => void;
 }
 
@@ -47,7 +47,7 @@ function readInitialStyle(): InterfaceStyle {
 
 function navigateWith(
   scenarioPath: string,
-  instructorMode: boolean,
+  sessionMode: SessionMode,
 ) {
   const url = new URL(
     window.location.href,
@@ -58,13 +58,15 @@ function navigateWith(
     scenarioPath,
   );
 
-  if (instructorMode) {
+  // Carry the assistance level across a scenario switch, so an instructor
+  // link stays an instructor link.
+  if (sessionMode === "professional") {
+    url.searchParams.delete("mode");
+  } else {
     url.searchParams.set(
       "mode",
-      "instructor",
+      sessionMode,
     );
-  } else {
-    url.searchParams.delete("mode");
   }
 
   window.location.assign(url);
@@ -72,9 +74,8 @@ function navigateWith(
 
 export function ScenarioControls({
   scenarioPath,
-  instructorMode,
-  assistance,
-  onAssistanceChange,
+  sessionMode,
+  onSessionModeChange,
 }: ScenarioControlsProps) {
   const [interfaceStyle, setInterfaceStyle] =
     useState<InterfaceStyle>(
@@ -91,8 +92,8 @@ export function ScenarioControls({
   }, [interfaceStyle]);
 
   useEffect(() => {
-    persistAssistance(assistance);
-  }, [assistance]);
+    persistSessionMode(sessionMode);
+  }, [sessionMode]);
 
   const isShipped =
     SHIPPED_SCENARIOS.some(
@@ -121,7 +122,7 @@ export function ScenarioControls({
             ) {
               navigateWith(
                 event.target.value,
-                instructorMode,
+                sessionMode,
               );
             }
           }}
@@ -144,26 +145,54 @@ export function ScenarioControls({
         </select>
       </label>
 
-      <label>
-        <span>Mode</span>
-        <select
-          aria-label="Select assistance mode"
-          value={assistance}
-          onChange={(event) =>
-            onAssistanceChange(
-              event.target
-                .value as AssistanceMode,
-            )
-          }
+      {/*
+        A <label> may label exactly one form control; wrapping a radiogroup
+        in one is invalid and breaks accessible-name computation for the
+        radios inside it. A plain container with its own labelled group is
+        the correct structure.
+      */}
+      <div className="control-field">
+        <span className="control-field-label">
+          Assistance
+        </span>
+        <div
+          className="session-modes"
+          role="radiogroup"
+          aria-label="Assistance level"
         >
-          <option value="professional">
-            Professional
-          </option>
-          <option value="guided">
-            Guided
-          </option>
-        </select>
-      </label>
+          {SESSION_MODES.map((mode) => (
+            <button
+              key={mode.id}
+              type="button"
+              role="radio"
+              aria-checked={
+                sessionMode === mode.id
+              }
+              title={mode.adds}
+              className={
+                sessionMode === mode.id
+                  ? "session-mode active"
+                  : "session-mode"
+              }
+              onClick={() =>
+                onSessionModeChange(
+                  mode.id,
+                )
+              }
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
+        <small className="session-mode-summary">
+          {
+            SESSION_MODES.find(
+              (mode) =>
+                mode.id === sessionMode,
+            )?.summary
+          }
+        </small>
+      </div>
 
       <label>
         <span>Style</span>
@@ -172,7 +201,8 @@ export function ScenarioControls({
           value={interfaceStyle}
           onChange={(event) =>
             setInterfaceStyle(
-              event.target.value as InterfaceStyle,
+              event.target
+                .value as InterfaceStyle,
             )
           }
         >
@@ -184,42 +214,6 @@ export function ScenarioControls({
           </option>
         </select>
       </label>
-
-      <button
-        type="button"
-        className={
-          instructorMode
-            ? "mode-button active"
-            : "mode-button"
-        }
-        onClick={() =>
-          navigateWith(
-            scenarioPath,
-            !instructorMode,
-          )
-        }
-      >
-        {/*
-          Label the current state, not the destination. The old label read
-          "Instructor mode" while in student mode, which reads as a
-          statement about where you are rather than where the click takes
-          you -- the single most common reason nobody could tell which mode
-          they were in.
-        */}
-        <span className="mode-button-label">
-          Role
-        </span>
-        <span className="mode-button-value">
-          {instructorMode
-            ? "Instructor"
-            : "Student"}
-        </span>
-        <span className="mode-button-hint">
-          {instructorMode
-            ? "answers visible"
-            : "answers hidden"}
-        </span>
-      </button>
 
       <details className="quick-test-menu">
         <summary>Quick test</summary>

@@ -34,6 +34,7 @@ export interface IncidentGroundTruthStep {
   readonly eventId: string;
   readonly significance: string;
   readonly techniqueId?: string;
+  readonly reasoning?: string;
 }
 
 export interface IncidentTechnique {
@@ -355,6 +356,8 @@ export function generateIncident(
         significance:
           step.significance(cast),
         techniqueId: step.techniqueId,
+        reasoning:
+          step.reasoning?.(cast),
       });
 
       const existing =

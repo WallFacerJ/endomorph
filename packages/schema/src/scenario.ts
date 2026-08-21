@@ -416,6 +416,9 @@ export const scenarioGroundTruthEventSchema =
     /** MITRE ATT&CK technique this step maps to, e.g. T1110.003. */
     techniqueId:
       nonEmptyStringSchema.optional(),
+    /** What an analyst should conclude, and what to check next. */
+    reasoning:
+      nonEmptyStringSchema.optional(),
   }).strict();
 
 /**

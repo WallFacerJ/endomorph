@@ -232,3 +232,33 @@
   line-height: 1.5;
   white-space: pre-line;
 }
+
+.walkthrough-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-left: 0.65rem;
+  border-left: 2px solid rgba(148, 163, 184, 0.3);
+}
+
+.walkthrough-block.reasoning {
+  border-left-color: rgba(56, 189, 248, 0.7);
+}
+
+.walkthrough-block-label {
+  margin: 0;
+  font-size: 0.6rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.walkthrough-block.reasoning .walkthrough-block-label {
+  color: rgba(56, 189, 248, 0.95);
+  opacity: 1;
+}
+
+.walkthrough-meta {
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}

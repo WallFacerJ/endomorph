@@ -194,9 +194,26 @@ export function Walkthrough({
 
               {open && (
                 <div className="walkthrough-step-body">
-                  <p>
-                    {step.significance}
-                  </p>
+                  <div className="walkthrough-block">
+                    <p className="walkthrough-block-label">
+                      What happened
+                    </p>
+                    <p>
+                      {step.significance}
+                    </p>
+                  </div>
+
+                  {step.reasoning && (
+                    <div className="walkthrough-block reasoning">
+                      <p className="walkthrough-block-label">
+                        How to reason
+                        about it
+                      </p>
+                      <p>
+                        {step.reasoning}
+                      </p>
+                    </div>
+                  )}
 
                   <dl className="walkthrough-meta">
                     <div>

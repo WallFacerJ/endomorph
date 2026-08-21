@@ -4,40 +4,12 @@ import {
 } from "@playwright/test";
 
 /**
- * The previous instructor mode was unusable for two reasons, both reported
- * by the first person to try it: the toggle labelled its destination rather
- * than its current state, and everything it unlocked sat behind
- * finalization, so during the investigation it did nothing observable.
+ * The previous instructor mode unlocked everything behind finalization, so
+ * during the investigation it did nothing observable.
+ *
+ * The control itself is covered by orientation.spec.ts, which owns the
+ * single assistance scale that replaced the old Mode + Role pair.
  */
-
-test("the role control states which role you are in", async ({
-  page,
-}) => {
-  await page.goto("/");
-
-  const control = page.locator(
-    ".mode-button",
-  );
-
-  // Not "Instructor mode", which reads as a claim about where you are.
-  await expect(control).toContainText(
-    "Student",
-  );
-
-  await expect(control).toContainText(
-    "answers hidden",
-  );
-
-  await control.click();
-
-  await expect(control).toContainText(
-    "Instructor",
-  );
-
-  await expect(control).toContainText(
-    "answers visible",
-  );
-});
 
 test("instructors get the walkthrough during the investigation", async ({
   page,

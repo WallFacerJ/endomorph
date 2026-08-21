@@ -509,6 +509,9 @@ export function IdentityWorkspace({
                   <h4>{selectedEvent.title}</h4>
                   <code>{selectedEvent.eventId}</code>
                 </div>
+                <p className="identity-section-label">
+                  Normalized fields
+                </p>
                 <dl className="identity-detail-fields">
                   {selectedEvent.fields.map(
                     ([field, value]) => (
@@ -519,6 +522,9 @@ export function IdentityWorkspace({
                     ),
                   )}
                 </dl>
+                <p className="identity-section-label">
+                  Actions on this event
+                </p>
                 <div className="identity-detail-actions">
                   <button
                     type="button"

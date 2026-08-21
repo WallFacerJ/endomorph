@@ -205,3 +205,16 @@
 .mode-button.active .mode-button-value {
   color: rgba(56, 189, 248, 1);
 }
+
+.control-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.control-field-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}

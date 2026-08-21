@@ -98,8 +98,11 @@ test("guided runs keep the response cards", async ({
   await openInvestigation(page);
 
   await page
-    .getByLabel("Select assistance mode")
-    .selectOption("guided");
+    .getByRole("radiogroup", {
+      name: "Assistance level",
+    })
+    .getByRole("radio", { name: "Guided" })
+    .click();
 
   await expect(
     page.getByRole("region", {

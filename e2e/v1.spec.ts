@@ -24,9 +24,31 @@ async function openInvestigation(
  * response-in-context.spec.ts.
  */
 async function useGuidedMode(page: Page) {
-  await page
-    .getByLabel("Select assistance mode")
-    .selectOption("guided");
+  const group = page.getByRole(
+    "radiogroup",
+    { name: "Assistance level" },
+  );
+
+  // Assistance is a monotonic scale and Instructor already includes
+  // everything Guided provides, so raise to Guided only when below it.
+  // Clicking Guided unconditionally would silently downgrade an instructor
+  // run and hide the panels the caller is about to assert on.
+  const instructor = group.getByRole(
+    "radio",
+    { name: "Instructor" },
+  );
+
+  if (
+    (await instructor.getAttribute(
+      "aria-checked",
+    )) === "true"
+  ) {
+    return;
+  }
+
+  await group
+    .getByRole("radio", { name: "Guided" })
+    .click();
 }
 
 function responseAction(
@@ -297,13 +319,20 @@ test("instructor mode reveals ground truth only after finalization", async ({
     "The successful authentication from an unusual source is the initial compromise signal.",
   );
 
-  // The role control now states the current role rather than the
-  // destination, so it is targeted by class instead of by a label that
-  // changed meaning.
-  await page.locator(".mode-button").click();
-  await expect(page).not.toHaveURL(
-    /mode=instructor/,
-  );
+  // Dropping to Professional hides the review again. The ?mode= parameter
+  // is an entry point rather than a live mirror of the control, so the URL
+  // is deliberately not rewritten mid-run -- doing so would reload and
+  // discard the investigation.
+  await page
+    .getByRole("radiogroup", {
+      name: "Assistance level",
+    })
+    .getByRole("radio", {
+      name: "Professional",
+    })
+    .click();
+
+  await expect(instructor).toHaveCount(0);
 });
 
 test("quick test instructions are available in product", async ({

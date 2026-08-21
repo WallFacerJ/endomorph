@@ -79,6 +79,8 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
         advanceBy: 2,
         significance: (cast) =>
           `Failed sign-in for ${cast.subjectAccount.username} from ${cast.externalIp}, an address outside every corporate subnet.`,
+        reasoning: () =>
+          "One failed sign-in is meaningless -- staff mistype passwords constantly, and the baseline is full of them. What matters is the shape: repeated failures against one account from one address that has never appeared in this environment before. Establish the address is unfamiliar before treating the failures as an attack, then pivot on the address rather than the account.",
         build: (cast) => ({
           type: "AUTH_LOGIN_FAILED",
           source: "identity",
@@ -99,6 +101,8 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
         advanceBy: 1,
         significance: (cast) =>
           `Successful sign-in for ${cast.subjectAccount.username} from ${cast.externalIp} moments after repeated failures. This is the compromise point.`,
+        reasoning: () =>
+          "This is the moment the incident becomes real, and the timestamp to anchor scope on: everything this account does afterwards is suspect, everything before it is probably the genuine user. A success following failures from the same unfamiliar address is the single strongest identity signal available -- far stronger than the success on its own, which happens thousands of times a day here.",
         build: (cast) => ({
           type: "AUTH_LOGIN_SUCCEEDED",
           source: "identity",
@@ -142,6 +146,8 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
         advanceBy: 2,
         significance: () =>
           "Base64-encoded PowerShell launched with an execution-policy bypass and a hidden window. No business process on this host runs this way.",
+        reasoning: () =>
+          "PowerShell alone proves nothing; administrators and business tooling use it all day, which is why alerting on the binary produces noise rather than detections. The signal is the combination -- encoded payload, policy bypass, hidden window -- because each flag exists to defeat inspection and legitimate automation has no reason to use all three. Read the parent process next: what launched it tells you whether this followed the sign-in or came from something already resident.",
         build: (cast) => ({
           type: "PROCESS_STARTED",
           source: "edr",
@@ -165,6 +171,8 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
         advanceBy: 5,
         significance: (cast) =>
           `Outbound connection to ${cast.c2Ip} on 443 immediately after the encoded command. Beaconing to attacker infrastructure.`,
+        reasoning: () =>
+          "Port 443 to an external address is the most ordinary traffic in the environment, so the destination is not what makes this notable -- the timing is. It follows the encoded command within seconds, and repeats. Correlate on the host and the minute rather than on the port, and check whether any other host in the estate has talked to the same address, because that is how you find the rest of the compromise.",
         build: (cast, index) => ({
           type: "NETWORK_CONNECTION",
           source: "network",
@@ -185,6 +193,8 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
         advanceBy: 3,
         significance: () =>
           "Domain administrator enumeration. The intruder is looking for an escalation path.",
+        reasoning: () =>
+          "A Finance analyst account has no business enumerating Domain Admins, and that mismatch between the account's role and its behaviour is the finding -- not the command itself, which an administrator would run legitimately. This step also tells you intent: the intruder is looking for escalation, so widen scope to whatever that enumeration returned.",
         build: (cast) => ({
           type: "PROCESS_STARTED",
           source: "edr",
@@ -208,6 +218,8 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
         advanceBy: 3,
         significance: (cast) =>
           `Restricted document ${cast.targetFile.name} opened by an account with no routine history against it. This is the business impact.`,
+        reasoning: () =>
+          "This is the step that turns an intrusion into an incident with consequences, and the one the business will ask about first. Determine whether the account ever legitimately touched this document before -- prior access changes the story from theft to plausible routine. Access alone is not exfiltration; look for movement of the data afterwards before claiming it left.",
         build: (cast) => ({
           type: "FILE_ACCESSED",
           source: "file_server",
@@ -228,6 +240,8 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
         advanceBy: 2,
         significance: (cast) =>
           `SMB connection from the compromised workstation to ${cast.lateralTarget.hostname}. Scope now extends beyond the initial host.`,
+        reasoning: () =>
+          "Scope has changed, and so has the containment decision: isolating the original workstation no longer ends the incident. Workstation-to-server SMB is normal here, so a single connection is weak on its own -- what makes it evidence is that it originates from a host already known compromised. Check what else that host reached in the same window before deciding containment is complete.",
         build: (cast) => ({
           type: "NETWORK_CONNECTION",
           source: "network",
