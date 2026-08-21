@@ -379,7 +379,11 @@ function ScenarioWorkspace({
             actionId,
           ],
     );
-    setActiveView("timeline");
+
+    // Deliberately no navigation. Response operations are now performed
+    // from the console that owns them, so jumping back to the timeline
+    // would eject the analyst from the tool they are working in. When the
+    // guided response cards are used they already live on that view.
   };
 
   const finalizeInvestigation = () => {
@@ -625,17 +629,32 @@ function ScenarioWorkspace({
               />
             )}
 
-            <ResponseActionPanel
-              actions={responseActions}
-              performedActionIds={scenarioState.performedActionIds}
-              score={scenarioState.score}
-              showScore={
-                assistance === "guided" ||
-                scenarioState.finalized
-              }
-              finalized={scenarioState.finalized}
-              onPerform={performResponseAction}
-            />
+            {assistance === "guided" ||
+            scenarioState.finalized ? (
+              <ResponseActionPanel
+                actions={responseActions}
+                performedActionIds={scenarioState.performedActionIds}
+                score={scenarioState.score}
+                showScore={
+                  assistance ===
+                    "guided" ||
+                  scenarioState.finalized
+                }
+                finalized={scenarioState.finalized}
+                onPerform={performResponseAction}
+              />
+            ) : (
+              <p className="response-relocated">
+                Response operations are
+                performed from the
+                console that owns them
+                &mdash; endpoint actions
+                in <strong>Endpoint</strong>,
+                account and session
+                actions in{" "}
+                <strong>Identity</strong>.
+              </p>
+            )}
 
             {scenarioState.finalized && (
               <ScenarioResultPanel
@@ -758,6 +777,13 @@ function ScenarioWorkspace({
               state={projections.edr}
               devices={Object.values(scenarioState.world.devices)}
               initialDeviceId={context.deviceId}
+              actions={responseActions}
+              performedActionIds={
+                scenarioState.performedActionIds
+              }
+              onPerformAction={
+                performResponseAction
+              }
               finalized={scenarioState.finalized}
               isCollected={isEvidenceCollected}
               onCollect={collectEvidence}

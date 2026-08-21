@@ -14,6 +14,10 @@ import type {
   ScenarioState,
 } from "./simulationAdapter";
 
+import {
+  actionTargetsAccount,
+} from "./actionRouting";
+
 import "./IdentityWorkspace.css";
 
 interface IdentityWorkspaceProps {
@@ -52,26 +56,6 @@ function formatTimestamp(timestamp: string): string {
       hour12: false,
     },
   ).format(new Date(timestamp));
-}
-
-function actionTargetsAccount(
-  action: ScenarioAction,
-  accountId: string,
-  sessionIds: readonly string[],
-): boolean {
-  return action.events.some((event) => {
-    switch (event.type) {
-      case "ACCOUNT_DISABLED":
-      case "ACCOUNT_ENABLED":
-        return event.payload.accountId === accountId;
-      case "SESSION_REVOKED":
-        return sessionIds.includes(
-          event.payload.sessionId,
-        );
-      default:
-        return false;
-    }
-  });
 }
 
 export function IdentityWorkspace({
@@ -134,6 +118,7 @@ export function IdentityWorkspace({
       actionTargetsAccount(
         action,
         investigation.account.id,
+        investigation.account.username,
         sessionIds,
       ),
   );

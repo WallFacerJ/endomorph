@@ -864,3 +864,12 @@ textarea:focus-visible {
     flex-direction: column;
   }
 }
+
+.response-relocated {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+  border-radius: 10px;
+  font-size: 0.82rem;
+  opacity: 0.82;
+}

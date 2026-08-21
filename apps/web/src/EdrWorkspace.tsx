@@ -10,7 +10,12 @@ import {
 
 import type {
   EdrProjectionState,
+  ScenarioAction,
 } from "./simulationAdapter";
+
+import {
+  actionTargetsDevice,
+} from "./actionRouting";
 
 import "./EdrWorkspace.css";
 
@@ -26,6 +31,11 @@ interface EdrWorkspaceProps {
   state: EdrProjectionState;
   devices: readonly EndpointInventoryItem[];
   initialDeviceId: string;
+  actions: readonly ScenarioAction[];
+  performedActionIds: readonly string[];
+  onPerformAction: (
+    actionId: string,
+  ) => void;
   finalized: boolean;
   isCollected: (eventId: string) => boolean;
   onCollect: (eventId: string) => void;
@@ -128,6 +138,9 @@ export function EdrWorkspace({
   state,
   devices,
   initialDeviceId,
+  actions,
+  performedActionIds,
+  onPerformAction,
   finalized,
   isCollected,
   onCollect,
@@ -152,6 +165,17 @@ export function EdrWorkspace({
         ? initialDeviceId
         : observedDeviceIds[0] ?? initialDeviceId,
     );
+  const endpointActions = useMemo(
+    () =>
+      actions.filter((action) =>
+        actionTargetsDevice(
+          action,
+          selectedDeviceId,
+        ),
+      ),
+    [actions, selectedDeviceId],
+  );
+
   const [activeTab, setActiveTab] =
     useState<EdrTab>("processes");
   const [selected, setSelected] =
@@ -589,6 +613,66 @@ export function EdrWorkspace({
               />
             </>
           ) : null}
+
+          <section className="edr-response-operations">
+            <p className="eyebrow">
+              Endpoint response
+            </p>
+            <h4>Available operations</h4>
+
+            {endpointActions.length ===
+            0 ? (
+              <p className="edr-muted">
+                No scenario response
+                operations target this
+                endpoint.
+              </p>
+            ) : (
+              <div className="edr-action-list">
+                {endpointActions.map(
+                  (action) => {
+                    const performed =
+                      performedActionIds.includes(
+                        action.id,
+                      );
+
+                    return (
+                      <button
+                        key={action.id}
+                        type="button"
+                        className="edr-action"
+                        disabled={
+                          finalized ||
+                          performed
+                        }
+                        onClick={() =>
+                          onPerformAction(
+                            action.id,
+                          )
+                        }
+                      >
+                        <strong>
+                          {action.label}
+                        </strong>
+                        <span>
+                          {
+                            action.description
+                          }
+                        </span>
+                        <small>
+                          {performed
+                            ? "Performed"
+                            : finalized
+                              ? "Run finalized"
+                              : "Execute operation"}
+                        </small>
+                      </button>
+                    );
+                  },
+                )}
+              </div>
+            )}
+          </section>
         </aside>
       </div>
     </div>

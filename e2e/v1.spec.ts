@@ -12,6 +12,21 @@ async function openInvestigation(
     "button",
     { name: "Open investigation" },
   ).click();
+
+}
+
+/**
+ * Guided mode keeps the response cards on the investigation view.
+ *
+ * Professional runs relocate response work into the tool consoles, so any
+ * test driving the response -> outcome -> score pipeline through the cards
+ * has to ask for them. Placement in professional mode is covered by
+ * response-in-context.spec.ts.
+ */
+async function useGuidedMode(page: Page) {
+  await page
+    .getByLabel("Select assistance mode")
+    .selectOption("guided");
 }
 
 function responseAction(
@@ -30,6 +45,7 @@ function responseAction(
 async function performCleanResponse(
   page: Page,
 ) {
+  await useGuidedMode(page);
   await responseAction(
     page,
     "Revoke compromised session",
@@ -114,6 +130,7 @@ test("partial response finalizes as failed with preserved objective score", asyn
   page,
 }) => {
   await openInvestigation(page);
+  await useGuidedMode(page);
   await responseAction(
     page,
     "Revoke compromised session",
@@ -139,6 +156,7 @@ test("harmful response is hidden during work and penalized after submission", as
   page,
 }) => {
   await openInvestigation(page);
+  await useGuidedMode(page);
 
   await expect(page.getByText(
     "Re-enabling a known compromised account during incident response creates avoidable exposure and can undo containment.",
@@ -149,13 +167,6 @@ test("harmful response is hidden during work and penalized after submission", as
     "Restore account access",
   ).click();
   await performCleanResponse(page);
-
-  // The running score only exists in guided mode; professional runs hide it
-  // during active work. The behaviour under test here is the penalty, so
-  // switch modes rather than drop the check.
-  await page
-    .getByLabel("Select assistance mode")
-    .selectOption("guided");
 
   await expect(
     page.getByRole("region", {

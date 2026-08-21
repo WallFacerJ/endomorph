@@ -47,11 +47,10 @@ test("professional mode is the default and hides objectives during active work",
     page.locator(".response-score"),
   ).toHaveCount(0);
 
-  // The work itself is untouched: responses are still available.
+  // The work itself is untouched: responses are still available, just from
+  // the console that owns them rather than a row of cards.
   await expect(
-    page.getByRole("region", {
-      name: "Response actions",
-    }),
+    page.locator(".response-relocated"),
   ).toBeVisible();
 });
 
