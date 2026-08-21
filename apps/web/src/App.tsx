@@ -28,13 +28,16 @@ import {
 } from "./InstructorReviewPanel";
 
 import {
-  readInitialAssistance,
   ScenarioControls,
 } from "./ScenarioControls";
 
+import {
+  readInitialAssistance,
+} from "./assistanceMode";
+
 import type {
   AssistanceMode,
-} from "./ScenarioControls";
+} from "./assistanceMode";
 
 import {
   SiemWorkspace,
