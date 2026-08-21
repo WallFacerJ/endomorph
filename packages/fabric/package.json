@@ -19,6 +19,7 @@
     "lint": "oxlint --deny-warnings",
     "generate:scenario": "node dist/cli.js",
     "generate:all": "node dist/generateAll.js",
+    "evaluate": "node dist/evaluateCli.js",
     "bundle:standalone": "node dist/bundleStandalone.js"
   },
   "dependencies": {

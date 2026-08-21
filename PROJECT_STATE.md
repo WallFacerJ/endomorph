@@ -1,5 +1,15 @@
 # Endomorph Project State
 
+## Positioning change
+
+Endomorph is positioned as **a generator of labelled security telemetry**, not as a cyber-range competitor.
+
+The range market is not winnable by a solo project: Hack The Box has millions of members, accredited certifications, and framework-mapped enterprise assessments, and CyberDefenders holds the blue-team niche. Competing on lab count is a losing race, because those platforms hand-author labs with teams.
+
+The generator inverts that constraint. Labs are generated, not authored, and ground truth is known by construction rather than annotated afterwards. That supports a second audience the range platforms do not serve: detection engineers who need labelled corpora to measure rule efficacy, and who currently have almost nothing to measure against.
+
+The investigation console remains, as one consumer of a generated world. Detection evaluation is the other.
+
 ## Project identity
 
 Endomorph is evolving from a deterministic cybersecurity training simulator into a **deterministic cyber-operations digital twin and enterprise cyber-readiness platform**.

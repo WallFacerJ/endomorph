@@ -1,13 +1,67 @@
 # Endomorph
 
-**Endomorph is a deterministic cyber-operations digital twin.** An analyst investigates synthetic identity, endpoint, and SIEM telemetry over one shared, replayable world, collects evidence, writes findings, chooses response actions, and receives a reproducible result. In instructor mode, a completed run can be compared with authored ground truth.
+**Endomorph generates realistic enterprise security telemetry with ground truth known by construction.**
 
-Everything derives from one causal world. Given the same seed, scenario, and inputs, Endomorph produces the same event stream, the same tool views, and the same score — every time, on every machine.
+A corpus captured from a real network has to be labelled by hand, and the labels are opinions. Here the generator decided which events were the intrusion before it wrote them — so every record is labelled benign or malicious, mapped to the ATT&CK technique it demonstrates, and reproducible from a seed.
 
-Two ways to get a world:
+That makes two things possible that a captured corpus cannot support:
 
-- **Hand-authored scenarios** — a versioned JSON contract, validated structurally and semantically before it runs.
-- **Generated enterprises** — `packages/fabric` builds an entire synthetic company from a single seed: staff, accounts, endpoints, servers, network segments, classified documents, **five days** of ordinary working history, and an incident buried inside it. The shipped generated scenario is **444 entities and 17,904 events**, of which 14 are the attack.
+- **Detection engineering with real numbers.** Score a rule against known ground truth and get true positives, false positives, and technique coverage instead of an estimate.
+- **Investigation training that cannot be memorised.** Change the seed and the enterprise, the staff, the addresses, and the intrusion all change — while the reasoning required stays the same.
+
+```
+pnpm evaluate     # score the shipped ruleset against three ATT&CK-mapped intrusions
+pnpm dev          # investigate one of them in the analyst console
+```
+
+## Why this is hard, and how it works
+
+Determinism is the whole product. If the same seed produced a slightly different world, labels would drift from the data and every number above would be worthless.
+
+The non-obvious part is that a single seeded PRNG is *not* enough. Drawing sequentially means adding one more device shifts every subsequent value, so editing content silently rewrites unrelated parts of the world. Endomorph uses a **splittable cursor** addressed by fork path rather than draw order:
+
+```
+root(seed)
+  └── staff
+        └── finance
+              └── member-3      ← this person's stream, forever
+```
+
+Sibling streams cannot disturb each other and fork order is irrelevant. Raising headcount by one adds a person without changing anyone else's name, device, or account.
+
+```mermaid
+flowchart TD
+    seed["seed + profile"] --> fabric
+
+    subgraph fabric["packages/fabric — generator"]
+        cursor["RandomCursor<br/>splittable PRNG"]
+        topo["topology<br/>444 entities"]
+        base["5 days of<br/>benign activity"]
+        plan["attack plan<br/>ATT&CK-mapped"]
+        cursor --> topo --> base --> plan
+    end
+
+    plan --> corpus["labelled corpus<br/>ECS + ground truth"]
+    plan --> scenario["scenario file<br/>Zod-validated"]
+
+    corpus --> detect["detection evaluation<br/>TP / FP / coverage"]
+    scenario --> sim
+
+    subgraph sim["packages/simulation — runtime"]
+        store["append-only<br/>event store"]
+        proj["projections"]
+        store --> proj
+    end
+
+    proj --> siem["SIEM"]
+    proj --> edr["Endpoint"]
+    proj --> idp["Identity"]
+    proj --> case["Incident command"]
+```
+
+Everything downstream is derived. The SIEM, endpoint, and identity consoles are **projections of one event history**, not separate datasets — which is why a pivot in one tool lands on the same event in another, and why the incident-command graph can assemble itself from whatever evidence the analyst collected.
+
+Content is data, not code. An attack plan declares its steps, techniques, and questions; the renderer plays it against whatever enterprise the seed produced. Adding an intrusion means adding a plan — and because plans pass through Zod validation, semantic reference checks, the runtime's own event validator, and the determinism suite, **generated content cannot corrupt the runtime**.
 
 ## Try Endomorph
 
@@ -55,6 +109,33 @@ The three generated incidents deliberately teach different lessons. The first tr
 Generated scenarios are **build artifacts, not source** — `pnpm build` produces them and they are not committed.
 
 Use the **Scenario** selector in the application to switch between them. Direct deep links using `?scenario=/scenarios/<file>.json` are also supported for local/custom authoring.
+
+## Detection engineering
+
+```bash
+pnpm evaluate                          # score the shipped ruleset
+pnpm evaluate -- --export out/corpus   # also write NDJSON + manifest
+```
+
+Rules are evaluated against all three intrusions, because a rule's false positives come from the incidents it *wasn't* written for. Sample output:
+
+```
+External credential compromise  (credential-compromise)
+  corpus 4045 records, 13 malicious (0.321%)
+
+  RULE                      TECHNIQUE   TP   FP     FN   PREC    RECALL
+  auth-spray                T1110.003   4    0      0    1.000   1.000
+  encoded-powershell        T1059.001   1    0      0    1.000   1.000
+  naive-powershell          T1059.001   1    51     0    0.019   1.000
+  external-auth-success     T1078.002   1    0      1    1.000   0.500
+
+  techniques covered   4/7
+  UNCOVERED            T1005, T1021.002, T1071.001
+```
+
+Two of the shipped rules are deliberately imperfect, and the numbers say so. `naive-powershell` alerts on every PowerShell launch and scores **0.019 precision** — 1 true positive against 51 false. `external-auth-success` scores perfectly on the credential-compromise plan and **detects nothing at all** on the service-account plan, because that intrusion never leaves the corporate network.
+
+Corpora export as newline-delimited JSON in Elastic Common Schema field names, with a manifest recording the seed, the plan, technique counts, and the malicious ratio.
 
 ## Generating an enterprise
 
@@ -201,7 +282,7 @@ Endomorph is for synthetic simulation only. It is not a phishing kit, credential
 - `packages/domain` — canonical synthetic enterprise domain models
 - `packages/schema` — versioned external/scenario validation contracts
 - `packages/simulation` — deterministic world/event/replay/projection/scenario runtime
-- `packages/fabric` — deterministic enterprise generator: splittable RNG, topology, background activity, incident planting, scenario compilation, and the generator CLI
+- `packages/fabric` — the generator: splittable RNG, topology, background activity, the attack-plan library, labelled corpus export, detection-rule evaluation, and the CLIs
 - `e2e` — Playwright browser regression tests
 
 For architectural continuity and future work, see [PROJECT_STATE.md](PROJECT_STATE.md), [ROADMAP.md](ROADMAP.md), and [ARCHITECTURE.md](ARCHITECTURE.md).
