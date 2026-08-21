@@ -11,6 +11,9 @@ importers:
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.62.1
+      oxlint:
+        specifier: ^1.78.0
+        version: 1.78.0
       vitest:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@24.13.3)(vite@8.2.1(@types/node@24.13.3))

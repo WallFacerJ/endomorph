@@ -15,7 +15,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "lint": "oxlint --deny-warnings"
   },
   "dependencies": {
     "zod": "^4.4.3"
