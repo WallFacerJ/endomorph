@@ -9,8 +9,8 @@ import {
 import "./App.css";
 
 import {
-  IncidentCommand,
-} from "./IncidentCommand";
+  CaseWorkspace,
+} from "./CaseWorkspace";
 
 import {
   InvestigationBrief,
@@ -1309,230 +1309,46 @@ function ScenarioWorkspace({
         )}
 
         {activeView === "case" && (
-          <section className="workspace-section">
-            <IncidentCommand
-              world={scenarioState.world}
-              records={
-                projections.siem.events
-              }
-              collectedEventIds={
-                analystCase.collectedEventIds
-              }
-              caseState={incidentCase}
-              onCaseChange={
-                setIncidentCase
-              }
-              onPivotToSiem={openSiem}
-              readOnly={finalized}
-            />
-
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">
-                  Analyst case
-                </p>
-                <h3>Build your evidence-backed finding</h3>
-              </div>
-              <div className="case-stats">
-                <span>
-                  {analystCase.collectedEventIds.length} evidence
-                </span>
-                <span>
-                  {analystCase.findings.length} findings
-                </span>
-              </div>
-            </div>
-
-            <div className="case-grid">
-              <article className="case-panel">
-                <p className="eyebrow">
-                  Collected evidence
-                </p>
-                <h4>Evidence notebook</h4>
-                <p className="case-copy">
-                  Select collected telemetry to support the finding you are writing.
-                </p>
-
-                {collectedEvidence.length === 0 ? (
-                  <div className="case-empty">
-                    Collect events from Investigation, Endpoint, or Identity first.
-                  </div>
-                ) : (
-                  <div className="case-evidence-list">
-                    {collectedEvidence.map(
-                      (event) => {
-                        const record =
-                          siemByEventId.get(
-                            event.id,
-                          );
-                        const selected =
-                          selectedEvidenceIds.includes(
-                            event.id,
-                          );
-
-                        return (
-                          <label
-                            key={event.id}
-                            className={
-                              selected
-                                ? "case-evidence-item selected"
-                                : "case-evidence-item"
-                            }
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selected}
-                              disabled={scenarioState.finalized}
-                              onChange={() =>
-                                toggleFindingEvidence(
-                                  event.id,
-                                )
-                              }
-                            />
-                            <span>
-                              <strong>
-                                {record?.message ??
-                                  event.type}
-                              </strong>
-                              <small>
-                                {event.id} · {formatTimestamp(event.timestamp)}
-                              </small>
-                            </span>
-                          </label>
-                        );
-                      },
-                    )}
-                  </div>
-                )}
-              </article>
-
-              <article className="case-panel">
-                <p className="eyebrow">
-                  Analyst finding
-                </p>
-                <h4>Document your conclusion</h4>
-                <p className="case-copy">
-                  Findings are your interpretation of the evidence, not ground truth.
-                </p>
-
-                <form
-                  className="finding-form"
-                  onSubmit={submitFinding}
-                >
-                  <label>
-                    Finding title
-                    <input
-                      type="text"
-                      value={findingTitle}
-                      disabled={scenarioState.finalized}
-                      onChange={(event) =>
-                        setFindingTitle(
-                          event.target.value,
-                        )
-                      }
-                      placeholder="Example: Account compromise led to suspicious PowerShell"
-                    />
-                  </label>
-
-                  <label>
-                    Analyst summary
-                    <textarea
-                      value={findingSummary}
-                      disabled={scenarioState.finalized}
-                      onChange={(event) =>
-                        setFindingSummary(
-                          event.target.value,
-                        )
-                      }
-                      rows={6}
-                      placeholder="Explain what happened and why the selected evidence supports your conclusion."
-                    />
-                  </label>
-
-                  <div className="finding-form-footer">
-                    <small>
-                      {selectedEvidenceIds.length} evidence linked
-                    </small>
-                    <button
-                      type="submit"
-                      className="primary-button"
-                      disabled={
-                        scenarioState.finalized ||
-                        findingTitle.trim().length === 0 ||
-                        findingSummary.trim().length === 0 ||
-                        selectedEvidenceIds.length === 0
-                      }
-                    >
-                      Save finding
-                    </button>
-                  </div>
-                </form>
-
-                {caseError && (
-                  <div className="case-error">
-                    {caseError}
-                  </div>
-                )}
-              </article>
-            </div>
-
-            <div className="finding-list-section">
-              <div className="section-heading compact-heading">
-                <div>
-                  <p className="eyebrow">
-                    Saved findings
-                  </p>
-                  <h3>Case conclusions</h3>
-                </div>
-              </div>
-
-              {analystCase.findings.length === 0 ? (
-                <div className="case-empty">
-                  No findings yet. Collect evidence, select it above, and document your conclusion.
-                </div>
-              ) : (
-                <div className="finding-list">
-                  {analystCase.findings.map(
-                    (finding) => (
-                      <article
-                        key={finding.id}
-                        className="finding-card"
-                      >
-                        <div className="finding-card-header">
-                          <div>
-                            <p className="eyebrow">
-                              {finding.id}
-                            </p>
-                            <h4>
-                              {finding.title}
-                            </h4>
-                          </div>
-                          <span className="evidence-count-badge">
-                            {finding.evidenceEventIds.length} evidence
-                          </span>
-                        </div>
-                        <p>
-                          {finding.summary}
-                        </p>
-                        <div className="finding-evidence-links">
-                          {finding.evidenceEventIds.map(
-                            (eventId) => (
-                              <span
-                                key={eventId}
-                                className="evidence-pill"
-                              >
-                                {siemByEventId.get(eventId)?.eventType ?? eventId}
-                              </span>
-                            ),
-                          )}
-                        </div>
-                      </article>
-                    ),
-                  )}
-                </div>
-              )}
-            </div>
-          </section>
+          <CaseWorkspace
+            scenarioState={scenarioState}
+            siemRecords={
+              projections.siem.events
+            }
+            analystCase={analystCase}
+            incidentCase={incidentCase}
+            onIncidentCaseChange={
+              setIncidentCase
+            }
+            collectedEvidence={
+              collectedEvidence
+            }
+            siemByEventId={siemByEventId}
+            selectedEvidenceIds={
+              selectedEvidenceIds
+            }
+            onToggleFindingEvidence={
+              toggleFindingEvidence
+            }
+            findingTitle={findingTitle}
+            onFindingTitleChange={
+              setFindingTitle
+            }
+            findingSummary={
+              findingSummary
+            }
+            onFindingSummaryChange={
+              setFindingSummary
+            }
+            onSubmitFinding={
+              submitFinding
+            }
+            caseError={caseError}
+            finalized={finalized}
+            onPivotToSiem={openSiem}
+            formatTimestamp={
+              formatTimestamp
+            }
+          />
         )}
       </main>
     </div>

@@ -46,6 +46,7 @@ export type {
   ScenarioTechnique,
   ScenarioScore,
   ScenarioState,
+  SimulationEvent,
   SiemEventRecord,
   SiemSearchRequest,
   SiemSearchResult,
