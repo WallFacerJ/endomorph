@@ -398,7 +398,7 @@ function ScenarioWorkspace({
       <aside className="sidebar">
         <div>
           <p className="eyebrow">
-            Polymorph
+            Endomorph
           </p>
           <h1>Security Console</h1>
           <p className="sidebar-copy">
@@ -1024,7 +1024,7 @@ function App() {
         <p className="eyebrow">
           Scenario validation failed
         </p>
-        <h1>Polymorph could not load this scenario.</h1>
+        <h1>Endomorph could not load this scenario.</h1>
         <p>
           Fix the JSON or semantic error, then retry.
         </p>

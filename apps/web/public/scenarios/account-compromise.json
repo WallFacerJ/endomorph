@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "kind": "polymorph-scenario",
+  "kind": "endomorph-scenario",
   "scenario": {
     "id": "scenario-account-compromise-001",
     "name": "Suspicious PowerShell after account compromise",

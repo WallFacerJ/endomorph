@@ -11,7 +11,7 @@ import type {
   Session,
   SessionStatus,
   User,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import type {
   SimulationSnapshot,

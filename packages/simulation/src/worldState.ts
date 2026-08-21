@@ -8,7 +8,7 @@ import type {
   Session,
   SimulationTimestamp,
   User,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 export interface WorldState {
   simulationTime: SimulationTimestamp;

@@ -17,10 +17,10 @@ importers:
 
   apps/web:
     dependencies:
-      '@polymorph/schema':
+      '@endomorph/schema':
         specifier: workspace:*
         version: link:../../packages/schema
-      '@polymorph/simulation':
+      '@endomorph/simulation':
         specifier: workspace:*
         version: link:../../packages/simulation
       react:
@@ -70,10 +70,10 @@ importers:
 
   packages/simulation:
     dependencies:
-      '@polymorph/domain':
+      '@endomorph/domain':
         specifier: workspace:*
         version: link:../domain
-      '@polymorph/schema':
+      '@endomorph/schema':
         specifier: workspace:*
         version: link:../schema
     devDependencies:

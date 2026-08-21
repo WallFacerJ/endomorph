@@ -8,7 +8,7 @@ import {
   exampleAccount,
   exampleApplication,
   exampleDevice,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import {
   applySimulationEvent,

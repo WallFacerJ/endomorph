@@ -1,6 +1,6 @@
 import {
   parseScenarioFile,
-} from "@polymorph/schema";
+} from "@endomorph/schema";
 
 import {
   compileScenarioDefinition,

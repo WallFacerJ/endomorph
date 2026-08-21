@@ -26,7 +26,7 @@ export default defineConfig({
   ],
   webServer: {
     command:
-      "pnpm build && pnpm --filter @polymorph/web exec vite --host 127.0.0.1 --port 4173",
+      "pnpm build && pnpm --filter @endomorph/web exec vite --host 127.0.0.1 --port 4173",
     url: "http://127.0.0.1:4173",
     reuseExistingServer:
       !process.env.CI,

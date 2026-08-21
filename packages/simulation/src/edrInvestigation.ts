@@ -1,6 +1,6 @@
 import type {
   EntityId,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import type {
   EdrAlertObservation,

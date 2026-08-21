@@ -11,7 +11,7 @@ import {
   exampleFile,
   exampleSession,
   exampleUser,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import type {
   SimulationEvent,

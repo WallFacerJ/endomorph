@@ -147,7 +147,7 @@ export function IdentityWorkspace({
       <header className="identity-console-header">
         <div>
           <p className="eyebrow">
-            Polymorph Ops / Identity
+            Endomorph Ops / Identity
           </p>
           <h3>Identity and access investigation</h3>
           <p>

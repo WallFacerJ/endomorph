@@ -20,7 +20,7 @@ type InterfaceStyle =
   | "graphite";
 
 const THEME_STORAGE_KEY =
-  "polymorph-interface-style";
+  "endomorph-interface-style";
 
 function readInitialStyle(): InterfaceStyle {
   const stored =
@@ -179,7 +179,7 @@ export function ScenarioControls({
             <li>Tell us where you hesitated or got confused.</li>
           </ol>
           <a
-            href="https://github.com/WallFacerJ/polymorph/blob/main/TESTER_GUIDE.md"
+            href="https://github.com/WallFacerJ/endomorph/blob/main/TESTER_GUIDE.md"
             target="_blank"
             rel="noreferrer"
           >

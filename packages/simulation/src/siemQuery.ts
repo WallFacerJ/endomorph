@@ -1,6 +1,6 @@
 import type {
   SimulationTimestamp,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import type {
   SiemEventRecord,

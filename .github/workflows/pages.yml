@@ -1,4 +1,4 @@
-name: Deploy Polymorph v1
+name: Deploy Endomorph v1
 
 on:
   push:
@@ -44,7 +44,7 @@ jobs:
       - name: Build hosted app
         run: pnpm build
         env:
-          POLYMORPH_BASE_PATH: /polymorph/
+          ENDOMORPH_BASE_PATH: /endomorph/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

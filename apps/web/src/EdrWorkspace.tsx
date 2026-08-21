@@ -217,7 +217,7 @@ export function EdrWorkspace({
       <header className="edr-header">
         <div>
           <p className="eyebrow">
-            Polymorph Ops / EDR
+            Endomorph Ops / EDR
           </p>
           <h3>Endpoint investigation</h3>
           <p>

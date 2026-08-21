@@ -13,7 +13,7 @@ import {
 function createValidFile(): unknown {
   return {
     version: SCENARIO_FILE_VERSION,
-    kind: "polymorph-scenario",
+    kind: "endomorph-scenario",
     scenario: {
       id: "scenario-001",
       name: "Example scenario",

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "kind": "polymorph-scenario",
+  "kind": "endomorph-scenario",
   "scenario": {
     "id": "scenario-cloud-admin-001",
     "name": "Suspicious cloud-admin login and tooling",

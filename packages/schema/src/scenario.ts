@@ -462,7 +462,7 @@ export const scenarioFileSchema =
     version:
       z.literal(SCENARIO_FILE_VERSION),
     kind:
-      z.literal("polymorph-scenario"),
+      z.literal("endomorph-scenario"),
     scenario: scenarioSpecSchema,
   }).strict();
 

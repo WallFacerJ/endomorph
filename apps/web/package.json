@@ -1,17 +1,17 @@
 {
-  "name": "@polymorph/web",
+  "name": "@endomorph/web",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter @polymorph/simulation... build && vite",
+    "dev": "pnpm --filter @endomorph/simulation... build && vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@polymorph/schema": "workspace:*",
-    "@polymorph/simulation": "workspace:*",
+    "@endomorph/schema": "workspace:*",
+    "@endomorph/simulation": "workspace:*",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

@@ -8,7 +8,7 @@ import {
   exampleAccount,
   exampleOrganization,
   exampleUser,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import {
   createWorldState,

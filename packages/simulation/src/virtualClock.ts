@@ -1,6 +1,6 @@
 import type {
   SimulationTimestamp,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 export class VirtualClock {
   private currentMilliseconds: number;

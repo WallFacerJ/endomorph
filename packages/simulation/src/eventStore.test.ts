@@ -7,7 +7,7 @@ import {
 import {
   exampleAccount,
   exampleUser,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import type {
   AccountDisabledEvent,

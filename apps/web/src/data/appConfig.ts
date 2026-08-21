@@ -1,7 +1,7 @@
-import { parseAppSpec } from "@polymorph/schema";
+import { parseAppSpec } from "@endomorph/schema";
 
 export const appConfig = parseAppSpec({
-  name: "Polymorph Security Console",
+  name: "Endomorph Security Console",
     actions: [
     {
       id: "start_investigation",
@@ -137,7 +137,7 @@ export const appConfig = parseAppSpec({
           type: "terminal",
           title: "Investigation Console",
           lines: [
-            "Polymorph Simulation Console",
+            "Endomorph Simulation Console",
             "Connected to synthetic environment",
             "Type 'help' to view available simulated commands",
           ],

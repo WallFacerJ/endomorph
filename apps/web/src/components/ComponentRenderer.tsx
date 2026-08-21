@@ -1,4 +1,4 @@
-import type { AppComponent } from "@polymorph/schema";
+import type { AppComponent } from "@endomorph/schema";
 
 interface ComponentRendererProps {
   component: AppComponent;

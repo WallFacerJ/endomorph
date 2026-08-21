@@ -1,7 +1,7 @@
 import type {
   EntityStatus,
   SessionStatus,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import type {
   WorldState,

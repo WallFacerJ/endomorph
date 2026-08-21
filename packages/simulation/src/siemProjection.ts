@@ -1,7 +1,7 @@
 import type {
   EntityId,
   SimulationTimestamp,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import type {
   AlertSeverity,

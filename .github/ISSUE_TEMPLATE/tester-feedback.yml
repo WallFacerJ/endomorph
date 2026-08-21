@@ -1,4 +1,4 @@
-name: Polymorph tester feedback
+name: Endomorph tester feedback
 description: Share a first-time impression, usability problem, or reproducible bug.
 title: "tester feedback: "
 labels: []
@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for testing Polymorph. Short feedback is useful. Please do not include real credentials, secrets, personal information, or production incident data.
+        Thanks for testing Endomorph. Short feedback is useful. Please do not include real credentials, secrets, personal information, or production incident data.
 
   - type: input
     id: browser

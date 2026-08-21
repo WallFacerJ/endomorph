@@ -15,7 +15,7 @@ export {
   resolveCollectedEvidence,
   searchSiem,
   siemProjection,
-} from "@polymorph/simulation";
+} from "@endomorph/simulation";
 
 export type {
   EdrEndpointInvestigation,
@@ -32,4 +32,4 @@ export type {
   SiemEventRecord,
   SiemSearchRequest,
   SiemSearchResult,
-} from "@polymorph/simulation";
+} from "@endomorph/simulation";

@@ -155,7 +155,7 @@ export function SiemWorkspace({
         <div className="siem-search-heading">
           <div>
             <p className="eyebrow">
-              Polymorph Ops / SIEM
+              Endomorph Ops / SIEM
             </p>
             <h3>Search security telemetry</h3>
             <p>

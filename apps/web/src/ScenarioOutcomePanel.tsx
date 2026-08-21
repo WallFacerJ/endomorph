@@ -1,6 +1,6 @@
 import type {
   ScenarioOutcome,
-} from "@polymorph/simulation";
+} from "@endomorph/simulation";
 
 import "./ScenarioOutcomePanel.css";
 

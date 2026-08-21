@@ -5,7 +5,7 @@ import type {
   EntityId,
   Session,
   User,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import type {
   AccountStatusActivity,

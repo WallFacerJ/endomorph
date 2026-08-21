@@ -6,7 +6,7 @@ import {
 
 import {
   exampleAccount,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import {
   createWorldState,

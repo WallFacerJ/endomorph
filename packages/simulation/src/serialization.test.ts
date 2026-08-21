@@ -12,7 +12,7 @@ import {
   exampleOrganization,
   exampleSession,
   exampleUser,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 import {
   createSnapshot,

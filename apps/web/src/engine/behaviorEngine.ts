@@ -1,4 +1,4 @@
-import type { AppAction } from "@polymorph/schema";
+import type { AppAction } from "@endomorph/schema";
 
 export interface BehaviorResult {
   message?: string;

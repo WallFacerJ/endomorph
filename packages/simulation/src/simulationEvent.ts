@@ -2,7 +2,7 @@ import type {
   DomainEvent,
   EntityId,
   EntityStatus,
-} from "@polymorph/domain";
+} from "@endomorph/domain";
 
 export type EventOf<
   TType extends string,
@@ -242,7 +242,7 @@ export type SecurityEvent =
   AlertCreatedEvent;
 
 // -----------------------------------------------------------------------------
-// Polymorph event union
+// Endomorph event union
 // -----------------------------------------------------------------------------
 
 export type SimulationEvent =
