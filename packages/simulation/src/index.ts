@@ -14,6 +14,7 @@ export * from "./eventStore";
 export * from "./eventBus";
 export * from "./projection";
 export * from "./identityProjection";
+export * from "./identityInvestigation";
 export * from "./edrProjection";
 export * from "./edrInvestigation";
 export * from "./siemProjection";

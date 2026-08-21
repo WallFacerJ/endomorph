@@ -36,6 +36,10 @@ import {
 } from "./EdrWorkspace";
 
 import {
+  IdentityWorkspace,
+} from "./IdentityWorkspace";
+
+import {
   addAnalystFinding,
   collectAnalystEvidence,
   createAnalystCaseState,
@@ -218,21 +222,6 @@ function ScenarioWorkspace({
       (candidate) =>
         candidate.alertId ===
         context.alertId,
-    );
-
-  const loginActivity =
-    projections.identity.activity.find(
-      (activity) =>
-        activity.kind ===
-          "login_succeeded" &&
-        alert?.relatedEventIds.includes(
-          activity.eventId,
-        ),
-    ) ??
-    projections.identity.activity.find(
-      (activity) =>
-        activity.kind ===
-        "login_succeeded",
     );
 
   const responseActions =
@@ -742,93 +731,20 @@ function ScenarioWorkspace({
         )}
 
         {activeView === "identity" && (
-          <section className="workspace-section">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">
-                  Identity projection
-                </p>
-                <h3>
-                  {user?.displayName ?? "User"}
-                </h3>
-              </div>
-            </div>
-
-            <div className="detail-grid">
-              <div>
-                <span>Email</span>
-                <strong>
-                  {user?.email ?? "—"}
-                </strong>
-              </div>
-              <div>
-                <span>Department</span>
-                <strong>
-                  {user?.department ?? "—"}
-                </strong>
-              </div>
-              <div>
-                <span>Account status</span>
-                <strong>
-                  {account?.status ?? "—"}
-                </strong>
-              </div>
-              <div>
-                <span>Session status</span>
-                <strong>
-                  {session?.status ?? "—"}
-                </strong>
-              </div>
-            </div>
-
-            <article className="identity-event-card">
-              <div>
-                <p className="eyebrow">
-                  Suspicious successful login
-                </p>
-                <h4>
-                  Source IP {loginActivity?.kind === "login_succeeded"
-                    ? loginActivity.sourceIp ?? "—"
-                    : "—"}
-                </h4>
-              </div>
-              <div className="identity-stats">
-                <span>
-                  Successful logins
-                  <strong>
-                    {projections.identity.successfulLogins}
-                  </strong>
-                </span>
-                <span>
-                  Identity events
-                  <strong>
-                    {projections.identity.activity.length}
-                  </strong>
-                </span>
-              </div>
-              <button
-                type="button"
-                className="evidence-button"
-                onClick={() =>
-                  collectEvidence(
-                    loginActivity?.eventId,
-                  )
-                }
-                disabled={
-                  scenarioState.finalized ||
-                  !loginActivity ||
-                  isEvidenceCollected(
-                    loginActivity.eventId,
-                  )
-                }
-              >
-                {isEvidenceCollected(
-                  loginActivity?.eventId,
-                )
-                  ? "Evidence collected"
-                  : "Collect login evidence"}
-              </button>
-            </article>
+          <section className="workspace-section identity-section">
+            <IdentityWorkspace
+              world={scenarioState.world}
+              state={projections.identity}
+              initialAccountId={context.accountId}
+              actions={responseActions}
+              performedActionIds={scenarioState.performedActionIds}
+              finalized={scenarioState.finalized}
+              isCollected={isEvidenceCollected}
+              onCollect={collectEvidence}
+              onPerformAction={performResponseAction}
+              onSearchSiem={openSiem}
+              onOpenCase={() => setActiveView("case")}
+            />
           </section>
         )}
 
