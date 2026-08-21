@@ -17,4 +17,5 @@ export type {
   ScenarioDefinition,
   ScenarioOutcomeStatus,
   ScenarioScore,
+  ScenarioState,
 } from "@polymorph/simulation";

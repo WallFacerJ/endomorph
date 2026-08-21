@@ -2,9 +2,9 @@
   "version": 1,
   "kind": "polymorph-scenario",
   "scenario": {
-    "id": "scenario-account-compromise-001",
-    "name": "Suspicious PowerShell after account compromise",
-    "description": "Investigate a suspicious login followed by encoded PowerShell activity and a correlated endpoint alert.",
+    "id": "scenario-cloud-admin-001",
+    "name": "Suspicious cloud-admin login and tooling",
+    "description": "Investigate a privileged cloud-admin identity compromise followed by unusual administrative tooling and outbound activity.",
     "initialWorld": {
       "simulationTime": "2026-08-20T15:00:00Z",
       "organizations": [
@@ -22,44 +22,44 @@
       ],
       "users": [
         {
-          "id": "user-sarah-martinez",
+          "id": "user-priya-shah",
           "organizationId": "org-acme",
-          "displayName": "Sarah Martinez",
-          "email": "sarah.martinez@acme.test",
-          "department": "Finance",
-          "title": "Senior Financial Analyst",
+          "displayName": "Priya Shah",
+          "email": "priya.shah@acme.test",
+          "department": "Information Technology",
+          "title": "Cloud Platform Administrator",
           "status": "active",
           "accountIds": [
-            "account-smartinez"
+            "account-pshah-admin"
           ],
           "deviceIds": [
-            "device-fin-lt-04"
+            "device-adm-lt-02"
           ]
         }
       ],
       "accounts": [
         {
-          "id": "account-smartinez",
+          "id": "account-pshah-admin",
           "organizationId": "org-acme",
-          "userId": "user-sarah-martinez",
-          "username": "smartinez",
+          "userId": "user-priya-shah",
+          "username": "pshah-admin",
           "provider": "Acme Identity",
           "status": "active",
           "roles": [
-            "finance-user"
+            "cloud-admin"
           ]
         }
       ],
       "devices": [
         {
-          "id": "device-fin-lt-04",
+          "id": "device-adm-lt-02",
           "organizationId": "org-acme",
-          "hostname": "FIN-LT-04",
+          "hostname": "ADM-LT-02",
           "operatingSystem": "Windows 11",
           "status": "active",
-          "ownerUserId": "user-sarah-martinez",
+          "ownerUserId": "user-priya-shah",
           "ipAddresses": [
-            "10.20.30.44"
+            "10.20.50.22"
           ]
         }
       ],
@@ -95,96 +95,96 @@
         "type": "ENDPOINT_HEARTBEAT",
         "timestamp": "2026-08-20T15:00:00Z",
         "source": "edr",
-        "subjectId": "device-fin-lt-04",
+        "subjectId": "device-adm-lt-02",
         "payload": {
-          "deviceId": "device-fin-lt-04",
+          "deviceId": "device-adm-lt-02",
           "status": "active",
           "ipAddresses": [
-            "10.20.30.44"
+            "10.20.50.22"
           ]
         }
       },
       {
-        "id": "event-compromise-login",
+        "id": "event-cloud-admin-login",
         "type": "AUTH_LOGIN_SUCCEEDED",
         "timestamp": "2026-08-20T15:01:00Z",
         "source": "identity",
-        "actorId": "account-smartinez",
-        "subjectId": "user-sarah-martinez",
+        "actorId": "account-pshah-admin",
+        "subjectId": "user-priya-shah",
         "payload": {
-          "accountId": "account-smartinez",
-          "userId": "user-sarah-martinez",
-          "deviceId": "device-fin-lt-04",
+          "accountId": "account-pshah-admin",
+          "userId": "user-priya-shah",
+          "deviceId": "device-adm-lt-02",
           "applicationId": "app-identity",
-          "sourceIp": "185.220.101.42"
+          "sourceIp": "203.0.113.144"
         }
       },
       {
-        "id": "event-compromise-session",
+        "id": "event-cloud-admin-session",
         "type": "SESSION_STARTED",
         "timestamp": "2026-08-20T15:01:01Z",
         "source": "identity",
-        "actorId": "account-smartinez",
-        "subjectId": "user-sarah-martinez",
+        "actorId": "account-pshah-admin",
+        "subjectId": "user-priya-shah",
         "payload": {
-          "sessionId": "session-smartinez-compromised",
-          "accountId": "account-smartinez",
-          "deviceId": "device-fin-lt-04",
+          "sessionId": "session-pshah-compromised",
+          "accountId": "account-pshah-admin",
+          "deviceId": "device-adm-lt-02",
           "applicationId": "app-identity"
         }
       },
       {
-        "id": "event-compromise-powershell",
+        "id": "event-cloud-admin-powershell",
         "type": "PROCESS_STARTED",
         "timestamp": "2026-08-20T15:03:15Z",
         "source": "edr",
-        "actorId": "account-smartinez",
-        "subjectId": "device-fin-lt-04",
+        "actorId": "account-pshah-admin",
+        "subjectId": "device-adm-lt-02",
         "payload": {
-          "deviceId": "device-fin-lt-04",
+          "deviceId": "device-adm-lt-02",
           "processId": "8420",
-          "image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-          "commandLine": "powershell.exe -NoProfile -EncodedCommand <synthetic-encoded-command>",
+          "image": "C:\\Program Files\\Microsoft SDKs\\Azure\\CLI2\\wbin\\az.cmd",
+          "commandLine": "az account get-access-token --resource synthetic-training-resource",
           "parentProcessId": "6172",
-          "accountId": "account-smartinez"
+          "accountId": "account-pshah-admin"
         }
       },
       {
-        "id": "event-compromise-network",
+        "id": "event-cloud-admin-network",
         "type": "NETWORK_CONNECTION",
         "timestamp": "2026-08-20T15:03:19Z",
         "source": "edr",
-        "actorId": "account-smartinez",
-        "subjectId": "device-fin-lt-04",
+        "actorId": "account-pshah-admin",
+        "subjectId": "device-adm-lt-02",
         "payload": {
-          "deviceId": "device-fin-lt-04",
+          "deviceId": "device-adm-lt-02",
           "protocol": "tcp",
-          "sourceIp": "10.20.30.44",
-          "destinationIp": "203.0.113.77",
+          "sourceIp": "10.20.50.22",
+          "destinationIp": "192.0.2.55",
           "sourcePort": 49722,
           "destinationPort": 443
         }
       },
       {
-        "id": "event-compromise-alert",
+        "id": "event-cloud-admin-alert",
         "type": "ALERT_CREATED",
         "timestamp": "2026-08-20T15:03:25Z",
         "source": "edr",
-        "subjectId": "device-fin-lt-04",
+        "subjectId": "device-adm-lt-02",
         "payload": {
           "alertId": "alert-compromise-powershell",
-          "title": "Suspicious encoded PowerShell after unusual login",
+          "title": "Privileged cloud-admin tooling after unusual login",
           "severity": "high",
           "applicationId": "app-edr",
           "relatedEventIds": [
-            "event-compromise-login",
-            "event-compromise-powershell",
-            "event-compromise-network"
+            "event-cloud-admin-login",
+            "event-cloud-admin-powershell",
+            "event-cloud-admin-network"
           ],
           "relatedEntityIds": [
-            "user-sarah-martinez",
-            "account-smartinez",
-            "device-fin-lt-04"
+            "user-priya-shah",
+            "account-pshah-admin",
+            "device-adm-lt-02"
           ]
         }
       }
@@ -200,9 +200,9 @@
             "type": "SESSION_REVOKED",
             "timestamp": "2026-08-20T15:05:00Z",
             "source": "identity",
-            "subjectId": "user-sarah-martinez",
+            "subjectId": "user-priya-shah",
             "payload": {
-              "sessionId": "session-smartinez-compromised",
+              "sessionId": "session-pshah-compromised",
               "reason": "Analyst revoked the suspicious session after correlated endpoint alert."
             }
           }
@@ -218,9 +218,9 @@
             "type": "ACCOUNT_DISABLED",
             "timestamp": "2026-08-20T15:05:00Z",
             "source": "identity",
-            "subjectId": "user-sarah-martinez",
+            "subjectId": "user-priya-shah",
             "payload": {
-              "accountId": "account-smartinez",
+              "accountId": "account-pshah-admin",
               "reason": "Analyst disabled the compromised account after correlated endpoint alert."
             }
           }
@@ -240,9 +240,9 @@
             "type": "ACCOUNT_ENABLED",
             "timestamp": "2026-08-20T15:05:00Z",
             "source": "identity",
-            "subjectId": "user-sarah-martinez",
+            "subjectId": "user-priya-shah",
             "payload": {
-              "accountId": "account-smartinez",
+              "accountId": "account-pshah-admin",
               "reason": "Analyst restored access to the affected account during incident response."
             }
           }
@@ -255,7 +255,7 @@
         "kind": "session_status",
         "label": "Revoke compromised session",
         "description": "The suspicious identity session should no longer be active.",
-        "sessionId": "session-smartinez-compromised",
+        "sessionId": "session-pshah-compromised",
         "expectedStatus": "revoked"
       },
       {
@@ -263,16 +263,16 @@
         "kind": "account_status",
         "label": "Disable compromised account",
         "description": "The affected account should be disabled to prevent further access.",
-        "accountId": "account-smartinez",
+        "accountId": "account-pshah-admin",
         "expectedStatus": "disabled"
       }
     ],
     "investigation": {
       "alertId": "alert-compromise-powershell",
-      "userId": "user-sarah-martinez",
-      "accountId": "account-smartinez",
-      "deviceId": "device-fin-lt-04",
-      "sessionId": "session-smartinez-compromised",
+      "userId": "user-priya-shah",
+      "accountId": "account-pshah-admin",
+      "deviceId": "device-adm-lt-02",
+      "sessionId": "session-pshah-compromised",
       "primaryActionId": "revoke_compromised_session",
       "responseActionIds": [
         "revoke_compromised_session",
@@ -281,27 +281,27 @@
       ]
     },
     "groundTruth": {
-      "summary": "A compromised Finance account established an identity session from an unusual source, then executed encoded PowerShell and contacted an external synthetic address before EDR raised a correlated alert.",
+      "summary": "A privileged cloud administrator account was used from an unusual source, established a compromised session, invoked administrative tooling, and contacted a synthetic external address.",
       "timeline": [
         {
-          "eventId": "event-compromise-login",
-          "significance": "The successful authentication from an unusual source is the initial compromise signal."
+          "eventId": "event-cloud-admin-login",
+          "significance": "The unusual successful login involves a privileged cloud-admin account."
         },
         {
-          "eventId": "event-compromise-session",
-          "significance": "The attacker-established identity session is the session that should be revoked."
+          "eventId": "event-cloud-admin-session",
+          "significance": "The compromised privileged session is the identity foothold requiring revocation."
         },
         {
-          "eventId": "event-compromise-powershell",
-          "significance": "Encoded PowerShell execution on the Finance endpoint is the primary endpoint execution signal."
+          "eventId": "event-cloud-admin-powershell",
+          "significance": "Administrative cloud tooling was invoked from the administrator workstation shortly after compromise."
         },
         {
-          "eventId": "event-compromise-network",
-          "significance": "The endpoint contacted a synthetic external address immediately after the suspicious process started."
+          "eventId": "event-cloud-admin-network",
+          "significance": "The workstation contacted a synthetic external address after the administrative command."
         },
         {
-          "eventId": "event-compromise-alert",
-          "significance": "EDR correlated the identity, process, and network evidence into the analyst-facing alert."
+          "eventId": "event-cloud-admin-alert",
+          "significance": "EDR surfaced the correlated privileged-identity and endpoint activity to the analyst."
         }
       ]
     }

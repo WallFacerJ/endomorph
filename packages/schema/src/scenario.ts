@@ -409,6 +409,20 @@ export const scenarioActionSchema =
         .optional(),
   }).strict();
 
+export const scenarioGroundTruthEventSchema =
+  z.object({
+    eventId: entityIdSchema,
+    significance: nonEmptyStringSchema,
+  }).strict();
+
+export const scenarioGroundTruthSchema =
+  z.object({
+    summary: nonEmptyStringSchema,
+    timeline:
+      z.array(scenarioGroundTruthEventSchema)
+        .min(1),
+  }).strict();
+
 export const scenarioInvestigationSchema =
   z.object({
     alertId: entityIdSchema,
@@ -439,6 +453,8 @@ export const scenarioSpecSchema =
         .min(1),
     investigation:
       scenarioInvestigationSchema,
+    groundTruth:
+      scenarioGroundTruthSchema.optional(),
   }).strict();
 
 export const scenarioFileSchema =
@@ -461,6 +477,9 @@ export type ScenarioActionAssessmentSpec =
 
 export type ScenarioActionSpec =
   z.infer<typeof scenarioActionSchema>;
+
+export type ScenarioGroundTruthSpec =
+  z.infer<typeof scenarioGroundTruthSchema>;
 
 export type ScenarioInvestigationSpec =
   z.infer<typeof scenarioInvestigationSchema>;

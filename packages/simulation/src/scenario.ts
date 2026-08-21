@@ -54,6 +54,19 @@ export interface ScenarioAction {
   assessment?: ScenarioActionAssessment;
 }
 
+export interface ScenarioGroundTruthEvent {
+  eventId: string;
+
+  significance: string;
+}
+
+export interface ScenarioGroundTruth {
+  summary: string;
+
+  timeline:
+    readonly ScenarioGroundTruthEvent[];
+}
+
 export interface ScenarioInvestigationContext {
   alertId: string;
 
@@ -89,6 +102,8 @@ export interface ScenarioDefinition {
 
   investigation:
     ScenarioInvestigationContext;
+
+  groundTruth?: ScenarioGroundTruth;
 }
 
 export interface ScenarioState {
@@ -222,6 +237,61 @@ function requireValidObjectives(
   }
 }
 
+function requireValidGroundTruth(
+  scenario: ScenarioDefinition,
+): void {
+  if (!scenario.groundTruth) {
+    return;
+  }
+
+  if (
+    scenario.groundTruth.summary
+      .trim().length === 0
+  ) {
+    throw new Error(
+      `Scenario ${scenario.id} must define a non-empty ground-truth summary.`,
+    );
+  }
+
+  if (
+    scenario.groundTruth.timeline.length === 0
+  ) {
+    throw new Error(
+      `Scenario ${scenario.id} ground truth must annotate at least one opening event.`,
+    );
+  }
+
+  const openingEventIds = new Set(
+    scenario.openingEvents.map(
+      (event) => event.id,
+    ),
+  );
+  const seen = new Set<string>();
+
+  for (const entry of
+    scenario.groundTruth.timeline) {
+    if (seen.has(entry.eventId)) {
+      throw new Error(
+        `Scenario ${scenario.id} ground truth annotates duplicate event id: ${entry.eventId}`,
+      );
+    }
+
+    seen.add(entry.eventId);
+
+    if (!openingEventIds.has(entry.eventId)) {
+      throw new Error(
+        `Scenario ${scenario.id} ground truth references missing opening event: ${entry.eventId}`,
+      );
+    }
+
+    if (entry.significance.trim().length === 0) {
+      throw new Error(
+        `Scenario ${scenario.id} ground truth event ${entry.eventId} must define a non-empty significance.`,
+      );
+    }
+  }
+}
+
 export function validateScenarioDefinition(
   scenario: ScenarioDefinition,
 ): void {
@@ -238,6 +308,7 @@ export function validateScenarioDefinition(
     scenario,
     openingWorld,
   );
+  requireValidGroundTruth(scenario);
 
   for (const action of scenario.actions) {
     replayValidatedHistory(
@@ -343,8 +414,6 @@ export function getScenarioState(
       ...performedActionIds,
     ],
     outcome,
-    // Active investigation deliberately exposes objective progress only.
-    // Response-quality assessment remains hidden until finalization.
     score:
       evaluateScenarioScore(outcome),
     finalized: false,

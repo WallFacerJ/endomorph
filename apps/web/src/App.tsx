@@ -20,6 +20,10 @@ import {
 } from "./ResponseActionPanel";
 
 import {
+  InstructorReviewPanel,
+} from "./InstructorReviewPanel";
+
+import {
   addAnalystFinding,
   collectAnalystEvidence,
   createAnalystCaseState,
@@ -80,11 +84,13 @@ function formatTimestamp(
 interface ScenarioWorkspaceProps {
   scenario: ScenarioDefinition;
   scenarioPath: string;
+  instructorMode: boolean;
 }
 
 function ScenarioWorkspace({
   scenario,
   scenarioPath,
+  instructorMode,
 }: ScenarioWorkspaceProps) {
   const context =
     scenario.investigation;
@@ -584,6 +590,14 @@ function ScenarioWorkspace({
                 findingCount={analystCase.findings.length}
               />
             )}
+
+            {scenarioState.finalized &&
+              instructorMode && (
+                <InstructorReviewPanel
+                  scenario={scenario}
+                  state={scenarioState}
+                />
+              )}
 
             <div className="summary-grid">
               <article className="summary-card">
@@ -1114,6 +1128,14 @@ function ScenarioWorkspace({
 }
 
 function App() {
+  const instructorMode = useMemo(
+    () =>
+      new URLSearchParams(
+        window.location.search,
+      ).get("mode") === "instructor",
+    [],
+  );
+
   const scenarioPath = useMemo(
     () =>
       resolveScenarioPath(
@@ -1209,6 +1231,7 @@ function App() {
     <ScenarioWorkspace
       scenario={scenario}
       scenarioPath={scenarioPath}
+      instructorMode={instructorMode}
     />
   );
 }

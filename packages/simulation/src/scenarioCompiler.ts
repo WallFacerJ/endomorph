@@ -18,6 +18,7 @@ import {
 import type {
   ScenarioAction,
   ScenarioDefinition,
+  ScenarioGroundTruth,
   ScenarioInvestigationContext,
 } from "./scenario";
 
@@ -54,6 +55,8 @@ export interface ScenarioDefinitionInput {
 
   investigation:
     ScenarioInvestigationInput;
+
+  groundTruth?: ScenarioGroundTruth;
 }
 
 function requireInvestigationContext(
@@ -202,6 +205,13 @@ export function compileScenarioDefinition(
       ],
     },
   };
+
+  if (input.groundTruth) {
+    scenario.groundTruth =
+      structuredClone(
+        input.groundTruth,
+      );
+  }
 
   validateScenarioDefinition(scenario);
   requireInvestigationContext(scenario);
