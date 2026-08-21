@@ -1,8 +1,8 @@
-# Polymorph Competitive Research
+# Endomorph Competitive Research
 
 Updated: 2026-08-21
 
-This document records the strongest recurring product traits and user critiques across adjacent SOC-training, cyber-range, blue-team lab, and enterprise cyber-readiness products. It is not a feature-copy checklist. The goal is to understand what users value, where incumbent products frustrate them, and where Polymorph can deliberately exceed the market.
+This document records the strongest recurring product traits and user critiques across adjacent SOC-training, cyber-range, blue-team lab, and enterprise cyber-readiness products. It is not a feature-copy checklist. The goal is to understand what users value, where incumbent products frustrate them, and where Endomorph can deliberately exceed the market.
 
 Ratings and review counts are snapshots from the cited sources and will change over time. Small-sample review sites are treated as directional rather than definitive.
 
@@ -31,7 +31,7 @@ Recurring market complaints include:
 - rigid training paths and weak support for reviewing completed exercises;
 - large enterprise price points and significant operational overhead for high-fidelity ranges.
 
-Polymorph should combine the strongest parts of both ends of the market: the immediacy and low setup burden of browser training platforms with the depth, realism, environmental coherence, and enterprise readiness of high-fidelity cyber ranges.
+Endomorph should combine the strongest parts of both ends of the market: the immediacy and low setup burden of browser training platforms with the depth, realism, environmental coherence, and enterprise readiness of high-fidelity cyber ranges.
 
 ---
 
@@ -55,9 +55,9 @@ G2 snapshot: approximately 4.5/5 with a strong majority of five-star reviews in 
 - VM/VPN instability, old rooms, slow machines, and loading problems are recurring operational complaints.
 - Some assessment/report feedback can feel keyword-driven rather than reasoning-driven.
 
-### Polymorph requirement
+### Endomorph requirement
 
-Take the zero-setup accessibility and clear onboarding, but do not make the primary experience guided coursework. Polymorph investigations should become progressively ambiguous, open-ended, and tool-driven. Scoring must derive from observable investigation/response state and authored ground truth, not keyword matching or hidden multiple-choice logic.
+Take the zero-setup accessibility and clear onboarding, but do not make the primary experience guided coursework. Endomorph investigations should become progressively ambiguous, open-ended, and tool-driven. Scoring must derive from observable investigation/response state and authored ground truth, not keyword matching or hidden multiple-choice logic.
 
 Sources:
 - https://help.tryhackme.com/en/articles/10508054-soc-sim
@@ -90,7 +90,7 @@ G2 snapshot: approximately 4.8/5 with more than 200 reviews in the 2026 crawl.
 - Community criticism of some Academy blue-team modules describes long text, poor alignment between instruction and exercises, and a need to wrestle with broken or unclear labs.
 - Even a large catalog can still feel like separate modules/challenges rather than one persistent coherent enterprise.
 
-### Polymorph requirement
+### Endomorph requirement
 
 Match HTB's technical depth and willingness to let the analyst struggle productively, but organize the experience around one coherent synthetic enterprise and incident lifecycle. A user's work in identity, endpoint, network, cloud, email, case management, and interactive hosts should be causally connected rather than a collection of unrelated labs.
 
@@ -123,7 +123,7 @@ Sources:
 
 Trustpilot snapshot: 3.2/5 from only six reviews in the 2026 crawl; this is a small sample and should not be over-weighted.
 
-### Polymorph requirement
+### Endomorph requirement
 
 Keep SOC-specific workflow familiarity but remove the feeling of a lesson engine wrapped around a quiz. Response decisions should emerge from evidence and state, not from a clearly correct option beside absurd distractors. Difficulty should come from investigative complexity, not arbitrary question wording.
 
@@ -152,7 +152,7 @@ Sources:
 - Deep DFIR work can be intimidating without good contextual affordances.
 - Some exercises have historically required large artifact downloads or time-limited instances, which can add friction.
 
-### Polymorph requirement
+### Endomorph requirement
 
 Bring forensic depth directly into the shared enterprise world: packet captures, memory/process evidence, filesystem artifacts, registry/configuration state, cloud audit history, and malware evidence should all be explorable and cross-linked to the same entities/events. The analyst should not feel like they left the incident to solve a separate forensic puzzle.
 
@@ -184,9 +184,9 @@ G2 snapshot: approximately 4.6/5 from 22 reviews.
 - Instructions can occasionally be unclear.
 - Some markets want more flexible assignment/education management than the product provides.
 
-### Polymorph requirement
+### Endomorph requirement
 
-Treat environment startup reliability as a core feature, not an operations detail. Polymorph should use deterministic images/snapshots, aggressive health checks, prewarming where economical, and graceful degraded/synthetic fallbacks. A deep range is not valuable if analysts spend their time waiting for machines.
+Treat environment startup reliability as a core feature, not an operations detail. Endomorph should use deterministic images/snapshots, aggressive health checks, prewarming where economical, and graceful degraded/synthetic fallbacks. A deep range is not valuable if analysts spend their time waiting for machines.
 
 Sources:
 - https://www.rangeforce.com/hubfs/Datasheets/RangeForce_Platform_Datasheet.pdf
@@ -213,9 +213,9 @@ G2 snapshot: approximately 4.2/5 from 12 reviews.
 - At least one validated review calls out a gap between broad customization claims and the actual range of security products/integrations available.
 - High-fidelity environments inherently carry infrastructure and connectivity costs.
 
-### Polymorph requirement
+### Endomorph requirement
 
-Aim for equivalent investigative depth while making scenario/environment authoring dramatically cheaper. Polymorph's differentiator should be that a coherent enterprise twin can be defined as data, replayed deterministically, and progressively upgraded from synthetic services to container/microVM-backed instances without rewriting the scenario.
+Aim for equivalent investigative depth while making scenario/environment authoring dramatically cheaper. Endomorph's differentiator should be that a coherent enterprise twin can be defined as data, replayed deterministically, and progressively upgraded from synthetic services to container/microVM-backed instances without rewriting the scenario.
 
 Sources:
 - https://www.cyberbit.com/resources/cyberbit-range-for-enterprise/
@@ -241,7 +241,7 @@ G2 snapshot: approximately 4.7/5 with more than 100 reviews.
 - Some users describe initial navigation as overwhelming.
 - Some reviews ask for more detailed explanations/walkthroughs, broader customization, or lower pricing.
 
-### Polymorph requirement
+### Endomorph requirement
 
 Build adaptive depth rather than flattening the product for beginners. The same incident should support contextual help, analyst hints, and instructor overlays without reducing the underlying environment to a beginner exercise. Enterprise and expert users should be able to turn assistance off and work the incident directly.
 
@@ -270,9 +270,9 @@ Gartner Peer Insights snapshot: 5.0/5 from 13 ratings in the 2025/2026 crawl; sa
 - A Gartner review specifically calls out poor accessibility to completed event content, requiring an event restart to review earlier materials.
 - Heavy digital-twin products are high-touch and naturally expensive to deploy/maintain.
 
-### Polymorph requirement
+### Endomorph requirement
 
-Make replay, rewind, branching, and post-exercise review first-class. Deterministic event sourcing should let Polymorph offer something unusually strong: inspect any prior state, compare two response paths, fork a run from a point in time, and reconstruct exactly why every security tool showed what it showed.
+Make replay, rewind, branching, and post-exercise review first-class. Deterministic event sourcing should let Endomorph offer something unusually strong: inspect any prior state, compare two response paths, fork a run from a point in time, and reconstruct exactly why every security tool showed what it showed.
 
 Sources:
 - https://simspace.com/
@@ -283,7 +283,7 @@ Sources:
 
 # Competitive product mandates
 
-Polymorph should not win by being another large content library. It should win by combining capabilities that are usually split across separate categories.
+Endomorph should not win by being another large content library. It should win by combining capabilities that are usually split across separate categories.
 
 ## 1. Depth without training-wheel dependence
 
@@ -315,7 +315,7 @@ Organizations need teams, roles, assignments, readiness baselines, ATT&CK/NICE c
 
 ## 8. Custom digital twins without incumbent-range authoring cost
 
-Polymorph should make it possible to model a customer's topology, identities, applications, cloud resources, controls, and security stack through declarative configuration, then choose which assets are purely synthetic and which require container/microVM-backed fidelity.
+Endomorph should make it possible to model a customer's topology, identities, applications, cloud resources, controls, and security stack through declarative configuration, then choose which assets are purely synthetic and which require container/microVM-backed fidelity.
 
 ## 9. Red + blue + purple + AI validation
 

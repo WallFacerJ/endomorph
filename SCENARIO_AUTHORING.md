@@ -1,8 +1,8 @@
-# Polymorph Scenario Authoring
+# Endomorph Scenario Authoring
 
-Polymorph scenarios are versioned JSON files that describe a synthetic world, an ordered opening event history, deterministic analyst response actions, and the entities the analyst workspace should focus on.
+Endomorph scenarios are versioned JSON files that describe a synthetic world, an ordered opening event history, deterministic analyst response actions, and the entities the analyst workspace should focus on.
 
-The JSON file is untrusted input. `@polymorph/schema` validates its structure first. `@polymorph/simulation` then compiles it into `WorldState` and verifies entity references, event ordering, event semantics, and deterministic replay.
+The JSON file is untrusted input. `@endomorph/schema` validates its structure first. `@endomorph/simulation` then compiles it into `WorldState` and verifies entity references, event ordering, event semantics, and deterministic replay.
 
 ## Try the example
 
@@ -70,7 +70,7 @@ Every scenario file starts with a versioned envelope:
 ```json
 {
   "version": 1,
-  "kind": "polymorph-scenario",
+  "kind": "endomorph-scenario",
   "scenario": {
     "id": "scenario-example",
     "name": "Example scenario",
@@ -95,7 +95,7 @@ The initial world is an author-friendly seed with arrays of:
 - applications
 - sessions
 
-Polymorph normalizes those arrays into canonical `WorldState` records during compilation.
+Endomorph normalizes those arrays into canonical `WorldState` records during compilation.
 
 ### `openingEvents`
 
@@ -161,4 +161,4 @@ The automated tests also read and compile the shipped account-compromise JSON fi
 
 ## Safety boundary
 
-Scenario content must remain synthetic. Do not add real credentials, secrets, private customer data, or arbitrary executable host commands. Command-line telemetry is descriptive simulation data only; Polymorph does not execute scenario-authored shell commands.
+Scenario content must remain synthetic. Do not add real credentials, secrets, private customer data, or arbitrary executable host commands. Command-line telemetry is descriptive simulation data only; Endomorph does not execute scenario-authored shell commands.

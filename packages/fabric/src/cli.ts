@@ -97,7 +97,7 @@ const DEFAULTS: CliOptions = {
   pretty: false,
 };
 
-function parseArgs(
+export function parseArgs(
   argv: readonly string[],
 ): CliOptions {
   const options: CliOptions = {
@@ -111,7 +111,11 @@ function parseArgs(
   ) {
     const argument = argv[index];
 
-    if (!argument.startsWith("--")) {
+    // `pnpm run x -- --flag` forwards the bare separator through to us.
+    if (
+      argument === "--" ||
+      !argument.startsWith("--")
+    ) {
       continue;
     }
 
@@ -256,4 +260,11 @@ function main(): void {
   );
 }
 
-main();
+// Only run when invoked as a program, so the arg parser can be tested.
+if (
+  process.argv[1] &&
+  fileURLToPath(import.meta.url) ===
+    resolve(process.argv[1])
+) {
+  main();
+}

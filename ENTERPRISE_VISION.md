@@ -1,14 +1,14 @@
-# Polymorph Enterprise Vision
+# Endomorph Enterprise Vision
 
 ## North star
 
-**Polymorph should become a deterministic cyber-operations digital twin: a platform where people, teams, security controls, and eventually AI agents investigate and respond to realistic incidents inside one coherent synthetic enterprise.**
+**Endomorph should become a deterministic cyber-operations digital twin: a platform where people, teams, security controls, and eventually AI agents investigate and respond to realistic incidents inside one coherent synthetic enterprise.**
 
 The current v1 proves the deterministic scenario/runtime model. It is not the final product shape. Post-v1 development should prioritize technical depth, environmental realism, interconnection, enterprise operation, and a distinct professional identity over adding more shallow scenarios or course-like content.
 
 ## Product positioning
 
-Polymorph should sit between two existing categories:
+Endomorph should sit between two existing categories:
 
 - browser-first training platforms that are easy to access but can become guided, shallow, or module-like;
 - high-fidelity cyber ranges/digital twins that are technically deep but expensive, high-touch, infrastructure-heavy, and difficult to author.
@@ -17,7 +17,7 @@ The intended position is:
 
 > **The depth of a cyber range, the coherence of a digital twin, the reproducibility of an event-sourced simulator, and the authoring/deployment friction of a modern software platform.**
 
-Polymorph should be sellable as an enterprise cyber-readiness and incident-response platform, not merely as a cybersecurity course website.
+Endomorph should be sellable as an enterprise cyber-readiness and incident-response platform, not merely as a cybersecurity course website.
 
 ## Direct tester feedback -> product mandates
 
@@ -58,7 +58,7 @@ Mandate:
 - Email should be message/header/sender/link/attachment-centric;
 - Cloud should be resource/IAM/audit/configuration-centric;
 - Case should be investigation/incident-command-centric;
-- visual design should support a coherent Polymorph brand while preserving the feel of distinct operational tools.
+- visual design should support a coherent Endomorph brand while preserving the feel of distinct operational tools.
 
 ### Feedback: the Case section feels unnecessary
 
@@ -69,7 +69,7 @@ Mandate:
 - pivots from any tool should be attachable to the case and any case object should pivot back to its source tool;
 - incident handling phases (triage, investigation, containment, eradication, recovery, lessons learned) should be represented as real workflow state.
 
-### Feedback: Polymorph lacks a unique identity and feels too small
+### Feedback: Endomorph lacks a unique identity and feels too small
 
 Mandate:
 - identity comes from **coherent depth**, not decorative branding;
@@ -92,9 +92,9 @@ Mandate:
 
 # Product architecture: named layers
 
-Working names are intentionally product-oriented so Polymorph develops a recognizable identity.
+Working names are intentionally product-oriented so Endomorph develops a recognizable identity.
 
-## Polymorph Fabric - the enterprise digital twin
+## Endomorph Fabric - the enterprise digital twin
 
 The shared model of organizations, users, identities, endpoints, servers, applications, SaaS, cloud resources, networks, data stores, mailboxes, controls, vulnerabilities, normal activity, and adversary activity.
 
@@ -106,7 +106,7 @@ Requirements:
 - deterministic event history;
 - configurable fidelity per asset.
 
-## Polymorph Ops - professional security applications
+## Endomorph Ops - professional security applications
 
 Distinct operational applications over the same Fabric:
 
@@ -122,7 +122,7 @@ Distinct operational applications over the same Fabric:
 
 These are not independent toy datasets. Every observation should derive from the same world/run.
 
-## Polymorph Range - interactive systems
+## Endomorph Range - interactive systems
 
 A safe isolated execution layer for assets that need hands-on depth.
 
@@ -135,7 +135,7 @@ Fidelity ladder:
 
 A scenario should be able to mix fidelity levels. Most assets can remain inexpensive synthetic models while only investigation-critical assets consume heavier runtime resources.
 
-## Polymorph Case - incident command and investigation graph
+## Endomorph Case - incident command and investigation graph
 
 The incident's operational source of work, not canonical enterprise truth.
 
@@ -163,7 +163,7 @@ Capabilities:
 - case report generation;
 - after-action reconstruction.
 
-## Polymorph Replay - deterministic time machine
+## Endomorph Replay - deterministic time machine
 
 Signature capability enabled by the event-sourced architecture.
 
@@ -177,7 +177,7 @@ Long-term capabilities:
 - reproduce scoring and readiness metrics;
 - export/share deterministic run bundles.
 
-## Polymorph Forge - scenario and digital-twin authoring
+## Endomorph Forge - scenario and digital-twin authoring
 
 Enterprise content creation should not require rebuilding infrastructure by hand.
 
@@ -194,7 +194,7 @@ Capabilities:
 - preview/validate/replay before publishing;
 - versioned content and approvals.
 
-## Polymorph Control - enterprise control plane
+## Endomorph Control - enterprise control plane
 
 Capabilities expected for a marketable enterprise product:
 - organizations/tenants;
@@ -252,7 +252,7 @@ Every score or readiness metric must be explainable from run state, actions, evi
 
 # Enterprise-grade incident lifecycle
 
-A serious Polymorph scenario should be able to exercise:
+A serious Endomorph scenario should be able to exercise:
 
 1. detection / alerting;
 2. triage and prioritization;
@@ -273,7 +273,7 @@ Different roles should be able to participate in the same run: Tier 1/2/3 SOC, i
 
 # Definition of "special"
 
-Polymorph should eventually be able to demonstrate an experience like this:
+Endomorph should eventually be able to demonstrate an experience like this:
 
 > A user receives an ambiguous identity alert. They query a SIEM with real search semantics, pivot to an identity console, inspect the user's session graph, open the associated endpoint in EDR, trace a process tree, acquire a suspicious file, detonate it in a sandbox, query DNS/network history, attach the resulting evidence to an incident graph, open an isolated shell on another affected server, discover lateral movement, coordinate containment tasks with a teammate, and then rewind the completed incident to compare what would have happened if they had isolated the host ten minutes earlier. Every tool view, system state, and score is derived from one replayable synthetic enterprise.
 

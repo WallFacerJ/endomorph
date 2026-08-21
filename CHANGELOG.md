@@ -2,7 +2,7 @@
 
 ## v1.0.0
 
-Polymorph v1 is the first shareable local/static cybersecurity training release.
+Endomorph v1 is the first shareable local/static cybersecurity training release.
 
 ### Student workflow
 

@@ -1,6 +1,6 @@
-# Polymorph Roadmap
+# Endomorph Roadmap
 
-Polymorph v1 proved the deterministic scenario/runtime architecture. Tester feedback and competitive research now justify a broader product goal: **build a deterministic cyber-operations digital twin and enterprise cyber-readiness platform, not a shallow training website.**
+Endomorph v1 proved the deterministic scenario/runtime architecture. Tester feedback and competitive research now justify a broader product goal: **build a deterministic cyber-operations digital twin and enterprise cyber-readiness platform, not a shallow training website.**
 
 See `COMPETITIVE_RESEARCH.md` and `ENTERPRISE_VISION.md` for the market evidence and product north star.
 
@@ -144,7 +144,7 @@ Add server-side isolated workloads for scenarios requiring real Linux/service be
 - denied unrestricted internet by default;
 - health checks and deterministic reset/snapshot strategy;
 - terminal streaming through the product;
-- instrumentation into Polymorph telemetry;
+- instrumentation into Endomorph telemetry;
 - automatic teardown/cleanup.
 
 ### Stage 2C - microVM/full-VM fidelity
@@ -245,7 +245,7 @@ Exit criteria:
 
 Status: planned.
 
-Goal: make Polymorph deployable, governable, and purchasable by organizations.
+Goal: make Endomorph deployable, governable, and purchasable by organizations.
 
 Core platform:
 
@@ -287,7 +287,7 @@ Exit criteria:
 
 Status: architecture-supported, product work not started.
 
-This should become a signature Polymorph capability.
+This should become a signature Endomorph capability.
 
 Capabilities:
 
@@ -308,7 +308,7 @@ Exit criteria:
 
 ---
 
-## Phase 7 - Polymorph Forge: digital-twin/scenario authoring
+## Phase 7 - Endomorph Forge: digital-twin/scenario authoring
 
 Status: planned.
 
@@ -384,5 +384,5 @@ AI output must remain constrained by validated scenario/range capabilities. No u
 6. **Progressive assistance, not forced simplicity.** Beginners and experts use the same underlying world at different assistance levels.
 7. **Deterministic replay remains non-negotiable wherever technically possible.**
 8. **Enterprise requirements are now first-class:** security, roles, auditability, readiness analytics, integrations, deployment controls, and cost/capacity management.
-9. **Do not copy competitors' surface UI.** Adopt proven strengths while using Polymorph's coherent digital twin and replay architecture to create a distinct experience.
-10. **Every major feature should answer:** does this make Polymorph feel more like a living enterprise and less like a quiz?
+9. **Do not copy competitors' surface UI.** Adopt proven strengths while using Endomorph's coherent digital twin and replay architecture to create a distinct experience.
+10. **Every major feature should answer:** does this make Endomorph feel more like a living enterprise and less like a quiz?

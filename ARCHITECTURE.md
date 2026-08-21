@@ -1,15 +1,15 @@
-# Polymorph Architecture
+# Endomorph Architecture
 
 ## Architectural Intent
 
-Polymorph is designed as a deterministic cybersecurity simulation runtime rather than a collection of hardcoded demo applications.
+Endomorph is designed as a deterministic cybersecurity simulation runtime rather than a collection of hardcoded demo applications.
 
 The UI should ultimately be a projection of shared synthetic state. The authoritative behavior belongs in reusable domain and simulation packages that can also run headlessly.
 
 ## Target Repository Shape
 
 ```text
-polymorph/
+endomorph/
 ├── apps/
 │   ├── web/
 │   └── api/                 # introduced when server persistence is needed
@@ -44,7 +44,7 @@ Responsibilities:
 - Schema version detection
 - Structural normalization
 - Semantic validation
-- Conversion into Polymorph intermediate representations
+- Conversion into Endomorph intermediate representations
 
 AI-generated content, user-authored JSON/YAML, and future plugin definitions are treated as untrusted inputs.
 
@@ -87,7 +87,7 @@ Given identical initial state, seed, and event sequence, the resulting world mus
 
 ### 4. Event Layer
 
-Polymorph should evolve toward an append-only typed event history.
+Endomorph should evolve toward an append-only typed event history.
 
 Conceptually:
 
@@ -148,7 +148,7 @@ PostgreSQL is the current likely database choice. This decision remains deferred
 
 ### 8. Plugin Layer
 
-Future plugins should extend Polymorph through explicit contracts rather than imports into internal implementation details.
+Future plugins should extend Endomorph through explicit contracts rather than imports into internal implementation details.
 
 Potential extension points:
 
@@ -164,7 +164,7 @@ Potential extension points:
 
 ## Ground Truth vs Analyst Knowledge
 
-Polymorph must distinguish between what actually happened in the simulation and what an analyst has discovered.
+Endomorph must distinguish between what actually happened in the simulation and what an analyst has discovered.
 
 ```text
 Ground Truth
@@ -182,7 +182,7 @@ This separation is essential for investigation training and scoring.
 
 ## Security Boundary
 
-Polymorph simulations should remain synthetic by default.
+Endomorph simulations should remain synthetic by default.
 
 Core restrictions:
 
@@ -238,7 +238,7 @@ Runtime validation
       ↓
 Semantic validation
       ↓
-Polymorph IR
+Endomorph IR
       ↓
 Deterministic runtime
 ```

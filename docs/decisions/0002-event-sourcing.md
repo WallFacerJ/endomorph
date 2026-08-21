@@ -6,7 +6,7 @@ Accepted in principle; implementation deferred until the simulation runtime exis
 
 ## Context
 
-Polymorph needs deterministic incident replay, multiple application projections, auditability, and the ability to explain how a synthetic world reached its current state.
+Endomorph needs deterministic incident replay, multiple application projections, auditability, and the ability to explain how a synthetic world reached its current state.
 
 A model that stores only current state would make replay, debugging, and timeline reconstruction significantly harder.
 

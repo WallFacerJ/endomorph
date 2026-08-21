@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Polymorph is evolving from a single React prototype into a platform with distinct schema, domain, simulation, UI, testing, and future API/plugin concerns.
+Endomorph is evolving from a single React prototype into a platform with distinct schema, domain, simulation, UI, testing, and future API/plugin concerns.
 
 Keeping all logic inside one frontend package would tightly couple the simulation runtime to React and make headless execution, testing, reuse, and package boundaries harder to maintain.
 

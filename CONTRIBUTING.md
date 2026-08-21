@@ -1,4 +1,4 @@
-# Contributing to Polymorph
+# Contributing to Endomorph
 
 ## Development Principles
 
@@ -46,4 +46,4 @@ A meaningful milestone is not complete until:
 
 ## Safety Boundary
 
-Do not contribute features whose purpose is to collect real credentials, execute arbitrary generated commands on a host, or silently perform actions against external systems. Polymorph should model such interactions synthetically through controlled runtime concepts.
+Do not contribute features whose purpose is to collect real credentials, execute arbitrary generated commands on a host, or silently perform actions against external systems. Endomorph should model such interactions synthetically through controlled runtime concepts.

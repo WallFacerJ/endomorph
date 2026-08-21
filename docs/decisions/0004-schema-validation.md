@@ -6,18 +6,18 @@ Accepted
 
 ## Context
 
-Polymorph will eventually ingest JSON/YAML definitions authored by users, plugins, and AI systems. TypeScript types alone do not validate data at runtime and cannot protect the engine from malformed or unsafe input.
+Endomorph will eventually ingest JSON/YAML definitions authored by users, plugins, and AI systems. TypeScript types alone do not validate data at runtime and cannot protect the engine from malformed or unsafe input.
 
 ## Decision
 
-Use runtime schemas at the boundary between external definitions and the Polymorph runtime. Zod is the current preferred library.
+Use runtime schemas at the boundary between external definitions and the Endomorph runtime. Zod is the current preferred library.
 
 Validation will occur in two stages:
 
 1. Structural validation: types, required fields, enums, shapes, and bounds
 2. Semantic validation: referenced entities exist, identifiers are unique, capabilities are valid, timelines are coherent, and domain invariants hold
 
-Only validated/normalized data is converted into Polymorph intermediate representations and runtime objects.
+Only validated/normalized data is converted into Endomorph intermediate representations and runtime objects.
 
 ## Consequences
 
@@ -36,4 +36,4 @@ Only validated/normalized data is converted into Polymorph intermediate represen
 
 ## Guardrail
 
-Never treat model-generated or user-provided configuration as executable code. Definitions describe allowed Polymorph concepts and must pass validation before execution.
+Never treat model-generated or user-provided configuration as executable code. Definitions describe allowed Endomorph concepts and must pass validation before execution.

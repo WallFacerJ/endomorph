@@ -1,10 +1,10 @@
-# Polymorph v1 Quick Tester Guide
+# Endomorph v1 Quick Tester Guide
 
-Thanks for trying Polymorph. You do **not** need to learn the project or read documentation before testing it. We mainly want to know whether the product makes sense without explanation.
+Thanks for trying Endomorph. You do **not** need to learn the project or read documentation before testing it. We mainly want to know whether the product makes sense without explanation.
 
 ## The five-minute test
 
-1. Open the shared Polymorph link and stay in **Student mode**.
+1. Open the shared Endomorph link and stay in **Student mode**.
 2. Open the alert and investigate until you think you understand what happened.
 3. Collect one or two pieces of evidence. If it feels natural, write one finding in **Case**.
 4. Choose the response action(s) you think are right, then click **Finalize investigation**.
@@ -39,7 +39,7 @@ You also do not need to deliberately hunt for bugs. If something looks wrong, fe
 Copy/paste this into a message if you do not want to file a GitHub issue:
 
 ```text
-Polymorph feedback
+Endomorph feedback
 
 Browser / OS:
 Scenario:
@@ -56,11 +56,11 @@ Preferred style: Midnight SOC / Graphite / no preference
 
 ## Technical/local fallback
 
-For testers who want to run Polymorph locally instead of using the hosted site:
+For testers who want to run Endomorph locally instead of using the hosted site:
 
 ```bash
-git clone https://github.com/WallFacerJ/polymorph.git
-cd polymorph
+git clone https://github.com/WallFacerJ/endomorph.git
+cd endomorph
 pnpm install --frozen-lockfile
 pnpm dev
 ```
@@ -69,7 +69,7 @@ Use Node 24 and pnpm 11.22.0. Vite will print the local URL, normally `http://lo
 
 ## Privacy and safety
 
-Polymorph uses synthetic scenarios. Do not enter real credentials, secrets, personal information, or production incident data into findings.
+Endomorph uses synthetic scenarios. Do not enter real credentials, secrets, personal information, or production incident data into findings.
 
 v1 runs in the browser and does not provide durable run persistence or real multi-user authentication. Refreshing during an active run starts a fresh run.
 

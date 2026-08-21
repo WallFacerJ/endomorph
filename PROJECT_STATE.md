@@ -1,12 +1,12 @@
-# Polymorph Project State
+# Endomorph Project State
 
 ## Project identity
 
-Polymorph is evolving from a deterministic cybersecurity training simulator into a **deterministic cyber-operations digital twin and enterprise cyber-readiness platform**.
+Endomorph is evolving from a deterministic cybersecurity training simulator into a **deterministic cyber-operations digital twin and enterprise cyber-readiness platform**.
 
 The foundation remains one shared synthetic enterprise world with typed append-only events, deterministic replay, validated declarative scenarios, and multiple security-tool projections over the same history. Post-v1 work now prioritizes substantially deeper investigation, interactive systems, enterprise incident handling, team readiness, and customer-specific digital twins.
 
-Polymorph remains for synthetic, isolated security simulation. It must not become a credential-harvesting product, uncontrolled arbitrary code-execution service, or system for attacking external targets.
+Endomorph remains for synthetic, isolated security simulation. It must not become a credential-harvesting product, uncontrolled arbitrary code-execution service, or system for attacking external targets.
 
 ## Current milestone
 
@@ -14,7 +14,7 @@ Polymorph remains for synthetic, isolated security simulation. It must not becom
 
 The SIEM, EDR, and Identity workspaces are delivered. Phase 1 now also covers the deterministic enterprise generator in `packages/fabric`, pulled forward from the Fabric layer because Phase 1's own exit criteria depend on generated scale and noise that the three hand-authored scenarios cannot provide. See the scope change in `ROADMAP.md`. Case redesign and the assessment model remain.
 
-Polymorph v1.0.0 is complete. The v1 architecture proved deterministic scenarios, correlated identity/EDR/SIEM projections, analyst case state, response outcomes, instructor review, and browser delivery.
+Endomorph v1.0.0 is complete. The v1 architecture proved deterministic scenarios, correlated identity/EDR/SIEM projections, analyst case state, response outcomes, instructor review, and browser delivery.
 
 First-time tester feedback exposed the main product gap: the experience is coherent but too shallow, too course-like, too visually uniform, and not sufficiently technical to feel like a serious cyber-operations product.
 
@@ -40,7 +40,7 @@ These are now product requirements, not polish suggestions.
 
 ## Product north star
 
-A mature Polymorph run should feel like operating a living enterprise during an incident:
+A mature Endomorph run should feel like operating a living enterprise during an incident:
 
 - investigate an ambiguous alert among normal/noisy activity;
 - query a real-feeling SIEM rather than scroll a curated event list;
@@ -149,13 +149,13 @@ Therefore:
 
 Working product layers are documented in `ENTERPRISE_VISION.md`:
 
-- **Polymorph Fabric** - shared enterprise digital twin
-- **Polymorph Ops** - distinct professional security applications
-- **Polymorph Range** - interactive isolated systems
-- **Polymorph Case** - investigation/incident command graph
-- **Polymorph Replay** - rewind/branch/compare time machine
-- **Polymorph Forge** - scenario/digital-twin authoring
-- **Polymorph Control** - enterprise management/readiness plane
+- **Endomorph Fabric** - shared enterprise digital twin
+- **Endomorph Ops** - distinct professional security applications
+- **Endomorph Range** - interactive isolated systems
+- **Endomorph Case** - investigation/incident command graph
+- **Endomorph Replay** - rewind/branch/compare time machine
+- **Endomorph Forge** - scenario/digital-twin authoring
+- **Endomorph Control** - enterprise management/readiness plane
 
 These names are working architecture/product concepts, not locked branding.
 
@@ -187,4 +187,4 @@ At the beginning of future development sessions, read:
 
 Future feature proposals should be evaluated against one question:
 
-> **Does this make Polymorph feel more like a living, technically deep enterprise cyber-operations environment and less like a quiz or course?**
+> **Does this make Endomorph feel more like a living, technically deep enterprise cyber-operations environment and less like a quiz or course?**

@@ -1,10 +1,10 @@
-# Polymorph Product Identity
+# Endomorph Product Identity
 
-Polymorph should feel like a serious cyber-operations platform with training and readiness capabilities, not a training course wearing a SOC skin.
+Endomorph should feel like a serious cyber-operations platform with training and readiness capabilities, not a training course wearing a SOC skin.
 
 ## Identity statement
 
-**Polymorph is the deterministic cyber-operations digital twin.**
+**Endomorph is the deterministic cyber-operations digital twin.**
 
 It gives defenders a living synthetic enterprise to investigate, operate, break, defend, replay, and learn from.
 
@@ -54,7 +54,7 @@ Direct system interaction. Terminal, desktop/console where justified, files, pro
 
 ## UX rule
 
-A user switching between two Polymorph applications should immediately understand that the data belongs to the same incident but the job they are doing has changed.
+A user switching between two Endomorph applications should immediately understand that the data belongs to the same incident but the job they are doing has changed.
 
 ## Depth rule
 

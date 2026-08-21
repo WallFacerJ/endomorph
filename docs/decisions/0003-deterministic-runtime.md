@@ -17,7 +17,7 @@ The simulation runtime will use injected deterministic primitives:
 - Ordered event identifiers/sequence numbers
 - Pure deterministic reducers wherever practical
 
-Given the same starting world, scenario definition, seed, and ordered inputs, Polymorph should produce the same resulting event stream and state.
+Given the same starting world, scenario definition, seed, and ordered inputs, Endomorph should produce the same resulting event stream and state.
 
 ## Consequences
 
@@ -36,4 +36,4 @@ Given the same starting world, scenario definition, seed, and ordered inputs, Po
 
 ## Guardrail
 
-Real UI timestamps and operational telemetry about Polymorph itself may use wall-clock time. Authoritative simulation state must use the simulation clock.
+Real UI timestamps and operational telemetry about Endomorph itself may use wall-clock time. Authoritative simulation state must use the simulation clock.
