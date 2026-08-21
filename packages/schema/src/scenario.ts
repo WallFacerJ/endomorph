@@ -413,6 +413,76 @@ export const scenarioGroundTruthEventSchema =
   z.object({
     eventId: entityIdSchema,
     significance: nonEmptyStringSchema,
+    /** MITRE ATT&CK technique this step maps to, e.g. T1110.003. */
+    techniqueId:
+      nonEmptyStringSchema.optional(),
+  }).strict();
+
+/**
+ * ATT&CK tactics, in kill-chain order.
+ *
+ * Adversary behaviour that is not mapped to a framework is just a story.
+ * Mapping makes coverage, gaps, and progression measurable, which is what
+ * every serious blue-team platform is assessed on.
+ */
+export const attackTacticSchema = z.enum([
+  "reconnaissance",
+  "resource_development",
+  "initial_access",
+  "execution",
+  "persistence",
+  "privilege_escalation",
+  "defense_evasion",
+  "credential_access",
+  "discovery",
+  "lateral_movement",
+  "collection",
+  "command_and_control",
+  "exfiltration",
+  "impact",
+]);
+
+export const scenarioTechniqueSchema =
+  z.object({
+    id: nonEmptyStringSchema,
+    name: nonEmptyStringSchema,
+    tactic: attackTacticSchema,
+    /** Opening events that demonstrate the technique. */
+    eventIds:
+      z.array(entityIdSchema).min(1),
+  }).strict();
+
+/**
+ * A question the analyst must answer from evidence.
+ *
+ * This is what separates an investigation from a click-through: the analyst
+ * has to produce a specific value found in the telemetry, not recognise the
+ * right card. Answers are graded against normalized text so the check stays
+ * deterministic.
+ */
+export const scenarioQuestionSchema =
+  z.object({
+    id: nonEmptyStringSchema,
+    prompt: nonEmptyStringSchema,
+    /** Accepted answers, compared case-insensitively after trimming. */
+    accepted:
+      z.array(nonEmptyStringSchema).min(1),
+    hint: nonEmptyStringSchema.optional(),
+    /** Which console the answer is discoverable from. */
+    surface: z.enum([
+      "siem",
+      "endpoint",
+      "identity",
+      "case",
+    ]),
+    points: z
+      .number()
+      .int()
+      .min(1)
+      .max(100),
+    /** Event the answer can be read from, for after-action review. */
+    evidenceEventId:
+      entityIdSchema.optional(),
   }).strict();
 
 export const scenarioGroundTruthSchema =
@@ -421,6 +491,12 @@ export const scenarioGroundTruthSchema =
     timeline:
       z.array(scenarioGroundTruthEventSchema)
         .min(1),
+    techniques:
+      z.array(scenarioTechniqueSchema)
+        .optional(),
+    /** Severity band, used for triage realism and reporting. */
+    severity:
+      alertSeveritySchema.optional(),
   }).strict();
 
 export const scenarioInvestigationSchema =
@@ -455,6 +531,9 @@ export const scenarioSpecSchema =
       scenarioInvestigationSchema,
     groundTruth:
       scenarioGroundTruthSchema.optional(),
+    questions:
+      z.array(scenarioQuestionSchema)
+        .optional(),
   }).strict();
 
 export const scenarioFileSchema =
@@ -477,6 +556,15 @@ export type ScenarioActionAssessmentSpec =
 
 export type ScenarioActionSpec =
   z.infer<typeof scenarioActionSchema>;
+
+export type AttackTactic =
+  z.infer<typeof attackTacticSchema>;
+
+export type ScenarioTechniqueSpec =
+  z.infer<typeof scenarioTechniqueSchema>;
+
+export type ScenarioQuestionSpec =
+  z.infer<typeof scenarioQuestionSchema>;
 
 export type ScenarioGroundTruthSpec =
   z.infer<typeof scenarioGroundTruthSchema>;

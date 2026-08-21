@@ -312,7 +312,11 @@ export function compileScenario(
     groundTruth: {
       summary: incident.summary,
       timeline: incident.timeline,
+      techniques: incident.techniques,
+      severity: "high",
     },
+
+    questions: incident.questions,
   };
 
   return {

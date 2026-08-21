@@ -23,6 +23,42 @@ import type {
 export interface IncidentGroundTruthStep {
   readonly eventId: string;
   readonly significance: string;
+  readonly techniqueId?: string;
+}
+
+export type AttackTactic =
+  | "initial_access"
+  | "execution"
+  | "persistence"
+  | "privilege_escalation"
+  | "defense_evasion"
+  | "credential_access"
+  | "discovery"
+  | "lateral_movement"
+  | "collection"
+  | "command_and_control"
+  | "exfiltration"
+  | "impact";
+
+export interface IncidentTechnique {
+  readonly id: string;
+  readonly name: string;
+  readonly tactic: AttackTactic;
+  readonly eventIds: readonly string[];
+}
+
+export interface IncidentQuestion {
+  readonly id: string;
+  readonly prompt: string;
+  readonly accepted: readonly string[];
+  readonly hint?: string;
+  readonly surface:
+    | "siem"
+    | "endpoint"
+    | "identity"
+    | "case";
+  readonly points: number;
+  readonly evidenceEventId?: string;
 }
 
 export interface GeneratedIncident {
@@ -49,6 +85,12 @@ export interface GeneratedIncident {
   readonly summary: string;
 
   readonly timeline: IncidentGroundTruthStep[];
+
+  /** ATT&CK techniques the chain demonstrates, in kill-chain order. */
+  readonly techniques: IncidentTechnique[];
+
+  /** Questions the analyst must answer from evidence. */
+  readonly questions: IncidentQuestion[];
 }
 
 export interface IncidentOptions {
@@ -234,6 +276,7 @@ export function generateIncident(
   const emit = (
     id: string,
     significance: string,
+    techniqueId: string | undefined,
     advanceBy: number,
     event: Omit<
       SimulationEvent,
@@ -252,6 +295,7 @@ export function generateIncident(
     timeline.push({
       eventId: id,
       significance,
+      techniqueId,
     });
 
     minute += advanceBy;
@@ -269,6 +313,7 @@ export function generateIncident(
     emit(
       `incident-spray-${attempt + 1}`,
       `Failed sign-in for ${victimAccount.username} from ${attackerIp}, an address outside every corporate subnet.`,
+      "T1110.003",
       cursor.nextInt(1, 3),
       {
         type: "AUTH_LOGIN_FAILED",
@@ -293,6 +338,7 @@ export function generateIncident(
   emit(
     "incident-auth-success",
     `Successful sign-in for ${victimAccount.username} from ${attackerIp} minutes after repeated failures. This is the compromise point.`,
+    "T1078.002",
     1,
     {
       type: "AUTH_LOGIN_SUCCEEDED",
@@ -313,6 +359,7 @@ export function generateIncident(
   emit(
     "incident-session-started",
     "Interactive session established on the compromised account.",
+    "T1078.002",
     3,
     {
       type: "SESSION_STARTED",
@@ -336,6 +383,7 @@ export function generateIncident(
   emit(
     "incident-powershell",
     "Base64-encoded PowerShell launched with an execution-policy bypass and a hidden window. No business process on this host runs this way.",
+    "T1059.001",
     2,
     {
       type: "PROCESS_STARTED",
@@ -357,6 +405,7 @@ export function generateIncident(
   emit(
     "incident-beacon-1",
     `Outbound connection to ${c2Ip} on 443 immediately after the encoded command. Beaconing to attacker infrastructure.`,
+    "T1071.001",
     4,
     {
       type: "NETWORK_CONNECTION",
@@ -380,6 +429,7 @@ export function generateIncident(
   emit(
     "incident-discovery-whoami",
     "Host and privilege discovery from the compromised session.",
+    "T1033",
     2,
     {
       type: "PROCESS_STARTED",
@@ -400,6 +450,7 @@ export function generateIncident(
   emit(
     "incident-discovery-net",
     "Domain administrator enumeration. The intruder is looking for an escalation path.",
+    "T1069.002",
     3,
     {
       type: "PROCESS_STARTED",
@@ -421,6 +472,7 @@ export function generateIncident(
   emit(
     "incident-beacon-2",
     "Second beacon to the same infrastructure, consistent with a callback interval.",
+    "T1071.001",
     5,
     {
       type: "NETWORK_CONNECTION",
@@ -444,6 +496,7 @@ export function generateIncident(
   emit(
     "incident-file-access",
     `Restricted document ${targetFile.name} opened by an account that has no routine history with it. This is the business impact.`,
+    "T1005",
     3,
     {
       type: "FILE_ACCESSED",
@@ -466,6 +519,7 @@ export function generateIncident(
   emit(
     "incident-lateral",
     `SMB connection from the compromised workstation to ${lateralTarget.hostname}. Scope now extends beyond the initial host.`,
+    "T1021.002",
     2,
     {
       type: "NETWORK_CONNECTION",
@@ -521,8 +575,162 @@ export function generateIncident(
       "Endpoint detection fires on the encoded command. Everything before this is what the analyst has to reconstruct.",
   });
 
+  // -----------------------------------------------------------------------
+  // ATT&CK mapping
+  // -----------------------------------------------------------------------
+
+  const techniques: IncidentTechnique[] = [
+    {
+      id: "T1110.003",
+      name: "Brute Force: Password Spraying",
+      tactic: "credential_access",
+      eventIds: Array.from(
+        { length: options.sprayAttempts },
+        (_unused, index) =>
+          `incident-spray-${index + 1}`,
+      ),
+    },
+    {
+      id: "T1078.002",
+      name: "Valid Accounts: Domain Accounts",
+      tactic: "initial_access",
+      eventIds: [
+        "incident-auth-success",
+        "incident-session-started",
+      ],
+    },
+    {
+      id: "T1059.001",
+      name: "Command and Scripting Interpreter: PowerShell",
+      tactic: "execution",
+      eventIds: ["incident-powershell"],
+    },
+    {
+      id: "T1071.001",
+      name: "Application Layer Protocol: Web Protocols",
+      tactic: "command_and_control",
+      eventIds: [
+        "incident-beacon-1",
+        "incident-beacon-2",
+      ],
+    },
+    {
+      id: "T1033",
+      name: "System Owner/User Discovery",
+      tactic: "discovery",
+      eventIds: [
+        "incident-discovery-whoami",
+      ],
+    },
+    {
+      id: "T1069.002",
+      name: "Permission Groups Discovery: Domain Groups",
+      tactic: "discovery",
+      eventIds: [
+        "incident-discovery-net",
+      ],
+    },
+    {
+      id: "T1005",
+      name: "Data from Local System",
+      tactic: "collection",
+      eventIds: ["incident-file-access"],
+    },
+    {
+      id: "T1021.002",
+      name: "Remote Services: SMB/Windows Admin Shares",
+      tactic: "lateral_movement",
+      eventIds: ["incident-lateral"],
+    },
+  ];
+
+  // -----------------------------------------------------------------------
+  // Investigation questions
+  // -----------------------------------------------------------------------
+
+  // Every answer is a value the analyst has to find in telemetry. None can
+  // be guessed from the alert alone, and each names the console it is
+  // discoverable from so the exercise stays fair rather than obscure.
+  const questions: IncidentQuestion[] = [
+    {
+      id: "q-source-ip",
+      prompt: `From which source address did the successful sign-in for ${victimAccount.username} originate?`,
+      accepted: [attackerIp],
+      hint: "Compare the account's sign-in history against the days before the incident.",
+      surface: "identity",
+      points: 20,
+      evidenceEventId:
+        "incident-auth-success",
+    },
+    {
+      id: "q-spray-count",
+      prompt:
+        "How many failed sign-ins from that address preceded the successful one?",
+      accepted: [
+        String(options.sprayAttempts),
+      ],
+      hint: "Filter the SIEM by the source address.",
+      surface: "siem",
+      points: 15,
+      evidenceEventId:
+        "incident-spray-1",
+    },
+    {
+      id: "q-c2",
+      prompt:
+        "Which external address did the workstation beacon to after the encoded command ran?",
+      accepted: [c2Ip],
+      hint: "Look at outbound network connections from the affected endpoint.",
+      surface: "endpoint",
+      points: 20,
+      evidenceEventId: "incident-beacon-1",
+    },
+    {
+      id: "q-host",
+      prompt:
+        "What is the hostname of the compromised workstation?",
+      accepted: [
+        victimDevice.hostname,
+        victimDevice.hostname.toLowerCase(),
+      ],
+      surface: "endpoint",
+      points: 10,
+      evidenceEventId:
+        "incident-powershell",
+    },
+    {
+      id: "q-file",
+      prompt:
+        "Which restricted document did the intruder open?",
+      accepted: [
+        targetFile.name,
+        targetFile.name.toLowerCase(),
+      ],
+      hint: "Check file activity attributed to the compromised account.",
+      surface: "siem",
+      points: 20,
+      evidenceEventId:
+        "incident-file-access",
+    },
+    {
+      id: "q-lateral",
+      prompt:
+        "Which server did the intruder reach over SMB?",
+      accepted: [
+        lateralTarget.hostname,
+        lateralTarget.hostname.toLowerCase(),
+      ],
+      hint: "Destination port 445 from the affected endpoint.",
+      surface: "siem",
+      points: 15,
+      evidenceEventId: "incident-lateral",
+    },
+  ];
+
   return {
     events,
+    techniques,
+    questions,
     alertId,
     victimUserId: victim.id,
     victimAccountId: victimAccount.id,

@@ -1,0 +1,228 @@
+.brief {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-bottom: 1.5rem;
+  padding: 1.15rem 1.25rem 1.3rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.brief-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.brief-header h3 {
+  margin: 0.25rem 0 0.4rem;
+}
+
+.brief-copy {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+.brief-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.brief-progress strong {
+  font-size: 1.7rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.brief-progress span {
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.brief-attack-head,
+.brief-questions-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.brief-attack-head h4,
+.brief-questions-head h4 {
+  margin: 0;
+}
+
+.brief-attack-head span {
+  font-size: 0.72rem;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+
+.brief-tactics {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(215px, 1fr)
+  );
+}
+
+.brief-tactic {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.brief-tactic-name {
+  margin: 0;
+  font-size: 0.64rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  opacity: 0.62;
+}
+
+.brief-technique {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  background: rgba(148, 163, 184, 0.07);
+}
+
+.brief-technique.observed {
+  border-color: rgba(74, 222, 128, 0.55);
+}
+
+.brief-technique code {
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.brief-technique span {
+  font-size: 0.72rem;
+  opacity: 0.78;
+  line-height: 1.25;
+}
+
+.brief-hint-toggle {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: transparent;
+  color: inherit;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.brief-hint-toggle:hover {
+  border-color: rgba(148, 163, 184, 0.7);
+}
+
+.brief-question-list {
+  list-style: none;
+  counter-reset: brief;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.brief-question {
+  padding: 0.65rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.brief-question.correct {
+  border-color: rgba(74, 222, 128, 0.55);
+}
+
+.brief-question.incorrect {
+  border-color: rgba(248, 113, 113, 0.5);
+}
+
+.brief-question-head {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.brief-prompt {
+  margin: 0 0 0.45rem;
+  font-size: 0.86rem;
+}
+
+.brief-points {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+.brief-answer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.brief-answer-row input {
+  flex: 1;
+  min-width: 12rem;
+  padding: 0.42rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.25);
+  color: inherit;
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.brief-answer-row input:disabled {
+  opacity: 0.7;
+}
+
+.brief-surface {
+  font-size: 0.64rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.16rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  opacity: 0.8;
+}
+
+.brief-verdict {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.brief-hint,
+.brief-expected {
+  margin: 0.45rem 0 0;
+  font-size: 0.76rem;
+  opacity: 0.78;
+}
+
+.brief-expected code {
+  font-weight: 600;
+}

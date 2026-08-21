@@ -38,6 +38,8 @@ export type {
   ScenarioAction,
   ScenarioDefinition,
   ScenarioOutcomeStatus,
+  ScenarioQuestion,
+  ScenarioTechnique,
   ScenarioScore,
   ScenarioState,
   SiemEventRecord,

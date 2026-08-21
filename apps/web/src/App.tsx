@@ -12,6 +12,10 @@ import {
 } from "./IncidentCommand";
 
 import {
+  InvestigationBrief,
+} from "./InvestigationBrief";
+
+import {
   ScenarioOutcomePanel,
 } from "./ScenarioOutcomePanel";
 
@@ -146,6 +150,10 @@ function ScenarioWorkspace({
     useState<AssistanceMode>(
       readInitialAssistance,
     );
+  const [questionAnswers, setQuestionAnswers] =
+    useState<
+      Record<string, string>
+    >({});
   const [findingTitle, setFindingTitle] =
     useState("");
   const [findingSummary, setFindingSummary] =
@@ -207,6 +215,32 @@ function ScenarioWorkspace({
         ),
       ),
     [projections.siem.events],
+  );
+
+  const observedTechniqueIds = useMemo(
+    () => {
+      const collected = new Set(
+        analystCase.collectedEventIds,
+      );
+
+      return (
+        scenario.groundTruth
+          ?.techniques ?? []
+      )
+        .filter((technique) =>
+          technique.eventIds.some(
+            (eventId) =>
+              collected.has(eventId),
+          ),
+        )
+        .map(
+          (technique) => technique.id,
+        );
+    },
+    [
+      scenario.groundTruth,
+      analystCase.collectedEventIds,
+    ],
   );
 
   const collectedEvidence = useMemo(
@@ -414,6 +448,7 @@ function ScenarioWorkspace({
     setIncidentCase(
       createIncidentCaseState(),
     );
+    setQuestionAnswers({});
     setFindingTitle("");
     setFindingSummary("");
     setSelectedEvidenceIds([]);
@@ -600,6 +635,38 @@ function ScenarioWorkspace({
 
         {activeView === "timeline" && (
           <section className="workspace-section">
+            <InvestigationBrief
+              questions={
+                scenario.questions ?? []
+              }
+              techniques={
+                scenario.groundTruth
+                  ?.techniques ?? []
+              }
+              answers={questionAnswers}
+              onAnswerChange={(
+                questionId,
+                answer,
+              ) =>
+                setQuestionAnswers(
+                  (current) => ({
+                    ...current,
+                    [questionId]: answer,
+                  }),
+                )
+              }
+              observedTechniqueIds={
+                observedTechniqueIds
+              }
+              finalized={
+                scenarioState.finalized
+              }
+              revealAnswers={
+                instructorMode &&
+                scenarioState.finalized
+              }
+            />
+
             <div className="section-heading">
               <div>
                 <p className="eyebrow">

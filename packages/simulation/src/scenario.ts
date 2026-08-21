@@ -58,6 +58,39 @@ export interface ScenarioGroundTruthEvent {
   eventId: string;
 
   significance: string;
+
+  /** MITRE ATT&CK technique this step maps to. */
+  techniqueId?: string;
+}
+
+export interface ScenarioTechnique {
+  id: string;
+
+  name: string;
+
+  tactic: string;
+
+  eventIds: readonly string[];
+}
+
+export interface ScenarioQuestion {
+  id: string;
+
+  prompt: string;
+
+  accepted: readonly string[];
+
+  hint?: string;
+
+  surface:
+    | "siem"
+    | "endpoint"
+    | "identity"
+    | "case";
+
+  points: number;
+
+  evidenceEventId?: string;
 }
 
 export interface ScenarioGroundTruth {
@@ -65,6 +98,11 @@ export interface ScenarioGroundTruth {
 
   timeline:
     readonly ScenarioGroundTruthEvent[];
+
+  techniques?:
+    readonly ScenarioTechnique[];
+
+  severity?: string;
 }
 
 export interface ScenarioInvestigationContext {
@@ -104,6 +142,8 @@ export interface ScenarioDefinition {
     ScenarioInvestigationContext;
 
   groundTruth?: ScenarioGroundTruth;
+
+  questions?: readonly ScenarioQuestion[];
 }
 
 export interface ScenarioState {
