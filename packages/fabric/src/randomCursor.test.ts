@@ -6,7 +6,7 @@ import {
 
 import {
   RandomCursor,
-} from "./randomCursor";
+} from "./randomCursor.js";
 
 function draw(
   cursor: RandomCursor,
