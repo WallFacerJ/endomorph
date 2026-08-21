@@ -20,6 +20,13 @@ Renamed to **Endomorph**, and the enterprise generator arrives.
 - A generator CLI: `pnpm generate:scenario`.
 - A fourth shipped scenario: **Generated enterprise**, 444 entities and 17,904 events, of which 14 are the attack.
 
+### Added — Case as incident command
+
+- The evidence graph derives entities and their connections from collected evidence alone; every node and edge carries the event ids that justify it, so any relationship pivots back to its source.
+- Indicators are extracted from collected evidence, with addresses outside every corporate subnet flagged external.
+- Incident phase, hypotheses with supported/refuted status, tasks with owners, and decisions are real workflow state.
+- The incident report is assembled from case state rather than authored separately.
+
 ### Fixed
 
 - The SIEM rendered a table row per match, blocking for 6.5 seconds against a generated world. Results are now capped at 200 rendered rows with counts and facets still computed in full — a ~10x improvement.

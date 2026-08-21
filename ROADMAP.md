@@ -32,7 +32,7 @@ Status: **in progress.**
 
 Goal: eliminate the "juvenile / surface-level / multiple-choice" feel before adding expensive infrastructure.
 
-Delivered so far: the SIEM, EDR, and Identity workspaces below. Remaining: the Case / incident command redesign and the assessment model.
+Delivered so far: the SIEM, EDR, and Identity workspaces, the Fabric generator, and the Case / incident command redesign. Remaining: the assessment model.
 
 ### Scope change - the Fabric generator moved into Phase 1
 
@@ -83,12 +83,14 @@ This moves only the world/activity **generator**. The interactive runtime work -
 
 ### Case / incident command redesign
 
-- evidence graph instead of a simple list;
-- hypotheses and findings;
-- indicators;
-- tasks, owners, status, and incident phase;
+Status: **delivered.**
+
+- evidence graph instead of a simple list -- derived from collected evidence, not authored;
+- hypotheses with supported/refuted status, and findings;
+- indicators extracted from evidence, with values outside every corporate subnet flagged external;
+- tasks, owners, status, and incident phase as real workflow state;
 - decisions and response actions;
-- bidirectional pivots to source evidence/tools;
+- bidirectional pivots: every node and edge carries the event ids that justify it, and entities pivot back into SIEM;
 - unified incident timeline;
 - generated incident report from actual case state.
 

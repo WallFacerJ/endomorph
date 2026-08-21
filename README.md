@@ -23,7 +23,8 @@ Endomorph includes:
 
 - one deterministic synthetic enterprise world per scenario;
 - shared identity, EDR, and SIEM projections over the same event history;
-- an alert-first analyst workspace with timeline, endpoint, identity, and case views;
+- an alert-first analyst workspace with SIEM, endpoint, identity, and incident-command views;
+- a Case that assembles the incident picture from collected evidence: an evidence graph, extracted indicators, incident phase, hypotheses, tasks, and decisions;
 - evidence collection by immutable event ID;
 - analyst-authored findings linked to collected evidence;
 - multiple deterministic response choices, including an intentionally harmful choice;

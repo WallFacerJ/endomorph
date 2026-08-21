@@ -16,7 +16,9 @@ The SIEM, EDR, and Identity workspaces are delivered. Phase 1 now also covers th
 
 Generator status: topology, five-day background activity with per-person habits, incident planting, and scenario compilation are all delivered. The shipped generated scenario is 444 entities and 17,904 events against the 15 and 34 of the largest hand-authored one.
 
-Remaining in Phase 1: the Case / incident-command redesign and the assessment model.
+Case is now an incident-command graph: entities, connections, and indicators are derived from the analyst's collected evidence rather than retyped, with incident phase, hypotheses, tasks, and decisions as real workflow state.
+
+Remaining in Phase 1: the assessment model -- moving response work into tool context and hiding explicit objectives during professional-mode runs.
 
 Endomorph v1.0.0 is complete. The v1 architecture proved deterministic scenarios, correlated identity/EDR/SIEM projections, analyst case state, response outcomes, instructor review, and browser delivery.
 
@@ -116,8 +118,8 @@ Items 1-3 are delivered. The generator now supplies them with data at a scale th
 1. ~~Build a real SIEM workspace with search/query, time controls, facets, raw events, pivots, and enough noisy telemetry to require analysis.~~ **Done.**
 2. ~~Build a real EDR workspace with endpoint inventory, process trees, file/network context, and endpoint-scoped actions.~~ **Done.**
 3. ~~Expand Identity into account/session/access/risk/history analysis rather than a summary panel.~~ **Done.**
-4. Redesign Case into an incident-command graph connecting evidence, entities, hypotheses, tasks, findings, decisions, and response actions. **Next.**
-5. Move professional response work out of obvious multiple-choice cards and into the relevant tool/system context.
+4. ~~Redesign Case into an incident-command graph connecting evidence, entities, hypotheses, tasks, findings, decisions, and response actions.~~ **Done.**
+5. Move professional response work out of obvious multiple-choice cards and into the relevant tool/system context. **Next.**
 6. Hide explicit objectives/scores during active professional-mode runs by default; preserve guided assistance as an optional mode.
 7. Design and build the Synthetic Infrastructure Fabric fidelity ladder: deterministic synthetic hosts -> isolated containers -> microVM/full VM where necessary.
 8. Add telemetry domains and scenario complexity only in service of genuinely deeper incidents.
