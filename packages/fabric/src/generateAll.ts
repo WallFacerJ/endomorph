@@ -33,6 +33,7 @@ interface ScenarioBuild {
   readonly description: string;
   readonly plan?: string;
   readonly headcount?: number;
+  /** Days of baseline history. Fewer keeps the shipped bundle smaller. */
   readonly days?: number;
 }
 
@@ -52,6 +53,7 @@ const BUILDS: readonly ScenarioBuild[] = [
     description:
       "Nothing in this incident comes from outside. Every address is corporate and every credential is valid. The signal is deviation from one person's own established pattern.",
     plan: "privileged-insider",
+    days: 3,
   },
   {
     out: "apps/web/public/scenarios/generated-service-account.json",
@@ -60,6 +62,7 @@ const BUILDS: readonly ScenarioBuild[] = [
     description:
       "A valid privileged credential used from a workstation it has no history with, moving between servers over SMB. All traffic stays internal.",
     plan: "service-account-abuse",
+    days: 3,
   },
 ];
 
@@ -127,7 +130,7 @@ function main(): void {
 
     if (build.days) {
       args.push(
-        "--duration-hours",
+        "--days",
         String(build.days),
       );
     }

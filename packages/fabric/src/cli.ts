@@ -40,6 +40,7 @@ interface CliOptions {
   domain: string;
   startTime: string;
   durationHours: number;
+  days: number;
   pretty: boolean;
   planId?: string;
 }
@@ -95,6 +96,7 @@ const DEFAULTS: CliOptions = {
   domain: "acme.test",
   startTime: "2026-08-20T08:00:00.000Z",
   durationHours: 10,
+  days: 5,
   pretty: false,
 };
 
@@ -188,6 +190,10 @@ export function parseArgs(
         options.planId = value;
         break;
 
+      case "days":
+        options.days = Number(value);
+        break;
+
       default:
         throw new Error(
           `Unknown flag: --${key}`,
@@ -218,6 +224,7 @@ function main(): void {
     activity: {
       durationHours:
         options.durationHours,
+      days: options.days,
     },
     incident: options.planId
       ? { planId: options.planId }
