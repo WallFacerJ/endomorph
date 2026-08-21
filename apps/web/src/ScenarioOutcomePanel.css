@@ -1,0 +1,130 @@
+.outcome-panel {
+  margin-bottom: 22px;
+  padding: 20px;
+  border: 1px solid #1c334d;
+  border-radius: 12px;
+  background: rgba(11, 26, 44, 0.84);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+}
+
+.outcome-panel.succeeded {
+  border-color: rgba(52, 211, 153, 0.45);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(52, 211, 153, 0.08),
+      rgba(11, 26, 44, 0.84) 45%
+    );
+}
+
+.outcome-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.outcome-panel-header h4 {
+  margin: 5px 0 0;
+  font-size: 18px;
+}
+
+.outcome-eyebrow {
+  margin: 0;
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.outcome-count {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border: 1px solid #29415c;
+  border-radius: 999px;
+  color: #9fb0c5;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.outcome-panel.succeeded .outcome-count {
+  border-color: rgba(52, 211, 153, 0.35);
+  color: #6ee7b7;
+}
+
+.outcome-objectives {
+  display: grid;
+  gap: 10px;
+}
+
+.outcome-objective {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid #172a41;
+  border-radius: 9px;
+  background: rgba(5, 13, 23, 0.45);
+}
+
+.outcome-objective.met {
+  border-color: rgba(52, 211, 153, 0.28);
+}
+
+.outcome-objective-indicator {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid #38516d;
+  border-radius: 999px;
+  color: #8296ad;
+  font-weight: 800;
+}
+
+.outcome-objective.met .outcome-objective-indicator {
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.1);
+  color: #6ee7b7;
+}
+
+.outcome-objective strong {
+  color: #f5f8fc;
+}
+
+.outcome-objective p {
+  margin: 4px 0 0;
+  color: #7e91a8;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.outcome-objective-state {
+  color: #8396ad;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.outcome-objective.met .outcome-objective-state {
+  color: #6ee7b7;
+}
+
+@media (max-width: 720px) {
+  .outcome-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .outcome-objective {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .outcome-objective-state {
+    grid-column: 2;
+  }
+}

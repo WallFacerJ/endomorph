@@ -10,6 +10,15 @@ import type {
   SimulationEvent,
 } from "./simulationEvent";
 
+import {
+  evaluateScenarioOutcome,
+} from "./scenarioOutcome";
+
+import type {
+  ScenarioObjective,
+  ScenarioOutcome,
+} from "./scenarioOutcome";
+
 import type {
   WorldState,
 } from "./worldState";
@@ -55,6 +64,9 @@ export interface ScenarioDefinition {
 
   actions: readonly ScenarioAction[];
 
+  objectives:
+    readonly ScenarioObjective[];
+
   investigation:
     ScenarioInvestigationContext;
 }
@@ -65,6 +77,8 @@ export interface ScenarioState {
   events: readonly SimulationEvent[];
 
   performedActionIds: readonly string[];
+
+  outcome: ScenarioOutcome;
 }
 
 function replayValidatedHistory(
@@ -112,6 +126,55 @@ function requireUniqueActionIds(
   }
 }
 
+function requireValidObjectives(
+  scenario: ScenarioDefinition,
+  openingWorld: WorldState,
+): void {
+  if (scenario.objectives.length === 0) {
+    throw new Error(
+      `Scenario ${scenario.id} must define at least one objective.`,
+    );
+  }
+
+  const seen = new Set<string>();
+
+  for (const objective of scenario.objectives) {
+    if (seen.has(objective.id)) {
+      throw new Error(
+        `Scenario ${scenario.id} defines duplicate objective id: ${objective.id}`,
+      );
+    }
+
+    seen.add(objective.id);
+
+    switch (objective.kind) {
+      case "account_status":
+        if (
+          !openingWorld.accounts[
+            objective.accountId
+          ]
+        ) {
+          throw new Error(
+            `Scenario ${scenario.id} objective ${objective.id} references missing account: ${objective.accountId}`,
+          );
+        }
+        break;
+
+      case "session_status":
+        if (
+          !openingWorld.sessions[
+            objective.sessionId
+          ]
+        ) {
+          throw new Error(
+            `Scenario ${scenario.id} objective ${objective.id} references missing session: ${objective.sessionId}`,
+          );
+        }
+        break;
+    }
+  }
+}
+
 export function validateScenarioDefinition(
   scenario: ScenarioDefinition,
 ): void {
@@ -123,6 +186,11 @@ export function validateScenarioDefinition(
       scenario.initialWorld,
       scenario.openingEvents,
     );
+
+  requireValidObjectives(
+    scenario,
+    openingWorld,
+  );
 
   for (const action of scenario.actions) {
     replayValidatedHistory(
@@ -199,14 +267,21 @@ export function getScenarioState(
     ),
   ];
 
+  const world = replayValidatedHistory(
+    scenario.initialWorld,
+    events,
+  );
+
   return {
-    world: replayValidatedHistory(
-      scenario.initialWorld,
-      events,
-    ),
+    world,
     events,
     performedActionIds: [
       ...performedActionIds,
     ],
+    outcome:
+      evaluateScenarioOutcome(
+        scenario.objectives,
+        world,
+      ),
   };
 }

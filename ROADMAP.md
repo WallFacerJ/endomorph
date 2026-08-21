@@ -112,6 +112,7 @@ Implemented:
 - Live projection application and ordered-history rebuild
 - Versioned deterministic snapshot serialization/deserialization
 - Minimal deterministic scenario runtime over opening history and response events
+- Pure deterministic scenario objective/outcome evaluation
 - Automated determinism and replay-equivalence tests
 
 Remaining:
@@ -185,6 +186,10 @@ Implemented:
 - Editable account-compromise example scenario
 - Contributor-selectable local scenario files under `/scenarios/`
 - Scenario authoring documentation
+- Typed declarative account-status and session-status objectives
+- Unique objective-id and semantic target validation
+- Deterministic `in_progress | succeeded` outcome evaluation from canonical state
+- Account-compromise response objectives for compromised-session revocation and account disablement
 
 Remaining:
 
@@ -192,7 +197,7 @@ Remaining:
 - Triggers
 - Richer state transitions
 - Branches
-- Success/failure conditions
+- Explicit failure conditions and richer outcome states
 - Ground-truth timeline metadata distinct from analyst-visible evidence
 - MITRE ATT&CK mappings where appropriate
 - Dedicated scenario linter/headless validation entry point
@@ -207,7 +212,7 @@ Exit criteria:
 
 ## Phase 6 - Analyst and Instructor Experience
 
-Status: in progress; first evidence-backed analyst loop is playable.
+Status: in progress; first evidence-backed analyst loop now has explicit response success criteria.
 
 Goal: turn the runtime into a usable cyber-range training platform.
 
@@ -225,16 +230,18 @@ Implemented analyst slice:
 - Evidence collection from investigation, endpoint, and identity views
 - Analyst-authored findings with validated evidence links
 - Case state preserved through containment and cleared by reset
+- Analyst-visible response objectives driven by runtime outcome state
+- Explicit transition from scenario in-progress to succeeded when all objectives are met
+- Reset returns objective progress to its deterministic initial state
 
 Remaining:
 
 - Multiple containment/remediation choices
-- Explicit scenario outcomes
 - Instructor controls
 - Hidden ground truth
 - Deterministic scoring
 - Timeline comparison
-- Post-incident report
+- Post-incident report/outcome summary
 
 Exit criteria:
 

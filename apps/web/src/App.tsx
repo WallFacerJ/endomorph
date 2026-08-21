@@ -8,6 +8,10 @@ import {
 import "./App.css";
 
 import {
+  ScenarioOutcomePanel,
+} from "./ScenarioOutcomePanel";
+
+import {
   addAnalystFinding,
   collectAnalystEvidence,
   createAnalystCaseState,
@@ -494,6 +498,10 @@ function ScenarioWorkspace({
                     "Perform response"}
               </button>
             </div>
+
+            <ScenarioOutcomePanel
+              outcome={scenarioState.outcome}
+            />
 
             <div className="summary-grid">
               <article className="summary-card">
