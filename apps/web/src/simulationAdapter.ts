@@ -2,8 +2,12 @@ export {
   addAnalystFinding,
   collectAnalystEvidence,
   compileScenarioDefinition,
+  buildEvidenceGraph,
+  buildIncidentReport,
   createAnalystCaseState,
+  createIncidentCaseState,
   edrProjection,
+  extractIncidentIndicators,
   finalizeScenarioState,
   getEdrEndpointInvestigation,
   getIdentityAccountInvestigation,
@@ -15,12 +19,19 @@ export {
   resolveCollectedEvidence,
   searchSiem,
   siemProjection,
+  INCIDENT_PHASES,
 } from "@endomorph/simulation";
 
 export type {
   EdrEndpointInvestigation,
   EdrProcessTreeNode,
   EdrProjectionState,
+  EvidenceGraph,
+  EvidenceGraphNode,
+  IncidentCaseState,
+  IncidentIndicator,
+  IncidentPhase,
+  IncidentReport,
   IdentityAccountInvestigation,
   IdentityInventoryEntry,
   IdentityProjectionState,
@@ -32,4 +43,5 @@ export type {
   SiemEventRecord,
   SiemSearchRequest,
   SiemSearchResult,
+  WorldState,
 } from "@endomorph/simulation";

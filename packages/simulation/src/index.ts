@@ -20,6 +20,7 @@ export * from "./edrInvestigation";
 export * from "./siemProjection";
 export * from "./siemQuery";
 export * from "./analystCase";
+export * from "./incidentCase";
 export * from "./scenarioOutcome";
 export * from "./scenarioScore";
 export * from "./scenario";

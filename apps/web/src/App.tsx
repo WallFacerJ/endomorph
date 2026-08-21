@@ -8,6 +8,10 @@ import {
 import "./App.css";
 
 import {
+  IncidentCommand,
+} from "./IncidentCommand";
+
+import {
   ScenarioOutcomePanel,
 } from "./ScenarioOutcomePanel";
 
@@ -43,6 +47,7 @@ import {
   addAnalystFinding,
   collectAnalystEvidence,
   createAnalystCaseState,
+  createIncidentCaseState,
   edrProjection,
   finalizeScenarioState,
   getScenarioState,
@@ -124,6 +129,10 @@ function ScenarioWorkspace({
   const [analystCase, setAnalystCase] =
     useState(() =>
       createAnalystCaseState(),
+    );
+  const [incidentCase, setIncidentCase] =
+    useState(() =>
+      createIncidentCaseState(),
     );
   const [findingTitle, setFindingTitle] =
     useState("");
@@ -385,6 +394,9 @@ function ScenarioWorkspace({
     setFinalized(false);
     setAnalystCase(
       createAnalystCaseState(),
+    );
+    setIncidentCase(
+      createIncidentCaseState(),
     );
     setFindingTitle("");
     setFindingSummary("");
@@ -750,6 +762,22 @@ function ScenarioWorkspace({
 
         {activeView === "case" && (
           <section className="workspace-section">
+            <IncidentCommand
+              world={scenarioState.world}
+              records={
+                projections.siem.events
+              }
+              collectedEventIds={
+                analystCase.collectedEventIds
+              }
+              caseState={incidentCase}
+              onCaseChange={
+                setIncidentCase
+              }
+              onPivotToSiem={openSiem}
+              readOnly={finalized}
+            />
+
             <div className="section-heading">
               <div>
                 <p className="eyebrow">

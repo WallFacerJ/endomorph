@@ -201,10 +201,14 @@ test("finalized analyst case is read-only until reset", async ({
     { name: "Save finding" },
   ).click();
 
-  await page.getByRole(
-    "button",
-    { name: "Investigation" },
-  ).click();
+  // Scoped to the nav landmark: the incident-command panel also has an
+  // "Investigation" control, for the incident phase of the same name.
+  await page
+    .getByRole("navigation")
+    .getByRole("button", {
+      name: "Investigation",
+    })
+    .click();
   await page.getByRole(
     "button",
     { name: "Finalize investigation" },
