@@ -28,9 +28,27 @@ V1 should now be treated as a proof of the runtime model, not the target enterpr
 
 ## Phase 1 - Deep investigation and professional tool identity
 
-Status: **next.**
+Status: **in progress.**
 
 Goal: eliminate the "juvenile / surface-level / multiple-choice" feel before adding expensive infrastructure.
+
+Delivered so far: the SIEM, EDR, and Identity workspaces below. Remaining: the Case / incident command redesign and the assessment model.
+
+### Scope change - the Fabric generator moved into Phase 1
+
+The Fabric layer described in `ENTERPRISE_VISION.md` was originally sequenced after this phase. The deterministic **enterprise generator** half of it has been pulled forward into Phase 1, and now lives in `packages/fabric`.
+
+Reason: this phase's own exit criteria cannot be met without it. Phase 1 requires "noise/benign events mixed with malicious activity", datasets "large enough that an analyst has to search rather than scroll a curated list", and at least 30 minutes of investigation before the evidence surface is exhausted. The shipped content cannot support that and cannot be hand-authored to. Measured across the three v1 scenarios:
+
+| Scenario | Entities | Opening events |
+| --- | --- | --- |
+| `account-compromise` | 15 | 34 |
+| `cloud-admin-compromise` | 7 | 6 |
+| `hr-malware-beacon` | 7 | 6 |
+
+The latter two are structurally identical - the same world template with names and identifiers swapped, and the same six opening-event types in the same order. The deep tool workspaces now exist and are starving for data, so a generated enterprise is the blocking dependency for this phase, not a later luxury.
+
+This moves only the world/activity **generator**. The interactive runtime work - synthetic hosts, containers, microVMs - remains in Phase 2 as written.
 
 ### SIEM workspace
 
@@ -95,6 +113,8 @@ Exit criteria:
 Status: **planned; now justified by tester feedback.**
 
 Goal: let analysts enter and manipulate investigation-critical systems rather than only reading dashboards.
+
+Note: the deterministic world/activity generator that was previously grouped under this heading has moved into Phase 1 (see the scope change above). What remains here is the interactive runtime fidelity ladder.
 
 ### Stage 2A - deterministic synthetic hosts
 

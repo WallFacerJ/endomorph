@@ -12,6 +12,8 @@ Polymorph remains for synthetic, isolated security simulation. It must not becom
 
 **Enterprise Evolution Phase 1: deep investigation and professional tool identity.**
 
+The SIEM, EDR, and Identity workspaces are delivered. Phase 1 now also covers the deterministic enterprise generator in `packages/fabric`, pulled forward from the Fabric layer because Phase 1's own exit criteria depend on generated scale and noise that the three hand-authored scenarios cannot provide. See the scope change in `ROADMAP.md`. Case redesign and the assessment model remain.
+
 Polymorph v1.0.0 is complete. The v1 architecture proved deterministic scenarios, correlated identity/EDR/SIEM projections, analyst case state, response outcomes, instructor review, and browser delivery.
 
 First-time tester feedback exposed the main product gap: the experience is coherent but too shallow, too course-like, too visually uniform, and not sufficiently technical to feel like a serious cyber-operations product.
@@ -58,6 +60,7 @@ A mature Polymorph run should feel like operating a living enterprise during an 
 - pnpm workspace/monorepo
 - canonical normalized `WorldState`
 - deterministic virtual clock and seeded pseudo-random generator
+- splittable deterministic random cursor for generator work (`packages/fabric`)
 - typed authentication, identity, session, process, file, network, endpoint, and alert events
 - append-only event store
 - deterministic reducers, replay, snapshots, and snapshot-assisted replay
