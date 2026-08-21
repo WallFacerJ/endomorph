@@ -1,0 +1,91 @@
+name: Wire result panel
+
+on:
+  push:
+    branches:
+      - feat/deterministic-scoring-results
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v7
+        with:
+          ref: feat/deterministic-scoring-results
+
+      - name: Wire result panel into investigation
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("apps/web/src/App.tsx")
+          text = path.read_text()
+          original = text
+
+          import_block = '''import {
+            ScenarioResultPanel,
+          } from "./ScenarioResultPanel";
+          '''
+
+          if 'from "./ScenarioResultPanel"' not in text:
+              marker = '''import {
+            ScenarioOutcomePanel,
+          } from "./ScenarioOutcomePanel";
+          '''
+              if marker not in text:
+                  raise SystemExit("ScenarioOutcomePanel import marker not found")
+              text = text.replace(
+                  marker,
+                  marker + "\n" + import_block,
+                  1,
+              )
+
+          if '<ScenarioResultPanel' not in text:
+              marker = '''            <ScenarioOutcomePanel
+                        outcome={scenarioState.outcome}
+                      />
+
+          '''
+              if marker not in text:
+                  raise SystemExit("ScenarioOutcomePanel render marker not found")
+
+              result_panel = '''            <ScenarioOutcomePanel
+                        outcome={scenarioState.outcome}
+                      />
+
+                      {scenarioState.outcome.status === "succeeded" && (
+                        <ScenarioResultPanel
+                          score={scenarioState.score}
+                          actionCount={scenarioState.performedActionIds.length}
+                          evidenceCount={analystCase.collectedEventIds.length}
+                          findingCount={analystCase.findings.length}
+                        />
+                      )}
+
+          '''
+              text = text.replace(
+                  marker,
+                  result_panel,
+                  1,
+              )
+
+          if text != original:
+              path.write_text(text)
+
+      - name: Commit wiring
+        shell: bash
+        run: |
+          if git diff --quiet -- apps/web/src/App.tsx; then
+            echo "Result panel is already wired."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- apps/web/src/App.tsx
+          git commit -m "feat: show deterministic post-incident result"
+          git push origin HEAD:feat/deterministic-scoring-results
