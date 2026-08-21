@@ -29,6 +29,11 @@ export const SHIPPED_SCENARIOS:
       path: "/scenarios/cloud-admin-compromise.json",
       label: "Cloud-admin compromise",
     },
+    {
+      path: "/scenarios/generated-enterprise.json",
+      label:
+        "Generated enterprise (444 entities, 4.9k events)",
+    },
   ];
 
 export const DEFAULT_SCENARIO_PATH =

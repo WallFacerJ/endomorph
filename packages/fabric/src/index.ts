@@ -3,3 +3,5 @@ export * from "./nameLibrary.js";
 export * from "./enterpriseProfile.js";
 export * from "./generateEnterprise.js";
 export * from "./backgroundActivity.js";
+export * from "./generateIncident.js";
+export * from "./compileScenario.js";

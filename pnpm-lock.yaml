@@ -63,10 +63,16 @@ importers:
       '@endomorph/domain':
         specifier: workspace:*
         version: link:../domain
+      '@endomorph/schema':
+        specifier: workspace:*
+        version: link:../schema
       '@endomorph/simulation':
         specifier: workspace:*
         version: link:../simulation
     devDependencies:
+      '@types/node':
+        specifier: ^24.13.3
+        version: 24.13.3
       typescript:
         specifier: ~6.0.3
         version: 6.0.3

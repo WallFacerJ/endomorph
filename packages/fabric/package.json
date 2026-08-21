@@ -15,13 +15,16 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "generate:scenario": "node dist/cli.js"
   },
   "dependencies": {
     "@endomorph/domain": "workspace:*",
+    "@endomorph/schema": "workspace:*",
     "@endomorph/simulation": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^24.13.3",
     "typescript": "~6.0.3"
   }
 }

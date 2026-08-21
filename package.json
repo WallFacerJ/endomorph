@@ -9,6 +9,7 @@
     "lint": "pnpm -r lint",
     "test": "vitest",
     "test:run": "vitest run --exclude 'e2e/**'",
+    "generate:scenario": "pnpm --filter @endomorph/fabric build && pnpm --filter @endomorph/fabric generate:scenario",
     "test:e2e": "playwright test"
   },
   "devDependencies": {
