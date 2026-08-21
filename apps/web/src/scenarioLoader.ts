@@ -79,9 +79,55 @@ export function compileScenarioPayload(
   );
 }
 
+/**
+ * Reads a scenario embedded in the page instead of fetching it.
+ *
+ * The standalone single-file build inlines each scenario as a JSON script
+ * tag so the whole product runs from one HTML file with no network access
+ * at all. Returns undefined in the normal hosted build, which falls through
+ * to fetch.
+ */
+function readEmbeddedScenario(
+  path: string,
+): unknown {
+  if (
+    typeof document === "undefined"
+  ) {
+    return undefined;
+  }
+
+  const element =
+    document.getElementById(
+      `endomorph-scenario:${path}`,
+    );
+
+  if (!element?.textContent) {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(
+      element.textContent,
+    );
+  } catch {
+    throw new Error(
+      `Embedded scenario ${path} is not valid JSON.`,
+    );
+  }
+}
+
 export async function loadScenario(
   path: string,
 ): Promise<ScenarioDefinition> {
+  const embedded =
+    readEmbeddedScenario(path);
+
+  if (embedded !== undefined) {
+    return compileScenarioPayload(
+      embedded,
+    );
+  }
+
   const response = await fetch(
     resolveHostedScenarioPath(path),
     {

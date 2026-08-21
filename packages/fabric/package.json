@@ -17,7 +17,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "oxlint --deny-warnings",
-    "generate:scenario": "node dist/cli.js"
+    "generate:scenario": "node dist/cli.js",
+    "bundle:standalone": "node dist/bundleStandalone.js"
   },
   "dependencies": {
     "@endomorph/domain": "workspace:*",
