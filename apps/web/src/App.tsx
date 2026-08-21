@@ -12,6 +12,10 @@ import {
 } from "./ScenarioOutcomePanel";
 
 import {
+  ScenarioResultPanel,
+} from "./ScenarioResultPanel";
+
+import {
   addAnalystFinding,
   collectAnalystEvidence,
   createAnalystCaseState,
@@ -502,6 +506,15 @@ function ScenarioWorkspace({
             <ScenarioOutcomePanel
               outcome={scenarioState.outcome}
             />
+
+            {scenarioState.outcome.status === "succeeded" && (
+              <ScenarioResultPanel
+                score={scenarioState.score}
+                actionCount={scenarioState.performedActionIds.length}
+                evidenceCount={analystCase.collectedEventIds.length}
+                findingCount={analystCase.findings.length}
+              />
+            )}
 
             <div className="summary-grid">
               <article className="summary-card">
