@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Evolve the first playable investigation into a complete analyst loop with evidence-backed findings, explicit response outcomes, and deterministic scoring while preserving the separation between canonical world state, scenario ground truth, and analyst knowledge.
+Complete the first analyst investigation loop with deterministic scoring and a post-incident outcome summary built on explicit scenario objectives, while preserving the separation between canonical world state, scenario ground truth, and analyst knowledge.
 
 ## Completed
 
@@ -75,14 +75,20 @@ Evolve the first playable investigation into a complete analyst loop with eviden
 - Web simulation imports routed through the package export instead of relative source paths
 - Fresh development startup builds the simulation dependency chain before launching Vite
 - pnpm-generated lockfile validated by frozen-install CI
-- Automated test coverage across domain, schema, simulation, scenario, and analyst-case boundaries
+- Declarative typed scenario objectives for account and session status without executable predicates
+- Unique objective-id and semantic target validation against deterministic scenario state
+- Pure deterministic scenario outcome evaluation with `in_progress` and `succeeded` states
+- Account-compromise response goals requiring session revocation and account disablement
+- Investigation objective-progress UI driven directly by runtime outcome state
+- Reset returns objective progress to the initial deterministic state
+- Automated test coverage across domain, schema, simulation, scenario, analyst-case, and outcome boundaries
 
 ## Next Milestones
 
-1. Turn response actions into explicit scenario commands with success/failure conditions
-2. Add deterministic scoring and post-incident outcome summaries after response outcomes are explicit
+1. Add deterministic scoring and a post-incident outcome summary derived from explicit objectives and analyst actions
+2. Add multiple containment/remediation choices once scoring can distinguish response quality
 3. Add hidden ground-truth metadata and instructor-facing evaluation only after the student investigation loop is stable
-4. Add branching, triggers, and richer scenario state transitions only when the first investigation loop requires them
+4. Add branching, triggers, richer failure states, and scenario transitions only when the first investigation loop requires them
 5. Expand cybersecurity telemetry only where scenario or projection requirements justify it
 
 ## Architectural Direction
