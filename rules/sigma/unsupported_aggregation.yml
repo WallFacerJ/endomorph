@@ -1,0 +1,13 @@
+title: Failed Logon Burst (aggregation)
+id: endomorph-sigma-0005
+description: Uses an aggregation expression, which the importer deliberately refuses.
+logsource:
+  category: authentication
+detection:
+  selection:
+    event.type: 'AUTH_LOGIN_FAILED'
+  condition: selection | count() by SourceIp > 5
+level: medium
+tags:
+  - attack.credential_access
+  - attack.t1110.003

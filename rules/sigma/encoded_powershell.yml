@@ -1,0 +1,20 @@
+title: Encoded PowerShell Command Line
+id: endomorph-sigma-0001
+status: experimental
+description: Detects PowerShell launched with an encoded command payload.
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\powershell.exe'
+    CommandLine|contains: '-enc'
+  condition: selection
+falsepositives:
+  - Administrative automation that legitimately encodes commands
+level: high
+tags:
+  - attack.execution
+  - attack.t1059.001

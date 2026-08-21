@@ -10,7 +10,10 @@
  */
 
 import {
+  existsSync,
   mkdirSync,
+  readdirSync,
+  readFileSync,
   writeFileSync,
 } from "node:fs";
 
@@ -34,6 +37,14 @@ import {
 
 import {
   evaluateRuleset,
+} from "./detection.js";
+
+import {
+  importSigmaRules,
+} from "./sigma.js";
+
+import type {
+  DetectionRule,
 } from "./detection.js";
 
 import {
@@ -72,6 +83,64 @@ function main(): void {
     seedIndex >= 0
       ? Number(argv[seedIndex + 1])
       : 20260820;
+
+  // Optional Sigma import. Rules that the supported subset cannot express
+  // are reported rather than dropped silently, because a rule that quietly
+  // matches nothing looks exactly like coverage.
+  const sigmaIndex = argv.indexOf("--sigma");
+
+  const sigmaDir =
+    sigmaIndex >= 0
+      ? argv[sigmaIndex + 1]
+      : undefined;
+
+  let rules: DetectionRule[] = [
+    ...DETECTION_RULES,
+  ];
+
+  if (sigmaDir) {
+    if (!existsSync(sigmaDir)) {
+      throw new Error(
+        `Sigma directory not found: ${sigmaDir}`,
+      );
+    }
+
+    const documents = readdirSync(
+      sigmaDir,
+    )
+      .filter(
+        (name) =>
+          name.endsWith(".yml") ||
+          name.endsWith(".yaml"),
+      )
+      .map((name) => ({
+        source: name,
+        yaml: readFileSync(
+          `${sigmaDir}/${name}`,
+          "utf8",
+        ),
+      }));
+
+    const imported =
+      importSigmaRules(documents);
+
+    rules = [...imported.rules];
+
+    process.stdout.write(
+      `Sigma import from ${sigmaDir}
+  imported ${imported.rules.length}, skipped ${imported.skipped.length}
+`,
+    );
+
+    for (const skip of imported.skipped) {
+      process.stdout.write(
+        `  SKIPPED ${skip.source}: ${skip.reason}
+`,
+      );
+    }
+
+    process.stdout.write("\n");
+  }
 
   const enterprise = generateEnterprise({
     seed,
@@ -117,7 +186,7 @@ function main(): void {
     );
 
     const report = evaluateRuleset(
-      DETECTION_RULES,
+      rules,
       corpus.records,
     );
 

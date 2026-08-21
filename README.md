@@ -137,6 +137,25 @@ Two of the shipped rules are deliberately imperfect, and the numbers say so. `na
 
 Corpora export as newline-delimited JSON in Elastic Common Schema field names, with a manifest recording the seed, the plan, technique counts, and the malicious ratio.
 
+### Sigma rules
+
+Real Sigma YAML imports directly:
+
+```bash
+pnpm evaluate -- --sigma rules/sigma
+```
+
+```
+Sigma import from rules/sigma
+  imported 4, skipped 1
+  SKIPPED unsupported_aggregation.yml: Aggregation conditions are not
+          supported: "selection | count() by SourceIp > 5"
+```
+
+Sigma names fields the way Windows and Sysmon logs do; the corpus is ECS-shaped, so importing translates vocabularies (`Image|endswith` → `process.executable`) and maps `attack.t1059.001` tags to techniques. Selections, negated filters, and the `contains` / `startswith` / `endswith` / `re` modifiers are supported.
+
+**Anything the subset cannot express is refused, never skipped.** A rule that silently matches nothing is indistinguishable from coverage until an incident is missed, so aggregations, cross-selection disjunctions, and unmapped fields raise an error naming the reason. A test asserts every shipped rule fires against at least one corpus.
+
 ## Generating an enterprise
 
 ```bash

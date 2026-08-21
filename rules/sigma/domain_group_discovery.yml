@@ -1,0 +1,16 @@
+title: Domain Admins Group Enumeration
+id: endomorph-sigma-0004
+status: stable
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_net:
+    Image|endswith: '\net.exe'
+  selection_group:
+    CommandLine|contains: 'Domain Admins'
+  condition: selection_net and selection_group
+level: medium
+tags:
+  - attack.discovery
+  - attack.t1069.002

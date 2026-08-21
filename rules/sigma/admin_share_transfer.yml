@@ -1,0 +1,17 @@
+title: File Transfer To Remote Admin Share
+id: endomorph-sigma-0003
+status: experimental
+description: Detects a file copied to a remote ADMIN$ share, a common lateral tool transfer.
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    CommandLine|contains: 'ADMIN$'
+  filter_backup:
+    CommandLine|contains: 'backup-agent'
+  condition: selection and not filter_backup
+level: high
+tags:
+  - attack.lateral_movement
+  - attack.t1570
