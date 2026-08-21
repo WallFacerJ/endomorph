@@ -529,3 +529,15 @@
     min-height: 460px;
   }
 }
+
+.siem-truncation-notice {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--surface-border, rgba(148, 163, 184, 0.2));
+  font-size: 0.8rem;
+  color: var(--text-muted, rgba(148, 163, 184, 0.9));
+}
+
+.siem-truncation-notice strong {
+  color: var(--text-primary, inherit);
+}

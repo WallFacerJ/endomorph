@@ -7,7 +7,7 @@ Everything derives from one causal world. Given the same seed, scenario, and inp
 Two ways to get a world:
 
 - **Hand-authored scenarios** — a versioned JSON contract, validated structurally and semantically before it runs.
-- **Generated enterprises** — `packages/fabric` builds an entire synthetic company from a single seed: staff, accounts, endpoints, servers, network segments, classified documents, a full working day of ordinary telemetry, and an incident buried inside it. The shipped generated scenario is **444 entities and 4,057 events**, of which 14 are the attack.
+- **Generated enterprises** — `packages/fabric` builds an entire synthetic company from a single seed: staff, accounts, endpoints, servers, network segments, classified documents, **five days** of ordinary working history, and an incident buried inside it. The shipped generated scenario is **444 entities and 17,904 events**, of which 14 are the attack.
 
 ## Try Endomorph
 
@@ -43,7 +43,7 @@ Endomorph includes:
 | **Finance account compromise** | 15 | 34 | Suspicious login, encoded PowerShell, correlated outbound activity. Default. |
 | **HR malware beacon** | 7 | 6 | Compromised HR session, unsigned executable, outbound beacon. |
 | **Cloud-admin compromise** | 7 | 6 | Privileged identity compromise and suspicious administrative tooling. |
-| **Generated enterprise** | 444 | 4,057 | A generated 120-person company with a compromised Finance account buried in a full working day of noise. |
+| **Generated enterprise** | 444 | 17,904 | A generated 120-person company with five days of working history and a compromised Finance account on the last day. |
 
 The first three are hand-authored and deliberately small. The fourth is generated, and is the one to open if you want to see what the tools do when an analyst actually has to search.
 
@@ -73,11 +73,21 @@ pnpm generate:scenario -- \
 | `--organization` | `Acme Financial` | Company name. |
 | `--domain` | `acme.test` | Email/UPN domain. |
 | `--start-time` | `2026-08-20T08:00:00.000Z` | Virtual start of the working day. |
-| `--duration-hours` | `10` | Length of the generated day. |
+| `--duration-hours` | `10` | Length of each generated working day. |
 | `--out` | `apps/web/public/scenarios/generated-enterprise.json` | Output path, relative to the repository root. |
 | `--pretty` | off | Indent the JSON. Roughly doubles file size. |
 
 Register a new file in `apps/web/src/scenarioLoader.ts` to make it appear in the selector, or open it directly with `?scenario=/scenarios/<file>.json`.
+
+### Why history matters
+
+The generator produces **five consecutive days**, and the intrusion lands on the last one. Every earlier day is untouched baseline.
+
+That is what makes an observation anomalous rather than merely unusual-looking. Each staff member keeps stable habits across the history — the same workstation, the same source address, a habitual handful of applications, a recognisable arrival time — and varies only within them. Weekends are quiet.
+
+So when the compromised account signs in from `91.219.236.18`, an analyst can establish that the account has *never* used that address, on any prior day. Against a single day of telemetry that question has no answer.
+
+Try it: open the generated scenario, go to **SIEM Search**, and query `sourceIp:91.219.236.18`. Five events out of 17,904 — four failed sign-ins, then a success.
 
 ### How determinism is guaranteed
 

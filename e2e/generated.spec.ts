@@ -43,8 +43,16 @@ test("generated enterprise gives the SIEM a real noise floor", async ({
   // The volume is the product requirement: an analyst must have to search
   // rather than scroll a curated list.
   await expect(
+    page.getByText("matching events", {
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  // Rendering a row per match locked the workspace for 6.5s at this volume.
+  // The result page is capped; the count is not.
+  await expect(
     page.getByText(
-      "MATCHING EVENTS",
+      /Showing the first \d+ of/,
     ),
   ).toBeVisible();
 

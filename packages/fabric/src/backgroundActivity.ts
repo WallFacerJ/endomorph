@@ -28,6 +28,19 @@ import type {
  */
 
 export interface ActivityOptions {
+  /**
+   * Consecutive days of history to generate, ending on the day the incident
+   * lands.
+   *
+   * History is what makes an observation anomalous. "This account signed in
+   * from an address it has never used" is unanswerable against a single
+   * day; against a week of habitual behaviour it is the whole case. Staff
+   * keep stable habits across days -- same workstation, same address, same
+   * handful of applications, similar arrival time -- and vary only within
+   * them.
+   */
+  readonly days: number;
+
   /** Length of the generated working day, in hours. */
   readonly durationHours: number;
 
@@ -52,6 +65,7 @@ export interface ActivityOptions {
 
 export const DEFAULT_ACTIVITY_OPTIONS: ActivityOptions =
   {
+    days: 5,
     durationHours: 10,
     heartbeatIntervalMinutes: 45,
     averageApplicationLogins: 3,
@@ -189,6 +203,8 @@ const LINUX_PROCESSES: readonly {
 ];
 
 /** Routine external destinations, so outbound traffic is not all internal. */
+const MINUTES_PER_DAY = 1440;
+
 const EXTERNAL_DESTINATIONS: readonly string[] =
   [
     "52.96.104.11",
@@ -262,6 +278,15 @@ export function generateBackgroundActivity(
   ) {
     throw new Error(
       "Activity heartbeatIntervalMinutes must be positive.",
+    );
+  }
+
+  if (
+    !Number.isInteger(options.days) ||
+    options.days < 1
+  ) {
+    throw new Error(
+      "Activity days must be a positive integer.",
     );
   }
 
@@ -359,21 +384,41 @@ export function generateBackgroundActivity(
     ]),
   );
 
+  const heartbeatCursor =
+    root.fork("heartbeats");
+
+  const staffCursor = root.fork("staff");
+
+  for (
+    let dayIndex = 0;
+    dayIndex < options.days;
+    dayIndex += 1
+  ) {
+    const dayOffset =
+      dayIndex * MINUTES_PER_DAY;
+
+    // Weekends are quiet. A flat five days would make the incident day look
+    // ordinary and would teach an analyst nothing about normal rhythm.
+    const weekday = new Date(
+      startMilliseconds +
+        dayOffset * 60000,
+    ).getUTCDay();
+
+    const isWeekend =
+      weekday === 0 || weekday === 6;
+
   // -----------------------------------------------------------------------
   // Endpoint heartbeats
   // -----------------------------------------------------------------------
-
-  const heartbeatCursor =
-    root.fork("heartbeats");
 
   for (const device of enterprise.devices) {
     if (device.status !== "active") {
       continue;
     }
 
-    const cursor = heartbeatCursor.fork(
-      device.id,
-    );
+    const cursor = heartbeatCursor
+      .fork(device.id)
+      .fork(`day-${dayIndex}`);
 
     // Stagger the first beat so the fleet does not report in lockstep.
     let minute = cursor.nextInt(
@@ -385,8 +430,8 @@ export function generateBackgroundActivity(
 
     while (minute < durationMinutes) {
       push(
-        minute,
-        `${device.id}-hb-${beat}`,
+        minute + dayOffset,
+        `d${dayIndex}-${device.id}-hb-${beat}`,
         {
           type: "ENDPOINT_HEARTBEAT",
           source: "edr",
@@ -411,11 +456,28 @@ export function generateBackgroundActivity(
   // Per-staff working day
   // -----------------------------------------------------------------------
 
-  const staffCursor = root.fork("staff");
-
   for (const user of enterprise.users) {
-    const cursor = staffCursor.fork(
+    // Habits are forked from the person alone, so they are identical on
+    // every day of the generated history. This is the baseline an analyst
+    // reasons against.
+    const habit = staffCursor.fork(
       user.id,
+    );
+
+    const habitualApplications = habit
+      .shuffle(staffFacingApplications)
+      .slice(
+        0,
+        habit.nextInt(2, 5),
+      );
+
+    const arrivalMean =
+      25 + habit.nextInt(0, 55);
+
+    // Day-to-day variation forks from the habit, so one day's activity
+    // never shifts another's.
+    const cursor = habit.fork(
+      `day-${dayIndex}`,
     );
 
     const account =
@@ -447,8 +509,8 @@ export function generateBackgroundActivity(
           cursor.nextInt(
             0,
             durationMinutes,
-          ),
-          `${user.id}-stale-auth`,
+          ) + dayOffset,
+          `d${dayIndex}-${user.id}-stale-auth`,
           {
             type: "AUTH_LOGIN_FAILED",
             source: "identity",
@@ -471,21 +533,29 @@ export function generateBackgroundActivity(
       continue;
     }
 
+    // On a weekend only a small on-call minority works at all.
+    if (
+      isWeekend &&
+      !cursor.nextBoolean(0.12)
+    ) {
+      continue;
+    }
+
     // -- arrival ---------------------------------------------------------
-    // Centred on the first hour of the day with a mild spread, so the
-    // morning login peak looks like a real office rather than a uniform
-    // smear across ten hours.
+    // Jitter around this person's habitual arrival time, so the morning
+    // peak looks like a real office and each individual keeps a recognisable
+    // routine across days.
     const arrival =
-      20 +
-      cursor.nextInt(0, 45) +
-      cursor.nextInt(0, 45);
+      arrivalMean +
+      cursor.nextInt(0, 25) -
+      12;
 
     if (
       cursor.nextBoolean(options.typoRate)
     ) {
       push(
-        arrival - 1,
-        `${user.id}-typo`,
+        arrival - 1 + dayOffset,
+        `d${dayIndex}-${user.id}-typo`,
         {
           type: "AUTH_LOGIN_FAILED",
           source: "identity",
@@ -503,8 +573,8 @@ export function generateBackgroundActivity(
     }
 
     push(
-      arrival,
-      `${user.id}-auth`,
+      arrival + dayOffset,
+      `d${dayIndex}-${user.id}-auth`,
       {
         type: "AUTH_LOGIN_SUCCEEDED",
         source: "identity",
@@ -521,11 +591,11 @@ export function generateBackgroundActivity(
       },
     );
 
-    const sessionId = `session-${user.id}-day`;
+    const sessionId = `session-${user.id}-day-${dayIndex}`;
 
     push(
-      arrival,
-      `${user.id}-session`,
+      arrival + dayOffset,
+      `d${dayIndex}-${user.id}-session`,
       {
         type: "SESSION_STARTED",
         source: "identity",
@@ -550,7 +620,7 @@ export function generateBackgroundActivity(
       );
 
     const chosen = cursor
-      .shuffle(staffFacingApplications)
+      .shuffle(habitualApplications)
       .slice(0, applicationCount);
 
     for (
@@ -562,6 +632,7 @@ export function generateBackgroundActivity(
 
       push(
         arrival +
+          dayOffset +
           cursor.nextInt(
             2,
             Math.max(
@@ -569,7 +640,7 @@ export function generateBackgroundActivity(
               durationMinutes - arrival,
             ),
           ),
-        `${user.id}-app-${index}`,
+        `d${dayIndex}-${user.id}-app-${index}`,
         {
           type: "AUTH_LOGIN_SUCCEEDED",
           source: "identity",
@@ -609,6 +680,7 @@ export function generateBackgroundActivity(
 
       push(
         arrival +
+          dayOffset +
           processCursor.nextInt(
             1,
             Math.max(
@@ -616,7 +688,7 @@ export function generateBackgroundActivity(
               durationMinutes - arrival,
             ),
           ),
-        `${device.id}-proc-${index}`,
+        `d${dayIndex}-${device.id}-proc-${index}`,
         {
           type: "PROCESS_STARTED",
           source: "edr",
@@ -659,6 +731,7 @@ export function generateBackgroundActivity(
 
       push(
         arrival +
+          dayOffset +
           networkCursor.nextInt(
             1,
             Math.max(
@@ -666,7 +739,7 @@ export function generateBackgroundActivity(
               durationMinutes - arrival,
             ),
           ),
-        `${device.id}-net-${index}`,
+        `d${dayIndex}-${device.id}-net-${index}`,
         {
           type: "NETWORK_CONNECTION",
           source: "network",
@@ -718,6 +791,7 @@ export function generateBackgroundActivity(
 
         push(
           arrival +
+            dayOffset +
             cursor.nextInt(
               5,
               Math.max(
@@ -725,7 +799,7 @@ export function generateBackgroundActivity(
                 durationMinutes - arrival,
               ),
             ),
-          `${user.id}-file`,
+          `d${dayIndex}-${user.id}-file`,
           {
             type: "FILE_ACCESSED",
             source: "file_server",
@@ -744,6 +818,7 @@ export function generateBackgroundActivity(
         );
       }
     }
+  }
   }
 
   // -----------------------------------------------------------------------

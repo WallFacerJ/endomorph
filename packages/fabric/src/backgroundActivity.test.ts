@@ -10,6 +10,7 @@ import {
 } from "@endomorph/simulation";
 
 import {
+  DEFAULT_ACTIVITY_OPTIONS,
   generateBackgroundActivity,
 } from "./backgroundActivity.js";
 
@@ -162,13 +163,18 @@ describe("generateBackgroundActivity", () => {
       );
     });
 
-    it("keeps every event inside the generated day", () => {
+    it("keeps every event inside the generated history window", () => {
       const start = Date.parse(
         enterprise.profile.startTime,
       );
 
       const end =
-        start + 10 * 60 * 60 * 1000;
+        start +
+        DEFAULT_ACTIVITY_OPTIONS.days *
+          24 *
+          60 *
+          60 *
+          1000;
 
       for (const event of activity) {
         const at = Date.parse(
@@ -181,6 +187,232 @@ describe("generateBackgroundActivity", () => {
 
         expect(at).toBeLessThan(end);
       }
+    });
+  });
+
+  describe("multi-day baseline", () => {
+    // The point of history is that it makes an observation anomalous.
+    // "This account signed in from an address it has never used" is
+    // unanswerable against one day. These assert the baseline is real.
+    const successfulLogins =
+      activity.filter(
+        (event) =>
+          event.type ===
+          "AUTH_LOGIN_SUCCEEDED",
+      );
+
+    function loginsFor(userId: string) {
+      return successfulLogins.filter(
+        (event) =>
+          event.type ===
+            "AUTH_LOGIN_SUCCEEDED" &&
+          event.payload.userId ===
+            userId,
+      );
+    }
+
+    it("spans the configured number of days", () => {
+      const days = new Set(
+        activity.map((event) =>
+          event.timestamp.slice(0, 10),
+        ),
+      );
+
+      expect(days.size).toBe(
+        DEFAULT_ACTIVITY_OPTIONS.days,
+      );
+    });
+
+    it("quietens down at the weekend", () => {
+      const perDay = new Map<
+        string,
+        number
+      >();
+
+      for (const event of activity) {
+        const day =
+          event.timestamp.slice(0, 10);
+
+        perDay.set(
+          day,
+          (perDay.get(day) ?? 0) + 1,
+        );
+      }
+
+      const counts = [
+        ...perDay.entries(),
+      ].map(([day, count]) => ({
+        weekend: [0, 6].includes(
+          new Date(
+            `${day}T12:00:00.000Z`,
+          ).getUTCDay(),
+        ),
+        count,
+      }));
+
+      const weekdayMin = Math.min(
+        ...counts
+          .filter((c) => !c.weekend)
+          .map((c) => c.count),
+      );
+
+      const weekendMax = Math.max(
+        ...counts
+          .filter((c) => c.weekend)
+          .map((c) => c.count),
+      );
+
+      expect(weekendMax).toBeLessThan(
+        weekdayMin,
+      );
+    });
+
+    it("keeps each person on a stable source address", () => {
+      // A staff member works from their own workstation every day. This is
+      // precisely what makes the incident's foreign address stand out.
+      const workers =
+        enterprise.users.filter(
+          (user) =>
+            user.status === "active" &&
+            loginsFor(user.id).length >=
+              4,
+        );
+
+      expect(
+        workers.length,
+      ).toBeGreaterThan(20);
+
+      for (const user of workers) {
+        const addresses = new Set(
+          loginsFor(user.id).map(
+            (event) =>
+              event.type ===
+              "AUTH_LOGIN_SUCCEEDED"
+                ? event.payload.sourceIp
+                : undefined,
+          ),
+        );
+
+        expect(addresses.size).toBe(1);
+      }
+    });
+
+    it("keeps each person on a habitual subset of applications", () => {
+      const workers =
+        enterprise.users.filter(
+          (user) =>
+            loginsFor(user.id).length >=
+            6,
+        );
+
+      expect(
+        workers.length,
+      ).toBeGreaterThan(10);
+
+      for (const user of workers) {
+        const applications = new Set(
+          loginsFor(user.id).map(
+            (event) =>
+              event.type ===
+              "AUTH_LOGIN_SUCCEEDED"
+                ? event.payload
+                    .applicationId
+                : undefined,
+          ),
+        );
+
+        // Habitual, not exhaustive: nobody touches the whole estate.
+        expect(
+          applications.size,
+        ).toBeLessThan(
+          enterprise.applications.length,
+        );
+      }
+    });
+
+    it("keeps arrival times recognisable across days", () => {
+      const user = enterprise.users.find(
+        (candidate) =>
+          candidate.status === "active",
+      );
+
+      const arrivals = activity
+        .filter(
+          (event) =>
+            event.type ===
+              "SESSION_STARTED" &&
+            event.actorId?.startsWith(
+              "account-",
+            ) &&
+            event.subjectId?.includes(
+              user?.id ?? "__none__",
+            ),
+        )
+        .map((event) =>
+          Number(
+            event.timestamp.slice(11, 13),
+          ),
+        );
+
+      expect(
+        arrivals.length,
+      ).toBeGreaterThan(1);
+
+      // Same person, same rough hour each day.
+      expect(
+        Math.max(...arrivals) -
+          Math.min(...arrivals),
+      ).toBeLessThanOrEqual(2);
+    });
+
+    it("gives each day its own session identity", () => {
+      const sessions = new Set(
+        activity
+          .filter(
+            (event) =>
+              event.type ===
+              "SESSION_STARTED",
+          )
+          .map(
+            (event) => event.subjectId,
+          ),
+      );
+
+      // One shared session id across five days would make session analysis
+      // meaningless.
+      expect(
+        sessions.size,
+      ).toBeGreaterThan(
+        enterprise.users.length,
+      );
+    });
+
+    it("scales volume with the number of days", () => {
+      const oneDay =
+        generateBackgroundActivity(
+          enterprise,
+          { days: 1 },
+        );
+
+      expect(
+        activity.length,
+      ).toBeGreaterThan(oneDay.length);
+    });
+
+    it("rejects a non-positive day count", () => {
+      expect(() =>
+        generateBackgroundActivity(
+          enterprise,
+          { days: 0 },
+        ),
+      ).toThrow();
+
+      expect(() =>
+        generateBackgroundActivity(
+          enterprise,
+          { days: 1.5 },
+        ),
+      ).toThrow();
     });
   });
 

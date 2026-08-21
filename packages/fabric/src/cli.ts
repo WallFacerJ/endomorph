@@ -89,7 +89,7 @@ const DEFAULTS: CliOptions = {
   id: "scenario-generated-enterprise-001",
   name: "Generated enterprise: Finance account compromise",
   description:
-    "A compromised Finance account inside a generated 120-person enterprise. The chain is buried in a full working day of ordinary telemetry; nothing is pre-filtered.",
+    "A compromised Finance account inside a generated 120-person enterprise. Five days of ordinary working history precede the intrusion, so the account's normal devices, addresses, and applications are all observable. Nothing is pre-filtered.",
   organizationName: "Acme Financial",
   domain: "acme.test",
   startTime: "2026-08-20T08:00:00.000Z",

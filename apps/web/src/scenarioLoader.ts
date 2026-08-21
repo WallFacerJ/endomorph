@@ -32,7 +32,7 @@ export const SHIPPED_SCENARIOS:
     {
       path: "/scenarios/generated-enterprise.json",
       label:
-        "Generated enterprise (444 entities, 4.9k events)",
+        "Generated enterprise (444 entities, 17.9k events)",
     },
   ];
 

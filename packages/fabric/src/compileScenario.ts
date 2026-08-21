@@ -9,11 +9,13 @@ import {
 
 import {
   generateBackgroundActivity,
+  DEFAULT_ACTIVITY_OPTIONS,
   type ActivityOptions,
 } from "./backgroundActivity.js";
 
 import {
   generateIncident,
+  DEFAULT_INCIDENT_OPTIONS,
   type GeneratedIncident,
   type IncidentOptions,
 } from "./generateIncident.js";
@@ -21,6 +23,8 @@ import {
 import type {
   EnterpriseProfile,
 } from "./enterpriseProfile.js";
+
+const MINUTES_PER_DAY = 1440;
 
 /**
  * Compiles a generated enterprise, its background noise, and a planted
@@ -65,15 +69,33 @@ export function compileScenario(
     options.enterprise,
   );
 
+  const activityOptions = {
+    ...DEFAULT_ACTIVITY_OPTIONS,
+    ...options.activity,
+  };
+
   const background =
     generateBackgroundActivity(
       enterprise,
-      options.activity,
+      activityOptions,
     );
+
+  // The intrusion lands on the final generated day, so every earlier day is
+  // untouched baseline. That is what lets an analyst say the sign-in came
+  // from an address this account has never used.
+  const incidentDayOffset =
+    (activityOptions.days - 1) *
+    MINUTES_PER_DAY;
 
   const incident = generateIncident(
     enterprise,
-    options.incident,
+    {
+      ...options.incident,
+      startMinute:
+        incidentDayOffset +
+        (options.incident?.startMinute ??
+          DEFAULT_INCIDENT_OPTIONS.startMinute),
+    },
   );
 
   // Detection is "now" for the analyst. Background activity generated after

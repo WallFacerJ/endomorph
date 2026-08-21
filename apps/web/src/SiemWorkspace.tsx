@@ -13,6 +13,9 @@ import type {
 
 import "./SiemWorkspace.css";
 
+/** Rows rendered at once. Matches are still counted and faceted in full. */
+const RESULT_PAGE_SIZE = 200;
+
 interface SiemWorkspaceProps {
   records: readonly SiemEventRecord[];
   initialQuery?: string;
@@ -103,6 +106,19 @@ export function SiemWorkspace({
       order: "desc",
     }),
     [records, query, timePreset],
+  );
+
+  // A generated enterprise produces tens of thousands of records. Rendering
+  // a row per match locked the workspace for several seconds; capping the
+  // rendered page is also how a real SIEM behaves, and it reinforces that
+  // the tool is for querying rather than scrolling.
+  const visibleRecords = useMemo(
+    () =>
+      result.records.slice(
+        0,
+        RESULT_PAGE_SIZE,
+      ),
+    [result],
   );
 
   const selectedRecord =
@@ -322,7 +338,7 @@ export function SiemWorkspace({
                 </tr>
               </thead>
               <tbody>
-                {result.records.map((record) => (
+                {visibleRecords.map((record) => (
                   <tr
                     key={record.eventId}
                     className={
@@ -366,6 +382,23 @@ export function SiemWorkspace({
                 ))}
               </tbody>
             </table>
+
+            {result.total >
+              visibleRecords.length && (
+              <p className="siem-truncation-notice">
+                Showing the first{" "}
+                <strong>
+                  {visibleRecords.length}
+                </strong>{" "}
+                of{" "}
+                <strong>
+                  {result.total}
+                </strong>{" "}
+                matching events. Narrow
+                the query or time range to
+                bring the set into view.
+              </p>
+            )}
 
             {result.records.length === 0 && (
               <div className="siem-empty-state">
