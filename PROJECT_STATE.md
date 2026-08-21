@@ -18,7 +18,7 @@ Generator status: topology, five-day background activity with per-person habits,
 
 Case is now an incident-command graph: entities, connections, and indicators are derived from the analyst's collected evidence rather than retyped, with incident phase, hypotheses, tasks, and decisions as real workflow state.
 
-Remaining in Phase 1: the assessment model -- moving response work into tool context and hiding explicit objectives during professional-mode runs.
+Remaining in Phase 1: moving response work out of answer cards and into tool context, and scoring investigation coverage. The evidence graph makes coverage measurable for the first time, since it records which entities the analyst actually reached.
 
 Endomorph v1.0.0 is complete. The v1 architecture proved deterministic scenarios, correlated identity/EDR/SIEM projections, analyst case state, response outcomes, instructor review, and browser delivery.
 
@@ -120,7 +120,8 @@ Items 1-3 are delivered. The generator now supplies them with data at a scale th
 3. ~~Expand Identity into account/session/access/risk/history analysis rather than a summary panel.~~ **Done.**
 4. ~~Redesign Case into an incident-command graph connecting evidence, entities, hypotheses, tasks, findings, decisions, and response actions.~~ **Done.**
 5. Move professional response work out of obvious multiple-choice cards and into the relevant tool/system context. **Next.**
-6. Hide explicit objectives/scores during active professional-mode runs by default; preserve guided assistance as an optional mode.
+   Professional mode itself is done: runs hide the live objective checklist and running score until finalization, with guided mode available for onboarding.
+6. ~~Hide explicit objectives/scores during active professional-mode runs by default; preserve guided assistance as an optional mode.~~ **Done.**
 7. Design and build the Synthetic Infrastructure Fabric fidelity ladder: deterministic synthetic hosts -> isolated containers -> microVM/full VM where necessary.
 8. Add telemetry domains and scenario complexity only in service of genuinely deeper incidents.
 

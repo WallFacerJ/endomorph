@@ -32,7 +32,7 @@ Status: **in progress.**
 
 Goal: eliminate the "juvenile / surface-level / multiple-choice" feel before adding expensive infrastructure.
 
-Delivered so far: the SIEM, EDR, and Identity workspaces, the Fabric generator, and the Case / incident command redesign. Remaining: the assessment model.
+Delivered: the SIEM, EDR, and Identity workspaces, the Fabric generator, the Case / incident command redesign, and professional mode. Remaining: moving response work into tool context, and coverage-based scoring.
 
 ### Scope change - the Fabric generator moved into Phase 1
 
@@ -96,10 +96,12 @@ Status: **delivered.**
 
 ### Assessment model
 
-- professional mode hides explicit score/objectives during active work by default;
-- response actions move into relevant tool/system context rather than obvious answer cards;
-- retain optional guided mode for learning;
-- score investigation coverage, state outcomes, harmful actions, timing/process, and evidence quality where deterministically measurable.
+Status: **partially delivered.**
+
+- ~~professional mode hides explicit score/objectives during active work by default~~ **done** -- runs default to professional; the live objective checklist and running score are hidden until finalization;
+- ~~retain optional guided mode for learning~~ **done** -- guided restores the scaffolding on the same environment, persisted across reloads;
+- response actions move into relevant tool/system context rather than obvious answer cards -- **remaining**;
+- score investigation coverage, state outcomes, harmful actions, timing/process, and evidence quality where deterministically measurable -- **remaining**. The evidence graph now makes coverage measurable, since it knows which entities an analyst actually reached.
 
 Exit criteria:
 

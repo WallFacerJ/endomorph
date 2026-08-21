@@ -108,6 +108,12 @@ A normal run is intentionally simple:
 
 Student mode does not reveal ground truth or authored response-quality rationale before submission.
 
+## Professional and guided modes
+
+Runs default to **professional**: no live objective checklist and no running score while you work. The evidence, tools, and response actions are identical — only the answer key is absent. Assessment appears in full once you finalize.
+
+**Guided** restores the checklist and running score for onboarding, layered onto the same environment rather than a separate, simpler product. Switch with the **Mode** control; the choice persists across reloads.
+
 ## Instructor mode
 
 Use the **Instructor mode** control in the app, or add `?mode=instructor` to a scenario URL. Ground truth is shown only after the investigation is finalized.

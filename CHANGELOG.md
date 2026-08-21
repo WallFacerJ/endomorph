@@ -27,6 +27,12 @@ Renamed to **Endomorph**, and the enterprise generator arrives.
 - Incident phase, hypotheses with supported/refuted status, tasks with owners, and decisions are real workflow state.
 - The incident report is assembled from case state rather than authored separately.
 
+### Changed — professional mode is the default
+
+- Runs no longer show a live objective checklist or a running score above the response cards during active work. Both turned remediation into optimising a visible number rather than judging an incident.
+- Assessment still appears in full at finalization; it just stops being available to optimise against mid-run.
+- Guided mode restores the scaffolding on the same environment, and the choice persists across reloads.
+
 ### Fixed
 
 - The SIEM rendered a table row per match, blocking for 6.5 seconds against a generated world. Results are now capped at 200 rendered rows with counts and facets still computed in full — a ~10x improvement.
