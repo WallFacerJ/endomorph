@@ -112,6 +112,71 @@ describe("scenario file schema", () => {
     });
   });
 
+  it("accepts optional deterministic response assessment metadata", () => {
+    const input =
+      createValidFile() as {
+        scenario: {
+          actions: Array<
+            Record<string, unknown>
+          >;
+        };
+      };
+
+    input.scenario.actions[0].assessment = {
+      penalty: 25,
+      rationale:
+        "This response creates avoidable exposure.",
+    };
+
+    expect(
+      parseScenarioFile(input)
+        .scenario.actions[0]
+        .assessment,
+    ).toEqual({
+      penalty: 25,
+      rationale:
+        "This response creates avoidable exposure.",
+    });
+  });
+
+  it("rejects malformed response assessment metadata", () => {
+    const negative =
+      createValidFile() as {
+        scenario: {
+          actions: Array<
+            Record<string, unknown>
+          >;
+        };
+      };
+
+    negative.scenario.actions[0].assessment = {
+      penalty: -1,
+      rationale: "Invalid penalty.",
+    };
+
+    expect(() =>
+      parseScenarioFile(negative),
+    ).toThrow();
+
+    const blankRationale =
+      createValidFile() as {
+        scenario: {
+          actions: Array<
+            Record<string, unknown>
+          >;
+        };
+      };
+
+    blankRationale.scenario.actions[0].assessment = {
+      penalty: 10,
+      rationale: "",
+    };
+
+    expect(() =>
+      parseScenarioFile(blankRationale),
+    ).toThrow();
+  });
+
   it("rejects unsupported file versions", () => {
     const input =
       createValidFile() as {

@@ -39,6 +39,11 @@ function loadScenario() {
   );
 }
 
+const completeResponse = [
+  "revoke_compromised_session",
+  "disable_compromised_account",
+] as const;
+
 describe("scenario finalization", () => {
   it("fails a zero-progress response only when explicitly finalized", () => {
     const scenario = loadScenario();
@@ -70,20 +75,16 @@ describe("scenario finalization", () => {
   it("finalizes partial remediation as failed without changing its 50% score", () => {
     const scenario = loadScenario();
     const [firstActionId] =
-      scenario.investigation
-        .responseActionIds;
-
-    expect(firstActionId)
-      .toBeDefined();
+      completeResponse;
 
     const active = getScenarioState(
       scenario,
-      [firstActionId!],
+      [firstActionId],
     );
     const finalized =
       finalizeScenarioState(
         scenario,
-        [firstActionId!],
+        [firstActionId],
       );
 
     expect(active.outcome.status)
@@ -102,18 +103,15 @@ describe("scenario finalization", () => {
 
   it("finalizes a complete response as succeeded", () => {
     const scenario = loadScenario();
-    const actionIds =
-      scenario.investigation
-        .responseActionIds;
 
     const active = getScenarioState(
       scenario,
-      actionIds,
+      completeResponse,
     );
     const finalized =
       finalizeScenarioState(
         scenario,
-        actionIds,
+        completeResponse,
       );
 
     expect(active.outcome.status)
@@ -131,18 +129,17 @@ describe("scenario finalization", () => {
   it("repeats finalization deterministically", () => {
     const scenario = loadScenario();
     const [firstActionId] =
-      scenario.investigation
-        .responseActionIds;
+      completeResponse;
 
     const first =
       finalizeScenarioState(
         scenario,
-        [firstActionId!],
+        [firstActionId],
       );
     const second =
       finalizeScenarioState(
         scenario,
-        [firstActionId!],
+        [firstActionId],
       );
 
     expect(second)
@@ -155,8 +152,7 @@ describe("scenario finalization", () => {
     const finalized =
       finalizeScenarioState(
         scenario,
-        scenario.investigation
-          .responseActionIds,
+        completeResponse,
       );
     const reset =
       getScenarioState(scenario);

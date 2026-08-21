@@ -57,6 +57,7 @@ describe("editable scenario fixture", () => {
     ).toEqual([
       "revoke_compromised_session",
       "disable_compromised_account",
+      "restore_compromised_account_access",
     ]);
 
     expect(
@@ -112,7 +113,10 @@ describe("editable scenario fixture", () => {
     const complete =
       getScenarioState(
         scenario,
-        context.responseActionIds,
+        [
+          "revoke_compromised_session",
+          "disable_compromised_account",
+        ],
       );
 
     expect(

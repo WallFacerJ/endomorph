@@ -44,6 +44,8 @@ describe("scenario scoring", () => {
     ).toEqual({
       completedObjectives: 0,
       totalObjectives: 2,
+      objectivePercentage: 0,
+      responsePenalty: 0,
       percentage: 0,
     });
   });
@@ -65,11 +67,58 @@ describe("scenario scoring", () => {
     expect(first).toEqual({
       completedObjectives: 2,
       totalObjectives: 3,
+      objectivePercentage: 67,
+      responsePenalty: 0,
       percentage: 67,
     });
   });
 
-  it("returns one hundred for full completion", () => {
+  it("subtracts deterministic response penalties from objective completion", () => {
+    expect(
+      evaluateScenarioScore(
+        createOutcome([
+          true,
+          true,
+        ]),
+        [10, 15],
+      ),
+    ).toEqual({
+      completedObjectives: 2,
+      totalObjectives: 2,
+      objectivePercentage: 100,
+      responsePenalty: 25,
+      percentage: 75,
+    });
+  });
+
+  it("clamps the final percentage at zero", () => {
+    expect(
+      evaluateScenarioScore(
+        createOutcome([
+          true,
+          false,
+        ]),
+        [75],
+      ),
+    ).toMatchObject({
+      objectivePercentage: 50,
+      responsePenalty: 75,
+      percentage: 0,
+    });
+  });
+
+  it("rejects invalid response penalties", () => {
+    expect(() =>
+      evaluateScenarioScore(
+        createOutcome([true]),
+        [-1],
+      ),
+    ).toThrow(
+      "Scenario response penalty must be a finite non-negative number",
+    );
+  });
+
+  it("returns one hundred for full completion without penalties", () => {
     expect(
       evaluateScenarioScore(
         createOutcome([
@@ -80,6 +129,8 @@ describe("scenario scoring", () => {
     ).toEqual({
       completedObjectives: 2,
       totalObjectives: 2,
+      objectivePercentage: 100,
+      responsePenalty: 0,
       percentage: 100,
     });
   });
@@ -93,6 +144,8 @@ describe("scenario scoring", () => {
     ).toEqual({
       completedObjectives: 0,
       totalObjectives: 0,
+      objectivePercentage: 0,
+      responsePenalty: 0,
       percentage: 0,
     });
   });

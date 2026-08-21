@@ -22,6 +22,8 @@ export function ScenarioResultPanel({
 }: ScenarioResultPanelProps) {
   const succeeded =
     status === "succeeded";
+  const penalized =
+    score.responsePenalty > 0;
 
   return (
     <section
@@ -51,7 +53,7 @@ export function ScenarioResultPanel({
 
         <div className="result-score">
           <strong>{score.percentage}%</strong>
-          <span>Objective score</span>
+          <span>Final score</span>
         </div>
       </div>
 
@@ -60,6 +62,20 @@ export function ScenarioResultPanel({
           <span>Objectives</span>
           <strong>
             {score.completedObjectives}/{score.totalObjectives}
+          </strong>
+        </div>
+        <div>
+          <span>Objective score</span>
+          <strong>
+            {score.objectivePercentage}%
+          </strong>
+        </div>
+        <div>
+          <span>Response penalty</span>
+          <strong>
+            {score.responsePenalty > 0
+              ? `−${score.responsePenalty}`
+              : "0"}
           </strong>
         </div>
         <div>
@@ -76,8 +92,14 @@ export function ScenarioResultPanel({
         </div>
       </div>
 
+      {penalized && (
+        <p className="result-note">
+          One or more submitted response actions carried a deterministic response-quality penalty. Objective completion and response quality are shown separately so the final score remains explainable.
+        </p>
+      )}
+
       <p className="result-note">
-        Score is based only on scenario response objectives. Evidence and finding counts are report context and do not affect the score in this milestone.
+        Final score equals objective completion minus authored response-quality penalties, clamped to 0–100. Evidence and finding counts are report context and do not affect the score.
       </p>
     </section>
   );

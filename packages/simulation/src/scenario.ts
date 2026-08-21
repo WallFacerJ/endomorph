@@ -36,6 +36,12 @@ import {
   validateWorldState,
 } from "./worldValidation";
 
+export interface ScenarioActionAssessment {
+  penalty: number;
+
+  rationale: string;
+}
+
 export interface ScenarioAction {
   id: string;
 
@@ -44,6 +50,8 @@ export interface ScenarioAction {
   description: string;
 
   events: readonly SimulationEvent[];
+
+  assessment?: ScenarioActionAssessment;
 }
 
 export interface ScenarioInvestigationContext {
@@ -139,6 +147,29 @@ function requireUniqueActionIds(
     }
 
     seen.add(action.id);
+
+    if (action.assessment) {
+      if (
+        !Number.isInteger(
+          action.assessment.penalty,
+        ) ||
+        action.assessment.penalty < 0 ||
+        action.assessment.penalty > 100
+      ) {
+        throw new Error(
+          `Scenario ${scenario.id} action ${action.id} defines invalid response penalty: ${action.assessment.penalty}`,
+        );
+      }
+
+      if (
+        action.assessment.rationale
+          .trim().length === 0
+      ) {
+        throw new Error(
+          `Scenario ${scenario.id} action ${action.id} must define a non-empty assessment rationale.`,
+        );
+      }
+    }
   }
 }
 
@@ -263,6 +294,17 @@ function resolveActions(
   });
 }
 
+function responsePenalties(
+  actions: readonly ScenarioAction[],
+): readonly number[] {
+  return actions.flatMap(
+    (action) =>
+      action.assessment
+        ? [action.assessment.penalty]
+        : [],
+  );
+}
+
 export function getScenarioState(
   scenario: ScenarioDefinition,
   performedActionIds:
@@ -301,6 +343,8 @@ export function getScenarioState(
       ...performedActionIds,
     ],
     outcome,
+    // Active investigation deliberately exposes objective progress only.
+    // Response-quality assessment remains hidden until finalization.
     score:
       evaluateScenarioScore(outcome),
     finalized: false,
@@ -317,6 +361,11 @@ export function finalizeScenarioState(
       scenario,
       performedActionIds,
     );
+  const actions =
+    resolveActions(
+      scenario,
+      performedActionIds,
+    );
   const outcome =
     finalizeScenarioOutcome(
       active.outcome,
@@ -326,7 +375,10 @@ export function finalizeScenarioState(
     ...active,
     outcome,
     score:
-      evaluateScenarioScore(outcome),
+      evaluateScenarioScore(
+        outcome,
+        responsePenalties(actions),
+      ),
     finalized: true,
   };
 }

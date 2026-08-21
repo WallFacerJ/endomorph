@@ -386,6 +386,16 @@ export const scenarioEventSchema =
     alertCreatedEventSchema,
   ]);
 
+export const scenarioActionAssessmentSchema =
+  z.object({
+    penalty:
+      z.number()
+        .int()
+        .min(0)
+        .max(100),
+    rationale: nonEmptyStringSchema,
+  }).strict();
+
 export const scenarioActionSchema =
   z.object({
     id: nonEmptyStringSchema,
@@ -394,6 +404,9 @@ export const scenarioActionSchema =
     events:
       z.array(scenarioEventSchema)
         .min(1),
+    assessment:
+      scenarioActionAssessmentSchema
+        .optional(),
   }).strict();
 
 export const scenarioInvestigationSchema =
@@ -442,6 +455,9 @@ export type ScenarioWorldSeedSpec =
 
 export type ScenarioEventSpec =
   z.infer<typeof scenarioEventSchema>;
+
+export type ScenarioActionAssessmentSpec =
+  z.infer<typeof scenarioActionAssessmentSchema>;
 
 export type ScenarioActionSpec =
   z.infer<typeof scenarioActionSchema>;

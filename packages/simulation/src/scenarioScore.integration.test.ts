@@ -99,6 +99,9 @@ function createScenario():
       deviceId: "unused-device",
       sessionId: "unused-session",
       primaryActionId: "disable-account",
+      responseActionIds: [
+        "disable-account",
+      ],
     },
   };
 }
@@ -120,6 +123,8 @@ describe("scenario-state scoring", () => {
     expect(initial.score).toEqual({
       completedObjectives: 0,
       totalObjectives: 1,
+      objectivePercentage: 0,
+      responsePenalty: 0,
       percentage: 0,
     });
     expect(initial.outcome.status)
@@ -128,6 +133,8 @@ describe("scenario-state scoring", () => {
     expect(completed.score).toEqual({
       completedObjectives: 1,
       totalObjectives: 1,
+      objectivePercentage: 100,
+      responsePenalty: 0,
       percentage: 100,
     });
     expect(completed.outcome.status)

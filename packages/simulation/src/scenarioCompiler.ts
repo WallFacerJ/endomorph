@@ -165,15 +165,26 @@ export function compileScenarioDefinition(
         input.openingEvents,
       ),
     actions:
-      input.actions.map((action) => ({
-        id: action.id,
-        label: action.label,
-        description: action.description,
-        events:
-          structuredClone(
-            action.events,
-          ),
-      })),
+      input.actions.map((action) => {
+        const compiled: ScenarioAction = {
+          id: action.id,
+          label: action.label,
+          description: action.description,
+          events:
+            structuredClone(
+              action.events,
+            ),
+        };
+
+        if (action.assessment) {
+          compiled.assessment =
+            structuredClone(
+              action.assessment,
+            );
+        }
+
+        return compiled;
+      }),
     objectives:
       structuredClone(
         input.objectives,

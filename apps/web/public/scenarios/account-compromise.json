@@ -225,6 +225,28 @@
             }
           }
         ]
+      },
+      {
+        "id": "restore_compromised_account_access",
+        "label": "Restore account access",
+        "description": "Re-enable the affected identity account so the user can resume authentication.",
+        "assessment": {
+          "penalty": 25,
+          "rationale": "Re-enabling a known compromised account during incident response creates avoidable exposure and can undo containment."
+        },
+        "events": [
+          {
+            "id": "event-response-account-enabled",
+            "type": "ACCOUNT_ENABLED",
+            "timestamp": "2026-08-20T15:05:00Z",
+            "source": "identity",
+            "subjectId": "user-sarah-martinez",
+            "payload": {
+              "accountId": "account-smartinez",
+              "reason": "Analyst restored access to the affected account during incident response."
+            }
+          }
+        ]
       }
     ],
     "objectives": [
@@ -254,7 +276,8 @@
       "primaryActionId": "revoke_compromised_session",
       "responseActionIds": [
         "revoke_compromised_session",
-        "disable_compromised_account"
+        "disable_compromised_account",
+        "restore_compromised_account_access"
       ]
     }
   }
