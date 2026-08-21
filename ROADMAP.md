@@ -113,6 +113,7 @@ Implemented:
 - Versioned deterministic snapshot serialization/deserialization
 - Minimal deterministic scenario runtime over opening history and response events
 - Pure deterministic scenario objective/outcome evaluation
+- Pure equal-weight deterministic scenario scoring from objective completion
 - Automated determinism and replay-equivalence tests
 
 Remaining:
@@ -212,7 +213,7 @@ Exit criteria:
 
 ## Phase 6 - Analyst and Instructor Experience
 
-Status: in progress; first evidence-backed analyst loop now has explicit response success criteria.
+Status: in progress; the first evidence-backed analyst loop now has explicit objectives, deterministic success, and a deterministic post-incident score.
 
 Goal: turn the runtime into a usable cyber-range training platform.
 
@@ -232,16 +233,19 @@ Implemented analyst slice:
 - Case state preserved through containment and cleared by reset
 - Analyst-visible response objectives driven by runtime outcome state
 - Explicit transition from scenario in-progress to succeeded when all objectives are met
-- Reset returns objective progress to its deterministic initial state
+- Equal-weight deterministic objective-completion score
+- Post-incident result panel with objective score and response/case context
+- Evidence and findings remain visible in results but are not secretly graded
+- Reset returns objective progress and score to their deterministic initial state
 
 Remaining:
 
 - Multiple containment/remediation choices
+- Response-quality scoring once multiple choices exist
 - Instructor controls
 - Hidden ground truth
-- Deterministic scoring
 - Timeline comparison
-- Post-incident report/outcome summary
+- Richer post-incident report
 
 Exit criteria:
 
