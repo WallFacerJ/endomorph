@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Complete the first analyst investigation loop with deterministic scoring and a post-incident outcome summary built on explicit scenario objectives, while preserving the separation between canonical world state, scenario ground truth, and analyst knowledge.
+Expand the first complete analyst loop with multiple remediation choices and richer deterministic evaluation, while preserving the separation between canonical world state, scenario ground truth, analyst knowledge, and assessment logic.
 
 ## Completed
 
@@ -81,14 +81,19 @@ Complete the first analyst investigation loop with deterministic scoring and a p
 - Account-compromise response goals requiring session revocation and account disablement
 - Investigation objective-progress UI driven directly by runtime outcome state
 - Reset returns objective progress to the initial deterministic state
-- Automated test coverage across domain, schema, simulation, scenario, analyst-case, and outcome boundaries
+- Pure equal-weight deterministic scenario score derived from objective completion
+- Scenario state exposes completed-objective count, total-objective count, and deterministic percentage
+- Post-incident result panel appears only after runtime success
+- Post-incident report shows response-action, evidence, and finding counts without secretly grading analyst-authored content
+- Deterministic score coverage for zero, partial, full, repeated, and reset evaluation
+- Automated test coverage across domain, schema, simulation, scenario, analyst-case, outcome, and scoring boundaries
 
 ## Next Milestones
 
-1. Add deterministic scoring and a post-incident outcome summary derived from explicit objectives and analyst actions
-2. Add multiple containment/remediation choices once scoring can distinguish response quality
+1. Add multiple containment/remediation choices so deterministic scoring can distinguish response quality and unnecessary actions
+2. Add explicit failure conditions and richer scenario outcome states where alternative responses require them
 3. Add hidden ground-truth metadata and instructor-facing evaluation only after the student investigation loop is stable
-4. Add branching, triggers, richer failure states, and scenario transitions only when the first investigation loop requires them
+4. Add branching, triggers, and richer scenario transitions only when demonstrated scenarios require them
 5. Expand cybersecurity telemetry only where scenario or projection requirements justify it
 
 ## Architectural Direction

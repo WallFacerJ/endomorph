@@ -19,6 +19,14 @@ import type {
   ScenarioOutcome,
 } from "./scenarioOutcome";
 
+import {
+  evaluateScenarioScore,
+} from "./scenarioScore";
+
+import type {
+  ScenarioScore,
+} from "./scenarioScore";
+
 import type {
   WorldState,
 } from "./worldState";
@@ -79,6 +87,8 @@ export interface ScenarioState {
   performedActionIds: readonly string[];
 
   outcome: ScenarioOutcome;
+
+  score: ScenarioScore;
 }
 
 function replayValidatedHistory(
@@ -272,16 +282,20 @@ export function getScenarioState(
     events,
   );
 
+  const outcome =
+    evaluateScenarioOutcome(
+      scenario.objectives,
+      world,
+    );
+
   return {
     world,
     events,
     performedActionIds: [
       ...performedActionIds,
     ],
-    outcome:
-      evaluateScenarioOutcome(
-        scenario.objectives,
-        world,
-      ),
+    outcome,
+    score:
+      evaluateScenarioScore(outcome),
   };
 }
