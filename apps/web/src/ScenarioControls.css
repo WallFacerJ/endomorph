@@ -12,59 +12,156 @@
 }
 
 .scenario-controls label > span {
-  color: #7890a7;
+  color: var(--pm-subtle, #7890a7);
   font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.09em;
+  font-weight: 750;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .scenario-controls select,
 .mode-button,
-.tester-guide-link {
-  height: 38px;
-  border: 1px solid #29415c;
-  border-radius: 8px;
-  background: #0b1a2c;
-  color: #dce7f4;
+.quick-test-menu > summary {
+  height: 40px;
+  border: 1px solid var(--pm-border-strong, #29415c);
+  border-radius: 10px;
+  background: var(--pm-control, #0b1a2c);
+  color: var(--pm-text, #dce7f4);
   font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
 }
 
 .scenario-controls select {
-  min-width: 210px;
+  min-width: 190px;
   padding: 0 34px 0 11px;
-}
-
-.mode-button,
-.tester-guide-link {
-  padding: 0 12px;
-}
-
-.mode-button {
   cursor: pointer;
 }
 
-.tester-guide-link {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
+.scenario-controls label:first-child select {
+  min-width: 220px;
+}
+
+.mode-button,
+.quick-test-menu > summary {
+  padding: 0 13px;
+  cursor: pointer;
 }
 
 .mode-button:hover,
 .mode-button.active,
-.tester-guide-link:hover {
-  border-color: #7c3aed;
-  background: rgba(124, 58, 237, 0.14);
-  color: #d8b4fe;
+.quick-test-menu > summary:hover,
+.quick-test-menu[open] > summary,
+.scenario-controls select:hover {
+  border-color: var(--pm-accent, #7c3aed);
+  background: var(--pm-accent-soft, rgba(124, 58, 237, 0.14));
+  color: var(--pm-text-strong, #f8fafc);
 }
 
-@media (max-width: 900px) {
+.scenario-controls select:focus-visible,
+.mode-button:focus-visible,
+.quick-test-menu > summary:focus-visible {
+  outline: 2px solid var(--pm-focus, #7dd3fc);
+  outline-offset: 2px;
+}
+
+.quick-test-menu {
+  position: relative;
+}
+
+.quick-test-menu > summary {
+  display: inline-flex;
+  align-items: center;
+  list-style: none;
+  user-select: none;
+}
+
+.quick-test-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.quick-test-menu > summary::after {
+  content: "?";
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 11px;
+  opacity: 0.78;
+}
+
+.quick-test-popover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(360px, calc(100vw - 32px));
+  padding: 18px;
+  border: 1px solid var(--pm-border-strong, #29415c);
+  border-radius: 14px;
+  background: var(--pm-panel-solid, #0b1a2c);
+  box-shadow: var(--pm-shadow, 0 24px 70px rgba(0, 0, 0, 0.3));
+}
+
+.quick-test-title {
+  margin: 0;
+  color: var(--pm-text-strong, #f8fafc);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.quick-test-popover ol {
+  margin: 12px 0 14px;
+  padding-left: 20px;
+  color: var(--pm-muted, #92a4bb);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.quick-test-popover li + li {
+  margin-top: 5px;
+}
+
+.quick-test-popover a {
+  color: var(--pm-accent, #7dd3fc);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.quick-test-popover a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1000px) {
   .scenario-controls {
     width: 100%;
   }
+}
 
+@media (max-width: 720px) {
   .scenario-controls label,
-  .scenario-controls select {
+  .scenario-controls select,
+  .mode-button,
+  .quick-test-menu,
+  .quick-test-menu > summary {
     width: 100%;
+  }
+
+  .quick-test-menu > summary {
+    justify-content: center;
+  }
+
+  .quick-test-popover {
+    right: auto;
+    left: 0;
   }
 }

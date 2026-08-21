@@ -283,3 +283,60 @@ test("instructor mode reveals ground truth only after finalization", async ({
     /mode=instructor/,
   );
 });
+
+test("quick test instructions are available in product", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByText(
+    "Quick test",
+    { exact: true },
+  ).click();
+
+  await expect(
+    page.getByText(
+      "First time? Five minutes is enough.",
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Finalize the investigation.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+});
+
+test("interface style persists across reloads", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const styleSelector = page.getByLabel(
+    "Select interface style",
+  );
+
+  await styleSelector.selectOption(
+    "graphite",
+  );
+  await expect(
+    page.locator("html"),
+  ).toHaveAttribute(
+    "data-theme",
+    "graphite",
+  );
+
+  await page.reload();
+
+  await expect(
+    page.getByLabel(
+      "Select interface style",
+    ),
+  ).toHaveValue("graphite");
+  await expect(
+    page.locator("html"),
+  ).toHaveAttribute(
+    "data-theme",
+    "graphite",
+  );
+});

@@ -8,7 +8,7 @@ Polymorph v1 is a deterministic, schema-driven cybersecurity training simulation
 
 The hosted build is deployed from `main` with GitHub Pages. If the deployment is temporarily unavailable, use the local quick start below.
 
-If you are testing Polymorph for the first time, start with [TESTER_GUIDE.md](TESTER_GUIDE.md). It includes a 10–15 minute unscripted test, edge cases worth trying, and a copy/paste feedback template.
+For a first-time test, you do not need to read the repository first. Open **Quick test** inside the app and follow the five-minute flow, or use [TESTER_GUIDE.md](TESTER_GUIDE.md) for the same short procedure plus optional deeper checks.
 
 ## What ships in v1
 
@@ -25,6 +25,7 @@ Polymorph v1 includes:
 - a read-only finalized case until reset;
 - post-finalization instructor ground-truth review;
 - three JSON-authored scenarios selectable in the UI;
+- two persisted professional interface styles: **Midnight SOC** and **Graphite**;
 - deterministic replay/unit/integration coverage plus browser-level Playwright tests.
 
 ## Included scenarios
@@ -39,15 +40,11 @@ Use the **Scenario** selector in the application to switch between them. Direct 
 
 A normal run is intentionally simple:
 
-1. Open an alert.
-2. Investigate the correlated timeline.
-3. Pivot to endpoint and identity context as needed.
-4. Collect evidence.
-5. Build an evidence-backed case finding.
-6. Choose response actions based on the evidence.
-7. Finalize the investigation.
-8. Review objective completion, any response penalty, and the final score.
-9. Reset or switch scenarios for another deterministic run.
+1. Open the alert and investigate what happened.
+2. Collect useful evidence and optionally write a case finding.
+3. Choose the response action(s) you think are appropriate.
+4. Finalize the investigation.
+5. Review the result and score.
 
 Student mode does not reveal ground truth or authored response-quality rationale before submission.
 
@@ -92,12 +89,14 @@ CI runs frozen dependency installation, build, lint, deterministic unit/integrat
 
 ## First-time user testing
 
-For friend/user testing, share two things:
+For a friend or first-time tester, the preferred procedure is deliberately short:
 
-1. the hosted app: https://wallfacerj.github.io/polymorph/
-2. the first-time protocol: [TESTER_GUIDE.md](TESTER_GUIDE.md)
+1. Share the hosted app: https://wallfacerj.github.io/polymorph/
+2. Ask them to stay in **Student mode** and use the in-product **Quick test** menu.
+3. Do not tell them the correct investigation or response path.
+4. After they finalize, ask where they hesitated, whether the result made sense, and what one thing they would change.
 
-The most valuable first test is **not** a guided demo. Ask the tester to stay in Student mode, investigate one scenario without being told the correct response, finalize it, then explain where they were confused and whether the result made sense. The guide includes a structured feedback template and optional failure/penalty/read-only checks.
+That five-minute pass is enough to produce useful usability feedback. [TESTER_GUIDE.md](TESTER_GUIDE.md) contains optional deeper checks and a copy/paste feedback template for testers who want to do more.
 
 ## Scenario authoring
 

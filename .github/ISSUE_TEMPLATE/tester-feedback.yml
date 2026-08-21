@@ -1,23 +1,12 @@
-name: Polymorph v1 tester feedback
-description: Share first-time user feedback or a reproducible v1 testing problem.
+name: Polymorph tester feedback
+description: Share a first-time impression, usability problem, or reproducible bug.
 title: "tester feedback: "
 labels: []
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for testing Polymorph v1. Please avoid including real credentials, secrets, personal information, or production incident data.
-
-  - type: dropdown
-    id: experience
-    attributes:
-      label: Cybersecurity experience
-      options:
-        - None
-        - Some / student
-        - Professional
-    validations:
-      required: true
+        Thanks for testing Polymorph. Short feedback is useful. Please do not include real credentials, secrets, personal information, or production incident data.
 
   - type: input
     id: browser
@@ -39,41 +28,44 @@ body:
     validations:
       required: true
 
-  - type: textarea
-    id: first-impression
+  - type: dropdown
+    id: experience
     attributes:
-      label: What did you think your goal was when the page first loaded?
+      label: Cybersecurity experience
+      options:
+        - None
+        - Some / student
+        - Professional
+
+  - type: textarea
+    id: impression
+    attributes:
+      label: What did you think you were supposed to do, and where did you get confused?
+      description: A few sentences is enough.
     validations:
       required: true
 
   - type: textarea
-    id: confusion
-    attributes:
-      label: Where did you first get confused or slowed down?
-    validations:
-      required: true
-
-  - type: textarea
-    id: response
-    attributes:
-      label: Which response action(s) did you choose, and why?
-
-  - type: textarea
-    id: scoring
+    id: result
     attributes:
       label: Did the final result and score make sense?
-      description: Mention anything unclear about objectives, penalties, or final score.
+      description: Mention anything unclear about objectives, penalties, or submission.
 
-  - type: textarea
-    id: realism
+  - type: dropdown
+    id: style
     attributes:
-      label: What felt most realistic/useful, and what felt artificial or too obvious?
+      label: Which interface style did you prefer?
+      options:
+        - Midnight SOC
+        - Graphite
+        - No preference
+        - I only tried one
 
   - type: textarea
     id: bug
     attributes:
-      label: Bugs or unexpected behavior
-      description: Include steps to reproduce, expected result, actual result, and screenshots/video if useful.
+      label: Anything broken or unexpected?
+      description: If useful, include what you did, what you expected, and what happened instead.
 
   - type: textarea
     id: one-change
