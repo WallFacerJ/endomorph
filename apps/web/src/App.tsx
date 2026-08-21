@@ -1,5 +1,6 @@
 import {
   type FormEvent,
+  useDeferredValue,
   useEffect,
   useMemo,
   useState,
@@ -22,6 +23,10 @@ import {
 import {
   PopOutWindow,
 } from "./PopOutWindow";
+
+import {
+  ReplayScrubber,
+} from "./ReplayScrubber";
 
 import {
   ScenarioOutcomePanel,
@@ -186,6 +191,8 @@ function ScenarioWorkspace({
     useState<AssistanceMode>(
       readInitialAssistance,
     );
+  const [replayPosition, setReplayPosition] =
+    useState<number | null>(null);
   const [walkthroughOpen, setWalkthroughOpen] =
     useState(false);
   const [walkthroughDetached, setWalkthroughDetached] =
@@ -229,22 +236,72 @@ function ScenarioWorkspace({
     ],
   );
 
+  // The slider stays responsive while the projection rebuild -- roughly
+  // 55ms at 4k events, more at 18k -- lags a frame behind.
+  const deferredReplayPosition =
+    useDeferredValue(replayPosition);
+
+  const viewedEvents = useMemo(() => {
+    if (
+      deferredReplayPosition === null
+    ) {
+      return scenarioState.events;
+    }
+
+    return scenarioState.events.slice(
+      0,
+      deferredReplayPosition,
+    );
+  }, [
+    scenarioState.events,
+    deferredReplayPosition,
+  ]);
+
+  const rewound =
+    replayPosition !== null;
+
+  const replayMarkers = useMemo(() => {
+    const truthIds = new Set(
+      (
+        scenario.groundTruth?.timeline ??
+        []
+      ).map((step) => step.eventId),
+    );
+
+    return scenarioState.events
+      .map((event, index) => ({
+        event,
+        index,
+      }))
+      .filter(({ event }) =>
+        truthIds.has(event.id),
+      )
+      .map(({ event, index }) => ({
+        index: index + 1,
+        eventId: event.id,
+        label: event.type,
+      }));
+  }, [
+    scenarioState.events,
+    scenario.groundTruth,
+  ]);
+
   const projections = useMemo(
     () => ({
       identity: rebuildProjection(
         identityProjection,
-        scenarioState.events,
+        viewedEvents,
       ),
       edr: rebuildProjection(
         edrProjection,
-        scenarioState.events,
+        viewedEvents,
       ),
       siem: rebuildProjection(
         siemProjection,
-        scenarioState.events,
+        viewedEvents,
       ),
     }),
-    [scenarioState.events],
+    [viewedEvents],
   );
 
   const siemByEventId = useMemo(
@@ -403,7 +460,11 @@ function ScenarioWorkspace({
   const collectEvidence = (
     eventId: string | undefined,
   ) => {
-    if (!eventId || scenarioState.finalized) {
+    if (
+      !eventId ||
+      rewound ||
+      scenarioState.finalized
+    ) {
       return;
     }
 
@@ -478,6 +539,7 @@ function ScenarioWorkspace({
     actionId: string,
   ) => {
     if (
+      rewound ||
       scenarioState.finalized ||
       performedActionIds.includes(
         actionId,
@@ -534,6 +596,7 @@ function ScenarioWorkspace({
       createIncidentCaseState(),
     );
     setQuestionAnswers({});
+    setReplayPosition(null);
     setResumed(false);
     clearRun(scenarioPath);
     setFindingTitle("");
@@ -676,6 +739,23 @@ function ScenarioWorkspace({
             </button>
           </div>
         </header>
+
+        <ReplayScrubber
+          totalEvents={
+            scenarioState.events.length
+          }
+          position={replayPosition}
+          renderedPosition={
+            viewedEvents.length
+          }
+          timestamp={
+            viewedEvents[
+              viewedEvents.length - 1
+            ]?.timestamp
+          }
+          markers={replayMarkers}
+          onScrub={setReplayPosition}
+        />
 
         {walkthroughDetached &&
           walkthroughAvailable && (

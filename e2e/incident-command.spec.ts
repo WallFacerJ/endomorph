@@ -63,8 +63,9 @@ test("case derives the incident picture from collected evidence", async ({
 
   // Query the attacker address, then bank a few of the results as evidence.
   await page
-    .locator("input")
-    .first()
+    // Target the query field by its accessible name. Ordering broke once
+    // the replay scrubber added a range input ahead of it.
+    .getByLabel("SIEM query")
     .fill(`sourceIp:${attackerIp}`);
 
   const rows = page.locator(
