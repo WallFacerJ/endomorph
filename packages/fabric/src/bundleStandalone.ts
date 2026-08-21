@@ -18,6 +18,10 @@ import {
 } from "node:fs";
 
 import {
+  gzipSync,
+} from "node:zlib";
+
+import {
   dirname,
   join,
   resolve,
@@ -166,9 +170,16 @@ function main(): void {
         "utf8",
       );
 
-      return `<script type="application/json" id="endomorph-scenario:/scenarios/${name}">${escapeForScriptTag(
-        json.trim(),
-      )}</script>`;
+      // Scenario JSON is enormously repetitive and compresses roughly 11x.
+      // Embedding it as plain text put a four-scenario bundle within 2MB of
+      // the size ceiling, which would have capped the plan library rather
+      // than the product capping it.
+      const compressed = gzipSync(
+        Buffer.from(json.trim(), "utf8"),
+        { level: 9 },
+      ).toString("base64");
+
+      return `<script type="application/octet-stream" data-encoding="gzip+base64" id="endomorph-scenario:/scenarios/${name}">${compressed}</script>`;
     })
     .join("\n");
 

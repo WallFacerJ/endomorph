@@ -110,9 +110,56 @@ export function compileScenarioPayload(
  * at all. Returns undefined in the normal hosted build, which falls through
  * to fetch.
  */
-function readEmbeddedScenario(
+async function inflateBase64Gzip(
+  base64: string,
+): Promise<unknown> {
+  if (
+    typeof DecompressionStream ===
+    "undefined"
+  ) {
+    throw new Error(
+      "This browser cannot decompress the embedded scenario (no DecompressionStream).",
+    );
+  }
+
+  const binary = atob(base64.trim());
+
+  const bytes = new Uint8Array(
+    binary.length,
+  );
+
+  for (
+    let index = 0;
+    index < binary.length;
+    index += 1
+  ) {
+    bytes[index] =
+      binary.charCodeAt(index);
+  }
+
+  const stream = new Blob([bytes])
+    .stream()
+    .pipeThrough(
+      new DecompressionStream("gzip"),
+    );
+
+  return JSON.parse(
+    await new Response(stream).text(),
+  );
+}
+
+/**
+ * Reads a scenario embedded in the page instead of fetching it.
+ *
+ * Scenario JSON is enormously repetitive -- 13.7MB across the shipped set,
+ * 1.2MB gzipped -- so the standalone build embeds each one gzipped and
+ * base64 encoded and inflates it here. Storing them as plain text put the
+ * single-file bundle within 2MB of the size ceiling with four scenarios,
+ * which would have capped the library rather than the product capping it.
+ */
+async function readEmbeddedScenario(
   path: string,
-): unknown {
+): Promise<unknown> {
   if (
     typeof document === "undefined"
   ) {
@@ -126,6 +173,17 @@ function readEmbeddedScenario(
 
   if (!element?.textContent) {
     return undefined;
+  }
+
+  const encoding =
+    element.getAttribute(
+      "data-encoding",
+    );
+
+  if (encoding === "gzip+base64") {
+    return inflateBase64Gzip(
+      element.textContent,
+    );
   }
 
   try {
@@ -143,7 +201,7 @@ export async function loadScenario(
   path: string,
 ): Promise<ScenarioDefinition> {
   const embedded =
-    readEmbeddedScenario(path);
+    await readEmbeddedScenario(path);
 
   if (embedded !== undefined) {
     return compileScenarioPayload(
