@@ -1,5 +1,34 @@
 # Changelog
 
+## Unreleased
+
+Renamed to **Endomorph**, and the enterprise generator arrives.
+
+### Renamed
+
+- `@polymorph/*` packages are now `@endomorph/*`, and every Polymorph identifier across code, config, workflows, and documentation is now Endomorph.
+- The scenario file discriminator changed from `polymorph-scenario` to `endomorph-scenario`. **Externally authored scenario files must update this field.**
+- The GitHub Pages base path moved from `/polymorph/` to `/endomorph/`, correcting a value that no longer matched the repository name.
+
+### Added — `packages/fabric`, the deterministic enterprise generator
+
+- `RandomCursor`, a splittable seeded PRNG addressed by fork path rather than draw order. Sibling streams cannot disturb each other, so editing content does not resequence the world.
+- Topology generation: staff across nine weighted departments, accounts, workstations, datacenter servers, the application estate, classified documents, and per-department network segments. 444 entities at default settings.
+- Five days of background activity with stable per-person habits — same workstation, same source address, habitual applications, recognisable arrival time — and quiet weekends. The baseline that makes an anomaly detectable.
+- Incident planting: password spray, sign-in from hosting infrastructure, encoded PowerShell, C2 beacon, domain-admin enumeration, restricted-document access, and SMB lateral movement, cast entirely from real generated entities.
+- Scenario compilation into the existing versioned contract, so generated worlds are playable by the current runtime with no parallel pipeline.
+- A generator CLI: `pnpm generate:scenario`.
+- A fourth shipped scenario: **Generated enterprise**, 444 entities and 17,904 events, of which 14 are the attack.
+
+### Fixed
+
+- The SIEM rendered a table row per match, blocking for 6.5 seconds against a generated world. Results are now capped at 200 rendered rows with counts and facets still computed in full — a ~10x improvement.
+- `pnpm generate:scenario -- --flag` failed with "Missing value for --", because the forwarded separator was parsed as a flag.
+
+### Changed
+
+- `pnpm lint` now covers all five packages instead of `apps/web` alone, and warnings fail the build.
+
 ## v1.0.0
 
 Endomorph v1 is the first shareable local/static cybersecurity training release.

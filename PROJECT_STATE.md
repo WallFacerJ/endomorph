@@ -12,7 +12,11 @@ Endomorph remains for synthetic, isolated security simulation. It must not becom
 
 **Enterprise Evolution Phase 1: deep investigation and professional tool identity.**
 
-The SIEM, EDR, and Identity workspaces are delivered. Phase 1 now also covers the deterministic enterprise generator in `packages/fabric`, pulled forward from the Fabric layer because Phase 1's own exit criteria depend on generated scale and noise that the three hand-authored scenarios cannot provide. See the scope change in `ROADMAP.md`. Case redesign and the assessment model remain.
+The SIEM, EDR, and Identity workspaces are delivered. Phase 1 now also covers the deterministic enterprise generator in `packages/fabric`, pulled forward from the Fabric layer because Phase 1's own exit criteria depend on generated scale and noise that the three hand-authored scenarios cannot provide. See the scope change in `ROADMAP.md`.
+
+Generator status: topology, five-day background activity with per-person habits, incident planting, and scenario compilation are all delivered. The shipped generated scenario is 444 entities and 17,904 events against the 15 and 34 of the largest hand-authored one.
+
+Remaining in Phase 1: the Case / incident-command redesign and the assessment model.
 
 Endomorph v1.0.0 is complete. The v1 architecture proved deterministic scenarios, correlated identity/EDR/SIEM projections, analyst case state, response outcomes, instructor review, and browser delivery.
 
@@ -60,7 +64,7 @@ A mature Endomorph run should feel like operating a living enterprise during an 
 - pnpm workspace/monorepo
 - canonical normalized `WorldState`
 - deterministic virtual clock and seeded pseudo-random generator
-- splittable deterministic random cursor for generator work (`packages/fabric`)
+- deterministic enterprise generator (`packages/fabric`): splittable random cursor, topology, multi-day background activity, incident planting, scenario compilation, and a generator CLI
 - typed authentication, identity, session, process, file, network, endpoint, and alert events
 - append-only event store
 - deterministic reducers, replay, snapshots, and snapshot-assisted replay
@@ -107,10 +111,12 @@ This surface is now considered the v1 baseline to be replaced/refactored where n
 
 ## Immediate implementation priorities
 
-1. Build a real SIEM workspace with search/query, time controls, facets, raw events, pivots, and enough noisy telemetry to require analysis.
-2. Build a real EDR workspace with endpoint inventory, process trees, file/network context, and endpoint-scoped actions.
-3. Expand Identity into account/session/access/risk/history analysis rather than a summary panel.
-4. Redesign Case into an incident-command graph connecting evidence, entities, hypotheses, tasks, findings, decisions, and response actions.
+Items 1-3 are delivered. The generator now supplies them with data at a scale that requires analysis rather than scrolling.
+
+1. ~~Build a real SIEM workspace with search/query, time controls, facets, raw events, pivots, and enough noisy telemetry to require analysis.~~ **Done.**
+2. ~~Build a real EDR workspace with endpoint inventory, process trees, file/network context, and endpoint-scoped actions.~~ **Done.**
+3. ~~Expand Identity into account/session/access/risk/history analysis rather than a summary panel.~~ **Done.**
+4. Redesign Case into an incident-command graph connecting evidence, entities, hypotheses, tasks, findings, decisions, and response actions. **Next.**
 5. Move professional response work out of obvious multiple-choice cards and into the relevant tool/system context.
 6. Hide explicit objectives/scores during active professional-mode runs by default; preserve guided assistance as an optional mode.
 7. Design and build the Synthetic Infrastructure Fabric fidelity ladder: deterministic synthetic hosts -> isolated containers -> microVM/full VM where necessary.
@@ -158,6 +164,17 @@ Working product layers are documented in `ENTERPRISE_VISION.md`:
 - **Endomorph Control** - enterprise management/readiness plane
 
 These names are working architecture/product concepts, not locked branding.
+
+## Known debt
+
+Recorded so it is decided deliberately rather than discovered later.
+
+- **`moduleResolution: "Bundler"` repo-wide.** Built packages cannot run under plain node, which is why `packages/fabric` carries explicit `.js` import extensions and the rest of the repo does not. Phases 5 and 7 assume a server runtime and headless authoring; `NodeNext` everywhere is the fix and it gets more expensive the longer it waits.
+- **Event vocabulary lives in `packages/simulation`.** `simulationEvent.ts` is pure type definitions importing only from `@endomorph/domain`, which already owns `DomainEvent`. Today `fabric` depends on the whole runtime for type names alone. Moving the vocabulary down into `domain` is a mechanical 29-import refactor.
+- **The generated scenario is committed as a 4.7MB build artifact.** It is in git so Pages and local development work immediately. It belongs in CI.
+- **Business context is generated but unread.** `packages/fabric` emits asset criticality, rationale, and business unit keyed by entity id; no Ops tool surfaces it yet.
+- **The planted incident is one hardcoded chain**, not an ATT&CK-mapped plan library. Phase 4 is where that becomes a real gap.
+- **SIEM search is a linear scan.** Fine at 17.9k events; the cross-domain incidents Phase 3 describes will need an index.
 
 ## Technology currently in use
 

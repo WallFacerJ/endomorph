@@ -17,6 +17,7 @@ endomorph/
 │   ├── schema/
 │   ├── domain/
 │   ├── simulation/
+│   ├── fabric/              # deterministic enterprise generator
 │   ├── event-store/
 │   ├── plugin-sdk/
 │   ├── ui/
