@@ -1,0 +1,108 @@
+.response-panel {
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.9rem;
+  background: rgba(15, 23, 42, 0.62);
+}
+
+.response-panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.response-panel-header h4,
+.response-action strong {
+  margin: 0;
+}
+
+.response-panel-header p,
+.response-action p {
+  margin: 0.35rem 0 0;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.response-eyebrow {
+  margin: 0 0 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.response-score {
+  min-width: 7rem;
+  text-align: right;
+}
+
+.response-score strong {
+  display: block;
+  font-size: 1.65rem;
+}
+
+.response-score span {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.response-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.75rem;
+}
+
+.response-action {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.75rem;
+  background: rgba(30, 41, 59, 0.62);
+}
+
+.response-action.performed {
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(6, 78, 59, 0.16);
+}
+
+.response-action-button {
+  width: 100%;
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(14, 116, 144, 0.2);
+  color: #e0f2fe;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.response-action-button:hover:not(:disabled) {
+  background: rgba(14, 116, 144, 0.32);
+}
+
+.response-action-button.performed,
+.response-action-button:disabled {
+  border-color: rgba(52, 211, 153, 0.35);
+  background: rgba(6, 78, 59, 0.2);
+  color: #a7f3d0;
+  cursor: default;
+}
+
+@media (max-width: 720px) {
+  .response-panel-header {
+    flex-direction: column;
+  }
+
+  .response-score {
+    text-align: left;
+  }
+}

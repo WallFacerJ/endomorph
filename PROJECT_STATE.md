@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Expand the first complete analyst loop with multiple remediation choices and richer deterministic evaluation, while preserving the separation between canonical world state, scenario ground truth, analyst knowledge, and assessment logic.
+Add explicit failure and finalization semantics to the now choice-driven analyst loop so incomplete response paths can terminate reproducibly without conflating analyst knowledge with ground truth or assessment logic.
 
 ## Completed
 
@@ -86,12 +86,19 @@ Expand the first complete analyst loop with multiple remediation choices and ric
 - Post-incident result panel appears only after runtime success
 - Post-incident report shows response-action, evidence, and finding counts without secretly grading analyst-authored content
 - Deterministic score coverage for zero, partial, full, repeated, and reset evaluation
-- Automated test coverage across domain, schema, simulation, scenario, analyst-case, outcome, and scoring boundaries
+- Ordered multi-action investigation response metadata with backward-compatible primary-action normalization
+- Semantic validation for empty, duplicate, missing, and inconsistent response-action declarations
+- Account-compromise containment split into independent session-revocation and account-disablement actions
+- Deterministic 50% partial objective progress after either response action and 100% success after both
+- Alternate response ordering produces the same final world while preserving performed-action order
+- Analyst remediation chooser renders scenario-declared actions, performed state, and runtime score
+- Case evidence and findings remain intact across individual remediation actions and clear only on reset
+- Automated test coverage across domain, schema, simulation, scenario, analyst-case, outcome, scoring, and remediation-choice boundaries
 
 ## Next Milestones
 
-1. Add multiple containment/remediation choices so deterministic scoring can distinguish response quality and unnecessary actions
-2. Add explicit failure conditions and richer scenario outcome states where alternative responses require them
+1. Add explicit finalization and failure outcome states so incomplete response paths can end deterministically instead of remaining permanently in progress
+2. Add response-quality penalties or evaluation only after scenarios include genuinely unnecessary or harmful response choices
 3. Add hidden ground-truth metadata and instructor-facing evaluation only after the student investigation loop is stable
 4. Add branching, triggers, and richer scenario transitions only when demonstrated scenarios require them
 5. Expand cybersecurity telemetry only where scenario or projection requirements justify it

@@ -21,6 +21,15 @@ import type {
   ScenarioInvestigationContext,
 } from "./scenario";
 
+type ScenarioInvestigationInput =
+  Omit<
+    ScenarioInvestigationContext,
+    "responseActionIds"
+  > & {
+    responseActionIds?:
+      readonly string[];
+  };
+
 import type {
   ScenarioObjective,
 } from "./scenarioOutcome";
@@ -44,7 +53,7 @@ export interface ScenarioDefinitionInput {
     readonly ScenarioObjective[];
 
   investigation:
-    ScenarioInvestigationContext;
+    ScenarioInvestigationInput;
 }
 
 function requireInvestigationContext(
@@ -93,16 +102,49 @@ function requireInvestigationContext(
     );
   }
 
-  const hasAction =
-    scenario.actions.some(
-      (action) =>
-        action.id ===
-        context.primaryActionId,
-    );
+  const actionIds = new Set(
+    scenario.actions.map(
+      (action) => action.id,
+    ),
+  );
 
-  if (!hasAction) {
+  if (!actionIds.has(context.primaryActionId)) {
     throw new Error(
       `Scenario ${scenario.id} investigation references missing primary action: ${context.primaryActionId}`,
+    );
+  }
+
+  if (context.responseActionIds.length === 0) {
+    throw new Error(
+      `Scenario ${scenario.id} investigation must expose at least one response action.`,
+    );
+  }
+
+  const responseActionIds =
+    new Set<string>();
+
+  for (const actionId of
+    context.responseActionIds) {
+    if (responseActionIds.has(actionId)) {
+      throw new Error(
+        `Scenario ${scenario.id} investigation defines duplicate response action id: ${actionId}`,
+      );
+    }
+
+    responseActionIds.add(actionId);
+
+    if (!actionIds.has(actionId)) {
+      throw new Error(
+        `Scenario ${scenario.id} investigation references missing response action: ${actionId}`,
+      );
+    }
+  }
+
+  if (!responseActionIds.has(
+    context.primaryActionId,
+  )) {
+    throw new Error(
+      `Scenario ${scenario.id} primary action must be included in responseActionIds: ${context.primaryActionId}`,
     );
   }
 }
@@ -138,6 +180,15 @@ export function compileScenarioDefinition(
       ),
     investigation: {
       ...input.investigation,
+      responseActionIds: [
+        ...(
+          input.investigation
+            .responseActionIds ?? [
+            input.investigation
+              .primaryActionId,
+          ]
+        ),
+      ],
     },
   };
 

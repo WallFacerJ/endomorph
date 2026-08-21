@@ -114,6 +114,7 @@ Implemented:
 - Minimal deterministic scenario runtime over opening history and response events
 - Pure deterministic scenario objective/outcome evaluation
 - Pure equal-weight deterministic scenario scoring from objective completion
+- Deterministic alternate-order response replay with equivalent final world state
 - Automated determinism and replay-equivalence tests
 
 Remaining:
@@ -182,6 +183,8 @@ Implemented:
 - Ordered opening event timeline
 - Deterministic analyst response actions
 - Investigation focus metadata for alert/user/account/device/session/action pivots
+- Ordered multi-action investigation response metadata with backward-compatible primary-action normalization
+- Semantic validation for response-action collection uniqueness and declared-action references
 - Semantic scenario compiler using canonical world/event validation and replay
 - Clear browser validation failures for malformed or semantically invalid scenario files
 - Editable account-compromise example scenario
@@ -191,6 +194,7 @@ Implemented:
 - Unique objective-id and semantic target validation
 - Deterministic `in_progress | succeeded` outcome evaluation from canonical state
 - Account-compromise response objectives for compromised-session revocation and account disablement
+- Independent deterministic session-revocation and account-disablement response actions
 
 Remaining:
 
@@ -198,7 +202,7 @@ Remaining:
 - Triggers
 - Richer state transitions
 - Branches
-- Explicit failure conditions and richer outcome states
+- Explicit finalization/failure conditions and richer outcome states
 - Ground-truth timeline metadata distinct from analyst-visible evidence
 - MITRE ATT&CK mappings where appropriate
 - Dedicated scenario linter/headless validation entry point
@@ -213,7 +217,7 @@ Exit criteria:
 
 ## Phase 6 - Analyst and Instructor Experience
 
-Status: in progress; the first evidence-backed analyst loop now has explicit objectives, deterministic success, and a deterministic post-incident score.
+Status: in progress; the first evidence-backed analyst loop now supports analyst-selected remediation actions, partial objective progress, deterministic success, and a deterministic post-incident score.
 
 Goal: turn the runtime into a usable cyber-range training platform.
 
@@ -223,14 +227,17 @@ Implemented analyst slice:
 - Correlated SIEM timeline
 - Identity and endpoint pivots
 - Synthetic process/network evidence views
-- Deterministic containment action
+- Analyst-selected deterministic remediation actions
+- Response-action chooser with descriptions and performed state
+- Deterministic 50% partial objective score after either account-compromise response action
+- Full 100% success after both response actions in either order
 - Scenario reset/replay
 - Manual browser testing of the first investigation
 - First-class analyst case state separate from canonical world state and scenario ground truth
 - Evidence collection by immutable simulation event id
 - Evidence collection from investigation, endpoint, and identity views
 - Analyst-authored findings with validated evidence links
-- Case state preserved through containment and cleared by reset
+- Case state preserved through remediation and cleared by reset
 - Analyst-visible response objectives driven by runtime outcome state
 - Explicit transition from scenario in-progress to succeeded when all objectives are met
 - Equal-weight deterministic objective-completion score
@@ -240,8 +247,8 @@ Implemented analyst slice:
 
 Remaining:
 
-- Multiple containment/remediation choices
-- Response-quality scoring once multiple choices exist
+- Explicit investigation finalization and failed outcome presentation
+- Response-quality scoring only after scenarios include genuinely unnecessary or harmful choices
 - Instructor controls
 - Hidden ground truth
 - Timeline comparison

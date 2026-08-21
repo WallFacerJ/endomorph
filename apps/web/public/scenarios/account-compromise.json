@@ -191,9 +191,9 @@
     ],
     "actions": [
       {
-        "id": "contain_incident",
-        "label": "Contain incident",
-        "description": "Revoke the active session and disable the compromised account.",
+        "id": "revoke_compromised_session",
+        "label": "Revoke compromised session",
+        "description": "Terminate the suspicious active identity session while preserving the account for further review.",
         "events": [
           {
             "id": "event-containment-session-revoked",
@@ -203,18 +203,25 @@
             "subjectId": "user-sarah-martinez",
             "payload": {
               "sessionId": "session-smartinez-compromised",
-              "reason": "Analyst containment after correlated endpoint alert."
+              "reason": "Analyst revoked the suspicious session after correlated endpoint alert."
             }
-          },
+          }
+        ]
+      },
+      {
+        "id": "disable_compromised_account",
+        "label": "Disable compromised account",
+        "description": "Disable the affected identity account to prevent additional authentication attempts.",
+        "events": [
           {
             "id": "event-containment-account-disabled",
             "type": "ACCOUNT_DISABLED",
-            "timestamp": "2026-08-20T15:05:01Z",
+            "timestamp": "2026-08-20T15:05:00Z",
             "source": "identity",
             "subjectId": "user-sarah-martinez",
             "payload": {
               "accountId": "account-smartinez",
-              "reason": "Analyst containment after correlated endpoint alert."
+              "reason": "Analyst disabled the compromised account after correlated endpoint alert."
             }
           }
         ]
@@ -244,7 +251,11 @@
       "accountId": "account-smartinez",
       "deviceId": "device-fin-lt-04",
       "sessionId": "session-smartinez-compromised",
-      "primaryActionId": "contain_incident"
+      "primaryActionId": "revoke_compromised_session",
+      "responseActionIds": [
+        "revoke_compromised_session",
+        "disable_compromised_account"
+      ]
     }
   }
 }

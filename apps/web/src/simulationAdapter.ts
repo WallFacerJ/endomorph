@@ -12,5 +12,7 @@ export {
 } from "@polymorph/simulation";
 
 export type {
+  ScenarioAction,
   ScenarioDefinition,
+  ScenarioScore,
 } from "@polymorph/simulation";

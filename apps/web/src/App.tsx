@@ -16,6 +16,10 @@ import {
 } from "./ScenarioResultPanel";
 
 import {
+  ResponseActionPanel,
+} from "./ResponseActionPanel";
+
+import {
   addAnalystFinding,
   collectAnalystEvidence,
   createAnalystCaseState,
@@ -214,17 +218,22 @@ function ScenarioWorkspace({
         "login_succeeded",
     );
 
-  const primaryAction =
-    scenario.actions.find(
-      (action) =>
-        action.id ===
-        context.primaryActionId,
+  const responseActions =
+    context.responseActionIds.flatMap(
+      (actionId) => {
+        const action =
+          scenario.actions.find(
+            (candidate) =>
+              candidate.id === actionId,
+          );
+
+        return action ? [action] : [];
+      },
     );
 
-  const contained =
-    performedActionIds.includes(
-      context.primaryActionId,
-    );
+  const responseComplete =
+    scenarioState.outcome.status ===
+    "succeeded";
 
   const isEvidenceCollected = (
     eventId: string | undefined,
@@ -300,15 +309,29 @@ function ScenarioWorkspace({
     }
   };
 
-  const containIncident = () => {
-    if (contained || !primaryAction) {
+  const performResponseAction = (
+    actionId: string,
+  ) => {
+    if (
+      performedActionIds.includes(
+        actionId,
+      ) ||
+      !responseActions.some(
+        (action) =>
+          action.id === actionId,
+      )
+    ) {
       return;
     }
 
-    setPerformedActionIds((current) => [
-      ...current,
-      primaryAction.id,
-    ]);
+    setPerformedActionIds((current) =>
+      current.includes(actionId)
+        ? current
+        : [
+            ...current,
+            actionId,
+          ],
+    );
     setActiveView("timeline");
   };
 
@@ -390,14 +413,16 @@ function ScenarioWorkspace({
           <div className="topbar-actions">
             <span
               className={
-                contained
+                responseComplete
                   ? "incident-state contained"
                   : "incident-state active"
               }
             >
-              {contained
-                ? "Contained"
-                : "Needs action"}
+              {responseComplete
+                ? "Response complete"
+                : performedActionIds.length > 0
+                  ? "Response in progress"
+                  : "Needs action"}
             </span>
             <button
               type="button"
@@ -489,22 +514,17 @@ function ScenarioWorkspace({
                 </p>
                 <h3>Correlated incident timeline</h3>
               </div>
-
-              <button
-                type="button"
-                className="primary-button"
-                onClick={containIncident}
-                disabled={contained}
-              >
-                {contained
-                  ? "Incident contained"
-                  : primaryAction?.label ??
-                    "Perform response"}
-              </button>
             </div>
 
             <ScenarioOutcomePanel
               outcome={scenarioState.outcome}
+            />
+
+            <ResponseActionPanel
+              actions={responseActions}
+              performedActionIds={scenarioState.performedActionIds}
+              score={scenarioState.score}
+              onPerform={performResponseAction}
             />
 
             {scenarioState.outcome.status === "succeeded" && (

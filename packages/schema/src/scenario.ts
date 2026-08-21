@@ -404,6 +404,10 @@ export const scenarioInvestigationSchema =
     deviceId: entityIdSchema,
     sessionId: entityIdSchema,
     primaryActionId: nonEmptyStringSchema,
+    responseActionIds:
+      z.array(nonEmptyStringSchema)
+        .min(1)
+        .optional(),
   }).strict();
 
 export const scenarioSpecSchema =

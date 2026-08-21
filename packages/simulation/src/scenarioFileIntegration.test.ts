@@ -53,6 +53,13 @@ describe("editable scenario fixture", () => {
       .toContain("PowerShell");
 
     expect(
+      context.responseActionIds,
+    ).toEqual([
+      "revoke_compromised_session",
+      "disable_compromised_account",
+    ]);
+
+    expect(
       state.world.accounts[
         context.accountId
       ]?.status,
@@ -65,36 +72,64 @@ describe("editable scenario fixture", () => {
     ).toBe("active");
   });
 
-  it("replays the JSON-defined primary action deterministically", () => {
+  it("replays partial and complete JSON-defined remediation deterministically", () => {
     const scenario =
       loadCompiledScenario();
     const context =
       scenario.investigation;
 
-    const first =
+    const partialFirst =
       getScenarioState(
         scenario,
         [context.primaryActionId],
       );
-    const second =
+    const partialSecond =
       getScenarioState(
         scenario,
         [context.primaryActionId],
       );
 
-    expect(second)
-      .toEqual(first);
+    expect(partialSecond)
+      .toEqual(partialFirst);
 
     expect(
-      first.world.accounts[
+      partialFirst.world.accounts[
+        context.accountId
+      ]?.status,
+    ).toBe("active");
+
+    expect(
+      partialFirst.world.sessions[
+        context.sessionId
+      ]?.status,
+    ).toBe("revoked");
+
+    expect(partialFirst.score.percentage)
+      .toBe(50);
+    expect(partialFirst.outcome.status)
+      .toBe("in_progress");
+
+    const complete =
+      getScenarioState(
+        scenario,
+        context.responseActionIds,
+      );
+
+    expect(
+      complete.world.accounts[
         context.accountId
       ]?.status,
     ).toBe("disabled");
 
     expect(
-      first.world.sessions[
+      complete.world.sessions[
         context.sessionId
       ]?.status,
     ).toBe("revoked");
+
+    expect(complete.score.percentage)
+      .toBe(100);
+    expect(complete.outcome.status)
+      .toBe("succeeded");
   });
 });

@@ -57,6 +57,9 @@ export interface ScenarioInvestigationContext {
   sessionId: string;
 
   primaryActionId: string;
+
+  responseActionIds:
+    readonly string[];
 }
 
 export interface ScenarioDefinition {
