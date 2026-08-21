@@ -21,12 +21,20 @@ import {
 } from "./Walkthrough";
 
 import {
+  gradeQuestions,
+} from "./questionGrading";
+
+import {
   PopOutWindow,
 } from "./PopOutWindow";
 
 import {
   ReplayScrubber,
 } from "./ReplayScrubber";
+
+import {
+  FirstRun,
+} from "./FirstRun";
 
 import {
   ScenarioOutcomePanel,
@@ -74,6 +82,7 @@ import {
   addAnalystFinding,
   collectAnalystEvidence,
   createAnalystCaseState,
+  assessInvestigationCoverage,
   createIncidentCaseState,
   edrProjection,
   finalizeScenarioState,
@@ -258,6 +267,18 @@ function ScenarioWorkspace({
 
   const instructorMode =
     showsAnswers(sessionMode);
+  const [firstRunDismissed, setFirstRunDismissed] =
+    useState(() => {
+      try {
+        return (
+          window.localStorage.getItem(
+            "endomorph-first-run",
+          ) === "dismissed"
+        );
+      } catch {
+        return false;
+      }
+    });
   const [replayPosition, setReplayPosition] =
     useState<number | null>(null);
   const [walkthroughOpen, setWalkthroughOpen] =
@@ -427,6 +448,41 @@ function ScenarioWorkspace({
     incidentCase,
     questionAnswers,
   ]);
+
+  const coverage = useMemo(() => {
+    const groundTruthIds = (
+      scenario.groundTruth?.timeline ??
+      []
+    ).map((step) => step.eventId);
+
+    if (groundTruthIds.length === 0) {
+      return undefined;
+    }
+
+    return assessInvestigationCoverage(
+      scenarioState.world,
+      projections.siem.events,
+      analystCase.collectedEventIds,
+      groundTruthIds,
+    );
+  }, [
+    scenario.groundTruth,
+    scenarioState.world,
+    projections.siem.events,
+    analystCase.collectedEventIds,
+  ]);
+
+  const questionScore = useMemo(
+    () =>
+      gradeQuestions(
+        scenario.questions ?? [],
+        questionAnswers,
+      ),
+    [
+      scenario.questions,
+      questionAnswers,
+    ],
+  );
 
   const walkthroughAvailable =
     instructorMode ||
@@ -896,6 +952,27 @@ function ScenarioWorkspace({
             </div>
           )}
 
+        {activeView === "alerts" &&
+          !firstRunDismissed && (
+            <FirstRun
+              onDismiss={() => {
+                setFirstRunDismissed(
+                  true,
+                );
+
+                try {
+                  window.localStorage.setItem(
+                    "endomorph-first-run",
+                    "dismissed",
+                  );
+                } catch {
+                  // Storage can be blocked; the dismissal still applies
+                  // for this session.
+                }
+              }}
+            />
+          )}
+
         {activeView === "alerts" && (
           <section className="workspace-section">
             <div className="section-heading">
@@ -1077,6 +1154,12 @@ function ScenarioWorkspace({
                 actionCount={scenarioState.performedActionIds.length}
                 evidenceCount={analystCase.collectedEventIds.length}
                 findingCount={analystCase.findings.length}
+                coverage={coverage}
+                questionScore={{
+                  earned: questionScore.earned,
+                  available:
+                    questionScore.available,
+                }}
               />
             )}
 

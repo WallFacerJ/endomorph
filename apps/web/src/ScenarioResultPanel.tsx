@@ -1,4 +1,5 @@
 import type {
+  InvestigationCoverage,
   ScenarioOutcomeStatus,
   ScenarioScore,
 } from "./simulationAdapter";
@@ -11,6 +12,23 @@ interface ScenarioResultPanelProps {
   actionCount: number;
   evidenceCount: number;
   findingCount: number;
+
+  /**
+   * How much of the incident the analyst actually reached.
+   *
+   * Objective scoring answers whether the world ended in the right state.
+   * It cannot separate an analyst who scoped the intrusion from one who read
+   * the alert, guessed correctly, and stopped -- both land the same score.
+   * Coverage answers that, and names what was missed so the number is
+   * explainable rather than opaque.
+   */
+  coverage?: InvestigationCoverage;
+
+  /** Points earned on the investigation questions, when a scenario has any. */
+  questionScore?: {
+    earned: number;
+    available: number;
+  };
 }
 
 export function ScenarioResultPanel({
@@ -19,6 +37,8 @@ export function ScenarioResultPanel({
   actionCount,
   evidenceCount,
   findingCount,
+  coverage,
+  questionScore,
 }: ScenarioResultPanelProps) {
   const succeeded =
     status === "succeeded";
@@ -82,6 +102,31 @@ export function ScenarioResultPanel({
           <span>Response actions</span>
           <strong>{actionCount}</strong>
         </div>
+        {coverage &&
+          coverage.entities.length >
+            0 && (
+            <div>
+              <span>
+                Incident coverage
+              </span>
+              <strong>
+                {coverage.percentage}%
+              </strong>
+            </div>
+          )}
+        {questionScore &&
+          questionScore.available >
+            0 && (
+            <div>
+              <span>Questions</span>
+              <strong>
+                {questionScore.earned}/
+                {
+                  questionScore.available
+                }
+              </strong>
+            </div>
+          )}
         <div>
           <span>Evidence collected</span>
           <strong>{evidenceCount}</strong>
@@ -91,6 +136,50 @@ export function ScenarioResultPanel({
           <strong>{findingCount}</strong>
         </div>
       </div>
+
+      {coverage &&
+        coverage.missed.length > 0 && (
+          <div className="result-coverage">
+            <p className="result-coverage-head">
+              Reached{" "}
+              <strong>
+                {coverage.reached.length}
+              </strong>{" "}
+              of{" "}
+              <strong>
+                {coverage.entities.length}
+              </strong>{" "}
+              entities involved in this
+              incident. Never opened:
+            </p>
+            <ul className="result-coverage-missed">
+              {coverage.missed.map(
+                (entity) => (
+                  <li key={entity.id}>
+                    <span className="result-coverage-kind">
+                      {entity.kind}
+                    </span>
+                    <span>
+                      {entity.label}
+                    </span>
+                  </li>
+                ),
+              )}
+            </ul>
+            <p className="result-note">
+              Coverage is measured by
+              comparing the entities
+              your collected evidence
+              touched against the
+              entities the incident
+              actually involved. A
+              correct containment
+              decision reached without
+              scoping the intrusion
+              still leaves gaps.
+            </p>
+          </div>
+        )}
 
       {penalized && (
         <p className="result-note">

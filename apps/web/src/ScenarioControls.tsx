@@ -215,28 +215,6 @@ export function ScenarioControls({
         </select>
       </label>
 
-      <details className="quick-test-menu">
-        <summary>Quick test</summary>
-        <div className="quick-test-popover">
-          <p className="quick-test-title">
-            First time? Five minutes is enough.
-          </p>
-          <ol>
-            <li>Open the alert and decide what happened.</li>
-            <li>Collect one or two useful pieces of evidence.</li>
-            <li>Choose the response you think is right.</li>
-            <li>Finalize the investigation.</li>
-            <li>Tell us where you hesitated or got confused.</li>
-          </ol>
-          <a
-            href="https://github.com/WallFacerJ/endomorph/blob/main/TESTER_GUIDE.md"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Optional deeper test guide
-          </a>
-        </div>
-      </details>
     </div>
   );
 }

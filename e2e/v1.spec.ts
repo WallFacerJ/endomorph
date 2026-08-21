@@ -335,27 +335,53 @@ test("instructor mode reveals ground truth only after finalization", async ({
   await expect(instructor).toHaveCount(0);
 });
 
-test("quick test instructions are available in product", async ({
+test("first-run orientation is present and dismissible", async ({
   page,
 }) => {
   await page.goto("/");
 
-  await page.getByText(
-    "Quick test",
-    { exact: true },
-  ).click();
+  // Onboarding used to hide behind a "Quick test" dropdown in the control
+  // row, which made it look like a setting and gave someone arriving cold
+  // no reason to open it. It is now the first thing on the alert queue.
+  const orientation = page.getByRole(
+    "region",
+    {
+      name: "How to work this incident",
+    },
+  );
+
+  await expect(orientation).toBeVisible();
+
+  // Each step names the console it happens in, so it doubles as a map of
+  // the sidebar.
+  for (const where of [
+    "Alerts",
+    "SIEM Search",
+    "Case",
+  ]) {
+    await expect(
+      orientation,
+    ).toContainText(where);
+  }
+
+  await orientation
+    .getByRole("button", {
+      name: "Got it",
+    })
+    .click();
 
   await expect(
-    page.getByText(
-      "First time? Five minutes is enough.",
-    ),
-  ).toBeVisible();
+    orientation,
+  ).toHaveCount(0);
+
+  // The dismissal sticks.
+  await page.reload();
+
   await expect(
-    page.getByText(
-      "Finalize the investigation.",
-      { exact: true },
-    ),
-  ).toBeVisible();
+    page.getByRole("region", {
+      name: "How to work this incident",
+    }),
+  ).toHaveCount(0);
 });
 
 test("interface style persists across reloads", async ({

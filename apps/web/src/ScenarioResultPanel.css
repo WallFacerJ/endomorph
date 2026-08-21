@@ -134,3 +134,40 @@
     grid-template-columns: 1fr;
   }
 }
+
+.result-coverage {
+  margin-top: 0.9rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.result-coverage-head {
+  margin: 0 0 0.5rem;
+  font-size: 0.84rem;
+}
+
+.result-coverage-missed {
+  list-style: none;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.result-coverage-missed li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  font-size: 0.76rem;
+}
+
+.result-coverage-kind {
+  font-size: 0.6rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}

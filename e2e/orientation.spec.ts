@@ -186,3 +186,38 @@ test("walkthrough steps explain reasoning, not just what happened", async ({
     reasoning.length,
   ).toBeGreaterThan(150);
 });
+
+test("the result reports coverage and names what was missed", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  // Finalize immediately: correct containment is possible without ever
+  // scoping the intrusion, and objective scoring cannot tell the two apart.
+  await page
+    .getByRole("button", {
+      name: "Open investigation",
+    })
+    .click();
+
+  await page
+    .getByRole("button", {
+      name: "Finalize investigation",
+    })
+    .click();
+
+  const result = page.getByRole(
+    "region",
+    { name: "Post-incident result" },
+  );
+
+  await expect(result).toContainText(
+    "Incident coverage",
+  );
+
+  // Naming what was never opened is what makes the number explainable
+  // rather than opaque.
+  await expect(result).toContainText(
+    "Never opened",
+  );
+});
