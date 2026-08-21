@@ -12,6 +12,7 @@ import type {
 
 import {
   evaluateScenarioOutcome,
+  finalizeScenarioOutcome,
 } from "./scenarioOutcome";
 
 import type {
@@ -92,6 +93,8 @@ export interface ScenarioState {
   outcome: ScenarioOutcome;
 
   score: ScenarioScore;
+
+  finalized: boolean;
 }
 
 function replayValidatedHistory(
@@ -300,5 +303,30 @@ export function getScenarioState(
     outcome,
     score:
       evaluateScenarioScore(outcome),
+    finalized: false,
+  };
+}
+
+export function finalizeScenarioState(
+  scenario: ScenarioDefinition,
+  performedActionIds:
+    readonly string[] = [],
+): ScenarioState {
+  const active =
+    getScenarioState(
+      scenario,
+      performedActionIds,
+    );
+  const outcome =
+    finalizeScenarioOutcome(
+      active.outcome,
+    );
+
+  return {
+    ...active,
+    outcome,
+    score:
+      evaluateScenarioScore(outcome),
+    finalized: true,
   };
 }

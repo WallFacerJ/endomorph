@@ -12,6 +12,16 @@
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.14);
 }
 
+.result-panel.failed {
+  border-color: rgba(248, 113, 113, 0.42);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(248, 113, 113, 0.1),
+      rgba(11, 26, 44, 0.88) 52%
+    );
+}
+
 .result-panel-heading {
   display: flex;
   align-items: flex-start;
@@ -40,6 +50,10 @@
   text-transform: uppercase;
 }
 
+.result-panel.failed .result-eyebrow {
+  color: #fca5a5;
+}
+
 .result-score {
   display: flex;
   flex: 0 0 auto;
@@ -53,6 +67,10 @@
   font-size: clamp(34px, 5vw, 48px);
   line-height: 1;
   letter-spacing: -0.05em;
+}
+
+.result-panel.failed .result-score strong {
+  color: #fca5a5;
 }
 
 .result-score span,
@@ -79,6 +97,10 @@
   border: 1px solid rgba(52, 211, 153, 0.16);
   border-radius: 9px;
   background: rgba(5, 13, 23, 0.42);
+}
+
+.result-panel.failed .result-metrics > div {
+  border-color: rgba(248, 113, 113, 0.16);
 }
 
 .result-metrics strong {

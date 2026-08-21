@@ -49,8 +49,13 @@ export interface ScenarioObjectiveResult {
   met: boolean;
 }
 
+export type ScenarioOutcomeStatus =
+  | "in_progress"
+  | "succeeded"
+  | "failed";
+
 export interface ScenarioOutcome {
-  status: "in_progress" | "succeeded";
+  status: ScenarioOutcomeStatus;
 
   objectives:
     readonly ScenarioObjectiveResult[];
@@ -130,5 +135,22 @@ export function evaluateScenarioOutcome(
         ? "succeeded"
         : "in_progress",
     objectives: results,
+  };
+}
+
+export function finalizeScenarioOutcome(
+  outcome: ScenarioOutcome,
+): ScenarioOutcome {
+  return {
+    status:
+      outcome.status === "succeeded"
+        ? "succeeded"
+        : "failed",
+    objectives:
+      outcome.objectives.map(
+        (objective) => ({
+          ...objective,
+        }),
+      ),
   };
 }

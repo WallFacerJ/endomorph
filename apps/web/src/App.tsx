@@ -24,6 +24,7 @@ import {
   collectAnalystEvidence,
   createAnalystCaseState,
   edrProjection,
+  finalizeScenarioState,
   getScenarioState,
   identityProjection,
   rebuildProjection,
@@ -94,6 +95,8 @@ function ScenarioWorkspace({
     );
   const [performedActionIds, setPerformedActionIds] =
     useState<string[]>([]);
+  const [finalized, setFinalized] =
+    useState(false);
   const [analystCase, setAnalystCase] =
     useState(() =>
       createAnalystCaseState(),
@@ -109,13 +112,19 @@ function ScenarioWorkspace({
 
   const scenarioState = useMemo(
     () =>
-      getScenarioState(
-        scenario,
-        performedActionIds,
-      ),
+      finalized
+        ? finalizeScenarioState(
+            scenario,
+            performedActionIds,
+          )
+        : getScenarioState(
+            scenario,
+            performedActionIds,
+          ),
     [
       scenario,
       performedActionIds,
+      finalized,
     ],
   );
 
@@ -231,9 +240,20 @@ function ScenarioWorkspace({
       },
     );
 
-  const responseComplete =
+  const responseSucceeded =
     scenarioState.outcome.status ===
     "succeeded";
+
+  const runStatusLabel =
+    scenarioState.finalized
+      ? responseSucceeded
+        ? "Succeeded"
+        : "Failed"
+      : responseSucceeded
+        ? "Objectives met"
+        : performedActionIds.length > 0
+          ? "Response in progress"
+          : "Needs action";
 
   const isEvidenceCollected = (
     eventId: string | undefined,
@@ -246,7 +266,7 @@ function ScenarioWorkspace({
   const collectEvidence = (
     eventId: string | undefined,
   ) => {
-    if (!eventId) {
+    if (!eventId || scenarioState.finalized) {
       return;
     }
 
@@ -263,6 +283,10 @@ function ScenarioWorkspace({
   const toggleFindingEvidence = (
     eventId: string,
   ) => {
+    if (scenarioState.finalized) {
+      return;
+    }
+
     setSelectedEvidenceIds((current) =>
       current.includes(eventId)
         ? current.filter(
@@ -280,6 +304,10 @@ function ScenarioWorkspace({
     event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+
+    if (scenarioState.finalized) {
+      return;
+    }
 
     try {
       const next = addAnalystFinding(
@@ -313,6 +341,7 @@ function ScenarioWorkspace({
     actionId: string,
   ) => {
     if (
+      scenarioState.finalized ||
       performedActionIds.includes(
         actionId,
       ) ||
@@ -335,8 +364,18 @@ function ScenarioWorkspace({
     setActiveView("timeline");
   };
 
+  const finalizeInvestigation = () => {
+    if (scenarioState.finalized) {
+      return;
+    }
+
+    setFinalized(true);
+    setActiveView("timeline");
+  };
+
   const resetScenario = () => {
     setPerformedActionIds([]);
+    setFinalized(false);
     setAnalystCase(
       createAnalystCaseState(),
     );
@@ -413,16 +452,13 @@ function ScenarioWorkspace({
           <div className="topbar-actions">
             <span
               className={
-                responseComplete
+                scenarioState.finalized &&
+                responseSucceeded
                   ? "incident-state contained"
                   : "incident-state active"
               }
             >
-              {responseComplete
-                ? "Response complete"
-                : performedActionIds.length > 0
-                  ? "Response in progress"
-                  : "Needs action"}
+              {runStatusLabel}
             </span>
             <button
               type="button"
@@ -514,6 +550,17 @@ function ScenarioWorkspace({
                 </p>
                 <h3>Correlated incident timeline</h3>
               </div>
+
+              <button
+                type="button"
+                className="primary-button"
+                onClick={finalizeInvestigation}
+                disabled={scenarioState.finalized}
+              >
+                {scenarioState.finalized
+                  ? "Investigation finalized"
+                  : "Finalize investigation"}
+              </button>
             </div>
 
             <ScenarioOutcomePanel
@@ -524,11 +571,13 @@ function ScenarioWorkspace({
               actions={responseActions}
               performedActionIds={scenarioState.performedActionIds}
               score={scenarioState.score}
+              finalized={scenarioState.finalized}
               onPerform={performResponseAction}
             />
 
-            {scenarioState.outcome.status === "succeeded" && (
+            {scenarioState.finalized && (
               <ScenarioResultPanel
+                status={scenarioState.outcome.status}
                 score={scenarioState.score}
                 actionCount={scenarioState.performedActionIds.length}
                 evidenceCount={analystCase.collectedEventIds.length}
@@ -617,7 +666,7 @@ function ScenarioWorkspace({
                                 event.eventId,
                               )
                             }
-                            disabled={collected}
+                            disabled={scenarioState.finalized || collected}
                           >
                             {collected
                               ? "Evidence collected"
@@ -697,6 +746,7 @@ function ScenarioWorkspace({
                     )
                   }
                   disabled={
+                    scenarioState.finalized ||
                     !process ||
                     isEvidenceCollected(
                       process.eventId,
@@ -739,6 +789,7 @@ function ScenarioWorkspace({
                     )
                   }
                   disabled={
+                    scenarioState.finalized ||
                     !connection ||
                     isEvidenceCollected(
                       connection.eventId,
@@ -830,6 +881,7 @@ function ScenarioWorkspace({
                   )
                 }
                 disabled={
+                  scenarioState.finalized ||
                   !loginActivity ||
                   isEvidenceCollected(
                     loginActivity.eventId,
@@ -904,6 +956,7 @@ function ScenarioWorkspace({
                             <input
                               type="checkbox"
                               checked={selected}
+                              disabled={scenarioState.finalized}
                               onChange={() =>
                                 toggleFindingEvidence(
                                   event.id,
@@ -945,6 +998,7 @@ function ScenarioWorkspace({
                     <input
                       type="text"
                       value={findingTitle}
+                      disabled={scenarioState.finalized}
                       onChange={(event) =>
                         setFindingTitle(
                           event.target.value,
@@ -958,6 +1012,7 @@ function ScenarioWorkspace({
                     Analyst summary
                     <textarea
                       value={findingSummary}
+                      disabled={scenarioState.finalized}
                       onChange={(event) =>
                         setFindingSummary(
                           event.target.value,
@@ -976,6 +1031,7 @@ function ScenarioWorkspace({
                       type="submit"
                       className="primary-button"
                       disabled={
+                        scenarioState.finalized ||
                         findingTitle.trim().length === 0 ||
                         findingSummary.trim().length === 0 ||
                         selectedEvidenceIds.length === 0

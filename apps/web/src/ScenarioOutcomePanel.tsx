@@ -8,6 +8,19 @@ interface ScenarioOutcomePanelProps {
   outcome: ScenarioOutcome;
 }
 
+function outcomeTitle(
+  outcome: ScenarioOutcome,
+): string {
+  switch (outcome.status) {
+    case "succeeded":
+      return "Scenario succeeded";
+    case "failed":
+      return "Scenario failed";
+    case "in_progress":
+      return "Scenario in progress";
+  }
+}
+
 export function ScenarioOutcomePanel({
   outcome,
 }: ScenarioOutcomePanelProps) {
@@ -27,9 +40,7 @@ export function ScenarioOutcomePanel({
             Response objectives
           </p>
           <h4>
-            {outcome.status === "succeeded"
-              ? "Scenario succeeded"
-              : "Scenario in progress"}
+            {outcomeTitle(outcome)}
           </h4>
         </div>
         <span className="outcome-count">

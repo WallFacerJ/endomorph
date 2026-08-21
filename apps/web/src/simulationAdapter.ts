@@ -4,6 +4,7 @@ export {
   compileScenarioDefinition,
   createAnalystCaseState,
   edrProjection,
+  finalizeScenarioState,
   getScenarioState,
   identityProjection,
   rebuildProjection,
@@ -14,5 +15,6 @@ export {
 export type {
   ScenarioAction,
   ScenarioDefinition,
+  ScenarioOutcomeStatus,
   ScenarioScore,
 } from "@polymorph/simulation";

@@ -115,6 +115,7 @@ Implemented:
 - Pure deterministic scenario objective/outcome evaluation
 - Pure equal-weight deterministic scenario scoring from objective completion
 - Deterministic alternate-order response replay with equivalent final world state
+- Explicit deterministic run finalization that does not append simulation events or mutate canonical world state
 - Automated determinism and replay-equivalence tests
 
 Remaining:
@@ -192,7 +193,8 @@ Implemented:
 - Scenario authoring documentation
 - Typed declarative account-status and session-status objectives
 - Unique objective-id and semantic target validation
-- Deterministic `in_progress | succeeded` outcome evaluation from canonical state
+- Deterministic active `in_progress | succeeded` outcome evaluation from canonical state
+- Explicit finalized `failed` outcome when the analyst submits incomplete exposed objectives
 - Account-compromise response objectives for compromised-session revocation and account disablement
 - Independent deterministic session-revocation and account-disablement response actions
 
@@ -202,7 +204,7 @@ Remaining:
 - Triggers
 - Richer state transitions
 - Branches
-- Explicit finalization/failure conditions and richer outcome states
+- Genuinely harmful/unnecessary response choices and explicit authored consequences when scenarios require them
 - Ground-truth timeline metadata distinct from analyst-visible evidence
 - MITRE ATT&CK mappings where appropriate
 - Dedicated scenario linter/headless validation entry point
@@ -217,7 +219,7 @@ Exit criteria:
 
 ## Phase 6 - Analyst and Instructor Experience
 
-Status: in progress; the first evidence-backed analyst loop now supports analyst-selected remediation actions, partial objective progress, deterministic success, and a deterministic post-incident score.
+Status: in progress; the first evidence-backed analyst loop now supports analyst-selected remediation, explicit submission, deterministic success/failure, and deterministic scoring.
 
 Goal: turn the runtime into a usable cyber-range training platform.
 
@@ -230,24 +232,27 @@ Implemented analyst slice:
 - Analyst-selected deterministic remediation actions
 - Response-action chooser with descriptions and performed state
 - Deterministic 50% partial objective score after either account-compromise response action
-- Full 100% success after both response actions in either order
+- Full 100% objective completion after both response actions in either order
+- Explicit `Finalize investigation` submission boundary
+- Finalized incomplete responses render failed results while preserving their partial score
+- Finalized complete responses render succeeded results at 100%
+- Finalized runs freeze further remediation actions until reset
+- Post-incident result panel distinguishes succeeded and failed submissions
 - Scenario reset/replay
 - Manual browser testing of the first investigation
 - First-class analyst case state separate from canonical world state and scenario ground truth
 - Evidence collection by immutable simulation event id
 - Evidence collection from investigation, endpoint, and identity views
 - Analyst-authored findings with validated evidence links
-- Case state preserved through remediation and cleared by reset
+- Case state preserved through remediation/finalization and cleared by reset
 - Analyst-visible response objectives driven by runtime outcome state
-- Explicit transition from scenario in-progress to succeeded when all objectives are met
 - Equal-weight deterministic objective-completion score
-- Post-incident result panel with objective score and response/case context
 - Evidence and findings remain visible in results but are not secretly graded
-- Reset returns objective progress and score to their deterministic initial state
+- Reset returns objective progress, score, and finalization to their deterministic initial state
 
 Remaining:
 
-- Explicit investigation finalization and failed outcome presentation
+- Manual browser validation of zero-, partial-, and full-score finalization paths
 - Response-quality scoring only after scenarios include genuinely unnecessary or harmful choices
 - Instructor controls
 - Hidden ground truth

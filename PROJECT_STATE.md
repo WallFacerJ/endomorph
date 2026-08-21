@@ -6,7 +6,7 @@ Build a deterministic cybersecurity simulation platform capable of rendering mul
 
 ## Current Milestone
 
-Add explicit failure and finalization semantics to the now choice-driven analyst loop so incomplete response paths can terminate reproducibly without conflating analyst knowledge with ground truth or assessment logic.
+Validate the finalized success/failure analyst loop hands-on, then introduce response-quality evaluation only when a scenario contains a genuinely unnecessary or harmful response choice.
 
 ## Completed
 
@@ -77,13 +77,12 @@ Add explicit failure and finalization semantics to the now choice-driven analyst
 - pnpm-generated lockfile validated by frozen-install CI
 - Declarative typed scenario objectives for account and session status without executable predicates
 - Unique objective-id and semantic target validation against deterministic scenario state
-- Pure deterministic scenario outcome evaluation with `in_progress` and `succeeded` states
+- Pure deterministic scenario outcome evaluation with active `in_progress` and `succeeded` states
 - Account-compromise response goals requiring session revocation and account disablement
 - Investigation objective-progress UI driven directly by runtime outcome state
 - Reset returns objective progress to the initial deterministic state
 - Pure equal-weight deterministic scenario score derived from objective completion
 - Scenario state exposes completed-objective count, total-objective count, and deterministic percentage
-- Post-incident result panel appears only after runtime success
 - Post-incident report shows response-action, evidence, and finding counts without secretly grading analyst-authored content
 - Deterministic score coverage for zero, partial, full, repeated, and reset evaluation
 - Ordered multi-action investigation response metadata with backward-compatible primary-action normalization
@@ -93,12 +92,20 @@ Add explicit failure and finalization semantics to the now choice-driven analyst
 - Alternate response ordering produces the same final world while preserving performed-action order
 - Analyst remediation chooser renders scenario-declared actions, performed state, and runtime score
 - Case evidence and findings remain intact across individual remediation actions and clear only on reset
-- Automated test coverage across domain, schema, simulation, scenario, analyst-case, outcome, scoring, and remediation-choice boundaries
+- Explicit deterministic investigation finalization separated from cybersecurity event history
+- Scenario outcome status supports finalized `failed` without treating intermediate incomplete states as failure
+- Finalizing zero or partial progress preserves the deterministic 0% or 50% score while ending the run as failed
+- Finalizing complete remediation preserves 100% and succeeds
+- Finalization does not mutate canonical world state or append synthetic events
+- Finalized runs freeze further remediation actions until reset
+- Post-incident results render both succeeded and failed submissions with objective and case context
+- Reset reconstructs a fresh active, non-finalized run
+- Automated test coverage across domain, schema, simulation, scenario, analyst-case, outcome, scoring, remediation-choice, and finalization boundaries
 
 ## Next Milestones
 
-1. Add explicit finalization and failure outcome states so incomplete response paths can end deterministically instead of remaining permanently in progress
-2. Add response-quality penalties or evaluation only after scenarios include genuinely unnecessary or harmful response choices
+1. Manually validate the 0%, 50%, and 100% finalized investigation paths in the browser before merging the finalization slice
+2. Add a genuinely unnecessary or harmful response choice before introducing response-quality penalties or weighted evaluation
 3. Add hidden ground-truth metadata and instructor-facing evaluation only after the student investigation loop is stable
 4. Add branching, triggers, and richer scenario transitions only when demonstrated scenarios require them
 5. Expand cybersecurity telemetry only where scenario or projection requirements justify it

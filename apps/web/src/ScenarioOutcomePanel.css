@@ -17,6 +17,16 @@
     );
 }
 
+.outcome-panel.failed {
+  border-color: rgba(248, 113, 113, 0.45);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(248, 113, 113, 0.08),
+      rgba(11, 26, 44, 0.84) 45%
+    );
+}
+
 .outcome-panel-header {
   display: flex;
   align-items: center;
@@ -39,6 +49,10 @@
   text-transform: uppercase;
 }
 
+.outcome-panel.failed .outcome-eyebrow {
+  color: #fca5a5;
+}
+
 .outcome-count {
   flex: 0 0 auto;
   padding: 6px 9px;
@@ -52,6 +66,11 @@
 .outcome-panel.succeeded .outcome-count {
   border-color: rgba(52, 211, 153, 0.35);
   color: #6ee7b7;
+}
+
+.outcome-panel.failed .outcome-count {
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #fca5a5;
 }
 
 .outcome-objectives {
@@ -74,6 +93,10 @@
   border-color: rgba(52, 211, 153, 0.28);
 }
 
+.outcome-panel.failed .outcome-objective.pending {
+  border-color: rgba(248, 113, 113, 0.24);
+}
+
 .outcome-objective-indicator {
   display: grid;
   place-items: center;
@@ -89,6 +112,11 @@
   border-color: rgba(52, 211, 153, 0.45);
   background: rgba(52, 211, 153, 0.1);
   color: #6ee7b7;
+}
+
+.outcome-panel.failed .outcome-objective.pending .outcome-objective-indicator {
+  border-color: rgba(248, 113, 113, 0.42);
+  color: #fca5a5;
 }
 
 .outcome-objective strong {
@@ -112,6 +140,10 @@
 
 .outcome-objective.met .outcome-objective-state {
   color: #6ee7b7;
+}
+
+.outcome-panel.failed .outcome-objective.pending .outcome-objective-state {
+  color: #fca5a5;
 }
 
 @media (max-width: 720px) {

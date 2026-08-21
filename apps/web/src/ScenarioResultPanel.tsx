@@ -1,10 +1,12 @@
 import type {
+  ScenarioOutcomeStatus,
   ScenarioScore,
-} from "@polymorph/simulation";
+} from "./simulationAdapter";
 
 import "./ScenarioResultPanel.css";
 
 interface ScenarioResultPanelProps {
+  status: ScenarioOutcomeStatus;
   score: ScenarioScore;
   actionCount: number;
   evidenceCount: number;
@@ -12,14 +14,22 @@ interface ScenarioResultPanelProps {
 }
 
 export function ScenarioResultPanel({
+  status,
   score,
   actionCount,
   evidenceCount,
   findingCount,
 }: ScenarioResultPanelProps) {
+  const succeeded =
+    status === "succeeded";
+
   return (
     <section
-      className="result-panel"
+      className={
+        succeeded
+          ? "result-panel succeeded"
+          : "result-panel failed"
+      }
       aria-label="Post-incident result"
     >
       <div className="result-panel-heading">
@@ -27,9 +37,15 @@ export function ScenarioResultPanel({
           <p className="result-eyebrow">
             Post-incident result
           </p>
-          <h4>Response objectives completed</h4>
+          <h4>
+            {succeeded
+              ? "Investigation succeeded"
+              : "Investigation failed"}
+          </h4>
           <p>
-            The deterministic runtime confirms that every exposed response objective is satisfied.
+            {succeeded
+              ? "The deterministic runtime confirms that every exposed response objective was satisfied when the investigation was finalized."
+              : "The investigation was finalized before every exposed response objective was satisfied. The partial score is preserved for review."}
           </p>
         </div>
 

@@ -10,6 +10,7 @@ interface ResponseActionPanelProps {
   performedActionIds:
     readonly string[];
   score: ScenarioScore;
+  finalized: boolean;
   onPerform: (actionId: string) => void;
 }
 
@@ -17,6 +18,7 @@ export function ResponseActionPanel({
   actions,
   performedActionIds,
   score,
+  finalized,
   onPerform,
 }: ResponseActionPanelProps) {
   return (
@@ -31,7 +33,9 @@ export function ResponseActionPanel({
           </p>
           <h4>Choose remediation</h4>
           <p>
-            Each action changes canonical simulation state. Objective progress and score update from the resulting world.
+            {finalized
+              ? "This investigation is finalized. Reset the scenario to try a different response path."
+              : "Each action changes canonical simulation state. Objective progress and score update from the resulting world."}
           </p>
         </div>
 
@@ -73,14 +77,18 @@ export function ResponseActionPanel({
                     ? "response-action-button performed"
                     : "response-action-button"
                 }
-                disabled={performed}
+                disabled={
+                  performed || finalized
+                }
                 onClick={() =>
                   onPerform(action.id)
                 }
               >
                 {performed
                   ? "Action performed"
-                  : "Perform action"}
+                  : finalized
+                    ? "Run finalized"
+                    : "Perform action"}
               </button>
             </article>
           );
