@@ -101,10 +101,11 @@ Endomorph includes:
 | **Generated: external credential compromise** | 444 | ~17.9k | Password spray from hosting infrastructure, encoded PowerShell, C2 beacon, lateral movement. **Default.** |
 | **Generated: privileged insider** | 444 | ~17.8k | No external address anywhere. A valid admin account, its own workstation, deviation from its own baseline. |
 | **Generated: service account abuse** | 444 | ~17.8k | A valid privileged credential used from a host it has no history with. All traffic internal. |
+| **Generated: dormant account revived** | 444 | ~11.8k | Every sign-in is unremarkable. The only anomalous event is an identity lifecycle change before any of them. |
 
 The first three are hand-authored and deliberately small. The rest are generated.
 
-The three generated incidents deliberately teach different lessons. The first trains the obvious heuristic — an unfamiliar external address is suspicious. The second breaks it: everything originates from a legitimate admin on their own workstation, and the only signal is deviation from that person's own baseline. The third breaks it again: the credential is valid and the traffic is internal, but the account is being used from a host it has never authenticated from. An analyst who learns "look for the foreign IP" from the first will fail the other two.
+The four generated incidents deliberately teach different lessons. The first trains the obvious heuristic — an unfamiliar external address is suspicious. The second breaks it: everything originates from a legitimate admin on their own workstation, and the only signal is deviation from that person's own baseline. The third breaks it again: the credential is valid and the traffic is internal, but the account is being used from a host it has never authenticated from. The fourth is not about authentication at all. An analyst who learns "look for the foreign IP" from the first will fail the other three.
 
 Generated scenarios are **build artifacts, not source** — `pnpm build` produces them and they are not committed.
 
@@ -154,6 +155,12 @@ Sigma import from rules/sigma
 
 Sigma names fields the way Windows and Sysmon logs do; the corpus is ECS-shaped, so importing translates vocabularies (`Image|endswith` → `process.executable`) and maps `attack.t1059.001` tags to techniques. Selections, negated filters, and the `contains` / `startswith` / `endswith` / `re` modifiers are supported.
 
+#### The loop this enables
+
+Adding the fourth attack plan showed the shipped ruleset detecting **nothing** on it — `techniques covered 0/4` — because no rule watched identity lifecycle. Two rules later (`account_reenabled`, `disabled_account_enumeration`) it reads `2/4`, both at 1.000 precision.
+
+That is the whole argument for generating the corpus: the gap was a measurement, not a hunch, and closing it was verifiable.
+
 **Anything the subset cannot express is refused, never skipped.** A rule that silently matches nothing is indistinguishable from coverage until an incident is missed, so aggregations, cross-selection disjunctions, and unmapped fields raise an error naming the reason. A test asserts every shipped rule fires against at least one corpus.
 
 ## Generating an enterprise
@@ -182,7 +189,8 @@ pnpm generate:scenario -- \
 | `--start-time` | `2026-08-20T08:00:00.000Z` | Virtual start of the working day. |
 | `--duration-hours` | `10` | Length of each generated working day. |
 | `--out` | `apps/web/public/scenarios/generated-enterprise.json` | Output path, relative to the repository root. |
-| `--plan` | chosen by seed | `credential-compromise`, `privileged-insider`, or `service-account-abuse`. |
+| `--plan` | chosen by seed | `credential-compromise`, `privileged-insider`, `service-account-abuse`, or `dormant-account-revival`. |
+| `--days` | `5` | Days of baseline history before the intrusion. |
 | `--pretty` | off | Indent the JSON. Roughly doubles file size. |
 
 Register a new file in `apps/web/src/scenarioLoader.ts` to make it appear in the selector, or open it directly with `?scenario=/scenarios/<file>.json`.

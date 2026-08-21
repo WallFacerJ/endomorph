@@ -233,6 +233,32 @@ function resolveCast(
     );
   }
 
+  // A disabled account belonging to someone other than the subject. These
+  // exist in the generated world as ordinary attrition noise.
+  const dormantAccount =
+    enterprise.accounts.find(
+      (account) =>
+        account.status === "disabled" &&
+        account.userId !== subject.id,
+    );
+
+  const dormantUser = dormantAccount
+    ? enterprise.users.find(
+        (user) =>
+          user.id ===
+          dormantAccount.userId,
+      )
+    : undefined;
+
+  if (
+    plan.requires.dormantAccount &&
+    (!dormantAccount || !dormantUser)
+  ) {
+    throw new Error(
+      `Plan ${plan.id} requires a dormant account and none exist in this enterprise.`,
+    );
+  }
+
   const restricted =
     enterprise.files.filter(
       (file) =>
@@ -265,6 +291,8 @@ function resolveCast(
     subjectAccount,
     privilegedAccount,
     subjectDevice,
+    dormantUser,
+    dormantAccount,
     lateralTarget,
     secondaryTarget,
     targetFile,

@@ -63,6 +63,16 @@ export interface IncidentCast {
   /** Elevated account belonging to the subject, when the plan needs one. */
   readonly privilegedAccount?: Account;
 
+  /**
+   * A disabled or dormant account belonging to someone else.
+   *
+   * The generator creates these as ordinary noise -- staff who left, or
+   * accounts that fell out of use. A plan can reach for one when the lesson
+   * is about identity lifecycle rather than authentication.
+   */
+  readonly dormantUser?: User;
+  readonly dormantAccount?: Account;
+
   readonly lateralTarget: Device;
   readonly secondaryTarget: Device;
   readonly targetFile: FileEntity;
@@ -84,6 +94,9 @@ export interface IncidentCast {
 export interface PlanRequirements {
   /** The subject must hold an elevated directory group. */
   readonly privilegedAccount?: boolean;
+
+  /** A disabled account belonging to a different user must exist. */
+  readonly dormantAccount?: boolean;
 
   /** The subject must belong to one of these departments. */
   readonly departments?: readonly string[];

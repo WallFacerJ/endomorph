@@ -2,6 +2,10 @@ import type {
   AttackPlan,
 } from "./attackPlan.js";
 
+import {
+  DORMANT_ACCOUNT_PLAN,
+} from "./attackPlanDormant.js";
+
 /**
  * The shipped plan library.
  *
@@ -14,8 +18,12 @@ import type {
  * the traffic is internal, but the account is being used from a host it has
  * no history with.
  *
+ * The fourth is not about authentication at all: every sign-in in it is
+ * unremarkable, and the only anomalous event is an identity lifecycle change
+ * that happened before any of them.
+ *
  * An analyst who learns "look for the foreign IP" from the first will fail
- * the other two, which is the point.
+ * the other three, which is the point.
  */
 
 const POWERSHELL =
@@ -875,4 +883,5 @@ export const ATTACK_PLANS: readonly AttackPlan[] =
     CREDENTIAL_COMPROMISE_PLAN,
     PRIVILEGED_INSIDER_PLAN,
     SERVICE_ACCOUNT_ABUSE_PLAN,
+    DORMANT_ACCOUNT_PLAN,
   ];

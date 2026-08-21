@@ -1,0 +1,20 @@
+title: Disabled Account Re-Enabled
+id: endomorph-sigma-0006
+status: experimental
+description: >
+  Detects a directory account being re-enabled. Offboarding runs one way, so
+  a leaver account returning to service has no legitimate workflow behind it.
+  This fires on a single event with no volume behind it, which is why
+  threshold-based detection misses the technique entirely.
+logsource:
+  category: iam
+detection:
+  selection:
+    event.type: 'ACCOUNT_ENABLED'
+  condition: selection
+falsepositives:
+  - Genuine rehires processed outside the joiners-movers-leavers workflow
+level: high
+tags:
+  - attack.persistence
+  - attack.t1098

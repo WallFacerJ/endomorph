@@ -11,3 +11,4 @@ export * from "./corpus.js";
 export * from "./detection.js";
 export * from "./detectionLibrary.js";
 export * from "./sigma.js";
+export * from "./attackPlanDormant.js";

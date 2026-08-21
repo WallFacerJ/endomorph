@@ -64,6 +64,15 @@ const BUILDS: readonly ScenarioBuild[] = [
     plan: "service-account-abuse",
     days: 3,
   },
+  {
+    out: "apps/web/public/scenarios/generated-dormant.json",
+    id: "scenario-generated-dormant-001",
+    name: "Generated enterprise: dormant account revived",
+    description:
+      "Every sign-in in this incident is unremarkable: valid credential, corporate address, ordinary hour. The only anomalous event happened before any of them.",
+    plan: "dormant-account-revival",
+    days: 3,
+  },
 ];
 
 function findWorkspaceRoot(): string {

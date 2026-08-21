@@ -1,0 +1,20 @@
+title: Directory Enumeration Filtered To Disabled Accounts
+id: endomorph-sigma-0007
+status: experimental
+description: >
+  Detects a directory query filtered to disabled accounts. Administrators
+  query the directory constantly, so enumeration alone is weak; the filter is
+  the signal, because no routine task lists only disabled accounts.
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_tool:
+    Image|endswith: '\powershell.exe'
+  selection_filter:
+    CommandLine|contains: 'Enabled -eq'
+  condition: selection_tool and selection_filter
+level: medium
+tags:
+  - attack.discovery
+  - attack.t1087.002

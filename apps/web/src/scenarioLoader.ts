@@ -44,6 +44,11 @@ export const SHIPPED_SCENARIOS:
       label:
         "Generated: service account abuse (advanced)",
     },
+    {
+      path: "/scenarios/generated-dormant.json",
+      label:
+        "Generated: dormant account revived (advanced)",
+    },
   ];
 
 /**
