@@ -16,6 +16,7 @@ export * from "./projection";
 export * from "./identityProjection";
 export * from "./edrProjection";
 export * from "./siemProjection";
+export * from "./siemQuery";
 export * from "./analystCase";
 export * from "./scenarioOutcome";
 export * from "./scenarioScore";

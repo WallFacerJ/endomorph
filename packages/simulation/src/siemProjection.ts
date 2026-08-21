@@ -25,6 +25,11 @@ import {
   assertNever,
 } from "./assertNever";
 
+export type SiemFieldValue =
+  | string
+  | number
+  | readonly string[];
+
 export interface SiemEventRecord {
   eventId: EntityId;
 
@@ -47,6 +52,10 @@ export interface SiemEventRecord {
   relatedEntityIds: readonly EntityId[];
 
   message: string;
+
+  fields: Readonly<
+    Record<string, SiemFieldValue>
+  >;
 }
 
 export interface SiemProjectionState {
@@ -126,6 +135,137 @@ function getMessage(
   }
 }
 
+function definedFields(
+  fields: Record<
+    string,
+    SiemFieldValue | undefined
+  >,
+): Readonly<
+  Record<string, SiemFieldValue>
+> {
+  const result: Record<
+    string,
+    SiemFieldValue
+  > = {};
+
+  for (const [key, value] of
+    Object.entries(fields)) {
+    if (value !== undefined) {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
+
+function getFields(
+  event: SimulationEvent,
+): Readonly<
+  Record<string, SiemFieldValue>
+> {
+  switch (event.type) {
+    case "AUTH_LOGIN_SUCCEEDED":
+      return definedFields({
+        accountId: event.payload.accountId,
+        userId: event.payload.userId,
+        deviceId: event.payload.deviceId,
+        applicationId:
+          event.payload.applicationId,
+        sourceIp: event.payload.sourceIp,
+      });
+
+    case "AUTH_LOGIN_FAILED":
+      return definedFields({
+        username: event.payload.username,
+        reason: event.payload.reason,
+        deviceId: event.payload.deviceId,
+        applicationId:
+          event.payload.applicationId,
+        sourceIp: event.payload.sourceIp,
+      });
+
+    case "ACCOUNT_DISABLED":
+    case "ACCOUNT_ENABLED":
+      return definedFields({
+        accountId: event.payload.accountId,
+        reason: event.payload.reason,
+      });
+
+    case "SESSION_STARTED":
+      return definedFields({
+        sessionId: event.payload.sessionId,
+        accountId: event.payload.accountId,
+        deviceId: event.payload.deviceId,
+        applicationId:
+          event.payload.applicationId,
+      });
+
+    case "SESSION_REVOKED":
+      return definedFields({
+        sessionId: event.payload.sessionId,
+        reason: event.payload.reason,
+      });
+
+    case "PROCESS_STARTED":
+      return definedFields({
+        deviceId: event.payload.deviceId,
+        processId: event.payload.processId,
+        image: event.payload.image,
+        commandLine: event.payload.commandLine,
+        parentProcessId:
+          event.payload.parentProcessId,
+        accountId: event.payload.accountId,
+      });
+
+    case "FILE_ACCESSED":
+      return definedFields({
+        fileId: event.payload.fileId,
+        operation: event.payload.operation,
+        deviceId: event.payload.deviceId,
+        accountId: event.payload.accountId,
+      });
+
+    case "NETWORK_CONNECTION":
+      return definedFields({
+        deviceId: event.payload.deviceId,
+        protocol: event.payload.protocol,
+        sourceIp: event.payload.sourceIp,
+        destinationIp:
+          event.payload.destinationIp,
+        sourcePort: event.payload.sourcePort,
+        destinationPort:
+          event.payload.destinationPort,
+      });
+
+    case "ENDPOINT_HEARTBEAT":
+      return definedFields({
+        deviceId: event.payload.deviceId,
+        status: event.payload.status,
+        ipAddresses: [
+          ...event.payload.ipAddresses,
+        ],
+      });
+
+    case "ALERT_CREATED":
+      return definedFields({
+        alertId: event.payload.alertId,
+        title: event.payload.title,
+        severity: event.payload.severity,
+        applicationId:
+          event.payload.applicationId,
+        relatedEventIds: [
+          ...event.payload.relatedEventIds,
+        ],
+        relatedEntityIds: [
+          ...event.payload.relatedEntityIds,
+        ],
+      });
+
+    default:
+      return assertNever(event);
+  }
+}
+
 function normalizeEvent(
   event: SimulationEvent,
 ): SiemEventRecord {
@@ -154,6 +294,7 @@ function normalizeEvent(
         ? [...event.payload.relatedEntityIds]
         : [],
     message: getMessage(event),
+    fields: getFields(event),
   };
 }
 

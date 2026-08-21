@@ -35,6 +35,36 @@
           "deviceIds": [
             "device-fin-lt-04"
           ]
+        },
+        {
+          "id": "user-mark-chen",
+          "organizationId": "org-acme",
+          "displayName": "Mark Chen",
+          "email": "mark.chen@acme.test",
+          "department": "Information Technology",
+          "title": "Systems Administrator",
+          "status": "active",
+          "accountIds": [
+            "account-mchen"
+          ],
+          "deviceIds": [
+            "device-it-lt-02"
+          ]
+        },
+        {
+          "id": "user-jordan-lee",
+          "organizationId": "org-acme",
+          "displayName": "Jordan Lee",
+          "email": "jordan.lee@acme.test",
+          "department": "Human Resources",
+          "title": "HR Business Partner",
+          "status": "active",
+          "accountIds": [
+            "account-jlee"
+          ],
+          "deviceIds": [
+            "device-hr-lt-07"
+          ]
         }
       ],
       "accounts": [
@@ -47,6 +77,28 @@
           "status": "active",
           "roles": [
             "finance-user"
+          ]
+        },
+        {
+          "id": "account-mchen",
+          "organizationId": "org-acme",
+          "userId": "user-mark-chen",
+          "username": "mchen",
+          "provider": "Acme Identity",
+          "status": "active",
+          "roles": [
+            "it-admin"
+          ]
+        },
+        {
+          "id": "account-jlee",
+          "organizationId": "org-acme",
+          "userId": "user-jordan-lee",
+          "username": "jlee",
+          "provider": "Acme Identity",
+          "status": "active",
+          "roles": [
+            "hr-user"
           ]
         }
       ],
@@ -61,9 +113,40 @@
           "ipAddresses": [
             "10.20.30.44"
           ]
+        },
+        {
+          "id": "device-it-lt-02",
+          "organizationId": "org-acme",
+          "hostname": "IT-LT-02",
+          "operatingSystem": "Windows 11",
+          "status": "active",
+          "ownerUserId": "user-mark-chen",
+          "ipAddresses": [
+            "10.20.10.22"
+          ]
+        },
+        {
+          "id": "device-hr-lt-07",
+          "organizationId": "org-acme",
+          "hostname": "HR-LT-07",
+          "operatingSystem": "Windows 11",
+          "status": "active",
+          "ownerUserId": "user-jordan-lee",
+          "ipAddresses": [
+            "10.20.20.57"
+          ]
         }
       ],
-      "files": [],
+      "files": [
+        {
+          "id": "file-fin-quarterly-report",
+          "organizationId": "org-acme",
+          "name": "Q3-forecast.xlsx",
+          "path": "C:\\Users\\smartinez\\Documents\\Q3-forecast.xlsx",
+          "ownerUserId": "user-sarah-martinez",
+          "classification": "confidential"
+        }
+      ],
       "applications": [
         {
           "id": "app-identity",
@@ -91,6 +174,334 @@
     },
     "openingEvents": [
       {
+        "id": "noise-heartbeat-it-01",
+        "type": "ENDPOINT_HEARTBEAT",
+        "timestamp": "2026-08-20T14:45:00Z",
+        "source": "edr",
+        "subjectId": "device-it-lt-02",
+        "payload": {
+          "deviceId": "device-it-lt-02",
+          "status": "active",
+          "ipAddresses": [
+            "10.20.10.22"
+          ]
+        }
+      },
+      {
+        "id": "noise-heartbeat-hr-01",
+        "type": "ENDPOINT_HEARTBEAT",
+        "timestamp": "2026-08-20T14:45:05Z",
+        "source": "edr",
+        "subjectId": "device-hr-lt-07",
+        "payload": {
+          "deviceId": "device-hr-lt-07",
+          "status": "active",
+          "ipAddresses": [
+            "10.20.20.57"
+          ]
+        }
+      },
+      {
+        "id": "noise-auth-it-01",
+        "type": "AUTH_LOGIN_SUCCEEDED",
+        "timestamp": "2026-08-20T14:46:12Z",
+        "source": "identity",
+        "actorId": "account-mchen",
+        "subjectId": "user-mark-chen",
+        "payload": {
+          "accountId": "account-mchen",
+          "userId": "user-mark-chen",
+          "deviceId": "device-it-lt-02",
+          "applicationId": "app-identity",
+          "sourceIp": "10.20.10.22"
+        }
+      },
+      {
+        "id": "noise-session-it-01",
+        "type": "SESSION_STARTED",
+        "timestamp": "2026-08-20T14:46:13Z",
+        "source": "identity",
+        "actorId": "account-mchen",
+        "subjectId": "user-mark-chen",
+        "payload": {
+          "sessionId": "session-mchen-normal",
+          "accountId": "account-mchen",
+          "deviceId": "device-it-lt-02",
+          "applicationId": "app-identity"
+        }
+      },
+      {
+        "id": "noise-auth-hr-01",
+        "type": "AUTH_LOGIN_SUCCEEDED",
+        "timestamp": "2026-08-20T14:47:31Z",
+        "source": "identity",
+        "actorId": "account-jlee",
+        "subjectId": "user-jordan-lee",
+        "payload": {
+          "accountId": "account-jlee",
+          "userId": "user-jordan-lee",
+          "deviceId": "device-hr-lt-07",
+          "applicationId": "app-identity",
+          "sourceIp": "10.20.20.57"
+        }
+      },
+      {
+        "id": "noise-session-hr-01",
+        "type": "SESSION_STARTED",
+        "timestamp": "2026-08-20T14:47:32Z",
+        "source": "identity",
+        "actorId": "account-jlee",
+        "subjectId": "user-jordan-lee",
+        "payload": {
+          "sessionId": "session-jlee-normal",
+          "accountId": "account-jlee",
+          "deviceId": "device-hr-lt-07",
+          "applicationId": "app-identity"
+        }
+      },
+      {
+        "id": "noise-process-it-browser",
+        "type": "PROCESS_STARTED",
+        "timestamp": "2026-08-20T14:48:02Z",
+        "source": "edr",
+        "actorId": "account-mchen",
+        "subjectId": "device-it-lt-02",
+        "payload": {
+          "deviceId": "device-it-lt-02",
+          "processId": "2204",
+          "image": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "commandLine": "chrome.exe --profile-directory=Default",
+          "parentProcessId": "1012",
+          "accountId": "account-mchen"
+        }
+      },
+      {
+        "id": "noise-network-it-browser",
+        "type": "NETWORK_CONNECTION",
+        "timestamp": "2026-08-20T14:48:03Z",
+        "source": "edr",
+        "actorId": "account-mchen",
+        "subjectId": "device-it-lt-02",
+        "payload": {
+          "deviceId": "device-it-lt-02",
+          "protocol": "tcp",
+          "sourceIp": "10.20.10.22",
+          "destinationIp": "192.0.2.40",
+          "sourcePort": 51502,
+          "destinationPort": 443
+        }
+      },
+      {
+        "id": "noise-process-hr-outlook",
+        "type": "PROCESS_STARTED",
+        "timestamp": "2026-08-20T14:49:11Z",
+        "source": "edr",
+        "actorId": "account-jlee",
+        "subjectId": "device-hr-lt-07",
+        "payload": {
+          "deviceId": "device-hr-lt-07",
+          "processId": "3340",
+          "image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
+          "commandLine": "OUTLOOK.EXE /recycle",
+          "parentProcessId": "1208",
+          "accountId": "account-jlee"
+        }
+      },
+      {
+        "id": "noise-network-hr-outlook",
+        "type": "NETWORK_CONNECTION",
+        "timestamp": "2026-08-20T14:49:13Z",
+        "source": "edr",
+        "actorId": "account-jlee",
+        "subjectId": "device-hr-lt-07",
+        "payload": {
+          "deviceId": "device-hr-lt-07",
+          "protocol": "tcp",
+          "sourceIp": "10.20.20.57",
+          "destinationIp": "192.0.2.25",
+          "sourcePort": 52133,
+          "destinationPort": 443
+        }
+      },
+      {
+        "id": "noise-auth-fin-failed-01",
+        "type": "AUTH_LOGIN_FAILED",
+        "timestamp": "2026-08-20T14:50:06Z",
+        "source": "identity",
+        "subjectId": "user-sarah-martinez",
+        "payload": {
+          "username": "smartinez",
+          "reason": "invalid_credentials",
+          "applicationId": "app-identity",
+          "deviceId": "device-fin-lt-04",
+          "sourceIp": "10.20.30.44"
+        }
+      },
+      {
+        "id": "noise-process-it-powershell",
+        "type": "PROCESS_STARTED",
+        "timestamp": "2026-08-20T14:51:40Z",
+        "source": "edr",
+        "actorId": "account-mchen",
+        "subjectId": "device-it-lt-02",
+        "payload": {
+          "deviceId": "device-it-lt-02",
+          "processId": "2418",
+          "image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "commandLine": "powershell.exe Get-Service AcmeBackupAgent",
+          "parentProcessId": "1784",
+          "accountId": "account-mchen"
+        }
+      },
+      {
+        "id": "noise-process-fin-teams",
+        "type": "PROCESS_STARTED",
+        "timestamp": "2026-08-20T14:53:18Z",
+        "source": "edr",
+        "actorId": "account-smartinez",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "deviceId": "device-fin-lt-04",
+          "processId": "4104",
+          "image": "C:\\Program Files\\WindowsApps\\MSTeams.exe",
+          "commandLine": "MSTeams.exe --process-start-args",
+          "parentProcessId": "1020",
+          "accountId": "account-smartinez"
+        }
+      },
+      {
+        "id": "noise-network-fin-teams",
+        "type": "NETWORK_CONNECTION",
+        "timestamp": "2026-08-20T14:53:20Z",
+        "source": "edr",
+        "actorId": "account-smartinez",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "deviceId": "device-fin-lt-04",
+          "protocol": "tcp",
+          "sourceIp": "10.20.30.44",
+          "destinationIp": "198.51.100.18",
+          "sourcePort": 53110,
+          "destinationPort": 443
+        }
+      },
+      {
+        "id": "noise-file-fin-report",
+        "type": "FILE_ACCESSED",
+        "timestamp": "2026-08-20T14:54:03Z",
+        "source": "edr",
+        "actorId": "account-smartinez",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "fileId": "file-fin-quarterly-report",
+          "operation": "read",
+          "deviceId": "device-fin-lt-04",
+          "accountId": "account-smartinez"
+        }
+      },
+      {
+        "id": "noise-heartbeat-fin-02",
+        "type": "ENDPOINT_HEARTBEAT",
+        "timestamp": "2026-08-20T14:55:00Z",
+        "source": "edr",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "deviceId": "device-fin-lt-04",
+          "status": "active",
+          "ipAddresses": [
+            "10.20.30.44"
+          ]
+        }
+      },
+      {
+        "id": "noise-network-it-rdp",
+        "type": "NETWORK_CONNECTION",
+        "timestamp": "2026-08-20T14:56:14Z",
+        "source": "edr",
+        "actorId": "account-mchen",
+        "subjectId": "device-it-lt-02",
+        "payload": {
+          "deviceId": "device-it-lt-02",
+          "protocol": "tcp",
+          "sourceIp": "10.20.10.22",
+          "destinationIp": "10.20.40.15",
+          "sourcePort": 53922,
+          "destinationPort": 3389
+        }
+      },
+      {
+        "id": "noise-auth-unknown-01",
+        "type": "AUTH_LOGIN_FAILED",
+        "timestamp": "2026-08-20T14:57:33Z",
+        "source": "identity",
+        "payload": {
+          "username": "svc-backup-old",
+          "reason": "unknown_account",
+          "applicationId": "app-identity",
+          "sourceIp": "10.20.40.15"
+        }
+      },
+      {
+        "id": "noise-process-hr-browser",
+        "type": "PROCESS_STARTED",
+        "timestamp": "2026-08-20T14:58:21Z",
+        "source": "edr",
+        "actorId": "account-jlee",
+        "subjectId": "device-hr-lt-07",
+        "payload": {
+          "deviceId": "device-hr-lt-07",
+          "processId": "3510",
+          "image": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "commandLine": "chrome.exe --profile-directory=Default",
+          "parentProcessId": "1208",
+          "accountId": "account-jlee"
+        }
+      },
+      {
+        "id": "noise-network-hr-browser",
+        "type": "NETWORK_CONNECTION",
+        "timestamp": "2026-08-20T14:58:22Z",
+        "source": "edr",
+        "actorId": "account-jlee",
+        "subjectId": "device-hr-lt-07",
+        "payload": {
+          "deviceId": "device-hr-lt-07",
+          "protocol": "tcp",
+          "sourceIp": "10.20.20.57",
+          "destinationIp": "203.0.113.40",
+          "sourcePort": 54001,
+          "destinationPort": 443
+        }
+      },
+      {
+        "id": "noise-heartbeat-it-02",
+        "type": "ENDPOINT_HEARTBEAT",
+        "timestamp": "2026-08-20T14:59:00Z",
+        "source": "edr",
+        "subjectId": "device-it-lt-02",
+        "payload": {
+          "deviceId": "device-it-lt-02",
+          "status": "active",
+          "ipAddresses": [
+            "10.20.10.22"
+          ]
+        }
+      },
+      {
+        "id": "noise-heartbeat-hr-02",
+        "type": "ENDPOINT_HEARTBEAT",
+        "timestamp": "2026-08-20T14:59:01Z",
+        "source": "edr",
+        "subjectId": "device-hr-lt-07",
+        "payload": {
+          "deviceId": "device-hr-lt-07",
+          "status": "active",
+          "ipAddresses": [
+            "10.20.20.57"
+          ]
+        }
+      },
+      {
         "id": "event-endpoint-heartbeat",
         "type": "ENDPOINT_HEARTBEAT",
         "timestamp": "2026-08-20T15:00:00Z",
@@ -102,6 +513,22 @@
           "ipAddresses": [
             "10.20.30.44"
           ]
+        }
+      },
+      {
+        "id": "noise-network-fin-browser",
+        "type": "NETWORK_CONNECTION",
+        "timestamp": "2026-08-20T15:00:20Z",
+        "source": "edr",
+        "actorId": "account-smartinez",
+        "subjectId": "device-fin-lt-04",
+        "payload": {
+          "deviceId": "device-fin-lt-04",
+          "protocol": "tcp",
+          "sourceIp": "10.20.30.44",
+          "destinationIp": "192.0.2.80",
+          "sourcePort": 54442,
+          "destinationPort": 443
         }
       },
       {
@@ -134,6 +561,22 @@
         }
       },
       {
+        "id": "noise-process-it-cmd",
+        "type": "PROCESS_STARTED",
+        "timestamp": "2026-08-20T15:02:12Z",
+        "source": "edr",
+        "actorId": "account-mchen",
+        "subjectId": "device-it-lt-02",
+        "payload": {
+          "deviceId": "device-it-lt-02",
+          "processId": "2780",
+          "image": "C:\\Windows\\System32\\cmd.exe",
+          "commandLine": "cmd.exe /c ipconfig /all",
+          "parentProcessId": "1784",
+          "accountId": "account-mchen"
+        }
+      },
+      {
         "id": "event-compromise-powershell",
         "type": "PROCESS_STARTED",
         "timestamp": "2026-08-20T15:03:15Z",
@@ -162,6 +605,22 @@
           "sourceIp": "10.20.30.44",
           "destinationIp": "203.0.113.77",
           "sourcePort": 49722,
+          "destinationPort": 443
+        }
+      },
+      {
+        "id": "noise-network-hr-late",
+        "type": "NETWORK_CONNECTION",
+        "timestamp": "2026-08-20T15:03:21Z",
+        "source": "edr",
+        "actorId": "account-jlee",
+        "subjectId": "device-hr-lt-07",
+        "payload": {
+          "deviceId": "device-hr-lt-07",
+          "protocol": "tcp",
+          "sourceIp": "10.20.20.57",
+          "destinationIp": "198.51.100.55",
+          "sourcePort": 54810,
           "destinationPort": 443
         }
       },

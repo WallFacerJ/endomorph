@@ -28,6 +28,10 @@ import {
 } from "./ScenarioControls";
 
 import {
+  SiemWorkspace,
+} from "./SiemWorkspace";
+
+import {
   addAnalystFinding,
   collectAnalystEvidence,
   createAnalystCaseState,
@@ -52,6 +56,7 @@ import {
 type WorkspaceView =
   | "alerts"
   | "timeline"
+  | "siem"
   | "endpoint"
   | "identity"
   | "case";
@@ -62,6 +67,7 @@ const navItems: ReadonlyArray<{
 }> = [
   { id: "alerts", label: "Alerts" },
   { id: "timeline", label: "Investigation" },
+  { id: "siem", label: "SIEM Search" },
   { id: "endpoint", label: "Endpoint" },
   { id: "identity", label: "Identity" },
   { id: "case", label: "Case" },
@@ -552,6 +558,18 @@ function ScenarioWorkspace({
                 Open investigation
               </button>
             </article>
+          </section>
+        )}
+
+        {activeView === "siem" && (
+          <section className="workspace-section siem-section">
+            <SiemWorkspace
+              records={projections.siem.events}
+              finalized={scenarioState.finalized}
+              isCollected={isEvidenceCollected}
+              onCollect={collectEvidence}
+              onOpenCase={() => setActiveView("case")}
+            />
           </section>
         )}
 

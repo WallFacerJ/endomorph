@@ -8,7 +8,7 @@
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "test": "vitest",
-    "test:run": "vitest run --exclude e2e/**",
+    "test:run": "vitest run --exclude 'e2e/**'",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

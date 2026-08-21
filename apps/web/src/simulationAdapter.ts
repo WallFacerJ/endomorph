@@ -9,6 +9,7 @@ export {
   identityProjection,
   rebuildProjection,
   resolveCollectedEvidence,
+  searchSiem,
   siemProjection,
 } from "@polymorph/simulation";
 
@@ -18,4 +19,7 @@ export type {
   ScenarioOutcomeStatus,
   ScenarioScore,
   ScenarioState,
+  SiemEventRecord,
+  SiemSearchRequest,
+  SiemSearchResult,
 } from "@polymorph/simulation";
