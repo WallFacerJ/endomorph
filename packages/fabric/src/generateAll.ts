@@ -73,6 +73,15 @@ const BUILDS: readonly ScenarioBuild[] = [
     plan: "dormant-account-revival",
     days: 3,
   },
+  {
+    out: "apps/web/public/scenarios/generated-macro.json",
+    id: "scenario-generated-macro-001",
+    name: "Generated enterprise: phishing macro execution",
+    description:
+      "The account is the genuine employee's and no authentication in this incident is anomalous, because the attacker never authenticated. The chain begins with a process on the endpoint.",
+    plan: "macro-execution",
+    days: 3,
+  },
 ];
 
 function findWorkspaceRoot(): string {

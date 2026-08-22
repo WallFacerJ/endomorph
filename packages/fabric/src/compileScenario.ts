@@ -133,6 +133,49 @@ export function compileScenario(
       openingEvents.length - 1
     ].timestamp;
 
+  /**
+   * The session the investigation is anchored to.
+   *
+   * Most plans open one: the attacker authenticates and a session appears in
+   * the incident's own events. An intrusion that never authenticates has
+   * none, and pointing the investigation at an id nothing emitted produced a
+   * scenario the loader refused outright -- caught by opening the page, not
+   * by the suite, which validated the shape and not the reference.
+   *
+   * Falling back to the subject's own genuine session is not a workaround
+   * for that error; it is the accurate answer. When malicious code runs
+   * inside a session the real user already had open, that session is where
+   * it ran, and it is what an analyst should be looking at in Identity. It
+   * is benign, it is labelled benign, and it is emphatically not something
+   * to revoke -- which is why this plan declares no session containment.
+   */
+  const investigationSessionId =
+    openingEvents.some(
+      (event) =>
+        event.type === "SESSION_STARTED" &&
+        event.payload.sessionId ===
+          incident.sessionId,
+    )
+      ? incident.sessionId
+      : ([...openingEvents]
+          .reverse()
+          .find(
+            (event) =>
+              event.type ===
+                "SESSION_STARTED" &&
+              event.payload.accountId ===
+                incident.victimAccountId,
+          )?.payload as
+          | { sessionId?: string }
+          | undefined
+        )?.sessionId;
+
+  if (!investigationSessionId) {
+    throw new Error(
+      `Scenario ${options.id}: no session exists for account ${incident.victimAccountId}, so the investigation has nothing to anchor to.`,
+    );
+  }
+
   const victim = enterprise.users.find(
     (user) =>
       user.id === incident.victimUserId,
@@ -144,6 +187,47 @@ export function compileScenario(
         device.id ===
         incident.victimDeviceId,
     );
+
+  /**
+   * Whether the plan declares this response as available.
+   *
+   * The compiler used to emit all four actions for every incident and ignore
+   * `containment` entirely, which was invisible while every plan happened to
+   * open a session. It stopped being invisible with an intrusion where the
+   * attacker never authenticates: `action-revoke-session` had no session to
+   * point at, so it routed to no console and, in professional mode where the
+   * response row is hidden, became unreachable -- a run that cannot be
+   * completed. The objective that depends on it had the same problem.
+   */
+  const supportsAction = (
+    actionId: string,
+  ): boolean => {
+    if (
+      actionId === "action-revoke-session"
+    ) {
+      return incident.containment
+        .revokeSession;
+    }
+
+    if (
+      actionId === "action-disable-account"
+    ) {
+      return incident.containment
+        .disableAccount;
+    }
+
+    if (
+      actionId === "action-isolate-device"
+    ) {
+      return incident.containment
+        .isolateDevice;
+    }
+
+    // The half-measure is always offered: its whole purpose is to be a
+    // plausible wrong answer, and removing it where it is wrong would remove
+    // the decision being tested.
+    return true;
+  };
 
   const scenario = {
     id: options.id,
@@ -166,7 +250,7 @@ export function compileScenario(
 
     openingEvents,
 
-    actions: [
+    actions: ([
       {
         id: "action-isolate-device",
         label: `Isolate ${victimDevice?.hostname ?? "the workstation"}`,
@@ -226,10 +310,10 @@ export function compileScenario(
             timestamp: responseTimestamp,
             source: "identity",
             subjectId:
-              incident.sessionId,
+              investigationSessionId,
             payload: {
               sessionId:
-                incident.sessionId,
+                investigationSessionId,
               reason:
                 "Session originated from attacker infrastructure.",
             },
@@ -267,7 +351,9 @@ export function compileScenario(
           },
         ],
       },
-    ],
+    ] as const).filter((action) =>
+      supportsAction(action.id),
+    ),
 
     objectives: [
       {
@@ -288,25 +374,34 @@ export function compileScenario(
           "Attacker session revoked",
         description:
           "The session established from the unfamiliar address is terminated.",
-        sessionId: incident.sessionId,
+        sessionId:
+          investigationSessionId,
         expectedStatus: "revoked",
       },
-    ],
+    ].filter((objective) =>
+      objective.kind === "session_status"
+        ? incident.containment.revokeSession
+        : incident.containment
+            .disableAccount,
+    ),
 
     investigation: {
       alertId: incident.alertId,
       userId: incident.victimUserId,
       accountId: incident.victimAccountId,
       deviceId: incident.victimDeviceId,
-      sessionId: incident.sessionId,
+      sessionId: investigationSessionId,
       primaryActionId:
-        "action-disable-account",
+        incident.containment
+          .disableAccount
+          ? "action-disable-account"
+          : "action-isolate-device",
       responseActionIds: [
         "action-isolate-device",
         "action-disable-account",
         "action-revoke-session",
         "action-reset-password-only",
-      ],
+      ].filter(supportsAction),
     },
 
     groundTruth: {
@@ -320,6 +415,7 @@ What this incident teaches: ${incident.lesson}`,
 
     questions: incident.questions,
   };
+
 
   return {
     file: {

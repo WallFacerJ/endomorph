@@ -63,6 +63,46 @@ describe("detection report", () => {
   });
 
   describe("baseline comparison", () => {
+    it("reports a plan the baseline has never seen", () => {
+      // Comparing only the plans the baseline knows about means a new
+      // intrusion can be added with no coverage at all and the gate stays
+      // silent -- the one moment someone most needs to be told.
+      const result = compareToBaseline(
+        baseline,
+        summarise(1, 1, [
+          plan(),
+          plan({
+            planId: "brand-new",
+            coveredTechniques: [],
+            uncoveredTechniques: [
+              "T1566.001",
+              "T1003.001",
+            ],
+            rules: [],
+          }),
+        ]),
+      );
+
+      expect(result.regressed).toBe(
+        false,
+      );
+
+      expect(
+        result.findings.filter(
+          (finding) =>
+            finding.planId ===
+            "brand-new",
+        ),
+      ).toEqual([
+        {
+          severity: "improvement",
+          planId: "brand-new",
+          message:
+            "New plan, and no rule covers any of its 2 technique(s).",
+        },
+      ]);
+    });
+
     it("reports no findings for an identical report", () => {
       const result = compareToBaseline(
         baseline,

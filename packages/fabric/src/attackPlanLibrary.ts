@@ -6,6 +6,10 @@ import {
   DORMANT_ACCOUNT_PLAN,
 } from "./attackPlanDormant.js";
 
+import {
+  MACRO_EXECUTION_PLAN,
+} from "./attackPlanMacro.js";
+
 /**
  * The shipped plan library.
  *
@@ -947,4 +951,5 @@ export const ATTACK_PLANS: readonly AttackPlan[] =
     PRIVILEGED_INSIDER_PLAN,
     SERVICE_ACCOUNT_ABUSE_PLAN,
     DORMANT_ACCOUNT_PLAN,
+    MACRO_EXECUTION_PLAN,
   ];

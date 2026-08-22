@@ -573,9 +573,17 @@ export function generateIncident(
     alertId,
     alertSeverity: plan.alertSeverity,
     victimUserId: cast.subject.id,
-    victimAccountId:
-      cast.privilegedAccount?.id ??
-      cast.subjectAccount.id,
+    // The account the plan actually acts through, not merely the most
+    // privileged one the subject happens to hold. Preferring the elevated
+    // account unconditionally pointed the investigation -- and the "disable
+    // the compromised account" response -- at an account that appears
+    // nowhere in the incident, whenever a randomly picked subject held an
+    // admin account for a plan that never touches it.
+    victimAccountId: plan.requires
+      .privilegedAccount
+      ? (cast.privilegedAccount?.id ??
+        cast.subjectAccount.id)
+      : cast.subjectAccount.id,
     victimDeviceId: cast.subjectDevice.id,
     sessionId: cast.sessionId,
     lateralTargetDeviceId:

@@ -250,12 +250,57 @@
           "recall": 1
         }
       ]
+    },
+    {
+      "planId": "macro-execution",
+      "planName": "Phishing attachment with macro execution",
+      "recordCount": 3989,
+      "maliciousCount": 9,
+      "coveredTechniques": [
+        "T1059.001"
+      ],
+      "uncoveredTechniques": [
+        "T1003.001",
+        "T1005",
+        "T1071.001",
+        "T1547.001",
+        "T1566.001"
+      ],
+      "rules": [
+        {
+          "ruleId": "encoded-powershell",
+          "technique": "T1059.001",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        {
+          "ruleId": "naive-powershell",
+          "technique": "T1059.001",
+          "truePositives": 1,
+          "falsePositives": 51,
+          "falseNegatives": 0,
+          "precision": 0.0192,
+          "recall": 1
+        },
+        {
+          "ruleId": "smb-lateral",
+          "technique": "T1021.002",
+          "truePositives": 0,
+          "falsePositives": 15,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        }
+      ]
     }
   ],
   "totals": {
-    "coveredTechniques": 10,
-    "totalTechniques": 20,
-    "truePositives": 18,
-    "falsePositives": 263
+    "coveredTechniques": 11,
+    "totalTechniques": 26,
+    "truePositives": 20,
+    "falsePositives": 329
   }
 }

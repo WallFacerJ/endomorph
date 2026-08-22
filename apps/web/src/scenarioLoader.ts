@@ -57,6 +57,12 @@ export const SHIPPED_SCENARIOS:
       group: "generated",
     },
     {
+      path: "/scenarios/generated-macro.json",
+      label:
+        "Phishing macro execution",
+      group: "generated",
+    },
+    {
       path: "/scenarios/generated-insider.json",
       label:
         "Privileged insider (advanced)",

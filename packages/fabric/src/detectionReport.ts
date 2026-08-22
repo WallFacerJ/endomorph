@@ -265,6 +265,34 @@ export function compareToBaseline(
     }
   }
 
+  // A plan the baseline has never seen is reported rather than passed over.
+  // Comparing only the plans the baseline knows about means a new intrusion
+  // can be added with no coverage at all and the gate stays silent, which is
+  // the one moment someone most needs to be told.
+  const baselinePlans = new Set(
+    baseline.plans.map(
+      (plan) => plan.planId,
+    ),
+  );
+
+  for (const plan of current.plans) {
+    if (baselinePlans.has(plan.planId)) {
+      continue;
+    }
+
+    findings.push({
+      severity: "improvement",
+      planId: plan.planId,
+      message:
+        plan.coveredTechniques.length === 0
+          ? `New plan, and no rule covers any of its ${plan.uncoveredTechniques.length} technique(s).`
+          : `New plan, covering ${plan.coveredTechniques.length} of ${
+              plan.coveredTechniques.length +
+              plan.uncoveredTechniques.length
+            } technique(s).`,
+    });
+  }
+
   return {
     findings,
     regressed: findings.some(
