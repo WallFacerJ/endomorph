@@ -348,6 +348,49 @@ select:focus-visible {
   color: var(--pm-accent);
 }
 
+/*
+  Short aliases over the --pm-* system.
+ 
+  The endpoint and identity consoles were written against these names, and
+  nothing ever defined them. 115 declarations across those two files -- every
+  panel background, every border, most text colours -- referenced an
+  undefined custom property, which makes a declaration invalid at computed
+  value time and drops it. The panes rendered with a transparent background
+  and no border at all.
+ 
+  It reads as almost-fine on a dark page, which is why it survived: the text
+  is legible and the layout holds, so nothing looks broken. What is missing
+  is the separation between panels -- exactly the "everything is on the same
+  plane with no real separators" the consoles were reported to feel like.
+ 
+  Defined as aliases rather than literals so they follow the active theme;
+  the --pm-* values differ per theme and var() resolves at use.
+*/
+:root {
+  --panel: var(--pm-panel);
+  --panel-strong: var(--pm-panel-solid);
+  --panel-hover: color-mix(
+    in srgb,
+    var(--pm-panel-solid) 84%,
+    var(--pm-accent) 16%
+  );
+  --border: var(--pm-border);
+  --text: var(--pm-text);
+  --muted: var(--pm-muted);
+  --accent: var(--pm-accent);
+
+  /* Status colours, previously written as literals in the older panels. */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+
+  /* Referenced with fallbacks elsewhere; aliased so they follow the theme. */
+  --surface-base: var(--pm-bg);
+  --surface-border: var(--pm-border);
+  --text-primary: var(--pm-text);
+  --text-muted: var(--pm-muted);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

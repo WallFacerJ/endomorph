@@ -153,9 +153,26 @@
   cursor: pointer;
 }
 
+/*
+  The username truncates; the status must not. A flex item defaults to
+  min-width:auto, so a long address refused to shrink and pushed the status
+  badge past the pane's edge, clipping "active" to "ACT".
+*/
 .identity-account-row > span:first-child {
   display: grid;
   gap: 2px;
+  min-width: 0;
+}
+
+.identity-account-row > span:first-child > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.identity-account-row
+  > .identity-account-status {
+  flex: none;
 }
 
 .identity-account-row:hover,
