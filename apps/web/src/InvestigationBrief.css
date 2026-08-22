@@ -226,3 +226,11 @@
 .brief-expected code {
   font-weight: 600;
 }
+
+.brief-attack-withheld {
+  max-width: 68ch;
+  margin: 10px 0 0;
+  color: var(--muted, #94a7bc);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}

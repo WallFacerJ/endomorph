@@ -245,12 +245,37 @@ test("the default scenario is a generated one", async ({
     })
     .click();
 
-  // The depth that makes it worth defaulting to.
+  // The depth that makes it worth defaulting to. The default mode is
+  // Professional, which counts the techniques rather than naming them --
+  // naming them would tell the analyst what to hunt for -- so the depth is
+  // asserted through the count and the questions, and the ATT&CK mapping
+  // itself is checked in the mode that shows it.
   await expect(
     page.getByRole("region", {
       name: "Investigation brief",
     }),
   ).toBeVisible();
+
+  await expect(
+    page.getByText(
+      /\d+ techniques evidenced/,
+    ),
+  ).toBeVisible();
+
+  await expect(
+    page.getByText(
+      "Investigation questions",
+    ),
+  ).toBeVisible();
+
+  await page.goto("/?mode=guided");
+
+  await page
+    .getByRole("navigation")
+    .getByRole("button", {
+      name: "Investigation",
+    })
+    .click();
 
   await expect(
     page.locator("body"),

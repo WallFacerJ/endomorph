@@ -165,6 +165,10 @@ export function InvestigationWorkspace({
                 instructorMode &&
                 scenarioState.finalized
               }
+              revealTechniques={
+                scaffolding ||
+                scenarioState.finalized
+              }
             />
 
             {/*

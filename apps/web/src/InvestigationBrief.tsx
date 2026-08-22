@@ -66,6 +66,18 @@ export interface InvestigationBriefProps {
   observedTechniqueIds: readonly string[];
   finalized: boolean;
   revealAnswers: boolean;
+
+  /**
+   * Whether the technique identities may be shown during the run.
+   *
+   * Naming them up front tells an analyst what to go hunting for -- knowing
+   * that LSASS dumping is in scope is most of the work of finding it. A real
+   * analyst gets an alert, not a technique list, so Professional counts them
+   * while the run is live and names them in the after-action review.
+   * Guided and Instructor name them throughout; that is what those modes are
+   * for.
+   */
+  revealTechniques: boolean;
 }
 
 export function InvestigationBrief({
@@ -76,6 +88,7 @@ export function InvestigationBrief({
   observedTechniqueIds,
   finalized,
   revealAnswers,
+  revealTechniques,
 }: InvestigationBriefProps) {
   const [showHints, setShowHints] =
     useState(false);
@@ -167,7 +180,40 @@ export function InvestigationBrief({
         </div>
       </header>
 
-      {techniques.length > 0 && (
+      {techniques.length > 0 &&
+        !revealTechniques && (
+          <div className="brief-attack">
+            <div className="brief-attack-head">
+              <h4>
+                Adversary behaviour
+              </h4>
+
+              <span>
+                {
+                  observedTechniqueIds.length
+                }
+                /{techniques.length}{" "}
+                techniques evidenced
+              </span>
+            </div>
+
+            <p className="brief-attack-withheld">
+              This incident demonstrates{" "}
+              {techniques.length} ATT&amp;CK
+              techniques. Which ones is
+              withheld while the run is
+              live &mdash; naming them
+              tells you what to hunt for,
+              and an alert never does.
+              They are listed in full once
+              you finalize, and Guided
+              shows them throughout.
+            </p>
+          </div>
+        )}
+
+      {techniques.length > 0 &&
+        revealTechniques && (
         <div className="brief-attack">
           <div className="brief-attack-head">
             <h4>

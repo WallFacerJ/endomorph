@@ -190,3 +190,50 @@ test("the replay transport does not walk a professional through the attack", asy
     }),
   ).toBeVisible();
 });
+
+test("professional does not name the techniques until the run is over", async ({
+  page,
+}) => {
+  /*
+    The brief listed every ATT&CK technique the incident demonstrates before
+    any investigation had happened, in every mode. Naming them is most of the
+    work: knowing LSASS dumping is in scope tells you what to go and hunt
+    for, and an alert never does that. Professional counts them while the run
+    is live and names them in the after-action review; Guided and Instructor
+    name them throughout, which is what those modes are for.
+  */
+  const openBrief = async () => {
+    await page
+      .getByRole("navigation")
+      .getByRole("button", {
+        name: /Investigation/,
+      })
+      .click();
+  };
+
+  await page.goto(
+    "/?scenario=/scenarios/generated-macro.json&mode=professional",
+  );
+
+  await openBrief();
+
+  await expect(
+    page.getByText("T1003.001"),
+  ).toHaveCount(0);
+
+  await expect(
+    page.getByText(
+      /techniques evidenced/,
+    ),
+  ).toBeVisible();
+
+  await page.goto(
+    "/?scenario=/scenarios/generated-macro.json&mode=guided",
+  );
+
+  await openBrief();
+
+  await expect(
+    page.getByText("T1003.001").first(),
+  ).toBeVisible();
+});
