@@ -201,12 +201,19 @@ export function InvestigationWorkspace({
             />
 
             {/*
+              The timeline belongs to the brief, not to the answers. It was
+              rendering in both, so the answers view made you scroll past a
+              hundred and fifty rows of telemetry to reach the questions, and
+              on a scenario with no questions the two views were identical.
+
               Finalize used to sit here. The brief now renders above it --
               an ATT&CK matrix and six questions tall -- which pushed the
               action that completes the run below the fold. It lives in the
               header instead, where it is always reachable and sits beside
               the other run-level control.
             */}
+            {briefSection === "brief" && (
+              <>
             <div className="section-heading">
               <div>
                 <p className="eyebrow">
@@ -406,6 +413,8 @@ export function InvestigationWorkspace({
                 queried rather than
                 scrolled.
               </p>
+            )}
+              </>
             )}
           </section>
   );

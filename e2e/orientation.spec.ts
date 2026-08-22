@@ -539,3 +539,77 @@ test("objectives check themselves off from the work, not from navigation", async
     page.locator(".mission-item.done"),
   ).not.toHaveCount(0);
 });
+
+test("the answers view carries the questions and nothing else", async ({
+  page,
+}) => {
+  /*
+    Splitting the brief in two left the correlated timeline rendering in both
+    halves, so the answers view made you scroll past a hundred and fifty rows
+    of telemetry to reach the questions -- and on a scenario with no
+    questions the two views were byte-for-byte the same thing under two
+    different names.
+  */
+  await page.goto(
+    "/?scenario=/scenarios/generated-macro.json",
+  );
+
+  await page
+    .getByRole("navigation")
+    .getByRole("button", {
+      name: /^Answers/,
+    })
+    .click();
+
+  await expect(
+    page.getByText(
+      "Investigation questions",
+    ),
+  ).toBeVisible();
+
+  await expect(
+    page.getByText(
+      "Correlated incident timeline",
+    ),
+  ).toHaveCount(0);
+
+  // And the brief keeps it.
+  await page
+    .getByRole("navigation")
+    .getByRole("button", {
+      name: /^Brief/,
+    })
+    .click();
+
+  await expect(
+    page.getByText(
+      "Correlated incident timeline",
+    ),
+  ).toBeVisible();
+});
+
+test("a scenario without questions offers no answers view", async ({
+  page,
+}) => {
+  // The hand-authored v1 scenarios carry no questions. A nav entry that
+  // leads to the same content as the one above it is worse than no entry.
+  await page.goto(
+    "/?scenario=/scenarios/account-compromise.json",
+  );
+
+  await expect(
+    page
+      .getByRole("navigation")
+      .getByRole("button", {
+        name: /^Answers/,
+      }),
+  ).toHaveCount(0);
+
+  await expect(
+    page
+      .getByRole("navigation")
+      .getByRole("button", {
+        name: /^Brief/,
+      }),
+  ).toBeVisible();
+});

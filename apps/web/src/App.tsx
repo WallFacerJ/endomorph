@@ -962,7 +962,23 @@ function ScenarioWorkspace({
                   </span>
                 </p>
 
-                {group.items.map(
+                {group.items
+                  .filter(
+                    (item) =>
+                      /*
+                        A scenario without questions has nothing to record,
+                        and the view falls back to the same content as the
+                        brief. Offering a nav entry that leads somewhere
+                        identical is worse than not offering it -- the v1
+                        scenarios carry no questions, so this is a real case
+                        rather than a defensive one.
+                      */
+                      item.id !==
+                        "questions" ||
+                      (scenario.questions ??
+                        []).length > 0,
+                  )
+                  .map(
                   (item) => (
                     <button
                       key={item.id}
