@@ -77,7 +77,46 @@
   margin-left: 0.2rem;
 }
 
+/*
+  The range sits on top of the density, so the handle scrubs across the
+  environment's own rhythm rather than a flat bar. The bars are decorative
+  and are hidden from assistive technology -- the input already carries the
+  position and the status line carries the timestamp.
+*/
+/*
+  Density above the bar rather than behind it. Behind, the range's own filled
+  track covered all but the tallest bars, which is worse than not drawing
+  them -- the shape was there and unreadable.
+*/
+.replay-track {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.replay-density {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 20px;
+  padding: 0 8px;
+  pointer-events: none;
+}
+
+.replay-density > span {
+  flex: 1;
+  min-width: 0;
+  border-radius: 1px 1px 0 0;
+  background: color-mix(
+    in srgb,
+    var(--accent) 45%,
+    transparent
+  );
+}
+
 .replay-range {
+  position: relative;
   flex: 1;
   min-width: 0;
   accent-color: rgba(251, 191, 36, 0.9);

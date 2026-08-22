@@ -1062,6 +1062,11 @@ function ScenarioWorkspace({
               viewedEvents.length - 1
             ]?.timestamp
           }
+          density={
+            telemetryVolume.buckets.map(
+              (bucket) => bucket.total,
+            )
+          }
           markers={
             /*
               Ground truth, so instructor only. Handed to anyone else, the

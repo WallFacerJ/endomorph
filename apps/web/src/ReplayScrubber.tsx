@@ -34,6 +34,16 @@ export interface ReplayMarker {
 export interface ReplayScrubberProps {
   totalEvents: number;
 
+  /**
+   * Event density across the run, one value per slice.
+   *
+   * The track was a flat bar, so dragging it gave no sense of what was being
+   * scrubbed past -- 12,000 events and 200 look identical on a plain range
+   * input. The density is the environment's working rhythm, which is what
+   * makes a quiet stretch or a burst worth stopping on.
+   */
+  density?: readonly number[];
+
   /** Current position, or null when following the live end of history. */
   position: number | null;
 
@@ -59,6 +69,7 @@ function formatTime(
 
 export function ReplayScrubber({
   totalEvents,
+  density = [],
   position,
   renderedPosition,
   timestamp,
@@ -155,7 +166,34 @@ export function ReplayScrubber({
           &#9664;&#9664;
         </button>
 
-        <input
+        <span className="replay-track">
+          {density.length > 0 && (
+            <span
+              className="replay-density"
+              aria-hidden="true"
+            >
+              {density.map(
+                (value, index) => (
+                  <span
+                    key={index}
+                    style={{
+                      height: `${Math.max(
+                        6,
+                        (value /
+                          Math.max(
+                            1,
+                            ...density,
+                          )) *
+                          100,
+                      )}%`,
+                    }}
+                  />
+                ),
+              )}
+            </span>
+          )}
+
+          <input
           type="range"
           className="replay-range"
           aria-label="Replay position"
@@ -173,7 +211,8 @@ export function ReplayScrubber({
                 : next,
             );
           }}
-        />
+          />
+        </span>
 
         <button
           type="button"
