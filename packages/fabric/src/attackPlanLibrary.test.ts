@@ -294,6 +294,79 @@ describe("attack plan library", () => {
       ).toThrow(/Unknown attack plan/);
     });
 
+    it("stages Windows artefacts only on Windows hosts, across many seeds", () => {
+      // Found by sweeping seeds, not by the suite: the renderer took the
+      // subject's first listed device without checking what it was, so
+      // C:\\Windows\\System32\\WindowsPowerShell was staged on macOS and
+      // Ubuntu laptops in roughly four seeds out of ten. The ground truth
+      // then described something that could not have happened, and a rule
+      // keyed on a Windows event id would silently miss the whole incident
+      // because event codes are only emitted for Windows hosts.
+      //
+      // Invisible under the default seed, which happens to be Windows -- so
+      // this sweeps rather than sampling one.
+      for (
+        let seed = 1;
+        seed <= 240;
+        seed += 17
+      ) {
+        const enterprise =
+          generateEnterprise({ seed });
+
+        for (const plan of ATTACK_PLANS) {
+          if (
+            !plan.requires
+              .windowsWorkstation
+          ) {
+            continue;
+          }
+
+          const incident =
+            generateIncident(enterprise, {
+              planId: plan.id,
+            });
+
+          const deviceIds = new Set(
+            incident.events
+              .map(
+                (event) =>
+                  (
+                    event.payload as {
+                      deviceId?: string;
+                    }
+                  ).deviceId,
+              )
+              .filter(
+                (id): id is string =>
+                  typeof id === "string",
+              ),
+          );
+
+          for (const deviceId of deviceIds) {
+            const device =
+              enterprise.devices.find(
+                (candidate) =>
+                  candidate.id ===
+                  deviceId,
+              );
+
+            // Servers are legitimately not workstations; the requirement is
+            // about where the plan stages its process activity.
+            if (
+              !device ||
+              !device.ownerUserId
+            ) {
+              continue;
+            }
+
+            expect(
+              `${plan.id} seed ${seed}: ${device.hostname} ${device.operatingSystem}`,
+            ).toMatch(/windows/i);
+          }
+        }
+      }
+    });
+
     it("refuses to render a privileged plan without a privileged account", () => {
       // Silently substituting an ordinary account would produce an incident
       // whose ground truth is false.

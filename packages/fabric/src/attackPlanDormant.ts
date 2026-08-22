@@ -26,6 +26,7 @@ export const DORMANT_ACCOUNT_PLAN: AttackPlan =
     lesson:
       "Watch identity lifecycle, not only authentication. Nothing about the sign-in itself is unusual. The signal happened before it: an account belonging to someone who no longer works here was re-enabled, and a leaver's account has no legitimate reason to come back.",
     requires: {
+      windowsWorkstation: true,
       privilegedAccount: true,
       dormantAccount: true,
     },

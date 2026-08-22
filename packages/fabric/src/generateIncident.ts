@@ -1,4 +1,8 @@
 import type {
+  Device,
+} from "@endomorph/domain";
+
+import type {
   SimulationEvent,
 } from "@endomorph/simulation";
 
@@ -20,6 +24,18 @@ import {
 import type {
   GeneratedEnterprise,
 } from "./generateEnterprise.js";
+
+/** Whether a plan emitting Windows artefacts can be staged on this device. */
+function isWindows(
+  device: Device | undefined,
+): boolean {
+  return (
+    device !== undefined &&
+    device.operatingSystem
+      .toLowerCase()
+      .includes("windows")
+  );
+}
 
 /**
  * Renders an attack plan against a generated enterprise.
@@ -156,6 +172,16 @@ function resolveCast(
               enterprise.privilegedAccountIds.includes(
                 accountId,
               ),
+          )) &&
+        (!plan.requires
+          .windowsWorkstation ||
+          user.deviceIds.some((deviceId) =>
+            isWindows(
+              enterprise.devices.find(
+                (device) =>
+                  device.id === deviceId,
+              ),
+            ),
           )),
     );
 
@@ -200,15 +226,36 @@ function resolveCast(
     );
   }
 
-  const subjectDevice =
-    enterprise.devices.find(
-      (device) =>
-        device.id === subject.deviceIds[0],
-    );
+  const subjectDevices =
+    subject.deviceIds
+      .map((deviceId) =>
+        enterprise.devices.find(
+          (device) =>
+            device.id === deviceId,
+        ),
+      )
+      .filter(
+        (device): device is Device =>
+          device !== undefined,
+      );
+
+  // Prefer a device the plan can actually be staged on. Picking deviceIds[0]
+  // blindly put Windows paths and Windows event ids on macOS and Ubuntu
+  // laptops for four seeds in ten -- ground truth describing something that
+  // could not have happened, and invisible under the default seed because it
+  // happens to be Windows.
+  const subjectDevice = plan.requires
+    .windowsWorkstation
+    ? subjectDevices.find(isWindows)
+    : subjectDevices[0];
 
   if (!subjectDevice) {
     throw new Error(
-      `Subject ${subject.id} has no device.`,
+      `Subject ${subject.id} has no ${
+        plan.requires.windowsWorkstation
+          ? "Windows "
+          : ""
+      }device for plan ${plan.id}.`,
     );
   }
 

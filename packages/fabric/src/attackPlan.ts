@@ -103,6 +103,17 @@ export interface PlanRequirements {
 
   /** A restricted-classification document must exist. */
   readonly restrictedFile?: boolean;
+
+  /**
+   * The subject must work on a Windows workstation.
+   *
+   * Every plan that emits a Windows path, a Windows utility or a Windows
+   * event id needs this. Without it the renderer will happily put
+   * C:\Windows\System32\WindowsPowerShell on a MacBook, and the
+   * ground truth becomes a description of something that cannot have
+   * happened.
+   */
+  readonly windowsWorkstation?: boolean;
 }
 
 export interface AttackStep {

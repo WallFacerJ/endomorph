@@ -183,9 +183,9 @@
           "ruleId": "smb-lateral",
           "technique": "T1021.002",
           "truePositives": 2,
-          "falsePositives": 16,
+          "falsePositives": 17,
           "falseNegatives": 0,
-          "precision": 0.1111,
+          "precision": 0.1053,
           "recall": 1
         }
       ]
@@ -256,6 +256,6 @@
     "coveredTechniques": 10,
     "totalTechniques": 20,
     "truePositives": 18,
-    "falsePositives": 262
+    "falsePositives": 263
   }
 }

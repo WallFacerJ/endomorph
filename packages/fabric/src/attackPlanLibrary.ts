@@ -37,6 +37,7 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
     lesson:
       "Authentication provenance is the fastest way to separate an intrusion from noise. The account signed in from an address it had never used in five days of history, minutes after a burst of failures from the same address.",
     requires: {
+      windowsWorkstation: true,
       departments: ["Finance"],
       restrictedFile: true,
     },
@@ -378,6 +379,7 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
     lesson:
       "Nothing here came from outside. Every address is corporate, every credential is valid, and the account is entitled to what it touched. The signal is deviation from this person's own established pattern: an administrative account used outside its normal hours, against data its owner has no working relationship with, followed by log clearing.",
     requires: {
+      windowsWorkstation: true,
       privilegedAccount: true,
       restrictedFile: true,
     },
@@ -669,6 +671,7 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
     lesson:
       "The credential is valid and every connection is internal, so authentication provenance alone proves nothing. The signal is account-to-host affinity: this account has never authenticated from this workstation, and service accounts do not roam.",
     requires: {
+      windowsWorkstation: true,
       privilegedAccount: true,
     },
 
