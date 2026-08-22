@@ -155,6 +155,29 @@ Sigma import from rules/sigma
 
 Sigma names fields the way Windows and Sysmon logs do; the corpus is ECS-shaped, so importing translates vocabularies (`Image|endswith` → `process.executable`) and maps `attack.t1059.001` tags to techniques. Selections, negated filters, and the `contains` / `startswith` / `endswith` / `re` modifiers are supported.
 
+#### Detection regression testing
+
+Rules are code and regress like code. Editing one to catch a technique routinely stops it catching another, and nothing surfaces that until an incident is missed.
+
+```bash
+pnpm evaluate:baseline                                  # record current performance
+pnpm evaluate -- --baseline rules/detection-baseline.json   # fail if it regresses
+```
+
+```
+Baseline comparison against rules/detection-baseline.json
+  REGRESSION   dormant-account-revival: Rule account-reenabled no longer fires
+               here; it previously had 1 true positive(s).
+
+Detection coverage regressed against the baseline.
+```
+
+Non-zero exit, so it gates CI — and it does, on every push.
+
+Because the corpus is generated from a fixed seed, the comparison is **exact**: two runs produce identical numbers, so any difference is attributable to a rule change rather than to sampling. That is the property a captured corpus cannot offer.
+
+It fails on lost technique coverage and on a rule that stops firing — the second matters because a coverage count alone hides it, since another rule can cover the same technique while a specific one quietly dies. Added false positives are reported but do not fail: trading noise for recall is a legitimate call an author may be making deliberately.
+
 #### The loop this enables
 
 Adding the fourth attack plan showed the shipped ruleset detecting **nothing** on it — `techniques covered 0/4` — because no rule watched identity lifecycle. Two rules later (`account_reenabled`, `disabled_account_enumeration`) it reads `2/4`, both at 1.000 precision.

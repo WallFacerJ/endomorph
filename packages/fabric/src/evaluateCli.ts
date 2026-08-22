@@ -19,7 +19,6 @@ import {
 
 import {
   dirname,
-  resolve,
 } from "node:path";
 
 import {
@@ -42,6 +41,21 @@ import {
 import {
   importSigmaRules,
 } from "./sigma.js";
+
+import {
+  resolveFromRoot,
+} from "./workspaceRoot.js";
+
+import {
+  buildPlanReport,
+  compareToBaseline,
+  summarise,
+} from "./detectionReport.js";
+
+import type {
+  DetectionReport,
+  PlanReport,
+} from "./detectionReport.js";
 
 import type {
   DetectionRule,
@@ -109,14 +123,17 @@ function main(): void {
   ];
 
   if (sigmaDir) {
-    if (!existsSync(sigmaDir)) {
+    const sigmaRoot =
+      resolveFromRoot(sigmaDir);
+
+    if (!existsSync(sigmaRoot)) {
       throw new Error(
-        `Sigma directory not found: ${sigmaDir}`,
+        `Sigma directory not found: ${sigmaRoot}`,
       );
     }
 
     const documents = readdirSync(
-      sigmaDir,
+      sigmaRoot,
     )
       .filter(
         (name) =>
@@ -126,7 +143,7 @@ function main(): void {
       .map((name) => ({
         source: name,
         yaml: readFileSync(
-          `${sigmaDir}/${name}`,
+          `${sigmaRoot}/${name}`,
           "utf8",
         ),
       }));
@@ -134,6 +151,9 @@ function main(): void {
     const imported =
       importSigmaRules(documents);
 
+    // Replaces the built-in set rather than adding to it: the point of
+    // pointing at a rule directory is to score *that* ruleset, and mixing
+    // in rules the author did not write would make the numbers meaningless.
     rules = [...imported.rules];
 
     process.stdout.write(
@@ -151,6 +171,22 @@ function main(): void {
 
     process.stdout.write("\n");
   }
+
+  const flag = (name: string) => {
+    const index = argv.indexOf(
+      `--${name}`,
+    );
+
+    return index >= 0
+      ? argv[index + 1]
+      : undefined;
+  };
+
+  const jsonPath = flag("json");
+
+  const baselinePath = flag("baseline");
+
+  const planReports: PlanReport[] = [];
 
   const enterprise = generateEnterprise({
     seed,
@@ -256,8 +292,7 @@ function main(): void {
     process.stdout.write("\n");
 
     if (exportPath) {
-      const target = resolve(
-        process.cwd(),
+      const target = resolveFromRoot(
         exportPath.replace(
           /\.ndjson$/,
           "",
@@ -289,6 +324,96 @@ function main(): void {
 
       process.stdout.write(
         `  exported ${target}\n\n`,
+      );
+    }
+
+    planReports.push(
+      buildPlanReport(
+        plan.id,
+        plan.name,
+        corpus.manifest.recordCount,
+        corpus.manifest.maliciousCount,
+        report,
+      ),
+    );
+  }
+
+  const summary = summarise(
+    seed,
+    rules.length,
+    planReports,
+  );
+
+  if (jsonPath) {
+    const target =
+      resolveFromRoot(jsonPath);
+
+    mkdirSync(dirname(target), {
+      recursive: true,
+    });
+
+    writeFileSync(
+      target,
+      `${JSON.stringify(summary, null, 2)}\n`,
+      "utf8",
+    );
+
+    process.stdout.write(
+      `Report written to ${jsonPath}\n\n`,
+    );
+  }
+
+  if (baselinePath) {
+    const baselineFile =
+      resolveFromRoot(baselinePath);
+
+    if (!existsSync(baselineFile)) {
+      throw new Error(
+        `Baseline not found: ${baselineFile}`,
+      );
+    }
+
+    const baseline = JSON.parse(
+      readFileSync(baselineFile, "utf8"),
+    ) as DetectionReport;
+
+    const result = compareToBaseline(
+      baseline,
+      summary,
+    );
+
+    process.stdout.write(
+      `Baseline comparison against ${baselinePath}\n`,
+    );
+
+    if (result.findings.length === 0) {
+      process.stdout.write(
+        "  no change\n\n",
+      );
+    }
+
+    for (const finding of result.findings) {
+      process.stdout.write(
+        `  ${
+          finding.severity ===
+          "regression"
+            ? "REGRESSION "
+            : "improvement"
+        }  ${finding.planId}: ${finding.message}\n`,
+      );
+    }
+
+    if (result.regressed) {
+      process.stdout.write(
+        "\nDetection coverage regressed against the baseline.\n",
+      );
+
+      process.exitCode = 1;
+    } else if (
+      result.findings.length > 0
+    ) {
+      process.stdout.write(
+        "\nNo regressions. Update the baseline to accept these changes.\n",
       );
     }
   }

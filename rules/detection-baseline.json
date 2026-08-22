@@ -1,0 +1,261 @@
+{
+  "generator": "endomorph-fabric",
+  "seed": 20260820,
+  "ruleCount": 11,
+  "plans": [
+    {
+      "planId": "credential-compromise",
+      "planName": "External credential compromise",
+      "recordCount": 4045,
+      "maliciousCount": 13,
+      "coveredTechniques": [
+        "T1059.001",
+        "T1069.002",
+        "T1078.002",
+        "T1110.003"
+      ],
+      "uncoveredTechniques": [
+        "T1005",
+        "T1021.002",
+        "T1071.001"
+      ],
+      "rules": [
+        {
+          "ruleId": "auth-spray",
+          "technique": "T1110.003",
+          "truePositives": 4,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        {
+          "ruleId": "encoded-powershell",
+          "technique": "T1059.001",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        {
+          "ruleId": "naive-powershell",
+          "technique": "T1059.001",
+          "truePositives": 1,
+          "falsePositives": 51,
+          "falseNegatives": 0,
+          "precision": 0.0192,
+          "recall": 1
+        },
+        {
+          "ruleId": "external-auth-success",
+          "technique": "T1078.002",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 1,
+          "precision": 1,
+          "recall": 0.5
+        },
+        {
+          "ruleId": "smb-lateral",
+          "technique": "T1021.002",
+          "truePositives": 0,
+          "falsePositives": 15,
+          "falseNegatives": 1,
+          "precision": 0,
+          "recall": 0
+        },
+        {
+          "ruleId": "domain-group-discovery",
+          "technique": "T1069.002",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      ]
+    },
+    {
+      "planId": "privileged-insider",
+      "planName": "Privileged insider data collection",
+      "recordCount": 3925,
+      "maliciousCount": 7,
+      "coveredTechniques": [
+        "T1070.001",
+        "T1560.001"
+      ],
+      "uncoveredTechniques": [
+        "T1039",
+        "T1078.003",
+        "T1087.002"
+      ],
+      "rules": [
+        {
+          "ruleId": "naive-powershell",
+          "technique": "T1059.001",
+          "truePositives": 1,
+          "falsePositives": 50,
+          "falseNegatives": 0,
+          "precision": 0.0196,
+          "recall": 1
+        },
+        {
+          "ruleId": "log-clearing",
+          "technique": "T1070.001",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        {
+          "ruleId": "archive-staging",
+          "technique": "T1560.001",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        {
+          "ruleId": "smb-lateral",
+          "technique": "T1021.002",
+          "truePositives": 0,
+          "falsePositives": 15,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "disabled-account-enumeration",
+          "technique": "T1087.002",
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 1,
+          "precision": 0,
+          "recall": 0
+        }
+      ]
+    },
+    {
+      "planId": "service-account-abuse",
+      "planName": "Service account used from an unfamiliar host",
+      "recordCount": 3908,
+      "maliciousCount": 7,
+      "coveredTechniques": [
+        "T1021.002",
+        "T1570"
+      ],
+      "uncoveredTechniques": [
+        "T1018",
+        "T1078.002"
+      ],
+      "rules": [
+        {
+          "ruleId": "naive-powershell",
+          "technique": "T1059.001",
+          "truePositives": 1,
+          "falsePositives": 50,
+          "falseNegatives": 0,
+          "precision": 0.0196,
+          "recall": 1
+        },
+        {
+          "ruleId": "external-auth-success",
+          "technique": "T1078.002",
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 2,
+          "precision": 0,
+          "recall": 0
+        },
+        {
+          "ruleId": "admin-share-transfer",
+          "technique": "T1570",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        {
+          "ruleId": "smb-lateral",
+          "technique": "T1021.002",
+          "truePositives": 2,
+          "falsePositives": 16,
+          "falseNegatives": 0,
+          "precision": 0.1111,
+          "recall": 1
+        }
+      ]
+    },
+    {
+      "planId": "dormant-account-revival",
+      "planName": "Dormant account revived for access",
+      "recordCount": 3924,
+      "maliciousCount": 6,
+      "coveredTechniques": [
+        "T1087.002",
+        "T1098"
+      ],
+      "uncoveredTechniques": [
+        "T1039",
+        "T1078.002"
+      ],
+      "rules": [
+        {
+          "ruleId": "naive-powershell",
+          "technique": "T1059.001",
+          "truePositives": 1,
+          "falsePositives": 50,
+          "falseNegatives": 0,
+          "precision": 0.0196,
+          "recall": 1
+        },
+        {
+          "ruleId": "external-auth-success",
+          "technique": "T1078.002",
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 2,
+          "precision": 0,
+          "recall": 0
+        },
+        {
+          "ruleId": "smb-lateral",
+          "technique": "T1021.002",
+          "truePositives": 0,
+          "falsePositives": 15,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "account-reenabled",
+          "technique": "T1098",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        {
+          "ruleId": "disabled-account-enumeration",
+          "technique": "T1087.002",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "coveredTechniques": 10,
+    "totalTechniques": 20,
+    "truePositives": 18,
+    "falsePositives": 262
+  }
+}

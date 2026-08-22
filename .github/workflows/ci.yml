@@ -41,6 +41,14 @@ jobs:
       - name: Test
         run: pnpm test:run
 
+      # Detection rules are code and regress like code. Editing a rule to
+      # catch one technique routinely stops it catching another, and nothing
+      # surfaces that until an incident is missed. The corpus is generated
+      # from a fixed seed, so this comparison is exact and any difference is
+      # attributable to a rule change.
+      - name: Detection regression
+        run: pnpm evaluate -- --baseline rules/detection-baseline.json
+
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps chromium
 
