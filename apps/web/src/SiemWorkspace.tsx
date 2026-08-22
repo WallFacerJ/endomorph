@@ -20,6 +20,10 @@ import {
   bucketByTime,
 } from "./chartData";
 
+import type {
+  WorldState,
+} from "./simulationAdapter";
+
 import {
   Icon,
 } from "./Icon";
@@ -30,6 +34,17 @@ import "./SiemWorkspace.css";
 const RESULT_PAGE_SIZE = 200;
 
 interface SiemWorkspaceProps {
+  /**
+   * The world, for showing names rather than identifiers.
+   *
+   * The subject column printed "device-hr-lt-028" where the rest of the
+   * product -- the alert, the endpoint console, the questions -- all say
+   * "HR-LT-028". Pivoting between consoles means recognising the same entity
+   * in each, and a different spelling in every view is exactly the friction
+   * that makes it feel like a different system each time.
+   */
+  world: WorldState;
+
   records: readonly SiemEventRecord[];
   initialQuery?: string;
   finalized: boolean;
@@ -105,6 +120,7 @@ function fieldDisplayValue(
 }
 
 export function SiemWorkspace({
+  world,
   records,
   initialQuery,
   finalized,
@@ -149,6 +165,52 @@ export function SiemWorkspace({
     Bucketed from the matched records rather than from all telemetry, so it
     reflects the query and not the corpus.
   */
+  /*
+    One lookup for every kind of entity a subject id can name. Built once
+    from the world rather than per row, which matters at two hundred rows.
+  */
+  const entityNames = useMemo(() => {
+    const names = new Map<
+      string,
+      string
+    >();
+
+    for (const device of Object.values(
+      world.devices,
+    )) {
+      names.set(
+        device.id,
+        device.hostname,
+      );
+    }
+
+    for (const account of Object.values(
+      world.accounts,
+    )) {
+      names.set(
+        account.id,
+        account.username,
+      );
+    }
+
+    for (const user of Object.values(
+      world.users,
+    )) {
+      names.set(
+        user.id,
+        user.displayName,
+      );
+    }
+
+    for (const file of Object.values(
+      world.files,
+    )) {
+      names.set(file.id, file.name);
+    }
+
+    return names;
+  }, [world]);
+
   const resultVolume = useMemo(
     () =>
       bucketByTime(
@@ -461,7 +523,12 @@ export function SiemWorkspace({
                       <code>{record.eventType}</code>
                     </td>
                     <td>
-                      {record.subjectId ?? "—"}
+                      {(record.subjectId &&
+                        entityNames.get(
+                          record.subjectId,
+                        )) ??
+                        record.subjectId ??
+                        "—"}
                     </td>
                     <td className="siem-message-cell">
                       {record.message}
@@ -566,7 +633,14 @@ export function SiemWorkspace({
                 </div>
                 <div>
                   <dt>Subject</dt>
-                  <dd>{selectedRecord.subjectId ?? "—"}</dd>
+                  <dd>
+                    {(selectedRecord.subjectId &&
+                      entityNames.get(
+                        selectedRecord.subjectId,
+                      )) ??
+                      selectedRecord.subjectId ??
+                      "—"}
+                  </dd>
                 </div>
                 <div>
                   <dt>Severity</dt>

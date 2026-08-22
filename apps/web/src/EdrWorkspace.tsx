@@ -17,6 +17,10 @@ import {
   actionTargetsDevice,
 } from "./actionRouting";
 
+import type {
+  WorldState,
+} from "./simulationAdapter";
+
 import {
   Icon,
 } from "./Icon";
@@ -36,6 +40,17 @@ interface EndpointInventoryItem {
 }
 
 interface EdrWorkspaceProps {
+  /**
+   * The world, for resolving identifiers to the names people use.
+   *
+   * The console showed raw entity ids -- "file-deployment-keys-txt",
+   * "account-rosa.rahman" -- where an analyst expects "deployment-keys.txt"
+   * and "rosa.rahman@acme.test". One of the investigation questions asks
+   * which document was read and accepts the file's name, so the console was
+   * asking the analyst to guess a transformation rather than read a value.
+   */
+  world: WorldState;
+
   state: EdrProjectionState;
   devices: readonly EndpointInventoryItem[];
   initialDeviceId: string;
@@ -154,6 +169,7 @@ function DetailActionBar({
 }
 
 export function EdrWorkspace({
+  world,
   state,
   devices,
   initialDeviceId,
@@ -262,6 +278,29 @@ export function EdrWorkspace({
 
     return byDevice;
   }, [state.processes]);
+
+  const fileNames = useMemo(
+    () =>
+      new Map(
+        Object.values(world.files).map(
+          (file) => [file.id, file.name],
+        ),
+      ),
+    [world.files],
+  );
+
+  const accountNames = useMemo(
+    () =>
+      new Map(
+        Object.values(
+          world.accounts,
+        ).map((account) => [
+          account.id,
+          account.username,
+        ]),
+      ),
+    [world.accounts],
+  );
 
   const filteredDevices = useMemo(() => {
     const needle = endpointFilter
@@ -641,15 +680,26 @@ export function EdrWorkspace({
                   }
                 >
                   <span>
-                    <strong>{activity.fileId}</strong>
-                    <small>file entity</small>
+                    <strong>
+                      {fileNames.get(
+                        activity.fileId,
+                      ) ?? activity.fileId}
+                    </strong>
+                    <small>file</small>
                   </span>
                   <span>
                     <strong>{activity.operation}</strong>
                     <small>operation</small>
                   </span>
                   <span>
-                    <strong>{activity.accountId ?? "—"}</strong>
+                    <strong>
+                      {(activity.accountId &&
+                        accountNames.get(
+                          activity.accountId,
+                        )) ??
+                        activity.accountId ??
+                        "—"}
+                    </strong>
                     <small>account</small>
                   </span>
                   <time>{formatTimestamp(activity.timestamp)}</time>
@@ -751,12 +801,16 @@ export function EdrWorkspace({
             <>
               <div className="edr-detail-heading">
                 <p className="eyebrow">File activity</p>
-                <h4>{selectedFile.fileId}</h4>
+                <h4>
+                  {fileNames.get(
+                    selectedFile.fileId,
+                  ) ?? selectedFile.fileId}
+                </h4>
                 <code>{selectedFile.eventId}</code>
               </div>
               <dl className="edr-detail-fields">
                 <div><dt>Operation</dt><dd>{selectedFile.operation}</dd></div>
-                <div><dt>Account</dt><dd>{selectedFile.accountId ?? "—"}</dd></div>
+                <div><dt>Account</dt><dd>{(selectedFile.accountId && accountNames.get(selectedFile.accountId)) ?? selectedFile.accountId ?? "—"}</dd></div>
                 <div><dt>Observed</dt><dd>{selectedFile.timestamp}</dd></div>
               </dl>
               <DetailActionBar

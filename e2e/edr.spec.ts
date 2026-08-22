@@ -141,8 +141,13 @@ test("EDR endpoint activity separates process, network, file, and alert investig
     "tab",
     { name: /Files/ },
   ).click();
+  // The file's name, not its entity id. The console used to print
+  // "file-fin-quarterly-review-docm" while the alert, the questions and
+  // every other view called it QuarterlyReview.docm -- and one investigation
+  // question accepts the name, so the console was asking the analyst to
+  // guess a transformation rather than read a value.
   await expect(workspace).toContainText(
-    "file-fin-quarterly-review-docm",
+    "QuarterlyReview.docm",
   );
   await expect(workspace).toContainText("execute");
 

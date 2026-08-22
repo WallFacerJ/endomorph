@@ -1560,6 +1560,7 @@ function ScenarioWorkspace({
         {activeView === "siem" && (
           <section className="workspace-section siem-section">
             <SiemWorkspace
+              world={scenarioState.world}
               key={`siem-${siemPivot.nonce}`}
               records={projections.siem.events}
               initialQuery={siemPivot.query}
@@ -1637,6 +1638,7 @@ function ScenarioWorkspace({
         {activeView === "endpoint" && (
           <section className="workspace-section edr-section">
             <EdrWorkspace
+              world={scenarioState.world}
               state={projections.edr}
               devices={Object.values(scenarioState.world.devices)}
               initialDeviceId={context.deviceId}
