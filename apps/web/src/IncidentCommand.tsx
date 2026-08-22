@@ -11,7 +11,6 @@ import {
 } from "./simulationAdapter";
 
 import type {
-  EvidenceGraphNode,
   IncidentCaseState,
   IncidentPhase,
   SiemEventRecord,
@@ -21,6 +20,10 @@ import type {
 import {
   Icon,
 } from "./Icon";
+
+import {
+  EvidenceGraphView,
+} from "./EvidenceGraphView";
 
 import "./IncidentCommand.css";
 
@@ -36,19 +39,6 @@ const PHASE_LABELS: Record<
   lessons_learned: "Lessons learned",
 };
 
-const NODE_KIND_LABELS: Record<
-  EvidenceGraphNode["kind"],
-  string
-> = {
-  user: "User",
-  account: "Account",
-  device: "Endpoint",
-  application: "Application",
-  file: "File",
-  session: "Session",
-  address: "Address",
-  alert: "Alert",
-};
 
 export interface IncidentCommandProps {
   world: WorldState;
@@ -75,6 +65,18 @@ export function IncidentCommand({
     hypothesisStatement,
     setHypothesisStatement,
   ] = useState("");
+
+  /*
+    Selecting an entity lights its relationships in the graph. Held here
+    rather than inside the graph so the selection survives the graph being
+    rebuilt as more evidence is collected.
+  */
+  const [
+    selectedNodeId,
+    setSelectedNodeId,
+  ] = useState<string | undefined>(
+    undefined,
+  );
 
   const [taskTitle, setTaskTitle] =
     useState("");
@@ -343,46 +345,24 @@ export function IncidentCommand({
               the case builds itself.
             </div>
           ) : (
-            <ul className="incident-nodes">
-              {graph.nodes.map((node) => (
-                <li key={node.id}>
-                  <button
-                    type="button"
-                    className={
-                      node.external
-                        ? "incident-node external"
-                        : "incident-node"
-                    }
-                    onClick={() =>
-                      onPivotToSiem(
-                        node.kind ===
-                          "address"
-                          ? `sourceIp:${node.id}`
-                          : node.id,
-                      )
-                    }
-                    title="Pivot to SIEM"
-                  >
-                    <span className="incident-node-kind">
-                      {
-                        NODE_KIND_LABELS[
-                          node.kind
-                        ]
-                      }
-                    </span>
-                    <span className="incident-node-label">
-                      {node.label}
-                    </span>
-                    <span className="incident-node-count">
-                      {
-                        node.eventIds
-                          .length
-                      }
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <EvidenceGraphView
+              graph={graph}
+              selectedId={selectedNodeId}
+              onSelect={(node) => {
+                setSelectedNodeId(
+                  (current) =>
+                    current === node.id
+                      ? undefined
+                      : node.id,
+                );
+
+                onPivotToSiem(
+                  node.kind === "address"
+                    ? `sourceIp:${node.id}`
+                    : node.id,
+                );
+              }}
+            />
           )}
 
           {graph.edges.length > 0 && (

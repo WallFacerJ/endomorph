@@ -1,0 +1,116 @@
+.evidence-graph {
+  display: grid;
+  gap: 12px;
+}
+
+/*
+  Direct child only. As a descendant selector this also matched the icons
+  inside the legend chips, so each 13px icon was stretched to 100% of the
+  chip -- 148px -- and shoved its own label outside the pill. The label was
+  in the DOM and measured 0px wide, which sent me looking at the label
+  instead of at the thing beside it.
+*/
+.evidence-graph > svg {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  aspect-ratio: 1;
+  overflow: visible;
+}
+
+.evidence-edge {
+  stroke: var(--border);
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+/*
+  Selecting an entity lights the relationships it is part of, which is the
+  question the graph is actually asked: not "what is connected" but "what is
+  this connected to".
+*/
+.evidence-edge.active {
+  stroke: var(--accent);
+  opacity: 1;
+}
+
+.evidence-node circle {
+  fill: var(--panel-strong);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+/*
+  External entities take the alert colour rather than the accent. An address
+  outside the estate is the thing an analyst is looking for in a graph of
+  otherwise ordinary corporate entities.
+*/
+.evidence-node.external circle {
+  stroke: var(--danger);
+}
+
+.evidence-node.selected circle {
+  fill: var(--accent);
+  stroke: var(--pm-text-strong);
+  stroke-width: 2;
+}
+
+.evidence-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.evidence-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel-strong);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.evidence-chip:hover {
+  border-color: var(--accent);
+}
+
+.evidence-chip.selected {
+  border-color: var(--accent);
+  background: color-mix(
+    in srgb,
+    var(--accent) 16%,
+    transparent
+  );
+}
+
+.evidence-chip .icon {
+  color: var(--muted);
+}
+
+.evidence-chip.selected .icon {
+  color: var(--accent);
+}
+
+.evidence-chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.evidence-external {
+  color: var(--danger);
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
