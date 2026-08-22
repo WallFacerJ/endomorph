@@ -62,7 +62,6 @@ export interface InvestigationWorkspaceProps {
   onPerformAction: (
     actionId: string,
   ) => void;
-  onFinalize: () => void;
   analystCase: AnalystCaseState;
   /** The SIEM projection of the events currently in view. */
   siemRecords: readonly SiemEventRecord[];
@@ -93,7 +92,6 @@ export function InvestigationWorkspace({
   scaffolding,
   responseActions,
   onPerformAction,
-  onFinalize,
   analystCase,
   siemRecords,
   coverage,
@@ -146,6 +144,13 @@ export function InvestigationWorkspace({
               }
             />
 
+            {/*
+              Finalize used to sit here. The brief now renders above it --
+              an ATT&CK matrix and six questions tall -- which pushed the
+              action that completes the run below the fold. It lives in the
+              header instead, where it is always reachable and sits beside
+              the other run-level control.
+            */}
             <div className="section-heading">
               <div>
                 <p className="eyebrow">
@@ -153,17 +158,6 @@ export function InvestigationWorkspace({
                 </p>
                 <h3>Correlated incident timeline</h3>
               </div>
-
-              <button
-                type="button"
-                className="primary-button"
-                onClick={onFinalize}
-                disabled={scenarioState.finalized}
-              >
-                {scenarioState.finalized
-                  ? "Investigation finalized"
-                  : "Finalize investigation"}
-              </button>
             </div>
 
             {(scaffolding ||

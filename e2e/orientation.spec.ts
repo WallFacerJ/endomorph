@@ -347,3 +347,41 @@ test("the scenario selector separates generated from hand-authored", async ({
     markup.indexOf("Hand-authored"),
   );
 });
+
+test("finalizing is reachable without scrolling past the brief", async ({
+  page,
+}) => {
+  // Placement is identical across scenarios, so use a small one rather than
+  // paying 20 seconds to compile 17.9k events to assert where a button is.
+  await page.goto(
+    "/?scenario=/scenarios/account-compromise.json",
+  );
+
+  await page
+    .getByRole("button", {
+      name: "Open investigation",
+    })
+    .click();
+
+  const finalize = page.getByRole(
+    "button",
+    {
+      name: "Finalize investigation",
+    },
+  );
+
+  // It used to sit below the brief, which on a generated scenario is an
+  // ATT&CK matrix and six questions tall. The action that completes the run
+  // has to be reachable without hunting for it.
+  await expect(
+    finalize,
+  ).toBeInViewport();
+
+  await finalize.click();
+
+  await expect(
+    page.getByRole("button", {
+      name: "Investigation finalized",
+    }),
+  ).toBeDisabled();
+});

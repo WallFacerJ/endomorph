@@ -416,6 +416,16 @@ function ScenarioWorkspace({
     ],
   );
 
+  // Switching views used to keep the previous scroll position, dropping the
+  // analyst into the middle of a workspace they had not seen and leaving the
+  // run status and controls above the fold. Each view starts at its top.
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "instant",
+    });
+  }, [activeView]);
+
   useEffect(() => {
     saveRun({
       scenarioPath,
@@ -834,14 +844,14 @@ function ScenarioWorkspace({
             </p>
           </div>
 
+          {/*
+            Run actions and setup controls are separate rows. Interleaved in
+            one wrapping flex row, three control groups plus four actions
+            pushed Finalize below the fold at 1280x720 -- the action that
+            completes the run, off-screen on an ordinary laptop.
+          */}
           <div className="topbar-actions">
-            <ScenarioControls
-              scenarioPath={scenarioPath}
-              sessionMode={sessionMode}
-              onSessionModeChange={
-                setSessionMode
-              }
-            />
+            <div className="topbar-run">
             <span
               className={
                 scenarioState.finalized &&
@@ -896,11 +906,32 @@ function ScenarioWorkspace({
               )}
             <button
               type="button"
+              className="primary-button"
+              onClick={finalizeInvestigation}
+              disabled={
+                scenarioState.finalized
+              }
+            >
+              {scenarioState.finalized
+                ? "Investigation finalized"
+                : "Finalize investigation"}
+            </button>
+            <button
+              type="button"
               className="secondary-button"
               onClick={resetScenario}
             >
               Reset scenario
             </button>
+            </div>
+
+            <ScenarioControls
+              scenarioPath={scenarioPath}
+              sessionMode={sessionMode}
+              onSessionModeChange={
+                setSessionMode
+              }
+            />
           </div>
         </header>
 
@@ -1086,9 +1117,6 @@ function ScenarioWorkspace({
             }
             onPerformAction={
               performResponseAction
-            }
-            onFinalize={
-              finalizeInvestigation
             }
             analystCase={analystCase}
             siemRecords={

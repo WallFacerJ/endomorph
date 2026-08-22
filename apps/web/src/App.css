@@ -986,3 +986,23 @@ textarea:focus-visible {
   max-width: 28ch;
   line-height: 1.35;
 }
+
+/* Run actions first and on their own line, so the control that completes an
+   investigation is never pushed below the fold by setup controls. */
+.topbar-actions {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.7rem;
+}
+
+.topbar-run {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.topbar > div:first-child {
+  max-width: 46ch;
+}
