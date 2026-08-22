@@ -87,8 +87,43 @@ export function IdentityWorkspace({
     );
   const [activeTab, setActiveTab] =
     useState<IdentityTab>("authentication");
+  // The console exists to examine one account. Finding it meant scrolling
+  // past 119 others, which also stretched the page to twenty-odd screens.
+  const [directoryFilter, setDirectoryFilter] =
+    useState("");
+
   const [selectedEvent, setSelectedEvent] =
     useState<SelectedIdentityEvent | null>(null);
+
+  const filteredInventory = useMemo(() => {
+    const needle = directoryFilter
+      .trim()
+      .toLowerCase();
+
+    if (needle.length === 0) {
+      return inventory;
+    }
+
+    // Matches on the things an analyst actually arrives holding: a name from
+    // a ticket, a username from an alert, or a department when scoping.
+    return inventory.filter(
+      (entry) =>
+        entry.user.displayName
+          .toLowerCase()
+          .includes(needle) ||
+        entry.user.department
+          .toLowerCase()
+          .includes(needle) ||
+        (entry.user.title ?? "")
+          .toLowerCase()
+          .includes(needle) ||
+        entry.accounts.some((account) =>
+          account.username
+            .toLowerCase()
+            .includes(needle),
+        ),
+    );
+  }, [inventory, directoryFilter]);
 
   const investigation = useMemo(
     () =>
@@ -162,9 +197,36 @@ export function IdentityWorkspace({
         >
           <div className="identity-pane-heading">
             <span>Directory</span>
-            <small>{inventory.length} users</small>
+            <small>
+              {filteredInventory.length ===
+              inventory.length
+                ? `${inventory.length} users`
+                : `${filteredInventory.length} of ${inventory.length}`}
+            </small>
           </div>
-          {inventory.map((entry) => (
+
+          <div className="identity-directory-filter">
+            <input
+              type="search"
+              value={directoryFilter}
+              placeholder="Filter by name, username, or department"
+              aria-label="Filter the directory"
+              onChange={(event) =>
+                setDirectoryFilter(
+                  event.target.value,
+                )
+              }
+            />
+          </div>
+
+          <div className="identity-directory-scroll">
+          {filteredInventory.length === 0 && (
+            <p className="identity-directory-empty">
+              No account matches
+              &ldquo;{directoryFilter}&rdquo;.
+            </p>
+          )}
+          {filteredInventory.map((entry) => (
             <div
               className="identity-user-group"
               key={entry.user.id}
@@ -205,6 +267,7 @@ export function IdentityWorkspace({
               </div>
             </div>
           ))}
+          </div>
         </aside>
 
         <section className="identity-activity-pane">

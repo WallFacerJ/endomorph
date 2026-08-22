@@ -68,6 +68,42 @@
   overflow: hidden;
 }
 
+/*
+  The inventory scrolls inside its own pane rather than stretching the page.
+  147 endpoints listed unbounded made this console sixteen screens tall.
+*/
+.edr-endpoint-scroll {
+  max-height: 60vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.edr-endpoint-filter {
+  padding: 0 12px 10px;
+}
+
+.edr-endpoint-filter input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-hover);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.edr-endpoint-filter input::placeholder {
+  color: var(--muted);
+}
+
+.edr-endpoint-empty {
+  margin: 0;
+  padding: 16px 12px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
 .edr-pane-heading {
   display: flex;
   justify-content: space-between;

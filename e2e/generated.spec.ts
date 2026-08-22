@@ -122,3 +122,79 @@ test("the endpoint names what launched each process", async ({
     ).first(),
   ).toBeVisible();
 });
+
+test("the entity inventories are filterable and do not stretch the page", async ({
+  page,
+}) => {
+  // Both consoles listed their whole inventory unbounded: Identity ran to
+  // 23,377px and Endpoint to 16,284px, so every other panel sat far below the
+  // fold and an analyst holding a hostname or a username had to scroll for
+  // it. The lists now scroll inside their own pane and can be filtered.
+  await page.goto(GENERATED_SCENARIO);
+
+  await page.getByRole(
+    "button",
+    { name: "Got it" },
+  ).click();
+
+  await page.getByRole("button", {
+    name: /^Identity/,
+  }).click();
+
+  const directoryFilter =
+    page.getByLabel(
+      "Filter the directory",
+    );
+
+  await expect(
+    directoryFilter,
+  ).toBeVisible();
+
+  await directoryFilter.fill("simone");
+
+  await expect(
+    page.locator(
+      ".identity-user-group",
+    ),
+  ).toHaveCount(1);
+
+  await directoryFilter.fill(
+    "no-such-person",
+  );
+
+  await expect(
+    page.locator(
+      ".identity-directory-empty",
+    ),
+  ).toBeVisible();
+
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement
+          .scrollHeight,
+    ),
+  ).toBeLessThan(6000);
+
+  await page.getByRole("button", {
+    name: /^Endpoint/,
+  }).click();
+
+  await page
+    .getByLabel(
+      "Filter the endpoint inventory",
+    )
+    .fill("FIN-LT-004");
+
+  await expect(
+    page.locator(".edr-endpoint-row"),
+  ).toHaveCount(1);
+
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement
+          .scrollHeight,
+    ),
+  ).toBeLessThan(6000);
+});

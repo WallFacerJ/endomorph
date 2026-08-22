@@ -72,6 +72,43 @@
   overflow: hidden;
 }
 
+/*
+  The directory scrolls inside its own pane rather than stretching the page.
+  Listing 120 users unbounded made this console twenty-three screens tall and
+  buried every other panel below the fold.
+*/
+.identity-directory-scroll {
+  max-height: 60vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.identity-directory-filter {
+  padding: 0 12px 10px;
+}
+
+.identity-directory-filter input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-hover);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.identity-directory-filter input::placeholder {
+  color: var(--muted);
+}
+
+.identity-directory-empty {
+  margin: 0;
+  padding: 16px 12px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
 .identity-pane-heading {
   display: flex;
   justify-content: space-between;

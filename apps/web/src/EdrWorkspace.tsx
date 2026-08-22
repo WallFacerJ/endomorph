@@ -152,12 +152,37 @@ export function EdrWorkspace({
     [state],
   );
 
+  // 147 endpoints listed unbounded made this console sixteen screens tall,
+  // and an analyst who arrives holding a hostname had to scroll for it.
+  const [endpointFilter, setEndpointFilter] =
+    useState("");
+
   const availableDevices = useMemo(
     () => devices.filter((device) =>
       observedDeviceIds.includes(device.id),
     ),
     [devices, observedDeviceIds],
   );
+
+  const filteredDevices = useMemo(() => {
+    const needle = endpointFilter
+      .trim()
+      .toLowerCase();
+
+    if (needle.length === 0) {
+      return availableDevices;
+    }
+
+    return availableDevices.filter(
+      (device) =>
+        device.hostname
+          .toLowerCase()
+          .includes(needle) ||
+        device.operatingSystem
+          .toLowerCase()
+          .includes(needle),
+    );
+  }, [availableDevices, endpointFilter]);
 
   const [selectedDeviceId, setSelectedDeviceId] =
     useState(
@@ -271,9 +296,36 @@ export function EdrWorkspace({
         >
           <div className="edr-pane-heading">
             <span>Endpoints</span>
-            <small>{availableDevices.length} observed</small>
+            <small>
+              {filteredDevices.length ===
+              availableDevices.length
+                ? `${availableDevices.length} observed`
+                : `${filteredDevices.length} of ${availableDevices.length}`}
+            </small>
           </div>
-          {availableDevices.map((device) => {
+
+          <div className="edr-endpoint-filter">
+            <input
+              type="search"
+              value={endpointFilter}
+              placeholder="Filter by hostname or OS"
+              aria-label="Filter the endpoint inventory"
+              onChange={(event) =>
+                setEndpointFilter(
+                  event.target.value,
+                )
+              }
+            />
+          </div>
+
+          <div className="edr-endpoint-scroll">
+          {filteredDevices.length === 0 && (
+            <p className="edr-endpoint-empty">
+              No endpoint matches
+              &ldquo;{endpointFilter}&rdquo;.
+            </p>
+          )}
+          {filteredDevices.map((device) => {
             const observation =
               state.endpointObservations[device.id];
             const processCount = state.processes.filter(
@@ -314,6 +366,7 @@ export function EdrWorkspace({
               </button>
             );
           })}
+          </div>
         </aside>
 
         <section className="edr-activity-pane">
