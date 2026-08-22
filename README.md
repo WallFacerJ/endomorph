@@ -103,7 +103,7 @@ Endomorph includes:
 | **Generated: service account abuse** | 444 | ~17.8k | A valid privileged credential used from a host it has no history with. All traffic internal. |
 | **Generated: dormant account revived** | 444 | ~11.8k | Every sign-in is unremarkable. The only anomalous event is an identity lifecycle change before any of them. |
 
-The first three are hand-authored and deliberately small. The rest are generated.
+The selector groups them, because they are not the same kind of thing. Generated scenarios carry ATT&CK mapping, scored investigation questions, and analytical reasoning on every walkthrough step; the hand-authored v1 scenarios predate all three and are kept because they are small and fast.
 
 The four generated incidents deliberately teach different lessons. The first trains the obvious heuristic — an unfamiliar external address is suspicious. The second breaks it: everything originates from a legitimate admin on their own workstation, and the only signal is deviation from that person's own baseline. The third breaks it again: the credential is valid and the traffic is internal, but the account is being used from a host it has never authenticated from. The fourth is not about authentication at all. An analyst who learns "look for the foreign IP" from the first will fail the other three.
 

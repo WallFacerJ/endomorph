@@ -13,41 +13,66 @@ import type {
 export interface ShippedScenario {
   path: string;
   label: string;
+
+  /**
+   * Generated scenarios carry ATT&CK mapping, scored investigation
+   * questions, and analytical reasoning on every walkthrough step. The
+   * hand-authored v1 scenarios predate all three.
+   *
+   * Grouping them in the selector makes that a stated difference rather
+   * than something a user discovers by switching and finding the brief
+   * gone.
+   */
+  group: "generated" | "authored";
 }
+
+export const SCENARIO_GROUP_LABELS: Readonly<
+  Record<ShippedScenario["group"], string>
+> = {
+  generated: "Generated (ATT&CK-mapped, with questions)",
+  authored: "Hand-authored v1 (smaller, no questions)",
+};
 
 export const SHIPPED_SCENARIOS:
   readonly ShippedScenario[] = [
     {
       path: "/scenarios/account-compromise.json",
       label: "Finance account compromise",
+      group: "authored",
     },
     {
       path: "/scenarios/hr-malware-beacon.json",
       label: "HR malware beacon",
+      group: "authored",
     },
     {
       path: "/scenarios/cloud-admin-compromise.json",
       label: "Cloud-admin compromise",
+      group: "authored",
     },
     {
       path: "/scenarios/generated-enterprise.json",
       label:
-        "Generated: external credential compromise",
+        "External credential compromise",
+      group: "generated",
     },
     {
       path: "/scenarios/generated-insider.json",
       label:
-        "Generated: privileged insider (advanced)",
+        "Privileged insider (advanced)",
+      group: "generated",
     },
     {
       path: "/scenarios/generated-service-account.json",
       label:
-        "Generated: service account abuse (advanced)",
+        "Service account abuse (advanced)",
+      group: "generated",
     },
     {
       path: "/scenarios/generated-dormant.json",
       label:
-        "Generated: dormant account revived (advanced)",
+        "Dormant account revived (advanced)",
+      group: "generated",
     },
   ];
 

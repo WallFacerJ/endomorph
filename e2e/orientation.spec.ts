@@ -307,3 +307,43 @@ test("the result explains what other response paths would have scored", async ({
     ).first(),
   ).toBeVisible();
 });
+
+test("the scenario selector separates generated from hand-authored", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const selector = page.getByRole(
+    "combobox",
+    {
+      name: "Select training scenario",
+    },
+  );
+
+  // Generated scenarios carry ATT&CK mapping and scored questions; the v1
+  // ones predate all of it. Grouping states that instead of letting a user
+  // discover it by switching and finding the brief gone.
+  const markup =
+    await selector.innerHTML();
+
+  expect(markup).toContain("optgroup");
+
+  await expect(
+    selector.locator(
+      'optgroup[label*="Generated"]',
+    ),
+  ).toHaveCount(1);
+
+  await expect(
+    selector.locator(
+      'optgroup[label*="Hand-authored"]',
+    ),
+  ).toHaveCount(1);
+
+  // The generated group leads, because that is what the product is now.
+  expect(
+    markup.indexOf("Generated"),
+  ).toBeLessThan(
+    markup.indexOf("Hand-authored"),
+  );
+});

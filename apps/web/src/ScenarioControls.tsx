@@ -4,6 +4,7 @@ import {
 } from "react";
 
 import {
+  SCENARIO_GROUP_LABELS,
   SHIPPED_SCENARIOS,
 } from "./scenarioLoader";
 
@@ -127,16 +128,34 @@ export function ScenarioControls({
             }
           }}
         >
-          {SHIPPED_SCENARIOS.map(
-            (scenario) => (
-              <option
-                key={scenario.path}
-                value={scenario.path}
-              >
-                {scenario.label}
-              </option>
-            ),
-          )}
+          {(
+            [
+              "generated",
+              "authored",
+            ] as const
+          ).map((group) => (
+            <optgroup
+              key={group}
+              label={
+                SCENARIO_GROUP_LABELS[
+                  group
+                ]
+              }
+            >
+              {SHIPPED_SCENARIOS.filter(
+                (scenario) =>
+                  scenario.group ===
+                  group,
+              ).map((scenario) => (
+                <option
+                  key={scenario.path}
+                  value={scenario.path}
+                >
+                  {scenario.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
           {!isShipped && (
             <option value="custom">
               Custom scenario
