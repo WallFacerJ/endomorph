@@ -201,12 +201,12 @@ export const DORMANT_ACCOUNT_PLAN: AttackPlan =
       {
         id: "q-revived-account",
         prompt: () =>
-          "Which account was re-enabled? Give the username.",
+          "Who did the re-enabled account belong to? Give their display name.",
         accepted: (cast) => [
-          cast.dormantAccount?.username ??
-            cast.subjectAccount.username,
+          cast.dormantUser?.displayName ??
+            cast.subject.displayName,
         ],
-        hint: "Look for identity lifecycle events, not sign-ins.",
+        hint: "The alert names the account. Resolve it to the person it belongs to.",
         surface: "identity",
         points: 30,
         evidenceStepId: "reactivate",

@@ -323,10 +323,11 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
       {
         id: "q-host",
         prompt: () =>
-          "What is the hostname of the compromised workstation?",
+          "What is the IP address of the compromised workstation?",
         accepted: (cast) => [
-          cast.subjectDevice.hostname,
+          cast.subjectIp,
         ],
+        hint: "The alert names the host. Open it to get its address.",
         surface: "endpoint",
         points: 10,
         evidenceStepId: "powershell",
@@ -883,12 +884,12 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
       {
         id: "q-host",
         prompt: () =>
-          "From which workstation was that account used?",
+          "What is the IP address of the workstation the account was used from?",
         accepted: (cast) => [
-          cast.subjectDevice.hostname,
+          cast.subjectIp,
         ],
-        hint: "Compare against where this account normally authenticates.",
-        surface: "identity",
+        hint: "The alert names the host; the address is on the host itself.",
+        surface: "endpoint",
         points: 20,
         evidenceStepId: "service-auth",
       },

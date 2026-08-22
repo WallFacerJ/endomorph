@@ -285,6 +285,115 @@ describe("attack plan library", () => {
     });
   });
 
+  describe("questions keep the brief's promise", () => {
+    /*
+      The investigation brief tells the analyst, in as many words: "Each
+      answer is a value present somewhere in the telemetry. None can be
+      derived from the alert alone." Both halves of that are testable, and
+      the second half was not true.
+
+      Three questions were answered verbatim by their own alert text -- the
+      re-enabled account, and two hostnames -- which made them a test of
+      reading rather than of investigating, under a heading that says
+      "Answer from evidence, not from the alert".
+    */
+    const escapeForRegExp = (
+      value: string,
+    ): string =>
+      value.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&",
+      );
+
+    for (const plan of ATTACK_PLANS) {
+      const compiled = compileScenario({
+        id: `scenario-questions-${plan.id}`,
+        name: `Questions ${plan.id}`,
+        description:
+          "Compiled to check the questions against the telemetry.",
+        incident: { planId: plan.id },
+      });
+
+      const scenario = parseScenarioFile(
+        compiled.file,
+      ).scenario;
+
+      const questions =
+        scenario.questions ?? [];
+
+      it(`${plan.id}: every answer exists in the telemetry`, () => {
+        const haystack = JSON.stringify([
+          scenario.openingEvents,
+          scenario.initialWorld,
+        ]).toLowerCase();
+
+        const missing = questions
+          .filter(
+            (question) =>
+              !question.accepted.some(
+                (answer) =>
+                  haystack.includes(
+                    answer.toLowerCase(),
+                  ),
+              ),
+          )
+          .map(
+            (question) => question.prompt,
+          );
+
+        expect(missing).toEqual([]);
+      });
+
+      it(`${plan.id}: no answer can be read off the alert`, () => {
+        const alert =
+          scenario.openingEvents.find(
+            (event) =>
+              event.type ===
+              "ALERT_CREATED",
+          );
+
+        const shown = JSON.stringify([
+          (
+            alert?.payload as {
+              title?: string;
+            }
+          )?.title,
+          (
+            alert?.payload as {
+              description?: string;
+            }
+          )?.description,
+        ]);
+
+        const derivable = questions
+          .filter((question) =>
+            question.accepted.some(
+              (answer) =>
+                new RegExp(
+                  `\\b${escapeForRegExp(answer)}\\b`,
+                  "i",
+                ).test(shown),
+            ),
+          )
+          .map(
+            (question) => question.prompt,
+          );
+
+        expect(derivable).toEqual([]);
+      });
+
+      it(`${plan.id}: the questions are worth 100 points`, () => {
+        expect(
+          questions.reduce(
+            (total, question) =>
+              total + question.points,
+            0,
+          ),
+        ).toBe(100);
+      });
+    }
+  });
+
   describe("plan requirements are enforced", () => {
     it("rejects an unknown plan id", () => {
       expect(() =>
