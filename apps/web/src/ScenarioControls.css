@@ -46,14 +46,24 @@
     box-shadow 140ms ease;
 }
 
+/*
+  The selects shrink before the toolbar wraps.
+ 
+  With fixed minimums the three control groups could not fit under 1500px, so
+  the row broke in two and the header grew from 166px to 242px -- a 76px jump
+  and a conspicuous gap, at widths as ordinary as 1440. They are sized to
+  their content with a floor low enough to keep one row down to 1280.
+*/
 .scenario-controls select {
-  min-width: 190px;
+  min-width: 0;
+  width: clamp(140px, 14vw, 190px);
   padding: 0 34px 0 11px;
   cursor: pointer;
 }
 
 .scenario-controls label:first-child select {
-  min-width: 220px;
+  min-width: 0;
+  width: clamp(170px, 18vw, 240px);
 }
 
 .mode-button,

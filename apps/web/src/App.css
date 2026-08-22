@@ -207,6 +207,16 @@ textarea:focus-visible {
   padding-bottom: 16px;
 }
 
+/*
+  The text column yields before the controls do. It is prose and reflows
+  harmlessly; the controls are a toolbar, and wrapping them breaks the row
+  into two and adds 76px to every console's header.
+*/
+.topbar > div:first-child {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+
 .scenario-description {
   max-width: 78ch;
   margin: 6px 0 0;
