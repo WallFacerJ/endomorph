@@ -17,6 +17,10 @@ import {
   actionTargetsDevice,
 } from "./actionRouting";
 
+import {
+  Icon,
+} from "./Icon";
+
 import "./EdrWorkspace.css";
 
 interface EndpointInventoryItem {
@@ -279,7 +283,10 @@ export function EdrWorkspace({
           <p className="eyebrow">
             Endomorph Ops / EDR
           </p>
-          <h3>Endpoint investigation</h3>
+          <h3>
+            <Icon name="endpoint" size={17} />
+            Endpoint investigation
+          </h3>
           <p>
             Trace process ancestry, inspect endpoint-scoped activity, and pivot shared telemetry into SIEM or Case.
           </p>

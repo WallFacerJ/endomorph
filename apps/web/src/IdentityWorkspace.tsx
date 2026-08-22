@@ -18,6 +18,10 @@ import {
   actionTargetsAccount,
 } from "./actionRouting";
 
+import {
+  Icon,
+} from "./Icon";
+
 import "./IdentityWorkspace.css";
 
 interface IdentityWorkspaceProps {
@@ -180,7 +184,10 @@ export function IdentityWorkspace({
           <p className="eyebrow">
             Endomorph Ops / Identity
           </p>
-          <h3>Identity and access investigation</h3>
+          <h3>
+            <Icon name="identity" size={17} />
+            Identity and access investigation
+          </h3>
           <p>
             Inspect authentication provenance, account privilege, session state, and identity response operations across the synthetic enterprise.
           </p>

@@ -9,6 +9,22 @@ import {
 import "./App.css";
 
 import {
+  Icon,
+} from "./Icon";
+
+import {
+  EventVolume,
+} from "./Charts";
+
+import {
+  bucketByTime,
+} from "./chartData";
+
+import type {
+  IconName,
+} from "./Icon";
+
+import {
   CaseWorkspace,
 } from "./CaseWorkspace";
 
@@ -116,6 +132,7 @@ const navGroups: ReadonlyArray<{
   items: ReadonlyArray<{
     id: WorkspaceView;
     label: string;
+    icon: IconName;
     purpose: string;
   }>;
 }> = [
@@ -125,12 +142,14 @@ const navGroups: ReadonlyArray<{
     items: [
       {
         id: "alerts",
+        icon: "alert",
         label: "Alerts",
         purpose:
           "What fired, and on which host",
       },
       {
         id: "timeline",
+        icon: "book",
         label: "Investigation",
         purpose:
           "The brief, questions, and correlated timeline",
@@ -143,18 +162,21 @@ const navGroups: ReadonlyArray<{
     items: [
       {
         id: "siem",
+        icon: "search",
         label: "SIEM Search",
         purpose:
           "Query all telemetry; start when you have a value to pivot on",
       },
       {
         id: "endpoint",
+        icon: "endpoint",
         label: "Endpoint",
         purpose:
           "Process trees, network and file activity for one host",
       },
       {
         id: "identity",
+        icon: "identity",
         label: "Identity",
         purpose:
           "Sign-in history, sessions, and privilege for one account",
@@ -167,6 +189,7 @@ const navGroups: ReadonlyArray<{
     items: [
       {
         id: "case",
+        icon: "case",
         label: "Case",
         purpose:
           "Evidence graph, indicators, hypotheses, and response decisions",
@@ -277,6 +300,12 @@ function ScenarioWorkspace({
     });
   const [replayPosition, setReplayPosition] =
     useState<number | null>(null);
+  // Worth reading once, noise on every subsequent visit to a console.
+  const [
+    descriptionExpanded,
+    setDescriptionExpanded,
+  ] = useState(false);
+
   const [walkthroughOpen, setWalkthroughOpen] =
     useState(false);
   const [walkthroughDetached, setWalkthroughDetached] =
@@ -387,6 +416,53 @@ function ScenarioWorkspace({
     }),
     [viewedEvents],
   );
+
+  /*
+    Volume, bucketed once and shared by the alert queue and the search view.
+    Derived from what the analyst can currently see rather than from the
+    scenario, so rewinding the clock changes the chart with everything else.
+  */
+  const telemetryVolume = useMemo(() => {
+    const timestamps =
+      projections.siem.events.map(
+        (event) => event.timestamp,
+      );
+
+    const notable =
+      projections.siem.events
+        .filter(
+          (event) =>
+            event.eventType ===
+            "ALERT_CREATED",
+        )
+        .map((event) => event.timestamp);
+
+    const parsed = timestamps
+      .map((value) => Date.parse(value))
+      .filter((value) =>
+        Number.isFinite(value),
+      );
+
+    const spanMs =
+      parsed.length > 0
+        ? Math.max(...parsed) -
+          Math.min(...parsed)
+        : 0;
+
+    return {
+      total: timestamps.length,
+      days: Math.max(
+        1,
+        Math.round(
+          spanMs / 86400000,
+        ),
+      ),
+      buckets: bucketByTime(
+        timestamps,
+        notable,
+      ),
+    };
+  }, [projections.siem.events]);
 
   const siemByEventId = useMemo(
     () =>
@@ -800,6 +876,10 @@ function ScenarioWorkspace({
                       }
                     >
                       <span className="nav-item-label">
+                        <Icon
+                          name={item.icon}
+                          size={15}
+                        />
                         {item.label}
                         {item.id ===
                           "case" &&
@@ -850,9 +930,32 @@ function ScenarioWorkspace({
             <h2>
               {scenario.name}
             </h2>
-            <p className="scenario-description">
+            <p
+              className={
+                descriptionExpanded
+                  ? "scenario-description"
+                  : "scenario-description clamped"
+              }
+            >
               {scenario.description}
             </p>
+
+            <button
+              type="button"
+              className="scenario-description-toggle"
+              aria-expanded={
+                descriptionExpanded
+              }
+              onClick={() =>
+                setDescriptionExpanded(
+                  (current) => !current,
+                )
+              }
+            >
+              {descriptionExpanded
+                ? "Show less"
+                : "About this scenario"}
+            </button>
           </div>
 
           {/*
@@ -1015,13 +1118,109 @@ function ScenarioWorkspace({
 
         {activeView === "alerts" && (
           <section className="workspace-section">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">
-                  Alert queue
+            <div className="console-head">
+              <div className="console-head-text">
+                <p className="t-eyebrow">
+                  Triage / Alert queue
                 </p>
-                <h3>1 alert requires investigation</h3>
+
+                <h3 className="t-title">
+                  <Icon
+                    name="alert"
+                    size={17}
+                  />
+                  1 alert requires
+                  investigation
+                </h3>
+
+                <p className="t-note">
+                  One detection fired
+                  against{" "}
+                  {telemetryVolume.total.toLocaleString()}{" "}
+                  events. Everything
+                  before it is what the
+                  investigation has to
+                  reconstruct.
+                </p>
               </div>
+
+              <div className="metric-row">
+                <div className="metric">
+                  <span className="t-label">
+                    Telemetry
+                  </span>
+
+                  <span className="metric-figure">
+                    <span className="t-metric">
+                      {telemetryVolume.total.toLocaleString()}
+                    </span>
+                  </span>
+                </div>
+
+                <div className="metric">
+                  <span className="t-label">
+                    Window
+                  </span>
+
+                  <span className="metric-figure">
+                    <span className="t-metric">
+                      {
+                        telemetryVolume.days
+                      }
+                    </span>
+
+                    <span className="metric-sub">
+                      days
+                    </span>
+                  </span>
+                </div>
+
+                <div className="metric">
+                  <span className="t-label">
+                    Evidence held
+                  </span>
+
+                  <span className="metric-figure">
+                    <span className="t-metric">
+                      {
+                        analystCase
+                          .collectedEventIds
+                          .length
+                      }
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/*
+              The alert on its own says nothing about how unusual it is. The
+              volume chart puts it in proportion: one marked bucket against
+              three days of ordinary traffic is the actual shape of the
+              problem, and it is the reason an analyst cannot simply read the
+              logs.
+            */}
+            <div className="volume-panel">
+              <div className="volume-panel-head">
+                <span className="t-label">
+                  Telemetry volume over the
+                  retained window
+                </span>
+
+                <span className="volume-legend">
+                  <span className="volume-key volume-key-bulk" />
+                  routine
+                  <span className="volume-key volume-key-alert" />
+                  detection
+                </span>
+              </div>
+
+              <EventVolume
+                buckets={
+                  telemetryVolume.buckets
+                }
+                label="Telemetry volume over the retained window, with the detection marked"
+              />
             </div>
 
             <article className="alert-card">

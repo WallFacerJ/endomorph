@@ -63,6 +63,13 @@
   font-size: 0.75rem;
 }
 
+.detection-review-totals dd {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 /* The table is the widest thing here; it scrolls rather than the page. */
 .detection-review-table-wrap {
   margin-top: 18px;

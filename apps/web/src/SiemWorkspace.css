@@ -204,20 +204,7 @@
   padding: 0 7px 7px;
 }
 
-.siem-facet-group button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  width: 100%;
-  padding: 7px;
-  border-radius: 6px;
-  color: #9cb1c7;
-  text-align: left;
-}
-
 .siem-facet-group button:hover {
-  background: #10243a;
   color: #f8fafc;
 }
 
@@ -540,4 +527,13 @@
 
 .siem-truncation-notice strong {
   color: var(--text-primary, inherit);
+}
+
+/* -- results histogram -------------------------------------------------- */
+
+.siem-volume {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid var(--border, #1b3048);
 }

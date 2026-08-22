@@ -2,6 +2,10 @@ import type {
   DetectionReview,
 } from "./detectionReview";
 
+import {
+  SegmentMeter,
+} from "./Charts";
+
 import "./DetectionReviewPanel.css";
 
 interface DetectionReviewPanelProps {
@@ -22,6 +26,10 @@ export function DetectionReviewPanel({
   review,
 }: DetectionReviewPanelProps) {
   const { report } = review;
+
+  const techniqueTotal =
+    report.coveredTechniques.length +
+    report.uncoveredTechniques.length;
 
   const scored = report.evaluations
     .filter(
@@ -103,12 +111,17 @@ export function DetectionReviewPanel({
               }
               <span>
                 {" / "}
-                {report.coveredTechniques
-                  .length +
-                  report
-                    .uncoveredTechniques
-                    .length}
+                {techniqueTotal}
               </span>
+
+              <SegmentMeter
+                covered={
+                  report.coveredTechniques
+                    .length
+                }
+                total={techniqueTotal}
+                label="Techniques covered"
+              />
             </dd>
           </div>
 

@@ -11,6 +11,19 @@ import type {
   SiemEventRecord,
 } from "./simulationAdapter";
 
+import {
+  EventVolume,
+  FacetBars,
+} from "./Charts";
+
+import {
+  bucketByTime,
+} from "./chartData";
+
+import {
+  Icon,
+} from "./Icon";
+
 import "./SiemWorkspace.css";
 
 /** Rows rendered at once. Matches are still counted and faceted in full. */
@@ -132,6 +145,30 @@ export function SiemWorkspace({
     [result],
   );
 
+  /*
+    Bucketed from the matched records rather than from all telemetry, so it
+    reflects the query and not the corpus.
+  */
+  const resultVolume = useMemo(
+    () =>
+      bucketByTime(
+        result.records.map(
+          (record) => record.timestamp,
+        ),
+        result.records
+          .filter(
+            (record) =>
+              record.eventType ===
+              "ALERT_CREATED",
+          )
+          .map(
+            (record) => record.timestamp,
+          ),
+        56,
+      ),
+    [result.records],
+  );
+
   const selectedRecord =
     result.records.find(
       (record) =>
@@ -184,13 +221,18 @@ export function SiemWorkspace({
             <p className="eyebrow">
               Endomorph Ops / SIEM
             </p>
-            <h3>Search security telemetry</h3>
+            <h3>
+              <Icon name="search" size={17} />
+              Search security telemetry
+            </h3>
             <p>
               Search shared identity, endpoint, network, session, and detection telemetry. Use field filters such as <code>family:process</code>, <code>accountId:account-smartinez</code>, or <code>destinationIp:203.0.113.77</code>.
             </p>
           </div>
           <div className="siem-result-count">
-            <strong>{result.total}</strong>
+            <strong>
+              {result.total.toLocaleString()}
+            </strong>
             <span>matching events</span>
           </div>
         </div>
@@ -267,46 +309,54 @@ export function SiemWorkspace({
             <span className="siem-facet-title">
               Event family
             </span>
-            {result.facets.families.map(
-              (facet) => (
-                <button
-                  key={facet.value}
-                  type="button"
-                  onClick={() =>
+            {/*
+              A count with a bar rather than a bare number: the
+              proportion is the point. That endpoint telemetry
+              outweighs everything else by an order of magnitude is
+              exactly why one unusual process is hard to find, and a
+              column of digits makes the reader work that out.
+            */}
+            <FacetBars
+              label={`Filter by ${"family"}`}
+              data={result.facets.families.map(
+                (facet) => ({
+                  label: facet.value,
+                  value: facet.count,
+                  onSelect: () =>
                     addFilter(
                       "family",
                       facet.value,
-                    )
-                  }
-                >
-                  <span>{facet.value}</span>
-                  <strong>{facet.count}</strong>
-                </button>
-              ),
-            )}
+                    ),
+                }),
+              )}
+            />
           </div>
 
           <div className="siem-facet-group">
             <span className="siem-facet-title">
               Source
             </span>
-            {result.facets.sources.map(
-              (facet) => (
-                <button
-                  key={facet.value}
-                  type="button"
-                  onClick={() =>
+            {/*
+              A count with a bar rather than a bare number: the
+              proportion is the point. That endpoint telemetry
+              outweighs everything else by an order of magnitude is
+              exactly why one unusual process is hard to find, and a
+              column of digits makes the reader work that out.
+            */}
+            <FacetBars
+              label={`Filter by ${"source"}`}
+              data={result.facets.sources.map(
+                (facet) => ({
+                  label: facet.value,
+                  value: facet.count,
+                  onSelect: () =>
                     addFilter(
                       "source",
                       facet.value,
-                    )
-                  }
-                >
-                  <span>{facet.value}</span>
-                  <strong>{facet.count}</strong>
-                </button>
-              ),
-            )}
+                    ),
+                }),
+              )}
+            />
           </div>
 
           {result.facets.severities.length > 0 && (
@@ -314,28 +364,55 @@ export function SiemWorkspace({
               <span className="siem-facet-title">
                 Severity
               </span>
-              {result.facets.severities.map(
-                (facet) => (
-                  <button
-                    key={facet.value}
-                    type="button"
-                    onClick={() =>
-                      addFilter(
-                        "severity",
-                        facet.value,
-                      )
-                    }
-                  >
-                    <span>{facet.value}</span>
-                    <strong>{facet.count}</strong>
-                  </button>
-                ),
+              {/*
+              A count with a bar rather than a bare number: the
+              proportion is the point. That endpoint telemetry
+              outweighs everything else by an order of magnitude is
+              exactly why one unusual process is hard to find, and a
+              column of digits makes the reader work that out.
+            */}
+            <FacetBars
+              label={`Filter by ${"severity"}`}
+              data={result.facets.severities.map(
+                (facet) => ({
+                  label: facet.value,
+                  value: facet.count,
+                  onSelect: () =>
+                    addFilter(
+                      "severity",
+                      facet.value,
+                    ),
+                }),
               )}
+            />
             </div>
           )}
         </aside>
 
         <section className="siem-results-panel">
+          {/*
+            A histogram over the current result set, which every log platform
+            puts here and this one had no equivalent of. It answers the
+            question a table of the first two hundred rows cannot: when did
+            the matches happen, and are they spread across the window or
+            clustered. Narrowing a query redraws it, so the shape is feedback
+            on the search rather than a fixed picture of the corpus.
+          */}
+          {resultVolume.length > 0 && (
+            <div className="siem-volume">
+              <span className="t-label">
+                {result.total.toLocaleString()}{" "}
+                matches over time
+              </span>
+
+              <EventVolume
+                buckets={resultVolume}
+                height={44}
+                label="Matching events over the search window"
+              />
+            </div>
+          )}
+
           <div className="siem-table-wrap">
             <table className="siem-results-table">
               <thead>

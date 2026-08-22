@@ -186,16 +186,59 @@ textarea:focus-visible {
   border-bottom: 1px solid #172a41;
 }
 
+/*
+  A command bar, not a title page.
+
+  The scenario title was set at up to 34px with a paragraph of description
+  under it, repeated above every console, which pushed the actual working
+  surface 430px down the page. An operations console spends its vertical
+  space on the data; the identity of the run belongs in a compact strip that
+  stays out of the way.
+*/
 .topbar h2 {
-  margin-top: 6px;
-  max-width: 760px;
-  font-size: clamp(24px, 3vw, 34px);
-  letter-spacing: -0.035em;
+  margin-top: 2px;
+  max-width: 62ch;
+  font-size: 19px;
+  font-weight: 620;
+  letter-spacing: -0.015em;
+}
+
+.topbar {
+  padding-bottom: 16px;
 }
 
 .scenario-description {
-  max-width: 760px;
-  margin: 10px 0 0;
+  max-width: 78ch;
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/*
+  Collapsed to two lines by default with the rest available on demand. The
+  description is worth reading once and is noise on every subsequent visit.
+*/
+.scenario-description.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.scenario-description-toggle {
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.scenario-description-toggle:hover {
+  text-decoration: underline;
 }
 
 .topbar-actions,
@@ -930,9 +973,28 @@ textarea:focus-visible {
 .nav-item-label {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   font-size: 0.88rem;
-  font-weight: 500;
+  font-weight: 550;
+}
+
+/*
+  The icon is the fastest way back to a console you have used before -- the
+  shape is recognisable at a glance where six similar-length labels are not.
+  It takes the accent only when the console is active, so the rail reads as
+  one selected item rather than six competing marks.
+*/
+.nav-item-label .icon {
+  color: var(--muted);
+}
+
+.nav-item.active .nav-item-label .icon {
+  color: var(--accent);
+}
+
+/* Purpose lines indent to the label, not the icon. */
+.nav-item-purpose {
+  margin-left: calc(15px + 0.5rem);
 }
 
 .nav-item-purpose {
@@ -1005,4 +1067,44 @@ textarea:focus-visible {
 
 .topbar > div:first-child {
   max-width: 46ch;
+}
+
+/* -- telemetry volume panel --------------------------------------------- */
+
+.volume-panel {
+  margin-bottom: 18px;
+  padding: 14px 16px 10px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--panel);
+}
+
+.volume-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.volume-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.volume-key {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+.volume-key-bulk {
+  background: color-mix(in srgb, var(--accent) 42%, transparent);
+}
+
+.volume-key-alert {
+  background: var(--danger);
 }

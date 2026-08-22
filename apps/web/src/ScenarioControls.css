@@ -1,7 +1,16 @@
+/*
+  Aligned at the top, not the bottom.
+ 
+  The assistance group carries a summary line under its buttons, so
+  bottom-alignment made it taller than the two selects beside it and pushed
+  their labels down to compensate -- three controls on a toolbar sitting at
+  three different heights. Top-alignment lets the labels share a line and the
+  controls share a line, and the summary simply hangs below its own group.
+*/
 .scenario-controls {
   display: flex;
-  align-items: flex-end;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
@@ -212,9 +221,24 @@
   gap: 0.25rem;
 }
 
+/* Same metrics as a <label>'s span so the two kinds of field agree. */
+.control-field-label,
+.scenario-controls label > span {
+  min-height: 1.05rem;
+}
+
 .control-field-label {
   font-size: 0.62rem;
   letter-spacing: 0.11em;
   text-transform: uppercase;
   opacity: 0.65;
+}
+
+/* One line, clipped, so the toolbar keeps a predictable height. */
+.session-mode-summary {
+  display: block;
+  max-width: 26ch;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.35;
 }

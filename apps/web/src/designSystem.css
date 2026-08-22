@@ -1,0 +1,226 @@
+/*
+  Shared type scale and small primitives.
+
+  The consoles were built panel by panel, and each one set its own font sizes
+  and colours locally. The result was that a section heading, a field label,
+  and a metric caption often rendered at almost the same size and weight, so
+  every block of the page carried the same visual weight and the reader had
+  nothing to skim by. That is most of what made a screen full of accurate
+  information feel like a wall of words.
+
+  These are the roles, not sizes to reach for arbitrarily:
+
+    .t-eyebrow   where am I -- section context, above a heading
+    .t-title     the heading of a panel
+    .t-label     the name of a field, beside or above its value
+    .t-value     the field's value, when it is data rather than prose
+    .t-metric    a single number meant to be read at a glance
+    .t-note      supporting prose, deliberately quieter than everything
+
+  Data uses tabular figures everywhere so columns of numbers line up and a
+  changing value does not shift the ones next to it.
+*/
+
+.t-eyebrow {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.t-title {
+  margin: 0;
+  color: var(--pm-text-strong);
+  font-size: 1.02rem;
+  font-weight: 620;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.t-label {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.t-value {
+  color: var(--text);
+  font-size: 0.84rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.t-metric {
+  color: var(--pm-text-strong);
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.t-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.t-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* -- icons -------------------------------------------------------------- */
+
+.icon {
+  flex: none;
+  display: block;
+}
+
+/* -- severity and status chips ------------------------------------------ */
+
+/*
+  One chip component with a severity modifier, rather than each console
+  inventing its own badge. Severity is semantic colour and is deliberately
+  not the theme accent: a critical alert must not read the same as a selected
+  tab.
+*/
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.chip-critical {
+  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  color: var(--danger);
+}
+
+.chip-high {
+  border-color: color-mix(in srgb, var(--warning) 50%, transparent);
+  background: color-mix(in srgb, var(--warning) 14%, transparent);
+  color: var(--warning);
+}
+
+.chip-medium {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.chip-low,
+.chip-neutral {
+  border-color: var(--border);
+  background: var(--panel-strong);
+  color: var(--muted);
+}
+
+.chip-success {
+  border-color: color-mix(in srgb, var(--success) 50%, transparent);
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+  color: var(--success);
+}
+
+/* -- metric blocks ------------------------------------------------------ */
+
+/*
+  A row of headline numbers. Used by every console header so the same three
+  facts always sit in the same place, which is what lets someone move between
+  consoles without re-reading the layout.
+*/
+.metric-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.metric {
+  display: grid;
+  gap: 2px;
+  min-width: 108px;
+  padding: 9px 13px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--panel-strong);
+}
+
+.metric-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.metric-sub {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* -- console header ----------------------------------------------------- */
+
+/*
+  Every console opens with the same shape: where you are, what the view is
+  for in one line, and the numbers that describe it. Previously each wrote
+  its own arrangement and its own prose length.
+*/
+.console-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 26px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.console-head-text {
+  display: grid;
+  gap: 5px;
+  max-width: 64ch;
+}
+
+.console-head h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.console-head h3 .icon {
+  color: var(--accent);
+}
+
+/*
+  Any console heading that carries an icon. Applied by element rather than by
+  class because these headings were already written as bare <h3> inside each
+  console's own header block, and giving them all a class would have meant
+  touching every one of those blocks for no additional benefit.
+*/
+.siem-search-heading h3,
+.edr-header h3,
+.identity-console-header h3,
+.case-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.siem-search-heading h3 .icon,
+.edr-header h3 .icon,
+.identity-console-header h3 .icon,
+.case-header h3 .icon {
+  color: var(--accent);
+}
