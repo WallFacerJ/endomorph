@@ -91,7 +91,7 @@ test("assistance is one scale, not two overlapping controls", async ({
   await page
     .getByRole("navigation")
     .getByRole("button", {
-      name: "Investigation",
+      name: "Brief",
     })
     .click();
 
@@ -121,7 +121,7 @@ test("guided sits between professional and instructor", async ({
   await page
     .getByRole("navigation")
     .getByRole("button", {
-      name: "Investigation",
+      name: "Brief",
     })
     .click();
 
@@ -241,7 +241,7 @@ test("the default scenario is a generated one", async ({
   await page
     .getByRole("navigation")
     .getByRole("button", {
-      name: "Investigation",
+      name: "Brief",
     })
     .click();
 
@@ -262,6 +262,15 @@ test("the default scenario is a generated one", async ({
     ),
   ).toBeVisible();
 
+  // The questions now live in their own view, after the tools that answer
+  // them, so the brief no longer carries them.
+  await page
+    .getByRole("navigation")
+    .getByRole("button", {
+      name: "Answers",
+    })
+    .click();
+
   await expect(
     page.getByText(
       "Investigation questions",
@@ -273,7 +282,7 @@ test("the default scenario is a generated one", async ({
   await page
     .getByRole("navigation")
     .getByRole("button", {
-      name: "Investigation",
+      name: "Brief",
     })
     .click();
 
@@ -409,4 +418,124 @@ test("finalizing is reachable without scrolling past the brief", async ({
       name: "Investigation finalized",
     }),
   ).toBeDisabled();
+});
+
+test("the objectives rail stays open across every console", async ({
+  page,
+}) => {
+  /*
+    Reported by an analyst reviewing the product: they could not tell Guided
+    from Professional at all, then that "the objectives it lists are just
+    spread out through the tabs, they should be in a central location", then
+    that it should be visible "regardless of what tab you are on so you don't
+    have to jump between tabs to check what you're doing".
+
+    All three are the same finding. The objectives existed but each lived
+    beside the thing that satisfied it, so there was no checklist to read.
+  */
+  await page.goto(
+    "/?scenario=/scenarios/generated-macro.json",
+  );
+
+  await page
+    .getByRole("button", {
+      name: /Objectives/,
+    })
+    .click();
+
+  const rail = page.getByRole(
+    "region",
+    { name: "Objectives" },
+  );
+
+  await expect(rail).toBeVisible();
+
+  for (const view of [
+    "SIEM Search",
+    "Endpoint",
+    "Identity",
+    "Case",
+  ]) {
+    await page
+      .getByRole("navigation")
+      .getByRole("button", {
+        name: new RegExp(`^${view}`),
+      })
+      .click();
+
+    await expect(rail).toBeVisible();
+  }
+});
+
+test("objectives check themselves off from the work, not from navigation", async ({
+  page,
+}) => {
+  // An objective that ticks because a view was opened would tell an analyst
+  // they had done something when they had only looked at it.
+  await page.goto(
+    "/?scenario=/scenarios/generated-macro.json",
+  );
+
+  await page
+    .getByRole("button", {
+      name: /Objectives/,
+    })
+    .click();
+
+  await expect(
+    page.locator(".mission-item.done"),
+  ).toHaveCount(0);
+
+  // Visiting every console changes nothing.
+  for (const view of [
+    "SIEM Search",
+    "Endpoint",
+    "Identity",
+    "Case",
+  ]) {
+    await page
+      .getByRole("navigation")
+      .getByRole("button", {
+        name: new RegExp(`^${view}`),
+      })
+      .click();
+  }
+
+  await expect(
+    page.locator(".mission-item.done"),
+  ).toHaveCount(0);
+
+  // Collecting evidence does.
+  await page
+    .getByRole("navigation")
+    .getByRole("button", {
+      name: /^Endpoint/,
+    })
+    .click();
+
+  const rows = page.locator(
+    ".edr-process-row",
+  );
+
+  for (let index = 0; index < 4; index += 1) {
+    await rows.nth(index).click();
+
+    const collect = page
+      .getByRole("button", {
+        name: "Collect evidence",
+      })
+      .first();
+
+    if (
+      await collect
+        .isVisible()
+        .catch(() => false)
+    ) {
+      await collect.click();
+    }
+  }
+
+  await expect(
+    page.locator(".mission-item.done"),
+  ).not.toHaveCount(0);
 });

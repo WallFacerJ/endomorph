@@ -1,0 +1,130 @@
+.mission-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: mission;
+}
+
+.mission-item {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: start;
+  gap: 12px;
+  padding: 13px 15px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+}
+
+/*
+  A completed item recedes rather than lighting up. The list is read to find
+  what is still outstanding, so the unfinished ones should be what carries
+  weight.
+*/
+.mission-item.done {
+  border-color: color-mix(
+    in srgb,
+    var(--success) 34%,
+    var(--border)
+  );
+  background: color-mix(
+    in srgb,
+    var(--success) 5%,
+    var(--panel)
+  );
+}
+
+.mission-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  color: var(--pm-bg);
+}
+
+.mission-item.done .mission-check {
+  border-color: var(--success);
+  background: var(--success);
+}
+
+.mission-body {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mission-label {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--pm-text-strong);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.mission-item.done .mission-label {
+  color: var(--text);
+}
+
+.mission-progress {
+  padding: 1px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.mission-item.done .mission-progress {
+  border-color: color-mix(
+    in srgb,
+    var(--success) 45%,
+    transparent
+  );
+  color: var(--success);
+}
+
+.mission-detail {
+  color: var(--muted);
+  font-size: 0.79rem;
+  line-height: 1.5;
+}
+
+.mission-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-strong);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.76rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mission-go:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (max-width: 760px) {
+  .mission-item {
+    grid-template-columns: 22px 1fr;
+  }
+
+  .mission-go {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

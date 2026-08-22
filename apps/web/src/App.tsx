@@ -13,6 +13,14 @@ import {
 } from "./Icon";
 
 import {
+  MissionPanel,
+} from "./MissionPanel";
+
+import {
+  buildMissionObjectives,
+} from "./missionObjectives";
+
+import {
   EventVolume,
 } from "./Charts";
 
@@ -86,6 +94,7 @@ import {
   compareResponsePaths,
   createIncidentCaseState,
   edrProjection,
+  buildEvidenceGraph,
   finalizeScenarioState,
   getScenarioState,
   identityProjection,
@@ -116,6 +125,7 @@ type WorkspaceView =
   | "siem"
   | "endpoint"
   | "identity"
+  | "questions"
   | "case";
 
 /**
@@ -150,9 +160,9 @@ const navGroups: ReadonlyArray<{
       {
         id: "timeline",
         icon: "book",
-        label: "Investigation",
+        label: "Brief",
         purpose:
-          "The brief, questions, and correlated timeline",
+          "What you are asked to establish, and the correlated timeline",
       },
     ],
   },
@@ -187,6 +197,13 @@ const navGroups: ReadonlyArray<{
     phase: "Coordinate",
     hint: "Build the case",
     items: [
+      {
+        id: "questions",
+        icon: "target",
+        label: "Answers",
+        purpose:
+          "Record what you established, once the evidence supports it",
+      },
       {
         id: "case",
         icon: "case",
@@ -304,6 +321,21 @@ function ScenarioWorkspace({
   const [
     descriptionExpanded,
     setDescriptionExpanded,
+  ] = useState(false);
+
+  /*
+    The objectives panel docks beside whatever console is open and can be
+    torn off into its own window, exactly as the walkthrough does. A tab was
+    the obvious answer and the wrong one: a checklist you have to navigate
+    away from to read is a checklist you stop reading, which is how the
+    objectives ended up scattered across six views in the first place.
+  */
+  const [missionOpen, setMissionOpen] =
+    useState(false);
+
+  const [
+    missionDetached,
+    setMissionDetached,
   ] = useState(false);
 
   const [walkthroughOpen, setWalkthroughOpen] =
@@ -582,6 +614,85 @@ function ScenarioWorkspace({
       scenario.questions,
       questionAnswers,
     ],
+  );
+
+  /*
+    The same pure function the case view uses, over the same inputs. It walks
+    only the collected evidence, which is small, and being pure of identical
+    inputs it cannot disagree with the copy the case draws -- which is why
+    this is a second call rather than a prop threaded through two components
+    that do not otherwise need it.
+  */
+  const evidenceGraph = useMemo(
+    () =>
+      buildEvidenceGraph(
+        scenarioState.world,
+        projections.siem.events,
+        analystCase.collectedEventIds,
+      ),
+    [
+      scenarioState.world,
+      projections.siem.events,
+      analystCase.collectedEventIds,
+    ],
+  );
+
+  const missionObjectives = useMemo(
+    () =>
+      buildMissionObjectives({
+        analystCase,
+        incidentCase,
+        outcome: scenarioState.outcome,
+        finalized: scenarioState.finalized,
+        questionsAnswered: Object.values(
+          questionAnswers,
+        ).filter(
+          (answer) =>
+            answer.trim().length > 0,
+        ).length,
+        questionsTotal: (
+          scenario.questions ?? []
+        ).length,
+        techniquesEvidenced:
+          observedTechniqueIds.length,
+        techniquesTotal: (
+          scenario.groundTruth
+            ?.techniques ?? []
+        ).length,
+        entitiesInScope:
+          evidenceGraph.nodes.length,
+      }),
+    [
+      analystCase,
+      incidentCase,
+      scenarioState.outcome,
+      scenarioState.finalized,
+      questionAnswers,
+      scenario.questions,
+      scenario.groundTruth,
+      observedTechniqueIds,
+      evidenceGraph.nodes.length,
+    ],
+  );
+
+  const missionNode = (
+    <MissionPanel
+      objectives={missionObjectives}
+      outcome={scenarioState.outcome}
+      finalized={
+        scenarioState.finalized
+      }
+      score={{
+        earned: questionScore.earned,
+        available:
+          questionScore.available,
+      }}
+      onNavigate={(view) => {
+        setActiveView(
+          view as WorkspaceView,
+        );
+      }}
+    />
   );
 
   const walkthroughAvailable =
@@ -921,7 +1032,13 @@ function ScenarioWorkspace({
         </div>
       </aside>
 
-      <main className="main-content">
+      <main
+        className={
+          missionOpen && !missionDetached
+            ? "main-content mission-open"
+            : "main-content"
+        }
+      >
         <header className="topbar">
           <div>
             <p className="eyebrow">
@@ -976,6 +1093,55 @@ function ScenarioWorkspace({
             >
               {runStatusLabel}
             </span>
+            {/*
+              Always available, in every mode. The checklist is how an
+              analyst knows what the run is asking of them, which is not a
+              form of assistance -- Professional withholds the answers, not
+              the assignment.
+            */}
+            <button
+              type="button"
+              className={
+                missionOpen ||
+                missionDetached
+                  ? "secondary-button mission-toggle active"
+                  : "secondary-button mission-toggle"
+              }
+              aria-pressed={
+                missionOpen ||
+                missionDetached
+              }
+              onClick={() => {
+                if (missionDetached) {
+                  setMissionDetached(
+                    false,
+                  );
+                  setMissionOpen(true);
+                  return;
+                }
+
+                setMissionOpen(
+                  (current) => !current,
+                );
+              }}
+            >
+              <Icon
+                name="target"
+                size={14}
+              />
+              Objectives
+              <span className="mission-toggle-count">
+                {
+                  missionObjectives.filter(
+                    (objective) =>
+                      objective.done,
+                  ).length
+                }
+                /
+                {missionObjectives.length}
+              </span>
+            </button>
+
             {walkthroughAvailable && (
               <button
                 type="button"
@@ -1099,6 +1265,54 @@ function ScenarioWorkspace({
             >
               {walkthroughNode}
             </PopOutWindow>
+          )}
+
+        {missionDetached && (
+          <PopOutWindow
+            title="Endomorph objectives"
+            onClose={() =>
+              setMissionDetached(false)
+            }
+            onBlocked={() => {
+              setPopOutBlocked(true);
+              setMissionDetached(false);
+              setMissionOpen(true);
+            }}
+          >
+            {missionNode}
+          </PopOutWindow>
+        )}
+
+        {missionOpen &&
+          !missionDetached && (
+            <div className="mission-dock">
+              <div className="mission-dock-bar">
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => {
+                    setMissionDetached(
+                      true,
+                    );
+                    setMissionOpen(false);
+                  }}
+                >
+                  Pop out
+                </button>
+
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() =>
+                    setMissionOpen(false)
+                  }
+                >
+                  Hide
+                </button>
+              </div>
+
+              {missionNode}
+            </div>
           )}
 
         {walkthroughOpen &&
@@ -1357,8 +1571,14 @@ function ScenarioWorkspace({
           </section>
         )}
 
-        {activeView === "timeline" && (
+        {(activeView === "timeline" ||
+          activeView === "questions") && (
           <InvestigationWorkspace
+            briefSection={
+              activeView === "questions"
+                ? "questions"
+                : "brief"
+            }
             scenario={scenario}
             scenarioState={scenarioState}
             questionAnswers={

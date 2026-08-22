@@ -206,7 +206,7 @@ test("professional does not name the techniques until the run is over", async ({
     await page
       .getByRole("navigation")
       .getByRole("button", {
-        name: /Investigation/,
+        name: "Brief",
       })
       .click();
   };

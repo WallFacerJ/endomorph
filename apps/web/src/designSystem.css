@@ -228,3 +228,31 @@
 .case-header h3 .icon {
   color: var(--accent);
 }
+
+/*
+  The objectives rail takes 400px out of the working width, which drops the
+  three-column consoles below the ~1100px their columns need. Their
+  breakpoints key off the viewport, which has not changed, so they carried on
+  laying out three columns into space that no longer existed and the detail
+  pane was clipped mid-word.
+
+  Opening the rail applies the same stacked layout the narrow breakpoint
+  does. Available width is the thing that matters, and until container
+  queries are worth the complexity here, this is the honest way to say so.
+*/
+.main-content.mission-open .edr-layout,
+.main-content.mission-open
+  .identity-console-layout {
+  grid-template-columns: 230px minmax(0, 1fr);
+}
+
+.main-content.mission-open
+  .edr-detail-pane,
+.main-content.mission-open
+  .identity-detail-pane {
+  grid-column: 1 / -1;
+}
+
+.main-content.mission-open .siem-layout {
+  grid-template-columns: minmax(0, 1fr);
+}

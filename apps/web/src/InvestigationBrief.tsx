@@ -78,6 +78,18 @@ export interface InvestigationBriefProps {
    * for.
    */
   revealTechniques: boolean;
+
+  /**
+   * Which half to render.
+   *
+   * A tester put it plainly: the console "takes you from the alert directly
+   * into questions", and "the questions should be after the investigate tab
+   * since you need to look through those to answer them". The brief is the
+   * assignment and belongs at the start; the questions are the write-up and
+   * belong after the tools that answer them. They are one component because
+   * they share the grading, the hint state and the score.
+   */
+  section: "brief" | "questions";
 }
 
 export function InvestigationBrief({
@@ -89,6 +101,7 @@ export function InvestigationBrief({
   finalized,
   revealAnswers,
   revealTechniques,
+  section,
 }: InvestigationBriefProps) {
   const [showHints, setShowHints] =
     useState(false);
@@ -180,7 +193,8 @@ export function InvestigationBrief({
         </div>
       </header>
 
-      {techniques.length > 0 &&
+      {section === "brief" &&
+        techniques.length > 0 &&
         !revealTechniques && (
           <div className="brief-attack">
             <div className="brief-attack-head">
@@ -212,7 +226,8 @@ export function InvestigationBrief({
           </div>
         )}
 
-      {techniques.length > 0 &&
+      {section === "brief" &&
+        techniques.length > 0 &&
         revealTechniques && (
         <div className="brief-attack">
           <div className="brief-attack-head">
@@ -277,7 +292,8 @@ export function InvestigationBrief({
         </div>
       )}
 
-      {questions.length > 0 && (
+      {section === "questions" &&
+        questions.length > 0 && (
         <div className="brief-questions">
           <div className="brief-questions-head">
             <h4>

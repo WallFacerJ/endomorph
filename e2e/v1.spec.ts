@@ -242,11 +242,12 @@ test("finalized analyst case is read-only until reset", async ({
   ).click();
 
   // Scoped to the nav landmark: the incident-command panel also has an
-  // "Investigation" control, for the incident phase of the same name.
+  // The nav's brief view, distinguished from the Case view's "Investigation"
+  // phase control of the same name.
   await page
     .getByRole("navigation")
     .getByRole("button", {
-      name: "Investigation",
+      name: "Brief",
     })
     .click();
   await page.getByRole(

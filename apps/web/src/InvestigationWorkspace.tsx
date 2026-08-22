@@ -70,6 +70,9 @@ export interface InvestigationWorkspaceProps {
   observedTechniqueIds: readonly string[];
   instructorMode: boolean;
   scaffolding: boolean;
+
+  /** Which half of the brief this view shows. */
+  briefSection: "brief" | "questions";
   responseActions: readonly ScenarioAction[];
   onPerformAction: (
     actionId: string,
@@ -102,6 +105,7 @@ export function InvestigationWorkspace({
   observedTechniqueIds,
   instructorMode,
   scaffolding,
+  briefSection,
   responseActions,
   onPerformAction,
   analystCase,
@@ -169,6 +173,7 @@ export function InvestigationWorkspace({
                 scaffolding ||
                 scenarioState.finalized
               }
+              section={briefSection}
             />
 
             {/*
