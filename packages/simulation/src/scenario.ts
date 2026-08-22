@@ -268,6 +268,20 @@ function requireValidObjectives(
         }
         break;
 
+      case "device_status": {
+        if (
+          !openingWorld.devices[
+            objective.deviceId
+          ]
+        ) {
+          throw new Error(
+            `Scenario ${scenario.id} objective ${objective.id} references missing device: ${objective.deviceId}`,
+          );
+        }
+
+        break;
+      }
+
       case "session_status":
         if (
           !openingWorld.sessions[

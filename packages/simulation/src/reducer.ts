@@ -125,12 +125,57 @@ export function applySimulationEvent(
       };
     }
 
+    /*
+      Isolating a host is a change to the world, not only a reading of it.
+
+      This was a pass-through, so a device's status in the world never moved
+      and only the EDR projection knew an endpoint had gone quiet. That made
+      isolation unscoreable: for an intrusion that persists through a run key
+      and beacons out, cutting the host off is the containment that matters,
+      and an analyst who did exactly that was told the scenario failed.
+
+      Only a transition to inactive is applied. A routine heartbeat reporting
+      "active" must not revive a host somebody isolated.
+    */
+    case "ENDPOINT_HEARTBEAT": {
+      const device =
+        world.devices[
+          event.payload.deviceId
+        ];
+
+      if (
+        !device ||
+        event.payload.status !==
+          "inactive"
+      ) {
+        return {
+          ...world,
+          simulationTime:
+            event.timestamp,
+        };
+      }
+
+      return {
+        ...world,
+
+        simulationTime: event.timestamp,
+
+        devices: {
+          ...world.devices,
+
+          [device.id]: {
+            ...device,
+            status: "inactive",
+          },
+        },
+      };
+    }
+
     case "AUTH_LOGIN_SUCCEEDED":
     case "AUTH_LOGIN_FAILED":
     case "PROCESS_STARTED":
     case "FILE_ACCESSED":
     case "NETWORK_CONNECTION":
-    case "ENDPOINT_HEARTBEAT":
     case "ALERT_CREATED":
       return {
         ...world,

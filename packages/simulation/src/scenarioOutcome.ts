@@ -35,9 +35,32 @@ export interface SessionStatusScenarioObjective {
   expectedStatus: SessionStatus;
 }
 
+/**
+ * Whether a host has been cut off.
+ *
+ * For an intrusion that persists through a run key and beacons out,
+ * isolating the endpoint is the containment that matters -- disabling the
+ * credential leaves the malware running. Without this objective an analyst
+ * who did the right thing was told the scenario failed.
+ */
+export interface DeviceStatusScenarioObjective {
+  id: string;
+
+  kind: "device_status";
+
+  label: string;
+
+  description: string;
+
+  deviceId: string;
+
+  expectedStatus: EntityStatus;
+}
+
 export type ScenarioObjective =
   | AccountStatusScenarioObjective
-  | SessionStatusScenarioObjective;
+  | SessionStatusScenarioObjective
+  | DeviceStatusScenarioObjective;
 
 export interface ScenarioObjectiveResult {
   id: string;
@@ -85,6 +108,27 @@ function evaluateObjective(
           objective.description,
         met:
           account.status ===
+          objective.expectedStatus,
+      };
+    }
+
+    case "device_status": {
+      const device =
+        world.devices[objective.deviceId];
+
+      if (!device) {
+        throw new Error(
+          `Scenario objective ${objective.id} references missing device: ${objective.deviceId}`,
+        );
+      }
+
+      return {
+        id: objective.id,
+        label: objective.label,
+        description:
+          objective.description,
+        met:
+          device.status ===
           objective.expectedStatus,
       };
     }

@@ -368,6 +368,15 @@ export function compileScenario(
         expectedStatus: "disabled",
       },
       {
+        id: "objective-device-isolated",
+        kind: "device_status",
+        label: "Compromised endpoint isolated",
+        description:
+          "The host is off the network, so anything still running on it cannot reach out.",
+        deviceId: incident.victimDeviceId,
+        expectedStatus: "inactive",
+      },
+      {
         id: "objective-session-revoked",
         kind: "session_status",
         label:
@@ -378,12 +387,25 @@ export function compileScenario(
           investigationSessionId,
         expectedStatus: "revoked",
       },
-    ].filter((objective) =>
-      objective.kind === "session_status"
-        ? incident.containment.revokeSession
-        : incident.containment
-            .disableAccount,
-    ),
+    ].filter((objective) => {
+      if (
+        objective.kind ===
+        "session_status"
+      ) {
+        return incident.containment
+          .revokeSession;
+      }
+
+      if (
+        objective.kind === "device_status"
+      ) {
+        return incident.containment
+          .isolateDevice;
+      }
+
+      return incident.containment
+        .disableAccount;
+    }),
 
     investigation: {
       alertId: incident.alertId,
