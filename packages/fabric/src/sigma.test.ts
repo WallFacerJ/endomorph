@@ -126,13 +126,36 @@ describe("SigmaHQ idiom compatibility", () => {
       ),
     }));
 
-  it("imports the majority of idiomatic rules", () => {
+  it("imports every idiomatic rule the data model can express", () => {
     const result =
       importSigmaRules(compatDocs);
 
+    // Pin which rules are refused, not merely how many. A count alone lets
+    // the set drift: one rule could start importing while another stopped,
+    // the total would hold, and the documented claim would quietly be false.
     expect(
-      result.rules.length,
-    ).toBeGreaterThanOrEqual(
+      result.skipped
+        .map((skip) => skip.source)
+        .sort(),
+    ).toEqual([
+      "02_parent_image.yml",
+      "05_event_id.yml",
+    ]);
+
+    // And that they are refused for the stated reason: the corpus models
+    // neither parent process images nor Windows event ids.
+    expect(
+      result.skipped.map(
+        (skip) => skip.reason,
+      ),
+    ).toEqual([
+      expect.stringContaining(
+        "ParentImage",
+      ),
+      expect.stringContaining("EventID"),
+    ]);
+
+    expect(result.rules).toHaveLength(
       compatDocs.length - 2,
     );
   });
@@ -183,6 +206,99 @@ describe("SigmaHQ idiom compatibility", () => {
 
     expect(rule.selections).toHaveLength(
       0,
+    );
+  });
+
+  it("refuses a condition that constrains nothing", () => {
+    // "1 of them" with no search identifiers left selections empty and
+    // alternatives empty, and an empty every() is true -- so the rule
+    // matched every record in the corpus. A rule matching everything is
+    // worse than one matching nothing: it looks like total coverage.
+    expect(() =>
+      convertSigmaRule({
+        title: "t",
+        detection: {
+          timeframe: "5m",
+          condition: "1 of them",
+        },
+      }),
+    ).toThrow(/selects nothing/);
+  });
+
+  it("refuses an empty value list", () => {
+    // Same class: {anyOf: []} imports cleanly and never fires.
+    expect(() =>
+      convertSigmaRule({
+        title: "t",
+        detection: {
+          selection: {
+            "Image|endswith": [],
+          },
+          condition: "selection",
+        },
+      }),
+    ).toThrow(/matches nothing/);
+  });
+
+  it("supports 1 of combined with a filter", () => {
+    // The common published form. Anchoring the pattern to the whole
+    // condition made this fall through and be refused for a reason that was
+    // not true.
+    const rule = convertSigmaRule({
+      title: "t",
+      detection: {
+        selection_a: {
+          CommandLine: "a",
+        },
+        selection_b: {
+          CommandLine: "b",
+        },
+        filter_main: {
+          CommandLine: "safe",
+        },
+        condition:
+          "1 of selection_* and not filter_main",
+      },
+    });
+
+    expect(
+      rule.anySelections,
+    ).toHaveLength(2);
+
+    expect(
+      rule.exclusions,
+    ).toHaveLength(1);
+  });
+
+  it("refuses N of for counts of ten and above", () => {
+    // The guard was anchored [2-9] and went inert at ten, so "10 of them"
+    // was misdiagnosed as an unknown selection instead.
+    expect(() =>
+      convertSigmaRule({
+        title: "t",
+        detection: {
+          selection_a: {
+            CommandLine: "a",
+          },
+          condition: "10 of them",
+        },
+      }),
+    ).toThrow(/N other than one/);
+  });
+
+  it("names an unknown selection in a 1 of condition", () => {
+    expect(() =>
+      convertSigmaRule({
+        title: "t",
+        detection: {
+          selection: {
+            CommandLine: "a",
+          },
+          condition: "1 of nope",
+        },
+      }),
+    ).toThrow(
+      /unknown selection "nope"/,
     );
   });
 

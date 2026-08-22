@@ -269,7 +269,7 @@ function main(): void {
   // occurrence of "/assets/" inside inlined bundle text is harmless; a
   // <script src> or stylesheet <link> pointing at one is not.
   const externalTag =
-    /<script[^>]+src=|<link[^>]+rel="stylesheet"/i.exec(
+    /<script[^>]+\bsrc=|<link[^>]+rel="stylesheet"/i.exec(
       html,
     );
 

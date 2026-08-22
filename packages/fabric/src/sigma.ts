@@ -184,6 +184,15 @@ function toMatcher(
     );
   }
 
+  // An empty value list can never match anything. Building {anyOf: []} from
+  // it replaced a loud refusal with a rule that imports cleanly and detects
+  // nothing forever -- the failure this module exists to prevent.
+  if (literals.length === 0) {
+    throw new SigmaUnsupportedError(
+      "An empty value list matches nothing.",
+    );
+  }
+
   if (literals.length !== 1) {
     const stringModifier = [
       "contains",
@@ -312,9 +321,15 @@ function severityFrom(
  * Parses the condition.
  *
  * Sigma's condition grammar is large. The supported subset covers the
- * overwhelming majority of published rules: a single selection, a
- * conjunction of selections, and negated selections used as filters.
- * Aggregations, `1 of`, and `|count()` throw.
+ * overwhelming majority of published rules: a conjunction of selections,
+ * negated selections used as filters, and `1 of` as a disjunction across
+ * selection groups. Aggregations and `N of` for N above one throw.
+ *
+ * `1 of` is handled as a token inside the conjunction rather than as a whole
+ * condition, because `1 of selection_* and not filter_main` is far more
+ * common than `1 of selection_*` alone. Treating it as the entire condition
+ * made the combined form fall through to the plain-name path, where it was
+ * refused for a reason that was not true.
  */
 function parseCondition(
   condition: string,
@@ -340,26 +355,45 @@ function parseCondition(
     );
   }
 
-  // "1 of X" is an OR across selection groups, which anySelections
-  // expresses. Anything above one is a count this shape cannot represent,
-  // so it is still refused rather than approximated.
-  if (/\b([2-9]\d*) of\b/i.test(normalized)) {
-    throw new SigmaUnsupportedError(
-      `"N of" with N greater than one is not supported: "${condition}"`,
-    );
-  }
-
-  const oneOf = /^1 of (\S+)$/i.exec(
+  // Match any count, then reject above one. Anchoring the digits as [2-9]\d*
+  // left the guard inert for ten and above, so "10 of them" fell through to
+  // be misdiagnosed as an unknown selection.
+  const count = /\b(\d+) of\b/i.exec(
     normalized,
   );
+
+  if (
+    count &&
+    Number(count[1]) !== 1
+  ) {
+    throw new SigmaUnsupportedError(
+      `"N of" with N other than one is not supported: "${condition}"`,
+    );
+  }
 
   const required: string[] = [];
   const excluded: string[] = [];
   const alternatives: string[] = [];
 
-  const expandAll = (
+  const resolve = (
     pattern: string,
   ): string[] => {
+    if (pattern === "them") {
+      return [...available];
+    }
+
+    if (!pattern.includes("*")) {
+      // The plain-name path validates too; skipping it here surfaced an
+      // unknown selection as a confusing "must be a map" error later.
+      if (!available.includes(pattern)) {
+        throw new SigmaUnsupportedError(
+          `Condition references unknown selection "${pattern}".`,
+        );
+      }
+
+      return [pattern];
+    }
+
     const prefix = pattern.replace(
       /\*$/,
       "",
@@ -378,53 +412,57 @@ function parseCondition(
     return matches;
   };
 
-  if (oneOf) {
-    const pattern = oneOf[1];
-
-    const names =
-      pattern === "them"
-        ? [...available]
-        : pattern.includes("*")
-          ? expandAll(pattern)
-          : [pattern];
-
-    return {
-      required: [],
-      excluded: [],
-      alternatives: names,
-    };
-  }
-
+  // Split on "and", keeping "1 of X" and "all of X" intact as single tokens.
   const tokens = normalized.split(
     /\s+and\s+/i,
   );
 
   for (const token of tokens) {
-    const negated = /^not\s+/i.test(
-      token,
-    );
-
-    const bare = token
-      .replace(/^not\s+/i, "")
-      .replace(/^all\s+of\s+/i, "")
+    const cleaned = token
       .replace(/[()]/g, "")
       .trim();
 
-    if (bare.length === 0) {
+    if (cleaned.length === 0) {
       continue;
     }
 
-    const names = bare.includes("*")
-      ? expandAll(bare)
-      : [bare];
+    const negated = /^not\s+/i.test(
+      cleaned,
+    );
 
-    for (const name of names) {
-      if (!available.includes(name)) {
+    const body = cleaned
+      .replace(/^not\s+/i, "")
+      .trim();
+
+    const oneOf = /^1 of (\S+)$/i.exec(
+      body,
+    );
+
+    if (oneOf) {
+      const names = resolve(oneOf[1]);
+
+      if (names.length === 0) {
         throw new SigmaUnsupportedError(
-          `Condition references unknown selection "${name}".`,
+          `Condition "${condition}" selects nothing.`,
         );
       }
 
+      if (negated) {
+        // "not 1 of X" excludes every alternative, which the exclusion list
+        // already expresses as an OR.
+        excluded.push(...names);
+      } else {
+        alternatives.push(...names);
+      }
+
+      continue;
+    }
+
+    const bare = body
+      .replace(/^all\s+of\s+/i, "")
+      .trim();
+
+    for (const name of resolve(bare)) {
       if (negated) {
         excluded.push(name);
       } else {
@@ -433,13 +471,23 @@ function parseCondition(
     }
   }
 
-  if (required.length === 0) {
+  // A condition that constrains nothing would produce a rule matching every
+  // record in the corpus, which is worse than one matching none: it looks
+  // like total coverage.
+  if (
+    required.length === 0 &&
+    alternatives.length === 0
+  ) {
     throw new SigmaUnsupportedError(
       `Condition "${condition}" selects nothing.`,
     );
   }
 
-  return { required, excluded, alternatives };
+  return {
+    required,
+    excluded,
+    alternatives,
+  };
 }
 
 export function convertSigmaRule(

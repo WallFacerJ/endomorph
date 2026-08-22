@@ -368,6 +368,97 @@ describe("detection evaluation", () => {
     }
   });
 
+  it("matches through an anyOf value list", () => {
+    // A shape assertion in the importer does not prove the evaluator honours
+    // the branch. A matcher branch that silently returned false would look
+    // exactly like "no records matched".
+    const evaluation = evaluateRule(
+      {
+        id: "any-of",
+        name: "Recon utility execution",
+        technique: "T1059.001",
+        severity: "low",
+        selections: [
+          {
+            "process.executable": {
+              anyOf: [
+                {
+                  contains:
+                    "does-not-exist.exe",
+                },
+                {
+                  contains:
+                    "powershell.exe",
+                },
+              ],
+            },
+          },
+        ],
+      },
+      corpora[0].records,
+    );
+
+    expect(
+      evaluation.matched,
+    ).toBeGreaterThan(0);
+
+    expect(
+      evaluation.truePositives,
+    ).toBeGreaterThan(0);
+  });
+
+  it("matches through anySelections as a disjunction", () => {
+    const base = {
+      id: "any-sel",
+      name: "Either indicator",
+      technique: "T1059.001",
+      severity: "low" as const,
+      selections: [],
+    };
+
+    const matching = evaluateRule(
+      {
+        ...base,
+        anySelections: [
+          {
+            "process.command_line": {
+              contains:
+                "definitely-not-present",
+            },
+          },
+          {
+            "process.command_line": {
+              contains: "powershell",
+            },
+          },
+        ],
+      },
+      corpora[0].records,
+    );
+
+    expect(
+      matching.matched,
+    ).toBeGreaterThan(0);
+
+    // And that it is genuinely a disjunction: neither alternative matching
+    // must yield nothing rather than everything.
+    const nonMatching = evaluateRule(
+      {
+        ...base,
+        anySelections: [
+          {
+            "process.command_line": {
+              contains: "no-such-thing",
+            },
+          },
+        ],
+      },
+      corpora[0].records,
+    );
+
+    expect(nonMatching.matched).toBe(0);
+  });
+
   it("scores an empty ruleset as no coverage", () => {
     const report = evaluateRuleset(
       [],

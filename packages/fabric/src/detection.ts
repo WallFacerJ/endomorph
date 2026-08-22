@@ -12,8 +12,9 @@ import type {
  * this technique, and what does it cost me in noise" and get a number.
  *
  * The rule shape is deliberately Sigma-like -- named selections, a condition
- * over them, and optional thresholds -- so that importing Sigma later is a
- * translation rather than a redesign.
+ * over them, and optional thresholds -- so that importing Sigma is a
+ * translation rather than a redesign. `selections` are conjunctive,
+ * `anySelections` disjunctive, and `exclusions` subtract.
  */
 
 export type FieldMatcher =
