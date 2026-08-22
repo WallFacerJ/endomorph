@@ -1,0 +1,24 @@
+title: Registry Run Key Written From A Command Line
+id: endomorph-sigma-0009
+status: experimental
+description: >
+  Detects reg.exe adding a value under a CurrentVersion\Run key. Persistence
+  is what separates an incident that a reboot closes from one it does not, so
+  this changes the response rather than the diagnosis.
+references:
+  - https://attack.mitre.org/techniques/T1547/001/
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    CommandLine|contains:
+      - 'CurrentVersion\Run'
+    Image|endswith: '\reg.exe'
+  condition: selection
+falsepositives:
+  - Software deployment tooling that registers startup entries
+level: high
+tags:
+  - attack.persistence
+  - attack.t1547.001

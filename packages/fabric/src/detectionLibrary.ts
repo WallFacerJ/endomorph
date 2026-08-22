@@ -223,6 +223,200 @@ export const DISABLED_ENUMERATION_RULE: DetectionRule =
     ],
   };
 
+export const OFFICE_SPAWNS_SCRIPT_RULE: DetectionRule =
+  {
+    id: "office-spawns-script",
+    name: "Office application spawned a scripting host",
+    technique: "T1059.001",
+    severity: "high",
+    selections: [
+      {
+        "process.parent.executable": {
+          anyOf: [
+            { contains: "WINWORD.EXE" },
+            { contains: "EXCEL.EXE" },
+            {
+              contains: "POWERPNT.EXE",
+            },
+            { contains: "OUTLOOK.EXE" },
+          ],
+        },
+      },
+      {
+        "process.executable": {
+          anyOf: [
+            {
+              contains: "powershell.exe",
+            },
+            { contains: "cmd.exe" },
+            { contains: "wscript.exe" },
+            { contains: "cscript.exe" },
+            { contains: "mshta.exe" },
+          ],
+        },
+      },
+    ],
+  };
+
+export const RUN_KEY_PERSISTENCE_RULE: DetectionRule =
+  {
+    id: "run-key-persistence",
+    name: "Registry run key written from a command line",
+    technique: "T1547.001",
+    severity: "high",
+    selections: [
+      {
+        "process.command_line": {
+          contains:
+            "CurrentVersion\\Run",
+        },
+      },
+      {
+        "process.command_line": {
+          contains: " add ",
+        },
+      },
+    ],
+  };
+
+export const LSASS_DUMP_RULE: DetectionRule =
+  {
+    id: "lsass-memory-dump",
+    name: "Process memory dumped through a signed library",
+    technique: "T1003.001",
+    severity: "critical",
+    selections: [
+      {
+        "process.command_line": {
+          contains: "comsvcs.dll",
+        },
+      },
+      {
+        "process.command_line": {
+          contains: "MiniDump",
+        },
+      },
+    ],
+  };
+
+/**
+ * External addresses the organisation routinely talks to.
+ *
+ * A detection allow-list, maintained by hand, exactly as one is in practice
+ * -- and deliberately one entry behind the environment it describes. The
+ * estate routinely reaches a service that nobody added here, so the refined
+ * rule below still carries residual noise from it.
+ *
+ * That gap is the point rather than an oversight. Completing the list would
+ * take the rule to perfect precision against this corpus and teach something
+ * false, because an allow-list is never finished: it is a snapshot of what
+ * someone knew on the day they last reviewed it, and the environment keeps
+ * moving. What the pair of rules below measures is how much of the problem
+ * subtracting known-good actually solves, which is a great deal and not all
+ * of it.
+ */
+const KNOWN_EXTERNAL_DESTINATIONS: readonly string[] =
+  [
+    "52.96.104.11",
+    "142.250.187.14",
+    "13.107.42.14",
+    "104.18.32.47",
+    "151.101.65.69",
+    "34.117.59.81",
+  ];
+
+/**
+ * The naive version, kept deliberately.
+ *
+ * Repetition alone is not a discriminator: every laptop in the estate holds
+ * a polling connection to mail or chat, which has exactly this shape. The
+ * rule finds the beacon and drowns it, which is the honest outcome and the
+ * reason the refined rule below exists.
+ */
+export const NAIVE_BEACON_RULE: DetectionRule =
+  {
+    id: "naive-beacon",
+    name: "Repeated outbound connections to one external address",
+    technique: "T1071.001",
+    severity: "medium",
+    selections: [
+      {
+        "event.type":
+          "NETWORK_CONNECTION",
+      },
+      { "destination.port": 443 },
+    ],
+
+    // Everything corporate is RFC1918 here, so excluding it is what makes
+    // "external" expressible without an intelligence feed.
+    exclusions: [
+      {
+        "destination.ip": {
+          startsWith: "10.",
+        },
+      },
+    ],
+
+    // The destination is not the signal -- 443 outbound is the most ordinary
+    // traffic in the estate. Repetition to the *same* address from the same
+    // host is, because human browsing is bursty and irregular while software
+    // is not.
+    threshold: {
+      groupBy: [
+        "host.name",
+        "destination.ip",
+      ],
+      count: 3,
+      withinMinutes: 30,
+    },
+  };
+
+/**
+ * The refined version: repetition, minus the destinations the organisation
+ * knows it talks to.
+ *
+ * This is what a detection engineer actually does with the naive rule above
+ * -- not make the pattern cleverer, but subtract the known-good. It is worth
+ * seeing the cost as well as the benefit: the allow-list is a maintenance
+ * burden, it is only as good as the day it was last reviewed, and an
+ * attacker who beacons through a service on it is invisible to this rule.
+ */
+export const UNKNOWN_DESTINATION_BEACON_RULE: DetectionRule =
+  {
+    id: "beacon-unknown-destination",
+    name: "Repeated outbound connections to an address outside the known set",
+    technique: "T1071.001",
+    severity: "high",
+    selections: [
+      {
+        "event.type":
+          "NETWORK_CONNECTION",
+      },
+      { "destination.port": 443 },
+    ],
+
+    exclusions: [
+      {
+        "destination.ip": {
+          startsWith: "10.",
+        },
+      },
+      {
+        "destination.ip":
+          KNOWN_EXTERNAL_DESTINATIONS,
+      },
+    ],
+
+    threshold: {
+      groupBy: [
+        "host.name",
+        "destination.ip",
+      ],
+      count: 3,
+      withinMinutes: 30,
+    },
+  };
+
 export const DETECTION_RULES: readonly DetectionRule[] =
   [
     PASSWORD_SPRAY_RULE,
@@ -236,4 +430,9 @@ export const DETECTION_RULES: readonly DetectionRule[] =
     DOMAIN_GROUP_DISCOVERY_RULE,
     ACCOUNT_REENABLED_RULE,
     DISABLED_ENUMERATION_RULE,
+    OFFICE_SPAWNS_SCRIPT_RULE,
+    RUN_KEY_PERSISTENCE_RULE,
+    LSASS_DUMP_RULE,
+    NAIVE_BEACON_RULE,
+    UNKNOWN_DESTINATION_BEACON_RULE,
   ];

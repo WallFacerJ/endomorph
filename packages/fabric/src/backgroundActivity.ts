@@ -56,6 +56,15 @@ export interface ActivityOptions {
   /** Business processes launched per active workstation. */
   readonly processesPerWorkstation: number;
 
+  /**
+   * Connections to a single held-open service per workstation per day.
+   *
+   * Benign periodic traffic to a fixed address. Without it, repetition is a
+   * free discriminator and beacon detection scores far better here than it
+   * would anywhere real.
+   */
+  readonly pollsPerWorkstation: number;
+
   /** Outbound/internal connections per active workstation. */
   readonly connectionsPerWorkstation: number;
 
@@ -71,6 +80,7 @@ export const DEFAULT_ACTIVITY_OPTIONS: ActivityOptions =
     averageApplicationLogins: 3,
     typoRate: 0.22,
     processesPerWorkstation: 9,
+    pollsPerWorkstation: 6,
     connectionsPerWorkstation: 11,
     fileAccessRate: 0.35,
   };
@@ -851,6 +861,72 @@ export function generateBackgroundActivity(
               : networkCursor.pick([
                   443, 443, 443, 80,
                 ]),
+          },
+        },
+      );
+    }
+
+    // -- persistent service polling ----------------------------------------
+    //
+    // Ordinary traffic above picks a fresh destination for every connection,
+    // which meant no benign host ever contacted the same external address
+    // twice in a short window. Any rule keyed on repetition therefore scored
+    // perfect precision against this corpus and would not have survived
+    // contact with a real network -- the corpus was flattering the rule
+    // rather than testing it.
+    //
+    // Corporate laptops hold polling connections open to mail and chat all
+    // day, at an interval, to a fixed address. That is the same shape as a
+    // beacon, and it is the reason beacon detection is hard. Modelling it is
+    // what makes the measured precision of such a rule mean anything.
+    const keepaliveCursor = cursor.fork(
+      "keepalive",
+    );
+
+    const polled = keepaliveCursor.pick(
+      EXTERNAL_DESTINATIONS,
+    );
+
+    const pollStart =
+      arrival +
+      keepaliveCursor.nextInt(1, 30);
+
+    const pollInterval =
+      keepaliveCursor.nextInt(4, 11);
+
+    for (
+      let index = 0;
+      index < options.pollsPerWorkstation;
+      index += 1
+    ) {
+      const offset =
+        pollStart + index * pollInterval;
+
+      if (
+        offset >
+        arrival + durationMinutes
+      ) {
+        break;
+      }
+
+      push(
+        offset + dayOffset,
+        `d${dayIndex}-${device.id}-poll-${index}`,
+        {
+          type: "NETWORK_CONNECTION",
+          source: "network",
+          subjectId: device.id,
+          payload: {
+            deviceId: device.id,
+            protocol: "tcp",
+            sourceIp,
+            destinationIp: polled,
+            sourcePort:
+              keepaliveCursor.nextInt(
+                49152,
+                65535,
+              ),
+            destinationPort: 443,
           },
         },
       );

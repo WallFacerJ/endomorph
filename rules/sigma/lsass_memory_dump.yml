@@ -1,0 +1,25 @@
+title: Process Memory Dumped Through A Signed Library
+id: endomorph-sigma-0010
+status: experimental
+description: >
+  Detects the comsvcs.dll MiniDump export being invoked. Both the binary and
+  the library are signed and shipped with Windows, so publisher allow-listing
+  does not stop this. Treat a hit as a scope change rather than an indicator:
+  every credential cached on the host must be assumed taken.
+references:
+  - https://attack.mitre.org/techniques/T1003/001/
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    CommandLine|contains:
+      - 'comsvcs.dll'
+      - 'MiniDump'
+  condition: selection
+falsepositives:
+  - Legitimate crash-dump collection, which normally uses dedicated tooling
+level: critical
+tags:
+  - attack.credential-access
+  - attack.t1003.001

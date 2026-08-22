@@ -1,0 +1,35 @@
+title: Office Application Spawned A Scripting Host
+id: endomorph-sigma-0008
+status: experimental
+description: >
+  Detects a Microsoft Office process launching an interpreter. Office
+  applications open, render and print documents; nothing in that job requires
+  spawning a scripting host, so the pairing has close to no legitimate
+  counterpart. The command line is not what makes this suspicious -- the
+  parent is, which is why this rule keys on lineage rather than arguments.
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_parent:
+    ParentImage|endswith:
+      - '\WINWORD.EXE'
+      - '\EXCEL.EXE'
+      - '\POWERPNT.EXE'
+      - '\OUTLOOK.EXE'
+  selection_child:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\cmd.exe'
+      - '\wscript.exe'
+      - '\cscript.exe'
+      - '\mshta.exe'
+  condition: selection_parent and selection_child
+falsepositives:
+  - Document automation that shells out deliberately, which should be rare and known
+level: high
+tags:
+  - attack.execution
+  - attack.t1059.001
