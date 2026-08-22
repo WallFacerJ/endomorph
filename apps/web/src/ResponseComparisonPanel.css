@@ -1,0 +1,150 @@
+.comparison-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.05rem 1.15rem 1.15rem;
+  margin-top: 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 12px;
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.comparison-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.comparison-head h4 {
+  margin: 0.2rem 0 0.35rem;
+}
+
+.comparison-eyebrow {
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.comparison-copy {
+  margin: 0;
+  max-width: 60ch;
+  font-size: 0.82rem;
+  opacity: 0.8;
+  line-height: 1.45;
+}
+
+.comparison-scores {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.comparison-scores div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.comparison-scores span {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.comparison-scores strong {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.comparison-best strong {
+  color: rgba(74, 222, 128, 0.95);
+}
+
+.comparison-best.matched strong {
+  color: inherit;
+}
+
+.comparison-influences {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.comparison-influence {
+  display: grid;
+  grid-template-columns: 5.6rem 1fr 3rem;
+  grid-template-areas:
+    "state label delta"
+    "state explanation explanation";
+  gap: 0.2rem 0.7rem;
+  align-items: baseline;
+  padding: 0.5rem 0.65rem;
+  border-radius: 9px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.comparison-influence.positive {
+  border-color: rgba(74, 222, 128, 0.5);
+}
+
+.comparison-influence.negative {
+  border-color: rgba(248, 113, 113, 0.5);
+}
+
+.comparison-state {
+  grid-area: state;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.comparison-label {
+  grid-area: label;
+  font-size: 0.84rem;
+  font-weight: 500;
+}
+
+.comparison-delta {
+  grid-area: delta;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 0.86rem;
+}
+
+.comparison-influence.positive .comparison-delta {
+  color: rgba(74, 222, 128, 0.95);
+}
+
+.comparison-influence.negative .comparison-delta {
+  color: rgba(248, 113, 113, 0.95);
+}
+
+.comparison-influence.neutral .comparison-delta {
+  opacity: 0.5;
+}
+
+.comparison-explanation {
+  grid-area: explanation;
+  font-size: 0.76rem;
+  opacity: 0.78;
+  line-height: 1.4;
+}
+
+.comparison-note {
+  margin: 0;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  font-size: 0.76rem;
+  opacity: 0.75;
+  line-height: 1.45;
+}

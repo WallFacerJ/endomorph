@@ -18,6 +18,16 @@ test("starts live at the end of history", async ({
 }) => {
   await page.goto(GENERATED);
 
+  // Wait for the scenario to finish compiling before asserting. The
+  // generated scenario carries ~17.9k events, and under parallel load the
+  // default assertion timeout can expire while it is still inflating --
+  // which made this test flaky rather than failing, the worse outcome.
+  await page
+    .getByRole("button", {
+      name: "Endpoint",
+    })
+    .waitFor({ timeout: 30_000 });
+
   const replay = page.getByRole(
     "region",
     { name: "Replay" },

@@ -229,6 +229,20 @@ Every console is a projection of one append-only event log, so point-in-time rep
 
 Response actions are disabled while rewound. Acting on a past state would either rewrite history or silently apply to the present, and both are worse than refusing.
 
+### Counterfactuals
+
+Rewinding shows what the incident looked like earlier. The question that changes behaviour is what would have happened if you had decided differently — and because the runtime is deterministic and response actions are declarative, that is *computed*, not simulated.
+
+At finalization the result reports what the best available sequence would have scored and attributes a delta to each individual decision:
+
+```
+Performed   Disable compromised account        +50   Worth 50 points.
+Not taken   Isolate the workstation              0   Would not have changed the score.
+Performed   Restore account access             −50   The run scores higher without it.
+```
+
+Order matters, materially: re-enabling an account after disabling it undoes the containment, so the same three operations score 25 or 75 depending on sequence. The search therefore covers orderings rather than sets, and reports whether optimality was proven or approximated.
+
 ## Instructor walkthrough
 
 Switch the **Role** control to Instructor and open **Walkthrough**. It reconstructs the incident step by step from ground truth: what happened, which console to look in, the ATT&CK technique, and a query to try.

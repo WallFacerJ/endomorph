@@ -256,3 +256,54 @@ test("the default scenario is a generated one", async ({
     page.locator("body"),
   ).toContainText("MITRE ATT&CK");
 });
+
+test("the result explains what other response paths would have scored", async ({
+  page,
+}) => {
+  await page.goto(
+    "/?scenario=/scenarios/account-compromise.json",
+  );
+
+  await page
+    .getByRole("button", {
+      name: "Open investigation",
+    })
+    .click();
+
+  await page
+    .getByRole("button", {
+      name: "Finalize investigation",
+    })
+    .click();
+
+  const comparison = page.getByRole(
+    "region",
+    {
+      name: "Response path comparison",
+    },
+  );
+
+  await expect(comparison).toBeVisible();
+
+  // Finalizing without acting cannot be optimal, so a better path exists
+  // and its score is stated rather than implied.
+  await expect(comparison).toContainText(
+    "Best available",
+  );
+
+  // Each decision carries an attributed delta, which is what makes the
+  // final score explainable rather than opaque.
+  const influences = comparison.locator(
+    ".comparison-influence",
+  );
+
+  expect(
+    await influences.count(),
+  ).toBeGreaterThan(1);
+
+  await expect(
+    comparison.locator(
+      ".comparison-influence.positive",
+    ).first(),
+  ).toBeVisible();
+});

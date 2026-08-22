@@ -37,6 +37,10 @@ import {
 } from "./FirstRun";
 
 import {
+  ResponseComparisonPanel,
+} from "./ResponseComparisonPanel";
+
+import {
   ScenarioOutcomePanel,
 } from "./ScenarioOutcomePanel";
 
@@ -83,6 +87,7 @@ import {
   collectAnalystEvidence,
   createAnalystCaseState,
   assessInvestigationCoverage,
+  compareResponsePaths,
   createIncidentCaseState,
   edrProjection,
   finalizeScenarioState,
@@ -471,6 +476,24 @@ function ScenarioWorkspace({
     projections.siem.events,
     analystCase.collectedEventIds,
   ]);
+
+  // Only computed once the run is finalized: it searches every ordering of
+  // the available operations, which is wasted work mid-investigation and
+  // would also leak the answer.
+  const responseComparison = useMemo(
+    () =>
+      scenarioState.finalized
+        ? compareResponsePaths(
+            scenario,
+            scenarioState.performedActionIds,
+          )
+        : undefined,
+    [
+      scenario,
+      scenarioState.finalized,
+      scenarioState.performedActionIds,
+    ],
+  );
 
   const questionScore = useMemo(
     () =>
@@ -1162,6 +1185,15 @@ function ScenarioWorkspace({
                 }}
               />
             )}
+
+            {scenarioState.finalized &&
+              responseComparison && (
+                <ResponseComparisonPanel
+                  comparison={
+                    responseComparison
+                  }
+                />
+              )}
 
             {scenarioState.finalized &&
               instructorMode && (
