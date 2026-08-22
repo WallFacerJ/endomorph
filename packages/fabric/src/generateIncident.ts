@@ -32,6 +32,7 @@ import type {
 
 export interface IncidentGroundTruthStep {
   readonly eventId: string;
+  readonly title: string;
   readonly significance: string;
   readonly techniqueId?: string;
   readonly reasoning?: string;
@@ -381,6 +382,7 @@ export function generateIncident(
 
       timeline.push({
         eventId,
+        title: step.title,
         significance:
           step.significance(cast),
         techniqueId: step.techniqueId,
@@ -485,8 +487,12 @@ export function generateIncident(
 
   timeline.push({
     eventId: alertId,
+    title:
+      "The alert that opened the case",
     significance:
       "Detection fires. Everything before this is what the analyst has to reconstruct.",
+    reasoning:
+      "This is the last event in the attacker's timeline and the first in yours, which is why working forward from it finds nothing. The alert is also the weakest description of the incident you will ever have -- it names one observation out of many and was written before any of this happened. Treat it as a pointer to a host, an account and a minute, then rebuild the sequence from the telemetry rather than from the alert's own account of itself.",
   });
 
   const questions: IncidentQuestion[] =

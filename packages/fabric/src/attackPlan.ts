@@ -111,6 +111,15 @@ export interface AttackStep {
 
   readonly techniqueId: string;
 
+  /**
+   * A short human title for the step.
+   *
+   * The walkthrough previously headed each revealed step with the raw event
+   * type, which names the record's schema rather than what happened. An
+   * instructor scanning the list to find where to pause needs the latter.
+   */
+  readonly title: string;
+
   readonly significance: (
     cast: IncidentCast,
   ) => string;

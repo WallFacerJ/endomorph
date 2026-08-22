@@ -414,6 +414,9 @@ export const scenarioActionSchema =
 export const scenarioGroundTruthEventSchema =
   z.object({
     eventId: entityIdSchema,
+    /** Short human title, e.g. "Encoded PowerShell with inspection defeated". */
+    title:
+      nonEmptyStringSchema.optional(),
     significance: nonEmptyStringSchema,
     /** MITRE ATT&CK technique this step maps to, e.g. T1110.003. */
     techniqueId:

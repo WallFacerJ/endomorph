@@ -82,6 +82,7 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
     steps: [
       {
         id: "spray",
+        title: "Password spray from an unfamiliar address",
         techniqueId: "T1110.003",
         repeat: 4,
         advanceBy: 2,
@@ -105,6 +106,7 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
       },
       {
         id: "auth-success",
+        title: "One attempt succeeds",
         techniqueId: "T1078.002",
         advanceBy: 1,
         significance: (cast) =>
@@ -129,6 +131,7 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
       },
       {
         id: "session",
+        title: "Interactive session opens on the account",
         techniqueId: "T1078.002",
         advanceBy: 3,
         significance: () =>
@@ -152,6 +155,7 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
       },
       {
         id: "powershell",
+        title: "Encoded PowerShell with inspection defeated",
         techniqueId: "T1059.001",
         advanceBy: 2,
         significance: () =>
@@ -178,6 +182,7 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
       },
       {
         id: "beacon",
+        title: "Repeated outbound connection to one address",
         techniqueId: "T1071.001",
         repeat: 2,
         advanceBy: 5,
@@ -201,6 +206,7 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
       },
       {
         id: "discovery",
+        title: "Domain administrators enumerated",
         techniqueId: "T1069.002",
         advanceBy: 3,
         significance: () =>
@@ -228,6 +234,7 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
       },
       {
         id: "collection",
+        title: "Restricted document opened",
         techniqueId: "T1005",
         advanceBy: 3,
         significance: (cast) =>
@@ -250,6 +257,7 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
       },
       {
         id: "lateral",
+        title: "Movement to a second host",
         techniqueId: "T1021.002",
         advanceBy: 2,
         significance: (cast) =>
@@ -405,6 +413,7 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
     steps: [
       {
         id: "admin-auth",
+        title: "Administrator signs in outside working hours",
         techniqueId: "T1078.003",
         advanceBy: 4,
         significance: (cast) =>
@@ -432,6 +441,7 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
       },
       {
         id: "admin-session",
+        title: "Elevated session opens",
         techniqueId: "T1078.003",
         advanceBy: 3,
         significance: () =>
@@ -458,6 +468,7 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
       },
       {
         id: "enumerate",
+        title: "Directory queried for people, not systems",
         techniqueId: "T1087.002",
         advanceBy: 4,
         significance: () =>
@@ -485,6 +496,7 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
       },
       {
         id: "share-access",
+        title: "Restricted file read across the share",
         techniqueId: "T1039",
         advanceBy: 2,
         significance: (cast) =>
@@ -510,6 +522,7 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
       },
       {
         id: "archive",
+        title: "Collection compressed behind a password",
         techniqueId: "T1560.001",
         advanceBy: 3,
         significance: () =>
@@ -538,6 +551,7 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
       },
       {
         id: "clear-logs",
+        title: "Security event log cleared",
         techniqueId: "T1070.001",
         advanceBy: 2,
         significance: () =>
@@ -684,6 +698,7 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
     steps: [
       {
         id: "service-auth",
+        title: "Service account authenticates",
         techniqueId: "T1078.002",
         advanceBy: 3,
         significance: (cast) =>
@@ -711,6 +726,7 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
       },
       {
         id: "service-session",
+        title: "A service account opens an interactive session",
         techniqueId: "T1078.002",
         advanceBy: 2,
         significance: () =>
@@ -737,6 +753,7 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
       },
       {
         id: "sweep",
+        title: "Datacenter segment swept on SMB",
         techniqueId: "T1018",
         advanceBy: 3,
         significance: () =>
@@ -764,6 +781,7 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
       },
       {
         id: "smb-primary",
+        title: "First connection to an unfamiliar host",
         techniqueId: "T1021.002",
         advanceBy: 2,
         significance: (cast) =>
@@ -788,6 +806,7 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
       },
       {
         id: "smb-secondary",
+        title: "A second host, in sequence",
         techniqueId: "T1021.002",
         advanceBy: 2,
         significance: (cast) =>
@@ -812,6 +831,7 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
       },
       {
         id: "tool-transfer",
+        title: "Executable written to an administrative share",
         techniqueId: "T1570",
         advanceBy: 3,
         significance: (cast) =>

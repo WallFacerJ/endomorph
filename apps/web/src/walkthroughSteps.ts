@@ -31,6 +31,7 @@ export interface WalkthroughStep {
   readonly index: number;
   readonly eventId: string;
   readonly time: string;
+  readonly title?: string;
   readonly significance: string;
   readonly reasoning?: string;
   readonly techniqueId?: string;
@@ -68,6 +69,7 @@ export function buildWalkthroughSteps(
       time:
         record?.timestamp.slice(11, 19) ??
         "",
+      title: step.title,
       significance: step.significance,
       reasoning: step.reasoning,
       techniqueId: step.techniqueId,

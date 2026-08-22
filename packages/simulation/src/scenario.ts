@@ -57,6 +57,9 @@ export interface ScenarioAction {
 export interface ScenarioGroundTruthEvent {
   eventId: string;
 
+  /** Short human title for the step, e.g. "Security event log cleared". */
+  title?: string;
+
   significance: string;
 
   /** MITRE ATT&CK technique this step maps to. */

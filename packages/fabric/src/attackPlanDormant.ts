@@ -56,6 +56,7 @@ export const DORMANT_ACCOUNT_PLAN: AttackPlan =
     steps: [
       {
         id: "enumerate-accounts",
+        title: "Directory filtered to disabled accounts",
         techniqueId: "T1087.002",
         advanceBy: 4,
         significance: () =>
@@ -83,6 +84,7 @@ export const DORMANT_ACCOUNT_PLAN: AttackPlan =
       },
       {
         id: "reactivate",
+        title: "A leaver's account is re-enabled",
         techniqueId: "T1098",
         advanceBy: 6,
         significance: (cast) =>
@@ -109,6 +111,7 @@ export const DORMANT_ACCOUNT_PLAN: AttackPlan =
       },
       {
         id: "revived-auth",
+        title: "The revived account signs in",
         techniqueId: "T1078.002",
         advanceBy: 2,
         significance: (cast) =>
@@ -140,6 +143,7 @@ export const DORMANT_ACCOUNT_PLAN: AttackPlan =
       },
       {
         id: "revived-session",
+        title: "Session opens on the revived account",
         techniqueId: "T1078.002",
         advanceBy: 3,
         significance: () =>
@@ -166,6 +170,7 @@ export const DORMANT_ACCOUNT_PLAN: AttackPlan =
       },
       {
         id: "share-read",
+        title: "Restricted material read by the revived account",
         techniqueId: "T1039",
         advanceBy: 3,
         significance: (cast) =>

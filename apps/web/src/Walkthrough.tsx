@@ -182,8 +182,16 @@ export function Walkthrough({
                 </span>
 
                 <span className="walkthrough-step-title">
+                  {/*
+                    Collapsed stays deliberately non-spoiling -- the console
+                    tells an instructor where to look without giving away
+                    what happened. Revealed, the raw event type named the
+                    record's schema rather than the step, so it falls back
+                    to that only when a plan has no title.
+                  */}
                   {open
-                    ? step.eventType
+                    ? (step.title ??
+                      step.eventType)
                     : `Step ${step.index} — ${step.console}`}
                 </span>
 
