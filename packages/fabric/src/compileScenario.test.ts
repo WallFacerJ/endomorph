@@ -9,8 +9,16 @@ import {
 } from "@endomorph/schema";
 
 import {
+  compileScenarioDefinition,
+} from "@endomorph/simulation";
+
+import {
   compileScenario,
 } from "./compileScenario.js";
+
+import {
+  ATTACK_PLANS,
+} from "./attackPlanLibrary.js";
 
 const compiled = compileScenario({
   id: "scenario-generated-001",
@@ -404,4 +412,178 @@ describe("compileScenario", () => {
       ).toBe("restricted");
     });
   });
+});
+
+describe("every shipped plan compiles to a loadable scenario", () => {
+  // The schema check above proves the file's *shape*. It does not prove its
+  // references resolve, and the two failed apart: a plan whose intrusion
+  // never authenticates produced an investigation pointing at a session id
+  // nothing had emitted. The schema accepted it, the whole suite passed, and
+  // the app refused to open it -- "scenario validation failed", nothing
+  // playable, found only by loading the page in a browser.
+  //
+  // compileScenarioDefinition is the same function the loader runs, so this
+  // fails at build time for the same reasons the app would.
+  for (const plan of ATTACK_PLANS) {
+    it(`loads ${plan.id}`, () => {
+      const scenario = compileScenario({
+        id: `scenario-loadable-${plan.id}`,
+        name: `Loadable ${plan.id}`,
+        description:
+          "Compiled to prove the runtime accepts it.",
+        incident: { planId: plan.id },
+      });
+
+      const parsed = parseScenarioFile(
+        scenario.file,
+      );
+
+      expect(() =>
+        compileScenarioDefinition(
+          parsed.scenario,
+        ),
+      ).not.toThrow();
+    });
+
+    it(`offers ${plan.id} only the responses it declares`, () => {
+      // `containment` was declared on every plan and read by nothing: the
+      // compiler emitted all four actions for every incident. Dormant
+      // account revival was offered device isolation it explicitly says it
+      // does not support, and an intrusion with no attacker session was
+      // offered "revoke the attacker's session".
+      //
+      // The routing test cannot catch this. It only fails when an action has
+      // nothing to point at, and once the investigation falls back to the
+      // subject's own session a wrongly-offered revoke routes perfectly
+      // well -- it is simply describing something that did not happen.
+      const scenario = compileScenario({
+        id: `scenario-containment-${plan.id}`,
+        name: `Containment ${plan.id}`,
+        description:
+          "Compiled to check the offered responses.",
+        incident: { planId: plan.id },
+      });
+
+      const offered = new Set(
+        parseScenarioFile(
+          scenario.file,
+        ).scenario.actions.map(
+          (action) => action.id,
+        ),
+      );
+
+      expect(
+        offered.has(
+          "action-isolate-device",
+        ),
+      ).toBe(
+        plan.containment.isolateDevice,
+      );
+
+      expect(
+        offered.has(
+          "action-disable-account",
+        ),
+      ).toBe(
+        plan.containment.disableAccount,
+      );
+
+      expect(
+        offered.has(
+          "action-revoke-session",
+        ),
+      ).toBe(
+        plan.containment.revokeSession,
+      );
+
+      // The half-measure is always offered: its purpose is to be a plausible
+      // wrong answer, and removing it where it is wrong removes the decision
+      // being tested.
+      expect(
+        offered.has(
+          "action-reset-password-only",
+        ),
+      ).toBe(true);
+    });
+
+    it(`gives ${plan.id} an investigation that points at real entities`, () => {
+      // Every id the investigation names must appear in the world or the
+      // events, not merely be a well-formed string. The account one bit
+      // first: it used to be whichever account was most privileged rather
+      // than the one the plan acts through, so it could name an account the
+      // incident never touches -- and the primary response action disables
+      // exactly that account.
+      const scenario = compileScenario({
+        id: `scenario-refs-${plan.id}`,
+        name: `Refs ${plan.id}`,
+        description:
+          "Compiled to check investigation references.",
+        incident: { planId: plan.id },
+      });
+
+      const parsed = parseScenarioFile(
+        scenario.file,
+      ).scenario;
+
+      const investigation =
+        parsed.investigation;
+
+      const accountsInEvents = new Set(
+        parsed.openingEvents.flatMap(
+          (event) => {
+            const payload =
+              event.payload as {
+                accountId?: string;
+              };
+
+            return [
+              payload.accountId,
+              event.actorId,
+            ].filter(
+              (id): id is string =>
+                typeof id === "string",
+            );
+          },
+        ),
+      );
+
+      expect(
+        accountsInEvents.has(
+          investigation.accountId,
+        ),
+      ).toBe(true);
+
+      const sessionsInEvents = new Set(
+        parsed.openingEvents
+          .filter(
+            (event) =>
+              event.type ===
+              "SESSION_STARTED",
+          )
+          .map(
+            (event) =>
+              (
+                event.payload as {
+                  sessionId: string;
+                }
+              ).sessionId,
+          ),
+      );
+
+      expect(
+        sessionsInEvents.has(
+          investigation.sessionId,
+        ),
+      ).toBe(true);
+
+      // And the primary action must be one the plan actually offers.
+      expect(
+        parsed.actions.map(
+          (action) => action.id,
+        ),
+      ).toContain(
+        investigation.primaryActionId,
+      );
+    });
+  }
 });
