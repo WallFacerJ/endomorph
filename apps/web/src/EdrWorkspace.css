@@ -438,7 +438,14 @@
   gap: 8px;
 }
 
-@media (max-width: 1180px) {
+/*
+  Stacks at 1420 rather than 1180. The three columns have minimum widths
+  totalling ~1100px and sit inside a 260px nav plus page padding, so between
+  those two figures the grid could not fit and overflowed the viewport
+  horizontally -- 1358px of content in a 1280px window on the endpoint
+  console, which is an ordinary laptop width.
+*/
+@media (max-width: 1420px) {
   .edr-layout {
     grid-template-columns: 230px minmax(0, 1fr);
   }

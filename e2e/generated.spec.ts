@@ -198,3 +198,68 @@ test("the entity inventories are filterable and do not stretch the page", async 
     ),
   ).toBeLessThan(6000);
 });
+
+test("no console scrolls the page sideways at laptop widths", async ({
+  page,
+}) => {
+  // The three-column consoles have minimum column widths totalling ~1100px
+  // and sit inside a 260px nav, so they need roughly 1400px of viewport. The
+  // breakpoint that stacked them was set at 1180, which left a band where the
+  // grid could not fit and pushed the document sideways instead -- 1358px of
+  // content in a 1280px window, an entirely ordinary laptop.
+  for (const width of [
+    1920, 1440, 1366, 1280, 1024,
+  ]) {
+    await page.setViewportSize({
+      width,
+      height: 900,
+    });
+
+    await page.goto(GENERATED_SCENARIO);
+
+    const dismiss = page.getByRole(
+      "button",
+      { name: "Got it" },
+    );
+
+    if (
+      await dismiss
+        .isVisible()
+        .catch(() => false)
+    ) {
+      await dismiss.click();
+    }
+
+    for (const console of [
+      "Alerts",
+      "SIEM Search",
+      "Endpoint",
+      "Identity",
+      "Case",
+    ]) {
+      await page
+        .getByRole("button", {
+          name: new RegExp(
+            `^${console}`,
+          ),
+        })
+        .click();
+
+      const overflow =
+        await page.evaluate(() => ({
+          scroll:
+            document.documentElement
+              .scrollWidth,
+          client:
+            document.documentElement
+              .clientWidth,
+        }));
+
+      expect(
+        `${width} ${console}: ${overflow.scroll}`,
+      ).toBe(
+        `${width} ${console}: ${overflow.client}`,
+      );
+    }
+  }
+});
