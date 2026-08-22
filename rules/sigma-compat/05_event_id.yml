@@ -1,0 +1,13 @@
+title: Account Enabled Via Event Log
+id: 1234abcd-0000-0000-0000-00000000dddd
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4722
+    condition: selection
+level: high
+tags:
+    - attack.persistence
+    - attack.t1098

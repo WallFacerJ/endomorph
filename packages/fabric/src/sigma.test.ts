@@ -99,6 +99,132 @@ const corpora = ATTACK_PLANS.map((plan) => {
   );
 });
 
+describe("SigmaHQ idiom compatibility", () => {
+  // Rules written in genuine SigmaHQ style rather than tailored to this
+  // importer, so the supported-construct claim is measured rather than
+  // asserted. Two are deliberately beyond the data model.
+  const compatDir = join(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "rules",
+    "sigma-compat",
+  );
+
+  const compatDocs = readdirSync(
+    compatDir,
+  )
+    .filter((name) =>
+      name.endsWith(".yml"),
+    )
+    .map((name) => ({
+      source: name,
+      yaml: readFileSync(
+        join(compatDir, name),
+        "utf8",
+      ),
+    }));
+
+  it("imports the majority of idiomatic rules", () => {
+    const result =
+      importSigmaRules(compatDocs);
+
+    expect(
+      result.rules.length,
+    ).toBeGreaterThanOrEqual(
+      compatDocs.length - 2,
+    );
+  });
+
+  it("supports a value list combined with a modifier", () => {
+    // A YAML sequence under a modifier is one of the most common constructs
+    // in published rules, and an OR over the same field.
+    const rule = convertSigmaRule({
+      title: "t",
+      detection: {
+        selection: {
+          "Image|endswith": [
+            "net.exe",
+            "whoami.exe",
+          ],
+        },
+        condition: "selection",
+      },
+    });
+
+    const matcher =
+      rule.selections[0][
+        "process.executable"
+      ];
+
+    expect(
+      JSON.stringify(matcher),
+    ).toContain("anyOf");
+  });
+
+  it("supports 1 of selection_*", () => {
+    const rule = convertSigmaRule({
+      title: "t",
+      detection: {
+        selection_a: {
+          CommandLine: "a",
+        },
+        selection_b: {
+          CommandLine: "b",
+        },
+        condition: "1 of selection_*",
+      },
+    });
+
+    expect(
+      rule.anySelections,
+    ).toHaveLength(2);
+
+    expect(rule.selections).toHaveLength(
+      0,
+    );
+  });
+
+  it("still refuses N of when N exceeds one", () => {
+    expect(() =>
+      convertSigmaRule({
+        title: "t",
+        detection: {
+          selection_a: {
+            CommandLine: "a",
+          },
+          selection_b: {
+            CommandLine: "b",
+          },
+          condition: "2 of selection_*",
+        },
+      }),
+    ).toThrow(
+      SigmaUnsupportedError,
+    );
+  });
+
+  it("refuses ParentImage rather than mapping it onto a process id", () => {
+    // Regression, and the exact failure this importer exists to prevent.
+    // ParentImage is an executable path; the corpus records a parent
+    // process id. Mapping one onto the other produced rules that imported
+    // cleanly and could never match -- coverage that was not there.
+    expect(() =>
+      convertSigmaRule({
+        title: "t",
+        detection: {
+          selection: {
+            "ParentImage|endswith":
+              "winword.exe",
+          },
+          condition: "selection",
+        },
+      }),
+    ).toThrow(/ParentImage/);
+  });
+});
+
 describe("sigma import", () => {
   it("finds the shipped rule files", () => {
     expect(

@@ -1,0 +1,15 @@
+title: Suspicious Process Parent
+id: 1234abcd-0000-0000-0000-00000000aaaa
+status: experimental
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        ParentImage|endswith: '\winword.exe'
+        Image|endswith: '\powershell.exe'
+    condition: selection
+level: high
+tags:
+    - attack.execution
+    - attack.t1059.001

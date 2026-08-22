@@ -29,6 +29,10 @@ export type FieldMatcher =
     }
   | {
       readonly regex: string;
+    }
+  | {
+      /** Matches when any nested matcher does. */
+      readonly anyOf: readonly FieldMatcher[];
     };
 
 /** A selection matches when every field in it matches. */
@@ -62,6 +66,14 @@ export interface DetectionRule {
 
   /** All selections must match for a record to be a candidate. */
   readonly selections: readonly Selection[];
+
+  /**
+   * Alternatives: the record matches when *any* of these does.
+   *
+   * Sigma's `1 of selection_*` is an OR across selection groups, which an
+   * AND-only list cannot express. Published rules use it constantly.
+   */
+  readonly anySelections?: readonly Selection[];
 
   /** Records matching any of these are excluded. */
   readonly exclusions?: readonly Selection[];
@@ -142,6 +154,13 @@ function matchesField(
     ).test(text);
   }
 
+  if ("anyOf" in matcher) {
+    return matcher.anyOf.some(
+      (nested) =>
+        matchesField(actual, nested),
+    );
+  }
+
   return false;
 }
 
@@ -168,6 +187,18 @@ function candidateMatches(
   );
 
   if (!selected) {
+    return false;
+  }
+
+  const alternatives =
+    rule.anySelections ?? [];
+
+  if (
+    alternatives.length > 0 &&
+    !alternatives.some((selection) =>
+      matchesSelection(record, selection),
+    )
+  ) {
     return false;
   }
 

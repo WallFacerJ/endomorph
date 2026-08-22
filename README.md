@@ -153,7 +153,9 @@ Sigma import from rules/sigma
           supported: "selection | count() by SourceIp > 5"
 ```
 
-Sigma names fields the way Windows and Sysmon logs do; the corpus is ECS-shaped, so importing translates vocabularies (`Image|endswith` → `process.executable`) and maps `attack.t1059.001` tags to techniques. Selections, negated filters, and the `contains` / `startswith` / `endswith` / `re` modifiers are supported.
+Sigma names fields the way Windows and Sysmon logs do; the corpus is ECS-shaped, so importing translates vocabularies (`Image|endswith` → `process.executable`) and maps `attack.t1059.001` tags to techniques. Supported: selections, negated filters, value lists under a modifier, `1 of selection_*`, and the `contains` / `startswith` / `endswith` / `re` modifiers.
+
+`rules/sigma-compat/` holds rules written in genuine SigmaHQ idiom rather than tailored to this importer, so the compatibility claim is measured rather than asserted. **Four of six import**; the two refusals are honest — the corpus models neither parent process images nor Windows event IDs, so `ParentImage` and `EventID` have nowhere truthful to go.
 
 #### Detection regression testing
 

@@ -1,0 +1,14 @@
+title: SMB Connection To Server Excluding Backup Agent
+id: 1234abcd-0000-0000-0000-00000000eeee
+logsource:
+    category: network_connection
+detection:
+    selection:
+        DestinationPort: 445
+    filter_backup:
+        CommandLine|contains: 'backup-agent'
+    condition: selection and not filter_backup
+level: low
+tags:
+    - attack.lateral_movement
+    - attack.t1021.002

@@ -51,12 +51,16 @@ const FIELD_MAP: Readonly<
   Image: "process.executable",
   OriginalFileName: "process.executable",
   CommandLine: "process.command_line",
-  ParentImage: "process.parent.pid",
-  ParentCommandLine:
-    "process.parent.pid",
   ProcessId: "process.pid",
   ParentProcessId:
     "process.parent.pid",
+
+  // ParentImage and ParentCommandLine are deliberately absent. The corpus
+  // records a parent process id, not a parent image or command line, and
+  // mapping them onto the pid produced rules that imported cleanly and then
+  // matched a number against an executable path -- silently detecting
+  // nothing forever. Refusing is the honest answer until the generator
+  // emits parent process detail.
 
   // Identity and accounts
   User: "account.name",
@@ -181,18 +185,24 @@ function toMatcher(
   }
 
   if (literals.length !== 1) {
-    if (
-      modifiers.includes("contains") ||
-      modifiers.includes("startswith") ||
-      modifiers.includes("endswith") ||
-      modifiers.includes("re")
-    ) {
-      throw new SigmaUnsupportedError(
-        "A value list combined with a string modifier is not supported.",
-      );
-    }
+    const stringModifier = [
+      "contains",
+      "startswith",
+      "endswith",
+      "re",
+    ].some((modifier) =>
+      modifiers.includes(modifier),
+    );
 
-    return literals;
+    // A list under a modifier is an OR over the same field, which is how
+    // Sigma expresses alternatives.
+    return stringModifier
+      ? {
+          anyOf: literals.map((literal) =>
+            toMatcher(modifiers, literal),
+          ),
+        }
+      : literals;
   }
 
   const single = String(literals[0]);
@@ -312,6 +322,7 @@ function parseCondition(
 ): {
   required: string[];
   excluded: string[];
+  alternatives: string[];
 } {
   const normalized = condition
     .trim()
@@ -329,14 +340,22 @@ function parseCondition(
     );
   }
 
-  if (/\b\d+ of\b/i.test(normalized)) {
+  // "1 of X" is an OR across selection groups, which anySelections
+  // expresses. Anything above one is a count this shape cannot represent,
+  // so it is still refused rather than approximated.
+  if (/\b([2-9]\d*) of\b/i.test(normalized)) {
     throw new SigmaUnsupportedError(
-      `"N of" conditions are not supported: "${condition}"`,
+      `"N of" with N greater than one is not supported: "${condition}"`,
     );
   }
 
+  const oneOf = /^1 of (\S+)$/i.exec(
+    normalized,
+  );
+
   const required: string[] = [];
   const excluded: string[] = [];
+  const alternatives: string[] = [];
 
   const expandAll = (
     pattern: string,
@@ -358,6 +377,23 @@ function parseCondition(
 
     return matches;
   };
+
+  if (oneOf) {
+    const pattern = oneOf[1];
+
+    const names =
+      pattern === "them"
+        ? [...available]
+        : pattern.includes("*")
+          ? expandAll(pattern)
+          : [pattern];
+
+    return {
+      required: [],
+      excluded: [],
+      alternatives: names,
+    };
+  }
 
   const tokens = normalized.split(
     /\s+and\s+/i,
@@ -403,7 +439,7 @@ function parseCondition(
     );
   }
 
-  return { required, excluded };
+  return { required, excluded, alternatives };
 }
 
 export function convertSigmaRule(
@@ -434,11 +470,14 @@ export function convertSigmaRule(
       key !== "timeframe",
   );
 
-  const { required, excluded } =
-    parseCondition(
-      condition,
-      selectionNames,
-    );
+  const {
+    required,
+    excluded,
+    alternatives,
+  } = parseCondition(
+    condition,
+    selectionNames,
+  );
 
   return {
     id:
@@ -456,6 +495,15 @@ export function convertSigmaRule(
         name,
       ),
     ),
+    anySelections:
+      alternatives.length > 0
+        ? alternatives.map((name) =>
+            toSelection(
+              detection[name],
+              name,
+            ),
+          )
+        : undefined,
     exclusions:
       excluded.length > 0
         ? excluded.map((name) =>

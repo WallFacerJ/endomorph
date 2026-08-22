@@ -1,0 +1,17 @@
+title: Recon Utility Execution
+id: 1234abcd-0000-0000-0000-00000000bbbb
+status: stable
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith:
+            - '\net.exe'
+            - '\net1.exe'
+            - '\whoami.exe'
+    condition: selection
+level: medium
+tags:
+    - attack.discovery
+    - attack.t1087.002
