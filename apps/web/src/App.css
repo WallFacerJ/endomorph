@@ -1108,3 +1108,15 @@ textarea:focus-visible {
 .volume-key-alert {
   background: var(--danger);
 }
+
+/* Scope boxes: the icon names the kind of entity, the label names the role. */
+.detail-grid.compact span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.detail-grid.compact span .icon {
+  color: var(--accent);
+  opacity: 0.75;
+}

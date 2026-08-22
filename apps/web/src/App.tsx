@@ -1281,25 +1281,49 @@ function ScenarioWorkspace({
 
               <div className="detail-grid compact">
                 <div>
-                  <span>User</span>
+                  <span>
+                    <Icon
+                      name="user"
+                      size={12}
+                    />
+                    User
+                  </span>
                   <strong>
                     {user?.displayName ?? "—"}
                   </strong>
                 </div>
                 <div>
-                  <span>Endpoint</span>
+                  <span>
+                    <Icon
+                      name="endpoint"
+                      size={12}
+                    />
+                    Endpoint
+                  </span>
                   <strong>
                     {device?.hostname ?? "—"}
                   </strong>
                 </div>
                 <div>
-                  <span>Account</span>
+                  <span>
+                    <Icon
+                      name="identity"
+                      size={12}
+                    />
+                    Account
+                  </span>
                   <strong>
                     {account?.username ?? "—"}
                   </strong>
                 </div>
                 <div>
-                  <span>Case evidence</span>
+                  <span>
+                    <Icon
+                      name="case"
+                      size={12}
+                    />
+                    Case evidence
+                  </span>
                   <strong>
                     {analystCase.collectedEventIds.length}
                   </strong>
