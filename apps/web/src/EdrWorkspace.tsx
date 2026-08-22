@@ -21,6 +21,10 @@ import {
   Icon,
 } from "./Icon";
 
+import {
+  Sparkline,
+} from "./Charts";
+
 import "./EdrWorkspace.css";
 
 interface EndpointInventoryItem {
@@ -178,6 +182,86 @@ export function EdrWorkspace({
     ),
     [devices, observedDeviceIds],
   );
+
+  /*
+    Activity per device, bucketed once.
+
+    Every row previously showed the same two facts -- "active" and a process
+    count that barely varies -- so 147 endpoints looked identical and there
+    was nothing to steer by. The shape says when a host was busy, which is
+    the thing an analyst actually scans an inventory for.
+
+    Built in a single pass keyed by device. A filter per row would be 147
+    scans of the full process stream.
+  */
+  const activityByDevice = useMemo(() => {
+    const buckets = 14;
+
+    const times = state.processes
+      .map((process) =>
+        Date.parse(process.timestamp),
+      )
+      .filter((value) =>
+        Number.isFinite(value),
+      );
+
+    if (times.length === 0) {
+      return new Map<
+        string,
+        number[]
+      >();
+    }
+
+    const start = Math.min(...times);
+
+    const span = Math.max(
+      Math.max(...times) - start,
+      1,
+    );
+
+    const byDevice = new Map<
+      string,
+      number[]
+    >();
+
+    for (const process of state.processes) {
+      const at = Date.parse(
+        process.timestamp,
+      );
+
+      if (!Number.isFinite(at)) {
+        continue;
+      }
+
+      let series = byDevice.get(
+        process.deviceId,
+      );
+
+      if (!series) {
+        series = Array.from(
+          { length: buckets },
+          () => 0,
+        );
+
+        byDevice.set(
+          process.deviceId,
+          series,
+        );
+      }
+
+      series[
+        Math.min(
+          buckets - 1,
+          Math.floor(
+            ((at - start) / span) *
+              buckets,
+          ),
+        )
+      ] += 1;
+    }
+
+    return byDevice;
+  }, [state.processes]);
 
   const filteredDevices = useMemo(() => {
     const needle = endpointFilter
@@ -375,6 +459,16 @@ export function EdrWorkspace({
                 <span className="edr-endpoint-meta">
                   <span>{observation?.status ?? device.status}</span>
                   <span>{processCount} proc</span>
+                  <Sparkline
+                    values={
+                      activityByDevice.get(
+                        device.id,
+                      ) ?? []
+                    }
+                    label={`Process activity on ${device.hostname}`}
+                    width={64}
+                    height={16}
+                  />
                   {alertCount > 0 && (
                     <span className="edr-alert-count">
                       {alertCount} alert

@@ -593,3 +593,9 @@
 .identity-detail-fields div:last-child {
   border-bottom: none;
 }
+
+.identity-user-metrics .chart-sparkline {
+  order: 1;
+  margin-left: auto;
+  opacity: 0.8;
+}

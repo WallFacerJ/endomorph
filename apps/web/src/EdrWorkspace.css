@@ -550,3 +550,14 @@
   text-transform: uppercase;
   opacity: 0.7;
 }
+
+/* The sparkline sits at the end of the meta row and does not push it wider. */
+.edr-endpoint-meta .chart-sparkline {
+  margin-left: auto;
+  opacity: 0.8;
+}
+
+.edr-endpoint-row:hover .chart-sparkline,
+.edr-endpoint-row.selected .chart-sparkline {
+  opacity: 1;
+}

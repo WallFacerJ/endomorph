@@ -1225,8 +1225,30 @@ function ScenarioWorkspace({
 
             <article className="alert-card">
               <div className="alert-card-header">
-                <span className="severity-badge">
-                  {alert?.severity ?? "high"}
+                {/*
+                  The shared chip, so a critical alert here reads the same as
+                  a critical anything anywhere else in the console. Severity
+                  takes semantic colour and never the theme accent -- an
+                  alert must not look like a selected tab.
+                */}
+                <span
+                  className={`chip chip-${
+                    alert?.severity ??
+                    "high"
+                  }`}
+                >
+                  <Icon
+                    name={
+                      (alert?.severity ??
+                        "high") ===
+                      "critical"
+                        ? "alert"
+                        : "warning"
+                    }
+                    size={12}
+                  />
+                  {alert?.severity ??
+                    "high"}
                 </span>
                 <span className="timestamp">
                   {formatTimestamp(

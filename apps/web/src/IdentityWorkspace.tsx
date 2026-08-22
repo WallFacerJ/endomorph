@@ -22,6 +22,10 @@ import {
   Icon,
 } from "./Icon";
 
+import {
+  Sparkline,
+} from "./Charts";
+
 import "./IdentityWorkspace.css";
 
 interface IdentityWorkspaceProps {
@@ -109,6 +113,91 @@ export function IdentityWorkspace({
 
   const [selectedEvent, setSelectedEvent] =
     useState<SelectedIdentityEvent | null>(null);
+
+  /*
+    Sign-in activity per account, bucketed in one pass.
+
+    A directory row showed a name, a department and three counts, and 120 of
+    them looked the same. When an account was active is the thing that lets
+    an analyst spot the one that behaved unlike the rest -- a service account
+    that runs at 03:00 every night against a person who works office hours.
+  */
+  const activityByAccount = useMemo(() => {
+    const buckets = 14;
+
+    const times = state.activity
+      .map((entry) =>
+        Date.parse(entry.timestamp),
+      )
+      .filter((value) =>
+        Number.isFinite(value),
+      );
+
+    if (times.length === 0) {
+      return new Map<
+        string,
+        number[]
+      >();
+    }
+
+    const start = Math.min(...times);
+
+    const span = Math.max(
+      Math.max(...times) - start,
+      1,
+    );
+
+    const byAccount = new Map<
+      string,
+      number[]
+    >();
+
+    for (const entry of state.activity) {
+      const accountId = (
+        entry as {
+          accountId?: string;
+        }
+      ).accountId;
+
+      const at = Date.parse(
+        entry.timestamp,
+      );
+
+      if (
+        !accountId ||
+        !Number.isFinite(at)
+      ) {
+        continue;
+      }
+
+      let series =
+        byAccount.get(accountId);
+
+      if (!series) {
+        series = Array.from(
+          { length: buckets },
+          () => 0,
+        );
+
+        byAccount.set(
+          accountId,
+          series,
+        );
+      }
+
+      series[
+        Math.min(
+          buckets - 1,
+          Math.floor(
+            ((at - start) / span) *
+              buckets,
+          ),
+        )
+      ] += 1;
+    }
+
+    return byAccount;
+  }, [state.activity]);
 
   const filteredInventory = useMemo(() => {
     const needle = directoryFilter
@@ -279,6 +368,17 @@ export function IdentityWorkspace({
                 </button>
               ))}
               <div className="identity-user-metrics">
+                <Sparkline
+                  values={
+                    activityByAccount.get(
+                      entry.accounts[0]
+                        ?.id ?? "",
+                    ) ?? []
+                  }
+                  label={`Sign-in activity for ${entry.user.displayName}`}
+                  width={58}
+                  height={15}
+                />
                 <span>{entry.activeSessionCount} active session</span>
                 <span>{entry.successfulLoginCount} success</span>
                 <span>{entry.failedLoginCount} failed</span>
