@@ -13,10 +13,6 @@ import {
 } from "./CaseWorkspace";
 
 import {
-  InvestigationBrief,
-} from "./InvestigationBrief";
-
-import {
   Walkthrough,
 } from "./Walkthrough";
 
@@ -37,24 +33,8 @@ import {
 } from "./FirstRun";
 
 import {
-  ResponseComparisonPanel,
-} from "./ResponseComparisonPanel";
-
-import {
-  ScenarioOutcomePanel,
-} from "./ScenarioOutcomePanel";
-
-import {
-  ScenarioResultPanel,
-} from "./ScenarioResultPanel";
-
-import {
-  ResponseActionPanel,
-} from "./ResponseActionPanel";
-
-import {
-  InstructorReviewPanel,
-} from "./InstructorReviewPanel";
+  InvestigationWorkspace,
+} from "./InvestigationWorkspace";
 
 import {
   ScenarioControls,
@@ -555,11 +535,6 @@ function ScenarioWorkspace({
     scenarioState.world.devices[
       context.deviceId
     ];
-  const session =
-    scenarioState.world.sessions[
-      context.sessionId
-    ];
-
   const alert =
     projections.edr.alerts.find(
       (candidate) =>
@@ -1082,222 +1057,63 @@ function ScenarioWorkspace({
         )}
 
         {activeView === "timeline" && (
-          <section className="workspace-section">
-            <InvestigationBrief
-              questions={
-                scenario.questions ?? []
-              }
-              techniques={
-                scenario.groundTruth
-                  ?.techniques ?? []
-              }
-              answers={questionAnswers}
-              onAnswerChange={(
-                questionId,
-                answer,
-              ) =>
-                setQuestionAnswers(
-                  (current) => ({
-                    ...current,
-                    [questionId]: answer,
-                  }),
-                )
-              }
-              observedTechniqueIds={
-                observedTechniqueIds
-              }
-              finalized={
-                scenarioState.finalized
-              }
-              revealAnswers={
-                instructorMode &&
-                scenarioState.finalized
-              }
-            />
-
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">
-                  Investigation
-                </p>
-                <h3>Correlated incident timeline</h3>
-              </div>
-
-              <button
-                type="button"
-                className="primary-button"
-                onClick={finalizeInvestigation}
-                disabled={scenarioState.finalized}
-              >
-                {scenarioState.finalized
-                  ? "Investigation finalized"
-                  : "Finalize investigation"}
-              </button>
-            </div>
-
-            {(scaffolding ||
-              scenarioState.finalized) && (
-              <ScenarioOutcomePanel
-                outcome={
-                  scenarioState.outcome
-                }
-              />
-            )}
-
-            {scaffolding ||
-            scenarioState.finalized ? (
-              <ResponseActionPanel
-                actions={responseActions}
-                performedActionIds={scenarioState.performedActionIds}
-                score={scenarioState.score}
-                showScore={
-                  scaffolding ||
-                  scenarioState.finalized
-                }
-                finalized={scenarioState.finalized}
-                onPerform={performResponseAction}
-              />
-            ) : (
-              <p className="response-relocated">
-                Response operations are
-                performed from the
-                console that owns them
-                &mdash; endpoint actions
-                in <strong>Endpoint</strong>,
-                account and session
-                actions in{" "}
-                <strong>Identity</strong>.
-              </p>
-            )}
-
-            {scenarioState.finalized && (
-              <ScenarioResultPanel
-                status={scenarioState.outcome.status}
-                score={scenarioState.score}
-                actionCount={scenarioState.performedActionIds.length}
-                evidenceCount={analystCase.collectedEventIds.length}
-                findingCount={analystCase.findings.length}
-                coverage={coverage}
-                questionScore={{
-                  earned: questionScore.earned,
-                  available:
-                    questionScore.available,
-                }}
-              />
-            )}
-
-            {scenarioState.finalized &&
-              responseComparison && (
-                <ResponseComparisonPanel
-                  comparison={
-                    responseComparison
-                  }
-                />
-              )}
-
-            {scenarioState.finalized &&
-              instructorMode && (
-                <InstructorReviewPanel
-                  scenario={scenario}
-                  state={scenarioState}
-                />
-              )}
-
-            <div className="summary-grid">
-              <article className="summary-card">
-                <span>Account</span>
-                <strong>
-                  {account?.username ?? "—"}
-                </strong>
-                <small>
-                  Status: {account?.status ?? "—"}
-                </small>
-              </article>
-              <article className="summary-card">
-                <span>Endpoint</span>
-                <strong>
-                  {device?.hostname ?? "—"}
-                </strong>
-                <small>
-                  {device?.operatingSystem ?? "—"}
-                </small>
-              </article>
-              <article className="summary-card">
-                <span>Session</span>
-                <strong>
-                  {session?.status ?? "—"}
-                </strong>
-                <small>
-                  {session?.id ?? "No session"}
-                </small>
-              </article>
-              <article className="summary-card">
-                <span>Case evidence</span>
-                <strong>
-                  {analystCase.collectedEventIds.length}
-                </strong>
-                <small>
-                  {analystCase.findings.length} findings
-                </small>
-              </article>
-            </div>
-
-            <div className="timeline-list">
-              {projections.siem.events.map(
-                (event) => {
-                  const collected =
-                    isEvidenceCollected(
-                      event.eventId,
-                    );
-
-                  return (
-                    <article
-                      key={event.eventId}
-                      className="timeline-item"
-                    >
-                      <div
-                        className={`timeline-marker ${event.family}`}
-                      />
-                      <div className="timeline-content">
-                        <div className="timeline-meta">
-                          <span>
-                            {event.family}
-                          </span>
-                          <time>
-                            {formatTimestamp(
-                              event.timestamp,
-                            )}
-                          </time>
-                        </div>
-                        <strong>
-                          {event.message}
-                        </strong>
-                        <div className="timeline-actions">
-                          <small>
-                            {event.eventType} · {event.source}
-                          </small>
-                          <button
-                            type="button"
-                            className="evidence-button"
-                            onClick={() =>
-                              collectEvidence(
-                                event.eventId,
-                              )
-                            }
-                            disabled={scenarioState.finalized || collected}
-                          >
-                            {collected
-                              ? "Evidence collected"
-                              : "Collect evidence"}
-                          </button>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                },
-              )}
-            </div>
-          </section>
+          <InvestigationWorkspace
+            scenario={scenario}
+            scenarioState={scenarioState}
+            questionAnswers={
+              questionAnswers
+            }
+            onQuestionAnswerChange={(
+              questionId,
+              answer,
+            ) =>
+              setQuestionAnswers(
+                (current) => ({
+                  ...current,
+                  [questionId]: answer,
+                }),
+              )
+            }
+            observedTechniqueIds={
+              observedTechniqueIds
+            }
+            instructorMode={
+              instructorMode
+            }
+            scaffolding={scaffolding}
+            responseActions={
+              responseActions
+            }
+            onPerformAction={
+              performResponseAction
+            }
+            onFinalize={
+              finalizeInvestigation
+            }
+            analystCase={analystCase}
+            siemRecords={
+              projections.siem.events
+            }
+            coverage={coverage}
+            questionScore={{
+              earned:
+                questionScore.earned,
+              available:
+                questionScore.available,
+            }}
+            responseComparison={
+              responseComparison
+            }
+            isEvidenceCollected={
+              isEvidenceCollected
+            }
+            onCollectEvidence={
+              collectEvidence
+            }
+            formatTimestamp={
+              formatTimestamp
+            }
+          />
         )}
 
         {activeView === "endpoint" && (
