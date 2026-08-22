@@ -131,6 +131,11 @@
   box-shadow: inset 3px 0 0 var(--danger);
 }
 
+/* Nothing to find here, but it still raised whatever it raised. */
+.detection-review-table tbody tr.detection-na th {
+  box-shadow: inset 3px 0 0 var(--warning);
+}
+
 .detection-review-notes {
   display: grid;
   gap: 10px;
@@ -151,7 +156,6 @@
 }
 
 .detection-review-notes code {
-  margin-right: 4px;
   padding: 1px 5px;
   border-radius: 4px;
   background: var(--panel-strong);

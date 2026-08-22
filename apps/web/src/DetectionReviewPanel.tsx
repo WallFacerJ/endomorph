@@ -43,6 +43,19 @@ export function DetectionReviewPanel({
       evaluation.falseNegatives > 0,
   );
 
+  /*
+    A rule whose technique this incident never demonstrates had nothing to
+    find, so it is not a miss -- but it still charged for whatever it raised.
+    Recall is vacuously perfect in that case, by the evaluator's deliberate
+    choice, and printing "100%" next to zero true positives reads as a
+    success. Those rows say so instead.
+  */
+  const inapplicable = (
+    evaluation: (typeof scored)[number],
+  ): boolean =>
+    evaluation.truePositives === 0 &&
+    evaluation.falseNegatives === 0;
+
   const noisiest = [...scored].sort(
     (left, right) =>
       right.falsePositives -
@@ -158,7 +171,11 @@ export function DetectionReviewPanel({
                   evaluation.truePositives >
                   0
                     ? "detection-hit"
-                    : "detection-miss"
+                    : inapplicable(
+                          evaluation,
+                        )
+                      ? "detection-na"
+                      : "detection-miss"
                 }
               >
                 <th scope="row">
@@ -199,10 +216,21 @@ export function DetectionReviewPanel({
                   )}
                 </td>
 
-                <td className="detection-num">
-                  {percent(
-                    evaluation.recall,
-                  )}
+                <td
+                  className="detection-num"
+                  title={
+                    inapplicable(
+                      evaluation,
+                    )
+                      ? "This incident contains no instance of the rule's technique, so there was nothing to recall."
+                      : undefined
+                  }
+                >
+                  {inapplicable(evaluation)
+                    ? "n/a"
+                    : percent(
+                        evaluation.recall,
+                      )}
                 </td>
               </tr>
             ))}
@@ -217,14 +245,21 @@ export function DetectionReviewPanel({
             <strong>
               No rule detected
             </strong>{" "}
+            {/*
+              A real separator rather than a CSS margin: a margin is invisible
+              to a screen reader and to anything that copies the text, which
+              read the list as one run-on identifier.
+            */}
             {report.uncoveredTechniques.map(
-              (technique) => (
-                <code key={technique}>
-                  {technique}
-                </code>
+              (technique, index) => (
+                <span key={technique}>
+                  {index > 0 && ", "}
+                  <code>{technique}</code>
+                </span>
               ),
             )}
-            . Techniques the incident
+            {". "}
+            Techniques the incident
             demonstrated and the ruleset
             has nothing for. If you found
             these by hand, you found
