@@ -42,6 +42,16 @@ export interface ProcessExecutionObservation
 
   parentProcessId: string | undefined;
 
+  /**
+   * The parent's image path, as reported by the sensor.
+   *
+   * Carried separately from the parent's own observation because the parent
+   * is usually outside the collection window -- explorer.exe, services.exe
+   * and the scheduler all start long before anything worth investigating --
+   * and "what launched this" is the first question asked of a process.
+   */
+  parentImage: string | undefined;
+
   accountId: EntityId | undefined;
 }
 
@@ -160,6 +170,8 @@ function reduceEdrProjection(
               event.payload.commandLine,
             parentProcessId:
               event.payload.parentProcessId,
+            parentImage:
+              event.payload.parentImage,
             accountId:
               event.payload.accountId,
           },

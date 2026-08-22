@@ -369,7 +369,7 @@ export function EdrWorkspace({
               <div className="edr-table-header process-columns">
                 <span>Process</span>
                 <span>PID</span>
-                <span>Parent</span>
+                <span>Parent / PID</span>
                 <span>Account</span>
                 <span>Time</span>
               </div>
@@ -399,12 +399,24 @@ export function EdrWorkspace({
                       {node.depth > 0 ? "└" : "•"}
                     </span>
                     <strong>{basename(node.process.image)}</strong>
-                    {node.orphanedParent && (
-                      <small>parent not observed</small>
-                    )}
+                    {node.orphanedParent &&
+                      !node.parentImage && (
+                        <small>parent not observed</small>
+                      )}
                   </span>
                   <code>{node.process.processId}</code>
-                  <code>{node.process.parentProcessId ?? "—"}</code>
+                  <span className="edr-process-parent">
+                    <code>
+                      {node.parentImage
+                        ? basename(node.parentImage)
+                        : "—"}
+                    </code>
+                    {node.process.parentProcessId && (
+                      <code className="edr-process-parent-pid">
+                        {node.process.parentProcessId}
+                      </code>
+                    )}
+                  </span>
                   <span>{node.process.accountId ?? "—"}</span>
                   <time>{formatTimestamp(node.process.timestamp)}</time>
                 </button>
@@ -534,6 +546,7 @@ export function EdrWorkspace({
                 <div><dt>Image</dt><dd>{selectedProcess.image}</dd></div>
                 <div><dt>Command line</dt><dd><code>{selectedProcess.commandLine ?? "—"}</code></dd></div>
                 <div><dt>PID</dt><dd>{selectedProcess.processId}</dd></div>
+                <div><dt>Parent</dt><dd>{selectedProcess.parentImage ?? "—"}</dd></div>
                 <div><dt>Parent PID</dt><dd>{selectedProcess.parentProcessId ?? "—"}</dd></div>
                 <div><dt>Account</dt><dd>{selectedProcess.accountId ?? "—"}</dd></div>
                 <div><dt>Started</dt><dd>{selectedProcess.timestamp}</dd></div>

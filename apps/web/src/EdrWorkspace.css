@@ -191,7 +191,7 @@
 .edr-table-header,
 .edr-process-row {
   display: grid;
-  grid-template-columns: minmax(230px, 2fr) 64px 76px minmax(130px, 1fr) 82px;
+  grid-template-columns: minmax(210px, 2fr) 56px minmax(140px, 1fr) minmax(120px, 1fr) 82px;
   gap: 10px;
   align-items: center;
 }
@@ -254,6 +254,28 @@
 
 .edr-process-name small {
   color: var(--warning);
+  font-size: 0.68rem;
+}
+
+/* The parent column carries a name and a pid. The name answers "what
+   launched this"; the pid is what you pivot on, so it stays visible but
+   recedes. */
+.edr-process-parent {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.edr-process-parent code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edr-process-parent-pid {
+  flex: none;
+  opacity: 0.6;
   font-size: 0.68rem;
 }
 

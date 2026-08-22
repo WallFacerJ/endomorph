@@ -75,3 +75,50 @@ test("generated enterprise gives the SIEM a real noise floor", async ({
     ),
   ).toBeGreaterThan(3000);
 });
+
+test("the endpoint names what launched each process", async ({
+  page,
+}) => {
+  // The walkthrough tells the analyst to read the parent process. For a long
+  // time the corpus had only a parent pid pointing at a process with no start
+  // event, so the column showed a bare number and the instruction could not
+  // be followed.
+  await page.goto(GENERATED_SCENARIO);
+
+  await page.getByRole(
+    "button",
+    { name: "Endpoint" },
+  ).click();
+
+  const workspace = page.getByRole(
+    "region",
+    { name: "EDR endpoint workspace" },
+  );
+
+  await expect(workspace).toBeVisible();
+
+  const rows = workspace.locator(
+    ".edr-process-row",
+  );
+
+  await expect(
+    rows.first(),
+  ).toBeVisible();
+
+  // Benign PowerShell is launched by the task scheduler, exactly as a great
+  // deal of malicious PowerShell is. If this ever stops being true the
+  // lineage field has become a giveaway rather than evidence.
+  await expect(
+    workspace.locator(
+      ".edr-process-parent",
+      { hasText: "svchost.exe" },
+    ).first(),
+  ).toBeVisible();
+
+  await expect(
+    workspace.locator(
+      ".edr-process-parent",
+      { hasText: "explorer.exe" },
+    ).first(),
+  ).toBeVisible();
+});

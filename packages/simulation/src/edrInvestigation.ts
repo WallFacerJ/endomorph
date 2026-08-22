@@ -17,6 +17,9 @@ export interface EdrProcessTreeNode {
   parentProcess: ProcessExecutionObservation | undefined;
   childProcessIds: readonly string[];
   orphanedParent: boolean;
+
+  /** The parent's image path, resolved or as reported by the child. */
+  parentImage: string | undefined;
 }
 
 export interface EdrEndpointInvestigation {
@@ -119,6 +122,14 @@ function buildProcessTree(
           process.parentProcessId &&
           !parentProcess,
         ),
+
+        // Prefer the parent's own observation when it is in the window, and
+        // fall back to the path the child reported. The two agree by
+        // construction; the fallback is what makes an orphaned parent
+        // nameable instead of a dead end.
+        parentImage:
+          parentProcess?.image ??
+          process.parentImage,
       };
     });
 }
