@@ -57,6 +57,9 @@ import type {
  * read.
  */
 
+/** Rows rendered in the correlated timeline before it defers to search. */
+const TIMELINE_PAGE_SIZE = 150;
+
 export interface InvestigationWorkspaceProps {
   scenario: ScenarioDefinition;
   scenarioState: ScenarioState;
@@ -118,6 +121,27 @@ export function InvestigationWorkspace({
   formatTimestamp,
 }: InvestigationWorkspaceProps) {
   const context = scenario.investigation;
+
+  /*
+    The same defect the SIEM had, in the view next to it: a row per event.
+
+    On a generated scenario that is 20,053 rows -- 200,743 DOM nodes, a page
+    2.4 million pixels tall, and five seconds to open the view. Nobody
+    scrolls two and a half thousand screens of telemetry, so the cost bought
+    nothing.
+
+    Capped to the most recent window. The full stream is what SIEM search is
+    for, which is also the habit the product is trying to build: query it,
+    do not scroll it.
+  */
+  const visibleTimeline = useMemo(
+    () =>
+      siemRecords.slice(
+        0,
+        TIMELINE_PAGE_SIZE,
+      ),
+    [siemRecords],
+  );
 
   // Only computed once the run is over, so the cost never lands during the
   // investigation and the labels are never in memory while they would spoil
@@ -313,7 +337,7 @@ export function InvestigationWorkspace({
             </div>
 
             <div className="timeline-list">
-              {siemRecords.map(
+              {visibleTimeline.map(
                 (event) => {
                   const collected =
                     isEvidenceCollected(
@@ -367,6 +391,22 @@ export function InvestigationWorkspace({
                 },
               )}
             </div>
+
+            {siemRecords.length >
+              visibleTimeline.length && (
+              <p className="timeline-truncated">
+                Showing the{" "}
+                {visibleTimeline.length}{" "}
+                most recent of{" "}
+                {siemRecords.length.toLocaleString()}{" "}
+                events. The rest are in{" "}
+                <strong>SIEM Search</strong>
+                , which is where a stream
+                this size is meant to be
+                queried rather than
+                scrolled.
+              </p>
+            )}
           </section>
   );
 }

@@ -1211,3 +1211,25 @@ textarea:focus-visible {
     padding-right: 0;
   }
 }
+
+/*
+  The timeline scrolls inside its own pane, like the endpoint and directory
+  inventories. Even capped at 150 rows it ran to twenty-one screens and
+  buried everything below it, which is the same mistake the inventories made
+  before they were bounded.
+*/
+.timeline-list {
+  max-height: 62vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.timeline-truncated {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 0.79rem;
+  line-height: 1.5;
+}

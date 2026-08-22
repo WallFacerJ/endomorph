@@ -263,3 +263,61 @@ test("no console scrolls the page sideways at laptop widths", async ({
     }
   }
 });
+
+test("no console renders the whole event stream", async ({
+  page,
+}) => {
+  /*
+    The correlated timeline rendered a row per event. On the default
+    generated scenario that was 20,053 rows: 200,743 DOM nodes, a page 2.4
+    million pixels tall -- roughly two and a half thousand screens -- and
+    several seconds to open the view. The SIEM had the identical defect and
+    was capped months earlier; the view beside it was not.
+
+    Nobody scrolls that, so the cost bought nothing. The bound is asserted
+    rather than the row count, because the row count is a detail and the page
+    height is the thing that was actually wrong.
+  */
+  await page.goto(GENERATED_SCENARIO);
+
+  await page
+    .getByRole("button", {
+      name: "Got it",
+    })
+    .click();
+
+  for (const view of [
+    "Alerts",
+    "Brief",
+    "SIEM Search",
+    "Endpoint",
+    "Identity",
+    "Answers",
+    "Case",
+  ]) {
+    await page
+      .getByRole("navigation")
+      .getByRole("button", {
+        name: new RegExp(`^${view}`),
+      })
+      .click();
+
+    const measured =
+      await page.evaluate(() => ({
+        height:
+          document.documentElement
+            .scrollHeight,
+        nodes:
+          document.querySelectorAll("*")
+            .length,
+      }));
+
+    expect(
+      `${view} height ${measured.height < 12000}`,
+    ).toBe(`${view} height true`);
+
+    expect(
+      `${view} nodes ${measured.nodes < 12000}`,
+    ).toBe(`${view} nodes true`);
+  }
+});
