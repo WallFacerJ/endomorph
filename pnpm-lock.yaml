@@ -20,6 +20,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@endomorph/fabric':
+        specifier: workspace:*
+        version: link:../../packages/fabric
       '@endomorph/schema':
         specifier: workspace:*
         version: link:../../packages/schema

@@ -1,4 +1,11 @@
 import type {
+  Account,
+  Device,
+  FileEntity,
+  User,
+} from "@endomorph/domain";
+
+import type {
   SimulationEvent,
 } from "@endomorph/simulation";
 
@@ -171,9 +178,69 @@ const MODULES: Record<string, string> = {
  * the world, because a corpus that only carries opaque ids is useless for
  * writing readable detections against.
  */
+/**
+ * The entity collections a corpus record needs to resolve its references.
+ *
+ * Narrower than the whole generated enterprise on purpose: the browser holds
+ * a compiled scenario rather than a generator run, and it has exactly these
+ * four collections. Taking the wide type would have meant fabricating a
+ * plausible-looking enterprise around them to satisfy a signature, which is
+ * the sort of thing that later gets mistaken for real data.
+ */
+export interface CorpusEntities {
+  readonly users: readonly User[];
+  readonly accounts: readonly Account[];
+  readonly devices: readonly Device[];
+  readonly files: readonly FileEntity[];
+}
+
+/**
+ * Indexed lookups.
+ *
+ * The record builder resolved each reference with a linear scan, which is
+ * unnoticeable for one run of a CLI and less so for twenty thousand events
+ * against a few hundred entities on someone's laptop.
+ */
+interface CorpusIndex {
+  readonly users: Map<string, User>;
+  readonly accounts: Map<string, Account>;
+  readonly devices: Map<string, Device>;
+  readonly files: Map<string, FileEntity>;
+}
+
+function indexEntities(
+  entities: CorpusEntities,
+): CorpusIndex {
+  return {
+    users: new Map(
+      entities.users.map((user) => [
+        user.id,
+        user,
+      ]),
+    ),
+    accounts: new Map(
+      entities.accounts.map(
+        (account) => [account.id, account],
+      ),
+    ),
+    devices: new Map(
+      entities.devices.map((device) => [
+        device.id,
+        device,
+      ]),
+    ),
+    files: new Map(
+      entities.files.map((file) => [
+        file.id,
+        file,
+      ]),
+    ),
+  };
+}
+
 function toRecord(
   event: SimulationEvent,
-  enterprise: GeneratedEnterprise,
+  entities: CorpusIndex,
   labels: {
     malicious: boolean;
     technique?: string;
@@ -210,38 +277,26 @@ function toRecord(
   const accountId = read("accountId");
 
   const account = accountId
-    ? enterprise.accounts.find(
-        (candidate) =>
-          candidate.id === accountId,
-      )
+    ? entities.accounts.get(accountId)
     : undefined;
 
   const userId =
     read("userId") ?? account?.userId;
 
   const user = userId
-    ? enterprise.users.find(
-        (candidate) =>
-          candidate.id === userId,
-      )
+    ? entities.users.get(userId)
     : undefined;
 
   const deviceId = read("deviceId");
 
   const device = deviceId
-    ? enterprise.devices.find(
-        (candidate) =>
-          candidate.id === deviceId,
-      )
+    ? entities.devices.get(deviceId)
     : undefined;
 
   const fileId = read("fileId");
 
   const file = fileId
-    ? enterprise.files.find(
-        (candidate) =>
-          candidate.id === fileId,
-      )
+    ? entities.files.get(fileId)
     : undefined;
 
   const record: CorpusRecord = {
@@ -362,10 +417,7 @@ function toRecord(
     actorId !== record["account.id"]
   ) {
     const actor =
-      enterprise.accounts.find(
-        (candidate) =>
-          candidate.id === actorId,
-      );
+      entities.accounts.get(actorId);
 
     record["actor.account.id"] =
       actorId;
@@ -393,6 +445,40 @@ function toRecord(
 }
 
 
+/** Ground-truth labels for one event. */
+export interface CorpusLabels {
+  readonly malicious: boolean;
+  readonly technique?: string;
+  readonly plan?: string;
+  readonly step?: string;
+}
+
+/**
+ * Builds labelled records from events plus a labelling function.
+ *
+ * Separated from `buildCorpus` so a caller that holds a compiled scenario
+ * rather than a generator run -- the browser -- can produce the same records
+ * and score the same rules against them, instead of a second implementation
+ * drifting away from this one.
+ */
+export function buildCorpusRecords(
+  entities: CorpusEntities,
+  events: readonly SimulationEvent[],
+  labelsFor: (
+    event: SimulationEvent,
+  ) => CorpusLabels,
+): CorpusRecord[] {
+  const index = indexEntities(entities);
+
+  return events.map((event) =>
+    toRecord(
+      event,
+      index,
+      labelsFor(event),
+    ),
+  );
+}
+
 export function buildCorpus(
   enterprise: GeneratedEnterprise,
   events: readonly SimulationEvent[],
@@ -419,27 +505,31 @@ export function buildCorpus(
     ),
   );
 
-  const records = events.map((event) => {
-    const malicious = maliciousIds.has(
-      event.id,
-    );
-
-    return toRecord(event, enterprise, {
-      malicious,
-      technique: techniqueByEvent.get(
+  const records = buildCorpusRecords(
+    enterprise,
+    events,
+    (event) => {
+      const malicious = maliciousIds.has(
         event.id,
-      ),
-      plan: malicious
-        ? incident.planId
-        : undefined,
-      step: malicious
-        ? event.id.replace(
-            /^incident-/,
-            "",
-          )
-        : undefined,
-    });
-  });
+      );
+
+      return {
+        malicious,
+        technique: techniqueByEvent.get(
+          event.id,
+        ),
+        plan: malicious
+          ? incident.planId
+          : undefined,
+        step: malicious
+          ? event.id.replace(
+              /^incident-/,
+              "",
+            )
+          : undefined,
+      };
+    },
+  );
 
   const maliciousCount = records.filter(
     (record) =>

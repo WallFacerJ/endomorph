@@ -1,0 +1,181 @@
+.detection-review {
+  margin-bottom: 22px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: var(--pm-shadow);
+}
+
+.detection-review-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.detection-review h3 {
+  margin: 4px 0 10px;
+  font-size: 1.05rem;
+  color: var(--pm-text-strong);
+}
+
+.detection-review-lede {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.detection-review-totals {
+  display: grid;
+  grid-template-columns: repeat(
+    2,
+    minmax(120px, auto)
+  );
+  gap: 12px 22px;
+  margin: 0;
+}
+
+.detection-review-totals div {
+  display: grid;
+  gap: 2px;
+}
+
+.detection-review-totals dt {
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.detection-review-totals dd {
+  margin: 0;
+  color: var(--pm-text-strong);
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.detection-review-totals dd span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* The table is the widest thing here; it scrolls rather than the page. */
+.detection-review-table-wrap {
+  margin-top: 18px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.detection-review-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.detection-review-table th,
+.detection-review-table td {
+  padding: 9px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.detection-review-table thead th {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--panel-strong);
+}
+
+.detection-review-table tbody th {
+  display: grid;
+  gap: 2px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.detection-review-table tbody th small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 400;
+}
+
+.detection-review-table tbody tr:last-child th,
+.detection-review-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.detection-num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/*
+  A rule that fired on the real incident and one that only added noise are
+  different kinds of result, so they are different to look at. The stripe
+  carries it rather than colouring the whole row, which would fight the
+  numbers.
+*/
+.detection-review-table tbody tr.detection-hit th {
+  box-shadow: inset 3px 0 0 var(--success);
+}
+
+.detection-review-table tbody tr.detection-miss th {
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+
+.detection-review-notes {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.detection-review-notes p {
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 2px solid var(--border);
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.detection-review-notes strong {
+  color: var(--text);
+}
+
+.detection-review-notes code {
+  margin-right: 4px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--panel-strong);
+  color: var(--accent);
+  font-size: 0.76rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 760px) {
+  .detection-review-totals {
+    grid-template-columns: repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  }
+}

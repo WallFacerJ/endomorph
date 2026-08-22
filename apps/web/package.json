@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@endomorph/fabric": "workspace:*",
     "@endomorph/schema": "workspace:*",
     "@endomorph/simulation": "workspace:*",
     "react": "^19.2.8",

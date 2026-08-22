@@ -1,4 +1,8 @@
 import {
+  useMemo,
+} from "react";
+
+import {
   ScenarioOutcomePanel,
 } from "./ScenarioOutcomePanel";
 
@@ -13,6 +17,14 @@ import {
 import {
   InstructorReviewPanel,
 } from "./InstructorReviewPanel";
+
+import {
+  DetectionReviewPanel,
+} from "./DetectionReviewPanel";
+
+import {
+  reviewDetections,
+} from "./detectionReview";
 
 import {
   InvestigationBrief,
@@ -102,6 +114,17 @@ export function InvestigationWorkspace({
   formatTimestamp,
 }: InvestigationWorkspaceProps) {
   const context = scenario.investigation;
+
+  // Only computed once the run is over, so the cost never lands during the
+  // investigation and the labels are never in memory while they would spoil
+  // it. Roughly 20,000 records against the shipped ruleset.
+  const detectionReview = useMemo(
+    () =>
+      scenarioState.finalized
+        ? reviewDetections(scenario)
+        : undefined,
+    [scenario, scenarioState.finalized],
+  );
 
   const account =
     scenarioState.world.accounts[
@@ -194,6 +217,19 @@ export function InvestigationWorkspace({
                 <strong>Identity</strong>.
               </p>
             )}
+
+            {/*
+              Gated on finalization for the same reason the instructor's
+              ground truth is: these numbers are computed from the malicious
+              labels, and a panel showing which events are malicious would
+              end the exercise the moment it was opened.
+            */}
+            {scenarioState.finalized &&
+              detectionReview && (
+                <DetectionReviewPanel
+                  review={detectionReview}
+                />
+              )}
 
             {scenarioState.finalized && (
               <ScenarioResultPanel
