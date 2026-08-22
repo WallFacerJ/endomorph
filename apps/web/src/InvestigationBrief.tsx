@@ -12,6 +12,10 @@ import {
   gradeQuestions,
 } from "./questionGrading";
 
+import {
+  Icon,
+} from "./Icon";
+
 import "./InvestigationBrief.css";
 
 const TACTIC_LABELS: Record<
@@ -135,6 +139,7 @@ export function InvestigationBrief({
             Investigation brief
           </p>
           <h3>
+            <Icon name="target" size={17} />
             Answer from evidence, not
             from the alert
           </h3>

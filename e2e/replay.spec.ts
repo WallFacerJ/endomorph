@@ -13,6 +13,14 @@ import {
 const GENERATED =
   "/?scenario=/scenarios/generated-enterprise.json";
 
+/*
+  Stepping between incident steps is ground truth, so the transport only
+  offers it to an instructor; everyone else gets a neutral rewind. Tests
+  about replay itself use the default mode, and the one test that is
+  specifically about incident-step navigation asks for the mode that has it.
+*/
+const GENERATED_INSTRUCTOR = `${GENERATED}&mode=instructor`;
+
 test("starts live at the end of history", async ({
   page,
 }) => {
@@ -83,7 +91,7 @@ test("rewinding changes what every console shows", async ({
 
   await replay
     .getByRole("button", {
-      name: "Previous incident step",
+      name: "Rewind",
     })
     .click();
 
@@ -111,7 +119,7 @@ test("rewinding changes what every console shows", async ({
 test("walks backward through the incident step by step", async ({
   page,
 }) => {
-  await page.goto(GENERATED);
+  await page.goto(GENERATED_INSTRUCTOR);
 
   const replay = page.getByRole(
     "region",
@@ -192,7 +200,7 @@ test("refuses response actions while rewound", async ({
 
   await replay
     .getByRole("button", {
-      name: "Previous incident step",
+      name: "Rewind",
     })
     .click();
 

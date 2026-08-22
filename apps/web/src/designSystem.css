@@ -212,6 +212,8 @@
 .siem-search-heading h3,
 .edr-header h3,
 .identity-console-header h3,
+.brief-header h3,
+.incident-header h3,
 .case-header h3 {
   display: flex;
   align-items: center;
@@ -221,6 +223,8 @@
 .siem-search-heading h3 .icon,
 .edr-header h3 .icon,
 .identity-console-header h3 .icon,
+.brief-header h3 .icon,
+.incident-header h3 .icon,
 .case-header h3 .icon {
   color: var(--accent);
 }

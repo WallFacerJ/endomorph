@@ -15,6 +15,13 @@ import "./ReplayScrubber.css";
  * Response actions are disabled while rewound. Acting on a past state would
  * either rewrite history or silently apply to the present, and both are
  * worse than refusing.
+ *
+ * The transport jumps between incident steps only when it is given markers,
+ * which happens for an instructor. Those markers are ground truth: with them
+ * the buttons walk an analyst through every attacker action in order, which
+ * is exactly the answer the exercise is asking for. Without them the same
+ * buttons step by a slice of the stream, so rewinding stays useful without
+ * telling anyone where to look.
  */
 
 export interface ReplayMarker {
@@ -62,15 +69,44 @@ export function ReplayScrubber({
 
   const current = position ?? totalEvents;
 
-  const previousMarker = [...markers]
-    .reverse()
-    .find(
-      (marker) => marker.index < current,
-    );
+  const guided = markers.length > 0;
 
-  const nextMarker = markers.find(
-    (marker) => marker.index > current,
+  // A tenth of the run: far enough to move, small enough not to skip past
+  // whatever the analyst was reading.
+  const stride = Math.max(
+    1,
+    Math.round(totalEvents / 10),
   );
+
+  const previousIndex = guided
+    ? [...markers]
+        .reverse()
+        .find(
+          (marker) =>
+            marker.index < current,
+        )?.index
+    : current > 0
+      ? Math.max(0, current - stride)
+      : undefined;
+
+  const nextIndex = guided
+    ? markers.find(
+        (marker) => marker.index > current,
+      )?.index
+    : current < totalEvents
+      ? Math.min(
+          totalEvents,
+          current + stride,
+        )
+      : undefined;
+
+  const backLabel = guided
+    ? "Previous incident step"
+    : "Rewind";
+
+  const forwardLabel = guided
+    ? "Next incident step"
+    : "Advance";
 
   const settling =
     !live && renderedPosition !== current;
@@ -107,14 +143,13 @@ export function ReplayScrubber({
       <div className="replay-transport">
         <button
           type="button"
-          aria-label="Previous incident step"
-          title="Previous incident step"
-          disabled={!previousMarker}
+          aria-label={backLabel}
+          title={backLabel}
+          disabled={
+            previousIndex === undefined
+          }
           onClick={() =>
-            onScrub(
-              previousMarker?.index ??
-                0,
-            )
+            onScrub(previousIndex ?? 0)
           }
         >
           &#9664;&#9664;
@@ -142,11 +177,18 @@ export function ReplayScrubber({
 
         <button
           type="button"
-          aria-label="Next incident step"
-          title="Next incident step"
-          disabled={!nextMarker}
+          aria-label={forwardLabel}
+          title={forwardLabel}
+          disabled={
+            nextIndex === undefined
+          }
           onClick={() =>
-            onScrub(nextMarker?.index ?? null)
+            onScrub(
+              nextIndex === undefined ||
+                nextIndex >= totalEvents
+                ? null
+                : nextIndex,
+            )
           }
         >
           &#9654;&#9654;

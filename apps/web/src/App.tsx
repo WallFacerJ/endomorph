@@ -1062,7 +1062,16 @@ function ScenarioWorkspace({
               viewedEvents.length - 1
             ]?.timestamp
           }
-          markers={replayMarkers}
+          markers={
+            /*
+              Ground truth, so instructor only. Handed to anyone else, the
+              transport walks them through every attacker action in order --
+              the whole answer, offered by a control labelled as navigation.
+            */
+            instructorMode
+              ? replayMarkers
+              : []
+          }
           onScrub={setReplayPosition}
         />
 

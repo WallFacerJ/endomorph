@@ -18,6 +18,10 @@ import type {
   WorldState,
 } from "./simulationAdapter";
 
+import {
+  Icon,
+} from "./Icon";
+
 import "./IncidentCommand.css";
 
 const PHASE_LABELS: Record<
@@ -259,6 +263,7 @@ export function IncidentCommand({
             command
           </p>
           <h3>
+            <Icon name="case" size={17} />
             Incident picture assembled
             from your evidence
           </h3>

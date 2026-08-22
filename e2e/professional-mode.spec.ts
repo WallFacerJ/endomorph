@@ -140,3 +140,53 @@ test("the assistance choice survives a reload", async ({
     "true",
   );
 });
+
+test("the replay transport does not walk a professional through the attack", async ({
+  page,
+}) => {
+  /*
+    The scrubber's transport was given the ground-truth timeline in every
+    mode. Its buttons were labelled "Previous incident step" and
+    "Next incident step", and clicking back eight times in Professional --
+    which promises no assistance -- walked through all eight attacker actions
+    in order, with timestamps. That is the entire answer, handed over by a
+    control that looks like navigation.
+
+    Markers are ground truth and now go to the instructor only. Everyone else
+    keeps a transport, because rewinding is a legitimate technique, but it
+    steps by a slice of the stream rather than from one attacker action to
+    the next.
+  */
+  await page.goto(
+    "/?scenario=/scenarios/generated-macro.json&mode=professional",
+  );
+
+  await expect(
+    page.getByRole("button", {
+      name: "Previous incident step",
+    }),
+  ).toHaveCount(0);
+
+  await expect(
+    page.getByRole("button", {
+      name: "Next incident step",
+    }),
+  ).toHaveCount(0);
+
+  await expect(
+    page.getByRole("button", {
+      name: "Rewind",
+    }),
+  ).toBeVisible();
+
+  await page.goto(
+    "/?scenario=/scenarios/generated-macro.json&mode=instructor",
+  );
+
+  // An instructor is meant to have it -- that is what the mode is for.
+  await expect(
+    page.getByRole("button", {
+      name: "Previous incident step",
+    }),
+  ).toBeVisible();
+});
