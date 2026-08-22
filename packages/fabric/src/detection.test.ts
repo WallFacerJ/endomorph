@@ -241,6 +241,240 @@ describe("corpus", () => {
   });
 });
 
+describe("process lineage", () => {
+  const processesIn = (
+    corpus: (typeof corpora)[number],
+  ) =>
+    corpus.records.filter(
+      (record) =>
+        record["event.type"] ===
+        "PROCESS_STARTED",
+    );
+
+  it("gives every process a parent path", () => {
+    // The credential-compromise walkthrough instructs the analyst to "read
+    // the parent process next". For a long time that could not be done: the
+    // corpus carried a parent pid pointing at a process with no start event
+    // and no image anywhere, so the instruction named a field the data did
+    // not contain.
+    const processes = corpora.flatMap(
+      (corpus) => processesIn(corpus),
+    );
+
+    expect(
+      processes.length,
+    ).toBeGreaterThan(0);
+
+    for (const record of processes) {
+      expect(
+        record[
+          "process.parent.executable"
+        ],
+      ).toBeTruthy();
+    }
+  });
+
+  it("splits a parent image across pids only for the intruder's session", () => {
+    // A pid identifies a running process, so drawing a fresh one per child
+    // would put nine explorer.exe pids on one workstation and make the
+    // lineage unpivotable -- the one thing the field is for.
+    //
+    // One split is legitimate and deliberate: a remote interactive logon
+    // starts a second session with its own explorer.exe, which is why the
+    // incident's processes hang off a different pid than the real user's.
+    // That is a signal an analyst should be able to see, so the assertion is
+    // not "one pid per image" but "any second pid is wholly the attacker's"
+    // -- which catches the regression and pins the model at the same time.
+    //
+    // Per corpus, because each plan is a separate universe: merging them
+    // puts two unrelated incidents' processes on the same host.
+    for (const corpus of corpora) {
+      const byImage = new Map<
+        string,
+        Map<
+          string,
+          {
+            malicious: number;
+            benign: number;
+          }
+        >
+      >();
+
+      for (const record of processesIn(
+        corpus,
+      )) {
+        const parent =
+          record[
+            "process.parent.executable"
+          ];
+
+        const pid =
+          record["process.parent.pid"];
+
+        if (
+          !parent ||
+          !pid ||
+          !record["host.id"]
+        ) {
+          continue;
+        }
+
+        const key = `${record["host.id"]}|${parent}`;
+
+        let pids = byImage.get(key);
+
+        if (!pids) {
+          pids = new Map();
+          byImage.set(key, pids);
+        }
+
+        const tally = pids.get(pid) ?? {
+          malicious: 0,
+          benign: 0,
+        };
+
+        if (record["label.malicious"]) {
+          tally.malicious += 1;
+        } else {
+          tally.benign += 1;
+        }
+
+        pids.set(pid, tally);
+      }
+
+      expect(
+        byImage.size,
+      ).toBeGreaterThan(0);
+
+      for (const pids of byImage.values()) {
+        if (pids.size === 1) {
+          continue;
+        }
+
+        // At most two sessions, and the extra one is entirely the incident.
+        expect(pids.size).toBe(2);
+
+        const sessions = [
+          ...pids.values(),
+        ].sort(
+          (left, right) =>
+            left.malicious -
+            right.malicious,
+        );
+
+        expect(
+          sessions[0].malicious,
+        ).toBe(0);
+
+        expect(sessions[1].benign).toBe(
+          0,
+        );
+      }
+    }
+  });
+
+  it("resolves in-corpus parent pids to the image the child names", () => {
+    // Where the parent's own start event is present, the two records must
+    // agree. A child naming a parent image that contradicts the parent's own
+    // event would be worse than carrying no lineage at all.
+    let resolved = 0;
+
+    for (const corpus of corpora) {
+      const processes =
+        processesIn(corpus);
+
+      const byHostPid = new Map<
+        string,
+        string
+      >();
+
+      for (const record of processes) {
+        if (
+          record["host.id"] &&
+          record["process.pid"] &&
+          record["process.executable"]
+        ) {
+          byHostPid.set(
+            `${record["host.id"]}|${record["process.pid"]}`,
+            record[
+              "process.executable"
+            ],
+          );
+        }
+      }
+
+      for (const record of processes) {
+        const actual = byHostPid.get(
+          `${record["host.id"]}|${record["process.parent.pid"]}`,
+        );
+
+        if (actual === undefined) {
+          continue;
+        }
+
+        resolved += 1;
+
+        expect(
+          record[
+            "process.parent.executable"
+          ],
+        ).toBe(actual);
+      }
+    }
+
+    // The attack chains parent their later steps on their own earlier ones,
+    // so this must actually have checked something.
+    expect(resolved).toBeGreaterThan(0);
+  });
+});
+
+describe("windows event codes", () => {
+  const records = corpora.flatMap(
+    (corpus) => corpus.records,
+  );
+
+  it("assigns codes only to windows hosts", () => {
+    // A macOS laptop reporting 4688 would be a fabrication, and a rule
+    // author keying on EventID would reasonably trust it.
+    const coded = records.filter(
+      (record) =>
+        record["event.code"] !==
+        undefined,
+    );
+
+    expect(coded.length).toBeGreaterThan(
+      0,
+    );
+
+    for (const record of coded) {
+      expect(
+        record["host.os.full"],
+      ).toMatch(/windows/i);
+    }
+  });
+
+  it("leaves session starts uncoded", () => {
+    // SESSION_STARTED has no honest Windows equivalent -- 4624 already
+    // records the logon it abstracts over. Giving it a code of its own would
+    // let a rule count one sign-in twice.
+    const sessions = records.filter(
+      (record) =>
+        record["event.type"] ===
+        "SESSION_STARTED",
+    );
+
+    expect(
+      sessions.length,
+    ).toBeGreaterThan(0);
+
+    for (const record of sessions) {
+      expect(
+        record["event.code"],
+      ).toBeUndefined();
+    }
+  });
+});
+
 describe("detection evaluation", () => {
   it("fires every shipped rule on at least one plan", () => {
     // Regression. The encoded-PowerShell rule carried "\b" -- a backspace

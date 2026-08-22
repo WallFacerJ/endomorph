@@ -127,6 +127,16 @@ export interface ProcessStartedPayload {
   image: string;
   commandLine?: string;
   parentProcessId?: string;
+
+  /**
+   * The parent's image path.
+   *
+   * The pid alone is only useful when the parent's own start event is in the
+   * window, which for anything launched before the sensor -- explorer.exe,
+   * services.exe, a scheduler -- it is not. Detection content overwhelmingly
+   * keys on the path for exactly that reason.
+   */
+  parentImage?: string;
   accountId?: EntityId;
 }
 

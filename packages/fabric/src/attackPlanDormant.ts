@@ -73,6 +73,8 @@ export const DORMANT_ACCOUNT_PLAN: AttackPlan =
             commandLine:
               "powershell.exe Get-ADUser -Filter (Enabled -eq $false) -Properties LastLogonDate",
             parentProcessId: "4102",
+            parentImage:
+              "C:\\Windows\\explorer.exe",
             accountId:
               cast.privilegedAccount?.id ??
               cast.subjectAccount.id,

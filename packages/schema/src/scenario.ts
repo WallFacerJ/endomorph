@@ -301,6 +301,8 @@ const processStartedEventSchema =
         nonEmptyStringSchema.optional(),
       parentProcessId:
         nonEmptyStringSchema.optional(),
+      parentImage:
+        nonEmptyStringSchema.optional(),
       accountId:
         optionalEntityIdSchema,
     }).strict(),

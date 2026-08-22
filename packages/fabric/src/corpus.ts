@@ -29,12 +29,43 @@ import type {
  * layer first.
  */
 
+/**
+ * Windows event ids for the event types that genuinely have one.
+ *
+ * Published Sigma rules key off `EventID` constantly, so without this a large
+ * share of real-world content cannot be scored against the corpus at all.
+ *
+ * Two restraints keep this from becoming decoration. Event types with no
+ * honest Windows equivalent are absent rather than assigned a plausible
+ * number -- SESSION_STARTED is one, because a session is an abstraction over
+ * the logon that 4624 already records, and emitting both would let a rule
+ * count one sign-in twice. And the ids are only attached to Windows hosts,
+ * because a macOS laptop reporting 4688 would be a fabrication that a rule
+ * author would reasonably rely on.
+ */
+const WINDOWS_EVENT_CODES: Readonly<
+  Record<string, number>
+> = {
+  AUTH_LOGIN_SUCCEEDED: 4624,
+  AUTH_LOGIN_FAILED: 4625,
+  PROCESS_STARTED: 4688,
+  ACCOUNT_ENABLED: 4722,
+  FILE_ACCESSED: 4663,
+  NETWORK_CONNECTION: 5156,
+};
+
 export interface CorpusRecord {
   "@timestamp": string;
   "event.id": string;
   "event.kind": "event" | "alert";
   "event.type": string;
   "event.module": string;
+
+  /**
+   * Windows Security / Sysmon event id, when the host is a Windows host and
+   * the event has a real equivalent there.
+   */
+  "event.code"?: number;
   "user.id"?: string;
   "user.name"?: string;
   "user.department"?: string;
@@ -62,6 +93,7 @@ export interface CorpusRecord {
   "network.protocol"?: string;
   "process.pid"?: string;
   "process.parent.pid"?: string;
+  "process.parent.executable"?: string;
   "process.executable"?: string;
   "process.command_line"?: string;
   "file.id"?: string;
@@ -249,6 +281,18 @@ function toRecord(
       device.hostname;
     record["host.os.full"] =
       device.operatingSystem;
+
+    const code =
+      WINDOWS_EVENT_CODES[event.type];
+
+    if (
+      code !== undefined &&
+      device.operatingSystem
+        .toLowerCase()
+        .includes("windows")
+    ) {
+      record["event.code"] = code;
+    }
   }
 
   const assign = (
@@ -282,6 +326,10 @@ function toRecord(
   assign(
     "process.parent.pid",
     read("parentProcessId"),
+  );
+  assign(
+    "process.parent.executable",
+    read("parentImage"),
   );
   assign(
     "process.executable",
@@ -343,6 +391,7 @@ function toRecord(
 
   return record;
 }
+
 
 export function buildCorpus(
   enterprise: GeneratedEnterprise,

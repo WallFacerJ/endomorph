@@ -130,33 +130,13 @@ describe("SigmaHQ idiom compatibility", () => {
     const result =
       importSigmaRules(compatDocs);
 
-    // Pin which rules are refused, not merely how many. A count alone lets
-    // the set drift: one rule could start importing while another stopped,
-    // the total would hold, and the documented claim would quietly be false.
-    expect(
-      result.skipped
-        .map((skip) => skip.source)
-        .sort(),
-    ).toEqual([
-      "02_parent_image.yml",
-      "05_event_id.yml",
-    ]);
-
-    // And that they are refused for the stated reason: the corpus models
-    // neither parent process images nor Windows event ids.
-    expect(
-      result.skipped.map(
-        (skip) => skip.reason,
-      ),
-    ).toEqual([
-      expect.stringContaining(
-        "ParentImage",
-      ),
-      expect.stringContaining("EventID"),
-    ]);
+    // Pin the refused set, not merely its size. A count alone lets the set
+    // drift: one rule could start importing while another stopped, the total
+    // would hold, and the documented claim would quietly be false.
+    expect(result.skipped).toEqual([]);
 
     expect(result.rules).toHaveLength(
-      compatDocs.length - 2,
+      compatDocs.length,
     );
   });
 
@@ -321,23 +301,47 @@ describe("SigmaHQ idiom compatibility", () => {
     );
   });
 
-  it("refuses ParentImage rather than mapping it onto a process id", () => {
+  it("maps ParentImage to the parent path, never the parent pid", () => {
     // Regression, and the exact failure this importer exists to prevent.
-    // ParentImage is an executable path; the corpus records a parent
-    // process id. Mapping one onto the other produced rules that imported
-    // cleanly and could never match -- coverage that was not there.
+    // ParentImage is an executable path. It was once mapped onto
+    // process.parent.pid, which imported cleanly and then compared a path
+    // against a number -- a rule that could never match, reported as
+    // coverage. The generator now emits the path, so the mapping is real;
+    // this pins it to the right field.
+    const rule = convertSigmaRule({
+      title: "t",
+      detection: {
+        selection: {
+          "ParentImage|endswith":
+            "winword.exe",
+        },
+        condition: "selection",
+      },
+    });
+
+    expect(
+      Object.keys(rule.selections[0]),
+    ).toEqual([
+      "process.parent.executable",
+    ]);
+  });
+
+  it("still refuses ParentCommandLine, which the corpus does not model", () => {
+    // The neighbouring field remains unmapped on purpose. Importing it
+    // against the parent's path would compare an argument string to a bare
+    // executable, which is the same silent-failure shape in a new costume.
     expect(() =>
       convertSigmaRule({
         title: "t",
         detection: {
           selection: {
-            "ParentImage|endswith":
-              "winword.exe",
+            "ParentCommandLine|contains":
+              "-enc",
           },
           condition: "selection",
         },
       }),
-    ).toThrow(/ParentImage/);
+    ).toThrow(/ParentCommandLine/);
   });
 });
 

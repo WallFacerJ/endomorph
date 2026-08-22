@@ -54,13 +54,20 @@ const FIELD_MAP: Readonly<
   ProcessId: "process.pid",
   ParentProcessId:
     "process.parent.pid",
+  ParentImage:
+    "process.parent.executable",
 
-  // ParentImage and ParentCommandLine are deliberately absent. The corpus
-  // records a parent process id, not a parent image or command line, and
-  // mapping them onto the pid produced rules that imported cleanly and then
-  // matched a number against an executable path -- silently detecting
-  // nothing forever. Refusing is the honest answer until the generator
-  // emits parent process detail.
+  // ParentCommandLine is still deliberately absent. The generator now emits a
+  // parent image, but not the parent's own command line, and mapping the two
+  // together would import rules that compare an argument string against a
+  // bare path -- clean import, permanent silence. An unmapped field is a
+  // refusal the author can see; a wrong mapping is a rule that lies.
+
+  // Windows event ids. Only Windows hosts carry these, and only for event
+  // types with a real equivalent, so a rule keyed on one is scored against
+  // the hosts that would genuinely produce it.
+  EventID: "event.code",
+  EventCode: "event.code",
 
   // Identity and accounts
   User: "account.name",

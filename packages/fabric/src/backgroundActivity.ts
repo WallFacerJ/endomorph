@@ -75,130 +75,184 @@ export const DEFAULT_ACTIVITY_OPTIONS: ActivityOptions =
     fileAccessRate: 0.35,
   };
 
-const WINDOWS_PROCESSES: readonly {
-  image: string;
-  commandLine: string;
-}[] = [
+/**
+ * A benign process and what launched it.
+ *
+ * Parent lineage is the field detection engineers reach for first, because
+ * the child alone is almost never conclusive: powershell.exe is run all day
+ * by administrators and by scheduled work. Modelling it here is what lets a
+ * rule be *wrong* in an interesting way -- see the scheduled PowerShell
+ * below, which is parented by the Task Scheduler exactly as a great deal of
+ * malicious PowerShell is.
+ */
+interface BenignProcess {
+  readonly image: string;
+  readonly commandLine: string;
+  readonly parentImage: string;
+}
+
+const WINDOWS_PROCESSES: readonly BenignProcess[] =
+  [
   {
     image:
       "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
     commandLine: "OUTLOOK.EXE",
+    parentImage:
+      "C:\\Windows\\explorer.exe",
   },
   {
     image:
       "C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE",
     commandLine: "EXCEL.EXE /dde",
+    parentImage:
+      "C:\\Windows\\explorer.exe",
   },
   {
     image:
       "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     commandLine:
       "chrome.exe --restore-last-session",
+    parentImage:
+      "C:\\Windows\\explorer.exe",
   },
   {
     image:
       "C:\\Program Files\\Microsoft Teams\\current\\Teams.exe",
     commandLine: "Teams.exe --minimized",
+    parentImage:
+      "C:\\Windows\\explorer.exe",
   },
   {
     image:
       "C:\\Windows\\System32\\svchost.exe",
     commandLine:
       "svchost.exe -k netsvcs -p",
+    parentImage:
+      "C:\\Windows\\System32\\services.exe",
   },
   {
     image:
       "C:\\Windows\\System32\\taskhostw.exe",
     commandLine: "taskhostw.exe {SYSTEM}",
+    parentImage:
+      "C:\\Windows\\System32\\svchost.exe",
   },
   {
     image:
       "C:\\Windows\\System32\\MsMpEng.exe",
     commandLine: "MsMpEng.exe",
+    parentImage:
+      "C:\\Windows\\System32\\services.exe",
   },
   {
     image:
       "C:\\Program Files\\Notepad++\\notepad++.exe",
     commandLine: "notepad++.exe",
+    parentImage:
+      "C:\\Windows\\explorer.exe",
   },
   {
     image:
       "C:\\Windows\\explorer.exe",
     commandLine: "explorer.exe",
+    parentImage:
+      "C:\\Windows\\System32\\userinit.exe",
   },
   {
     image:
       "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
     commandLine:
       "powershell.exe -NoProfile -Command Get-MailboxStatistics",
+    parentImage:
+      "C:\\Windows\\System32\\svchost.exe",
   },
 ];
 
-const MACOS_PROCESSES: readonly {
-  image: string;
-  commandLine: string;
-}[] = [
+const MACOS_PROCESSES: readonly BenignProcess[] =
+  [
   {
     image:
       "/Applications/Safari.app/Contents/MacOS/Safari",
     commandLine: "Safari",
+    parentImage:
+      "/sbin/launchd",
   },
   {
     image:
       "/Applications/Slack.app/Contents/MacOS/Slack",
     commandLine: "Slack",
+    parentImage:
+      "/sbin/launchd",
   },
   {
     image: "/usr/bin/ssh",
     commandLine: "ssh app-01",
+    parentImage:
+      "/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal",
   },
   {
     image: "/bin/zsh",
     commandLine: "-zsh",
+    parentImage:
+      "/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal",
   },
   {
     image:
       "/usr/libexec/mdworker_shared",
     commandLine:
       "mdworker_shared -s mdworker",
+    parentImage:
+      "/sbin/launchd",
   },
   {
     image:
       "/System/Library/CoreServices/Spotlight.app/Contents/MacOS/Spotlight",
     commandLine: "Spotlight",
+    parentImage:
+      "/sbin/launchd",
   },
 ];
 
-const LINUX_PROCESSES: readonly {
-  image: string;
-  commandLine: string;
-}[] = [
+const LINUX_PROCESSES: readonly BenignProcess[] =
+  [
   {
     image: "/usr/bin/bash",
     commandLine: "-bash",
+    parentImage:
+      "/usr/bin/sshd",
   },
   {
     image: "/usr/bin/sshd",
     commandLine: "sshd: accepted",
+    parentImage:
+      "/usr/lib/systemd/systemd",
   },
   {
     image: "/usr/bin/systemd",
     commandLine:
       "/lib/systemd/systemd --user",
+    parentImage:
+      "/usr/lib/systemd/systemd",
   },
   {
     image: "/usr/bin/docker",
     commandLine: "docker ps",
+    parentImage:
+      "/usr/bin/bash",
   },
   {
     image: "/usr/bin/curl",
     commandLine:
       "curl -s https://packages.internal/health",
+    parentImage:
+      "/usr/lib/systemd/systemd",
   },
   {
     image: "/usr/bin/python3",
     commandLine:
       "python3 /opt/jobs/reconcile.py",
+    parentImage:
+      "/usr/lib/systemd/systemd",
   },
 ];
 
@@ -218,10 +272,7 @@ const EXTERNAL_DESTINATIONS: readonly string[] =
 
 function processPoolFor(
   operatingSystem: string,
-): readonly {
-  image: string;
-  commandLine: string;
-}[] {
+): readonly BenignProcess[] {
   if (
     operatingSystem.startsWith("Windows")
   ) {
@@ -669,6 +720,39 @@ export function generateBackgroundActivity(
       device.operatingSystem,
     );
 
+    // One pid per parent image per host, not one per child. explorer.exe is
+    // a single long-lived process; drawing a fresh pid for each of its
+    // children would put nine different explorer.exe pids on one host and
+    // make the lineage unpivotable -- the exact analysis the field exists to
+    // support. Drawn lazily from a dedicated fork so the assignment does not
+    // depend on how many children happen to be generated.
+    const parentPidCursor =
+      cursor.fork("parent-pids");
+
+    const parentPids = new Map<
+      string,
+      string
+    >();
+
+    const parentPidFor = (
+      image: string,
+    ): string => {
+      const existing =
+        parentPids.get(image);
+
+      if (existing !== undefined) {
+        return existing;
+      }
+
+      const pid = String(
+        parentPidCursor.nextInt(500, 999),
+      );
+
+      parentPids.set(image, pid);
+
+      return pid;
+    };
+
     for (
       let index = 0;
       index <
@@ -704,6 +788,11 @@ export function generateBackgroundActivity(
             image: chosenProcess.image,
             commandLine:
               chosenProcess.commandLine,
+            parentImage:
+              chosenProcess.parentImage,
+            parentProcessId: parentPidFor(
+              chosenProcess.parentImage,
+            ),
             accountId: account.id,
           },
         },

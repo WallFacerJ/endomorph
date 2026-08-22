@@ -167,6 +167,8 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
             commandLine:
               "powershell.exe -nop -w hidden -ep bypass -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkA",
             parentProcessId: "4102",
+            parentImage:
+              "C:\\Windows\\explorer.exe",
             accountId:
               cast.subjectAccount.id,
           },
@@ -215,6 +217,8 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
             commandLine:
               'net group "Domain Admins" /domain',
             parentProcessId: "7734",
+            parentImage:
+              POWERSHELL,
             accountId:
               cast.subjectAccount.id,
           },
@@ -463,6 +467,8 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
             commandLine:
               "powershell.exe Get-ADUser -Filter * -Properties Department,Title",
             parentProcessId: "4102",
+            parentImage:
+              "C:\\Windows\\explorer.exe",
             accountId:
               cast.privilegedAccount?.id ??
               cast.subjectAccount.id,
@@ -510,6 +516,8 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
             commandLine:
               '7z.exe a -tzip -pR3view C:\\Users\\Public\\archive.zip "\\\\FS-01\\Shared\\Finance"',
             parentProcessId: "5120",
+            parentImage:
+              POWERSHELL,
             accountId:
               cast.privilegedAccount?.id ??
               cast.subjectAccount.id,
@@ -534,6 +542,8 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
             commandLine:
               "wevtutil.exe cl Security",
             parentProcessId: "5120",
+            parentImage:
+              POWERSHELL,
             accountId:
               cast.privilegedAccount?.id ??
               cast.subjectAccount.id,
@@ -724,6 +734,8 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
             commandLine:
               "powershell.exe Test-NetConnection -Port 445 -ComputerName (1..254 | % { \"10.90.1.$_\" })",
             parentProcessId: "4102",
+            parentImage:
+              "C:\\Windows\\explorer.exe",
             accountId:
               cast.privilegedAccount?.id ??
               cast.subjectAccount.id,
@@ -791,6 +803,8 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
               "C:\\Windows\\System32\\xcopy.exe",
             commandLine: `xcopy.exe C:\\Users\\Public\\svc.exe \\\\${cast.secondaryTarget.hostname}\\ADMIN$\\ /Y`,
             parentProcessId: "6301",
+            parentImage:
+              POWERSHELL,
             accountId:
               cast.privilegedAccount?.id ??
               cast.subjectAccount.id,
