@@ -9,6 +9,12 @@ import {
 } from "./responseCounterfactuals";
 
 import {
+  finalizeScenarioState,
+  scoreResponsePathFrom,
+  replayOpeningWorld,
+} from "./scenario";
+
+import {
   compileScenarioDefinition,
 } from "./scenarioCompiler";
 
@@ -239,5 +245,126 @@ describe("compareResponsePaths", () => {
     expect(comparison.exhaustive).toBe(
       true,
     );
+  });
+});
+
+describe("scoring a path from a prebuilt opening world", () => {
+  /*
+    Counterfactual scoring used to re-validate the scenario and re-replay
+    every opening event for each candidate ordering. On a generated scenario
+    that is 12,722 events replayed 65 times to answer a question about four
+    actions, and it is where the twenty-two second pause after finalizing
+    came from.
+
+    The opening history is identical for every path, so it is now built once.
+    That is only safe if the shortcut produces the same answer as the full
+    validated replay, for every ordering rather than for the one that happens
+    to be interesting -- which is what this checks.
+  */
+  function* orderings(
+    candidates: readonly string[],
+    prefix: readonly string[] = [],
+  ): Generator<readonly string[]> {
+    yield prefix;
+
+    for (const candidate of candidates) {
+      if (prefix.includes(candidate)) {
+        continue;
+      }
+
+      yield* orderings(candidates, [
+        ...prefix,
+        candidate,
+      ]);
+    }
+  }
+
+  it("agrees with a full replay on every ordering", () => {
+    const openingWorld =
+      replayOpeningWorld(scenario);
+
+    let checked = 0;
+
+    for (const ordering of orderings(
+      responseIds,
+    )) {
+      let reference;
+
+      try {
+        reference =
+          finalizeScenarioState(
+            scenario,
+            ordering,
+          );
+      } catch {
+        // A path the runtime refuses is not a counterfactual worth scoring;
+        // the shortcut must refuse it too.
+        expect(() =>
+          scoreResponsePathFrom(
+            scenario,
+            openingWorld,
+            ordering,
+          ),
+        ).toThrow();
+
+        continue;
+      }
+
+      const fast = scoreResponsePathFrom(
+        scenario,
+        openingWorld,
+        ordering,
+      );
+
+      expect({
+        ordering,
+        percentage:
+          fast.score.percentage,
+        status: fast.status,
+      }).toEqual({
+        ordering,
+        percentage:
+          reference.score.percentage,
+        status: reference.outcome.status,
+      });
+
+      checked += 1;
+    }
+
+    // Orderings, not subsets: the same actions in a different sequence score
+    // differently, so this must have compared more than 2^n paths.
+    expect(checked).toBeGreaterThan(
+      2 ** responseIds.length,
+    );
+  });
+
+  it("does not mutate the world it is given", () => {
+    // Every path replays onto the same opening world. If that world were
+    // mutated rather than folded into a new one, each path would be scored
+    // against the leftovers of the last.
+    const openingWorld =
+      replayOpeningWorld(scenario);
+
+    const before = JSON.stringify(
+      openingWorld,
+    );
+
+    for (const ordering of orderings(
+      responseIds,
+    )) {
+      try {
+        scoreResponsePathFrom(
+          scenario,
+          openingWorld,
+          ordering,
+        );
+      } catch {
+        continue;
+      }
+    }
+
+    expect(
+      JSON.stringify(openingWorld),
+    ).toBe(before);
   });
 });

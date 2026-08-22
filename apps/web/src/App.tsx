@@ -175,14 +175,14 @@ const navGroups: ReadonlyArray<{
   },
 ];
 
-function formatTimestamp(
-  timestamp: string | undefined,
-): string {
-  if (!timestamp) {
-    return "—";
-  }
-
-  return new Intl.DateTimeFormat(
+/*
+  Constructed once. Building an Intl.DateTimeFormat is expensive, and this was
+  building a fresh one for every timestamp rendered -- which, on a scenario
+  with twenty thousand events, was three seconds of the finalize interaction
+  by itself, more than any other single thing the app did.
+*/
+const CLOCK_FORMAT =
+  new Intl.DateTimeFormat(
     "en-US",
     {
       hour: "numeric",
@@ -190,7 +190,18 @@ function formatTimestamp(
       second: "2-digit",
       hour12: true,
     },
-  ).format(new Date(timestamp));
+  );
+
+function formatTimestamp(
+  timestamp: string | undefined,
+): string {
+  if (!timestamp) {
+    return "—";
+  }
+
+  return CLOCK_FORMAT.format(
+    new Date(timestamp),
+  );
 }
 
 interface ScenarioWorkspaceProps {

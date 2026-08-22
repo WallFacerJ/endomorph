@@ -466,6 +466,77 @@ export function getScenarioState(
   };
 }
 
+/**
+ * The world after the opening events alone, with the scenario validated once.
+ *
+ * Counterfactual scoring asks the same question of many response orderings,
+ * and each one used to re-validate the scenario and re-replay every opening
+ * event to get back to the same starting point. On a generated scenario that
+ * is 12,722 events replayed 65 times to answer a question about four
+ * actions, which is where the twenty-two second pause after finalizing came
+ * from.
+ *
+ * The opening world does not depend on the response, so it is built once.
+ */
+export function replayOpeningWorld(
+  scenario: ScenarioDefinition,
+): WorldState {
+  validateScenarioDefinition(scenario);
+
+  return replayValidatedHistory(
+    scenario.initialWorld,
+    scenario.openingEvents,
+  );
+}
+
+/**
+ * Scores one hypothetical response path from a prebuilt opening world.
+ *
+ * Only the response events are replayed. Their ordering relative to each
+ * other is still validated, which is the part that varies; what is not
+ * re-checked per path is the opening history, which is identical every time
+ * and is validated once by `replayOpeningWorld`.
+ *
+ * The authoritative run still goes through `finalizeScenarioState` and its
+ * full validated replay. This is for scoring paths the analyst did not take.
+ */
+export function scoreResponsePathFrom(
+  scenario: ScenarioDefinition,
+  openingWorld: WorldState,
+  performedActionIds: readonly string[],
+): {
+  score: ScenarioScore;
+  status: ScenarioOutcome["status"];
+} {
+  const actions = resolveActions(
+    scenario,
+    performedActionIds,
+  );
+
+  const world = replayValidatedHistory(
+    openingWorld,
+    actions.flatMap(
+      (action) => action.events,
+    ),
+  );
+
+  const outcome =
+    finalizeScenarioOutcome(
+      evaluateScenarioOutcome(
+        scenario.objectives,
+        world,
+      ),
+    );
+
+  return {
+    status: outcome.status,
+    score: evaluateScenarioScore(
+      outcome,
+      responsePenalties(actions),
+    ),
+  };
+}
+
 export function finalizeScenarioState(
   scenario: ScenarioDefinition,
   performedActionIds:

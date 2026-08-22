@@ -3,8 +3,13 @@ import type {
 } from "./scenario";
 
 import {
-  finalizeScenarioState,
+  replayOpeningWorld,
+  scoreResponsePathFrom,
 } from "./scenario";
+
+import type {
+  WorldState,
+} from "./worldState";
 
 import type {
   ScenarioOutcomeStatus,
@@ -84,17 +89,19 @@ const MAX_SUBSET_ACTIONS = 12;
 
 function evaluatePath(
   scenario: ScenarioDefinition,
+  openingWorld: WorldState,
   actionIds: readonly string[],
 ): ResponsePathOutcome {
-  const state = finalizeScenarioState(
+  const scored = scoreResponsePathFrom(
     scenario,
+    openingWorld,
     actionIds,
   );
 
   return {
     actionIds: [...actionIds],
-    score: state.score,
-    status: state.outcome.status,
+    score: scored.score,
+    status: scored.status,
   };
 }
 
@@ -106,11 +113,13 @@ function evaluatePath(
  */
 function tryEvaluate(
   scenario: ScenarioDefinition,
+  openingWorld: WorldState,
   actionIds: readonly string[],
 ): ResponsePathOutcome | undefined {
   try {
     return evaluatePath(
       scenario,
+      openingWorld,
       actionIds,
     );
   } catch {
@@ -145,6 +154,7 @@ function* orderedSequences(
 
 function findBestOrdered(
   scenario: ScenarioDefinition,
+  openingWorld: WorldState,
   candidates: readonly string[],
 ): ResponsePathOutcome | undefined {
   let best: ResponsePathOutcome | undefined;
@@ -154,6 +164,7 @@ function findBestOrdered(
   )) {
     const outcome = tryEvaluate(
       scenario,
+      openingWorld,
       sequence,
     );
 
@@ -179,6 +190,7 @@ function findBestOrdered(
 
 function findBestSubsets(
   scenario: ScenarioDefinition,
+  openingWorld: WorldState,
   candidates: readonly string[],
 ): ResponsePathOutcome | undefined {
   let best: ResponsePathOutcome | undefined;
@@ -197,6 +209,7 @@ function findBestSubsets(
 
     const outcome = tryEvaluate(
       scenario,
+      openingWorld,
       actionIds,
     );
 
@@ -222,9 +235,14 @@ function findBestSubsets(
 
 function findBestGreedy(
   scenario: ScenarioDefinition,
+  openingWorld: WorldState,
   candidates: readonly string[],
 ): ResponsePathOutcome | undefined {
-  let current = tryEvaluate(scenario, []);
+  let current = tryEvaluate(
+    scenario,
+    openingWorld,
+    [],
+  );
 
   if (!current) {
     return undefined;
@@ -244,10 +262,14 @@ function findBestGreedy(
         continue;
       }
 
-      const next = tryEvaluate(scenario, [
-        ...current.actionIds,
-        candidate,
-      ]);
+      const next = tryEvaluate(
+        scenario,
+        openingWorld,
+        [
+          ...current.actionIds,
+          candidate,
+        ],
+      );
 
       if (
         next &&
@@ -299,8 +321,14 @@ export function compareResponsePaths(
           (action) => action.id,
         );
 
+  // Built once and reused by every path below, which is the whole
+  // optimisation: the opening history is identical for all of them.
+  const openingWorld =
+    replayOpeningWorld(scenario);
+
   const taken = evaluatePath(
     scenario,
+    openingWorld,
     performedActionIds,
   );
 
@@ -312,16 +340,19 @@ export function compareResponsePaths(
     (exhaustive
       ? findBestOrdered(
           scenario,
+          openingWorld,
           candidates,
         )
       : candidates.length <=
           MAX_SUBSET_ACTIONS
         ? findBestSubsets(
             scenario,
+            openingWorld,
             candidates,
           )
         : findBestGreedy(
             scenario,
+            openingWorld,
             candidates,
           )) ?? taken;
 
@@ -355,6 +386,7 @@ export function compareResponsePaths(
 
       const alternative = tryEvaluate(
         scenario,
+        openingWorld,
         toggled,
       );
 
