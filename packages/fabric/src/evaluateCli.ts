@@ -59,11 +59,21 @@ import {
   generateIncident,
 } from "./generateIncident.js";
 
+/**
+ * Pads to a fixed width, truncating when the value is longer.
+ *
+ * padEnd alone does not shorten, so a rule id wider than its column ran
+ * straight into the next one and the table stopped being a table.
+ */
 function pad(
   value: string | number,
   width: number,
 ): string {
-  return String(value).padEnd(width);
+  const text = String(value);
+
+  return text.length >= width
+    ? `${text.slice(0, width - 2)} `
+    : text.padEnd(width);
 }
 
 function main(): void {

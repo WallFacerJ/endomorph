@@ -92,6 +92,9 @@ const FIELD_MAP: Readonly<
   "process.command_line":
     "process.command_line",
   "account.name": "account.name",
+  "actor.account.name": "actor.account.name",
+  "actor.account.id": "actor.account.id",
+  SubjectAccountName: "actor.account.name",
   "host.name": "host.name",
   "source.ip": "source.ip",
   "destination.ip": "destination.ip",

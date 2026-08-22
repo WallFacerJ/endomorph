@@ -150,6 +150,58 @@ describe("corpus", () => {
     }
   });
 
+  it("records who performed an action, not only who it was done to", () => {
+    // Identity lifecycle events name the account being changed. Without the
+    // actor, "who re-enabled that account" is unanswerable from the corpus
+    // even though the runtime knows -- and it is exactly the question that
+    // separates an administrative action from self-service.
+    const dormant = corpora.find(
+      (candidate) =>
+        candidate.manifest.plan ===
+        "dormant-account-revival",
+    );
+
+    const reactivation =
+      dormant?.records.find(
+        (record) =>
+          record["event.type"] ===
+          "ACCOUNT_ENABLED",
+      );
+
+    expect(
+      reactivation,
+    ).toBeDefined();
+
+    expect(
+      reactivation?.["actor.account.name"],
+    ).toBeDefined();
+
+    // The actor is a different account from the one acted upon.
+    expect(
+      reactivation?.["actor.account.id"],
+    ).not.toBe(
+      reactivation?.["account.id"],
+    );
+  });
+
+  it("omits the actor when it is the account acted upon", () => {
+    // Adding it unconditionally would restate the account on every login
+    // and make the field meaningless.
+    const login = corpora[0].records.find(
+      (record) =>
+        record["event.type"] ===
+          "AUTH_LOGIN_SUCCEEDED" &&
+        record["account.id"] !==
+          undefined,
+    );
+
+    expect(login).toBeDefined();
+
+    expect(
+      login?.["actor.account.id"],
+    ).toBeUndefined();
+  });
+
   it("uses ECS-shaped field names", () => {
     for (const record of corpus.records.slice(
       0,

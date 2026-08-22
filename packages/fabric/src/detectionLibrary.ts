@@ -10,8 +10,12 @@ import type {
  * on every PowerShell launch, which is how a rule looks before anyone has
  * measured it, and `external-auth-success` encodes exactly the heuristic
  * that the insider and service-account plans defeat. Running the ruleset
- * across all three plans shows both failures as numbers rather than
- * opinions.
+ * across every plan shows both failures as numbers rather than opinions.
+ *
+ * The identity-lifecycle rules at the end were added after the dormant
+ * account plan scored 0/4 against this set. That gap was a measurement, and
+ * closing it was verifiable -- which is the loop the whole corpus exists to
+ * support.
  */
 
 export const PASSWORD_SPRAY_RULE: DetectionRule =
@@ -186,6 +190,39 @@ export const DOMAIN_GROUP_DISCOVERY_RULE: DetectionRule =
     ],
   };
 
+export const ACCOUNT_REENABLED_RULE: DetectionRule =
+  {
+    id: "account-reenabled",
+    name: "Disabled account re-enabled",
+    technique: "T1098",
+    severity: "high",
+    selections: [
+      {
+        "event.type": "ACCOUNT_ENABLED",
+      },
+    ],
+  };
+
+export const DISABLED_ENUMERATION_RULE: DetectionRule =
+  {
+    id: "disabled-account-enumeration",
+    name: "Directory enumeration filtered to disabled accounts",
+    technique: "T1087.002",
+    severity: "medium",
+    selections: [
+      {
+        "process.command_line": {
+          contains: "Get-ADUser",
+        },
+      },
+      {
+        "process.command_line": {
+          contains: "Enabled -eq",
+        },
+      },
+    ],
+  };
+
 export const DETECTION_RULES: readonly DetectionRule[] =
   [
     PASSWORD_SPRAY_RULE,
@@ -197,4 +234,6 @@ export const DETECTION_RULES: readonly DetectionRule[] =
     ADMIN_SHARE_TRANSFER_RULE,
     SMB_LATERAL_RULE,
     DOMAIN_GROUP_DISCOVERY_RULE,
+    ACCOUNT_REENABLED_RULE,
+    DISABLED_ENUMERATION_RULE,
   ];

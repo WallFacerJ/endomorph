@@ -40,6 +40,19 @@ export interface CorpusRecord {
   "user.department"?: string;
   "account.id"?: string;
   "account.name"?: string;
+
+  /**
+   * The account that performed the action, when it differs from the one
+   * acted upon.
+   *
+   * Identity lifecycle events name the account being changed, not the one
+   * doing the changing. Without this, "who re-enabled that account" is
+   * unanswerable from the corpus even though the runtime knows -- and it is
+   * exactly the question that separates an administrative action from
+   * self-service.
+   */
+  "actor.account.id"?: string;
+  "actor.account.name"?: string;
   "host.id"?: string;
   "host.name"?: string;
   "host.os.full"?: string;
@@ -292,6 +305,27 @@ function toRecord(
     record["file.name"] = file.name;
     record["file.classification"] =
       file.classification;
+  }
+
+  const actorId = event.actorId;
+
+  if (
+    actorId &&
+    actorId !== record["account.id"]
+  ) {
+    const actor =
+      enterprise.accounts.find(
+        (candidate) =>
+          candidate.id === actorId,
+      );
+
+    record["actor.account.id"] =
+      actorId;
+
+    if (actor) {
+      record["actor.account.name"] =
+        actor.username;
+    }
   }
 
   if (labels.technique) {
