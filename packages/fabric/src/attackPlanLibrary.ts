@@ -133,6 +133,8 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
         advanceBy: 3,
         significance: () =>
           "Interactive session established on the compromised account.",
+        reasoning: () =>
+          "A session record on its own is unremarkable -- every sign-in produces one. Its value here is as an anchor: it gives you a session id to carry into the endpoint data, which is how you tie process activity on the host back to this specific logon rather than to the account generally. The account may well have other sessions running at the same time, belonging to the real user, and separating them is what stops you attributing the employee's ordinary work to the intruder.",
         build: (cast) => ({
           type: "SESSION_STARTED",
           source: "identity",
@@ -407,6 +409,8 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
         advanceBy: 4,
         significance: (cast) =>
           `Administrative account ${cast.privilegedAccount?.username} signed in from ${cast.subjectDevice.hostname}. The credential is valid and the address is corporate -- the anomaly is the hour, not the origin.`,
+        reasoning: (cast) =>
+          `A domain administrator signing in is the least suspicious event in this environment; it happens continuously and any rule that flags it drowns. Nothing about this authentication is anomalous on its own, and that is the lesson of this incident -- the account is entitled to everything it is about to do, so entitlement cannot be your detection. Note the time and the device (${cast.subjectDevice.hostname}) and move on: the signal here is built later, out of purpose rather than permission.`,
         build: (cast) => ({
           type: "AUTH_LOGIN_SUCCEEDED",
           source: "identity",
@@ -432,6 +436,8 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
         advanceBy: 3,
         significance: () =>
           "Elevated session opened outside the account holder's normal working window.",
+        reasoning: () =>
+          "Anchor the session id here for the same reason as in any other incident -- it is what links the endpoint activity that follows to this specific logon. What you cannot do with it is establish wrongdoing, because an administrator holding an interactive session on a workstation is the expected state of the world. Resist the pull to treat routine artefacts as findings simply because they appear on an incident timeline; that is how reports end up long and unconvincing.",
         build: (cast) => ({
           type: "SESSION_STARTED",
           source: "identity",
@@ -456,6 +462,8 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
         advanceBy: 4,
         significance: () =>
           "Directory enumeration from an administrative session. Legitimate for this role, unusual at this hour.",
+        reasoning: () =>
+          "Directory enumeration by an administrator is ordinary work, and treating the command as the finding will not survive review. Look at what was selected instead: Department and Title are people-targeting properties rather than troubleshooting ones, and an account being queried for where someone sits in the organisation -- rather than for its group membership or last logon -- suggests the operator is choosing a person. Hold that loosely, because it is a hypothesis and not evidence, then see whether the next action lands on someone this query would have surfaced.",
         build: (cast) => ({
           type: "PROCESS_STARTED",
           source: "edr",
@@ -481,6 +489,8 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
         advanceBy: 2,
         significance: (cast) =>
           `${cast.targetFile.name} read from the file share by an administrative account with no business relationship to ${cast.targetFile.classification} ${cast.subject.department} data.`,
+        reasoning: (cast) =>
+          `This is where the incident becomes arguable, and it is the reasoning worth getting right: the account was permitted to read this file, so no access control was violated and no alert fires on the act itself. Authorisation to reach data is not authorisation to reach this data for this reason, and the discriminator is the relationship between the account and the material -- an administrator in ${cast.subject.department} has no routine business with ${cast.targetFile.classification} content they have never touched before. Pull the account's prior access history against this share before you write anything down, because a first-time read is a very different claim from an unusual one and you will be asked which you are making.`,
         build: (cast) => ({
           type: "FILE_ACCESSED",
           source: "file_server",
@@ -504,6 +514,8 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
         advanceBy: 3,
         significance: () =>
           "Collected material compressed into a single archive, staged for removal.",
+        reasoning: () =>
+          "Compression is not exfiltration and proves nothing about intent by itself; people archive files constantly. Two details raise it. The archive is assembled from material just read across a share rather than from the user's own work, and it is given a password, which serves no purpose for storage and every purpose for moving data past inspection. Treat the password as the strongest single indicator on this timeline, then establish whether the archive left the host -- staging and removal are separate events and only one of them is a breach.",
         build: (cast) => ({
           type: "PROCESS_STARTED",
           source: "edr",
@@ -530,6 +542,8 @@ export const PRIVILEGED_INSIDER_PLAN: AttackPlan =
         advanceBy: 2,
         significance: () =>
           "Security event log cleared from the same session. Administrators rarely clear logs; this is the step that makes intent hard to argue with.",
+        reasoning: () =>
+          "Everything before this could be argued as unusual-but-legitimate administration. Clearing the Security log cannot: it destroys the record of the preceding actions, it belongs to no routine maintenance an administrator can point to, and it follows the collection rather than preceding it. This is the step that turns a suspicion into an allegation, so record the exact time and confirm from a second source -- forwarded logs, the SIEM's own copy -- that the events you are relying on survived, because the local record no longer exists.",
         build: (cast) => ({
           type: "PROCESS_STARTED",
           source: "edr",
@@ -674,6 +688,8 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
         advanceBy: 3,
         significance: (cast) =>
           `Privileged account ${cast.privilegedAccount?.username} authenticated from ${cast.subjectDevice.hostname}, a workstation it has no prior history with.`,
+        reasoning: (cast) =>
+          `Service accounts authenticate constantly and by design, so volume and frequency tell you nothing here. What makes this account tractable is the opposite of the usual problem: its legitimate behaviour is narrow and highly predictable -- the same hosts, the same times, the same operations -- so deviation is far easier to establish than for a human account. Build that baseline from ${cast.subjectAccount.username}'s own history first, because every judgement that follows depends on knowing what normal looked like.`,
         build: (cast) => ({
           type: "AUTH_LOGIN_SUCCEEDED",
           source: "identity",
@@ -699,6 +715,8 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
         advanceBy: 2,
         significance: () =>
           "Session opened on the privileged account from the unfamiliar host.",
+        reasoning: () =>
+          "This is the finding, and it is easy to read straight past. A service account exists to run automation; an interactive session means a person is typing, and no maintenance workflow requires one -- administrators have their own accounts for that. The event is unremarkable in isolation and decisive in context, which is exactly the class of signal that volume-based detection misses. Anchor the timeline here and treat everything the account does afterwards as operator activity rather than automation.",
         build: (cast) => ({
           type: "SESSION_STARTED",
           source: "identity",
@@ -723,6 +741,8 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
         advanceBy: 3,
         significance: () =>
           "Remote system discovery across the datacenter segment. Mapping what the credential can reach.",
+        reasoning: () =>
+          "A scripted connection test is precisely the sort of thing a service account might legitimately run, so the command name is not the signal. The shape is: a full /24 swept on 445 is reconnaissance rather than a health check, because automation already knows the hosts it depends on and has no reason to discover them. Take the results as the attacker's own target list -- whatever answered is where they intend to go -- which scopes the incident faster than waiting to observe where they actually went.",
         build: (cast) => ({
           type: "PROCESS_STARTED",
           source: "edr",
@@ -748,6 +768,8 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
         advanceBy: 2,
         significance: (cast) =>
           `SMB session to ${cast.lateralTarget.hostname} using the privileged credential.`,
+        reasoning: (cast) =>
+          `SMB is the most ordinary protocol in a Windows estate and this connection is invisible in volume. What makes it notable is that it follows a sweep the account had no reason to run, and that it reaches ${cast.lateralTarget.hostname}, which is not part of this account's established baseline. One connection to one unfamiliar host is thin evidence; note it, and see whether it stays at one.`,
         build: (cast) => ({
           type: "NETWORK_CONNECTION",
           source: "network",
@@ -770,6 +792,8 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
         advanceBy: 2,
         significance: (cast) =>
           `Second SMB session, this time to ${cast.secondaryTarget.hostname}. The account is moving, not working.`,
+        reasoning: () =>
+          "The second host is what settles it. A service account reaching one unfamiliar system can be a misconfiguration or a changed dependency; reaching a series of them in sequence is movement, and the two readings lead to completely different responses. Stop assessing hosts individually at this point and start treating the credential itself as compromised -- the question is no longer which machines it touched, but everywhere it could still reach.",
         build: (cast) => ({
           type: "NETWORK_CONNECTION",
           source: "network",
@@ -792,6 +816,8 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
         advanceBy: 3,
         significance: (cast) =>
           `Executable copied to ${cast.secondaryTarget.hostname} over the admin share.`,
+        reasoning: () =>
+          "A file copy is not inherently malicious, but the destination is the entire finding: ADMIN$ exists for remote administration, and writing an executable into it is the standard precursor to running that executable on the remote host. This is where the incident stops being about a credential and becomes about the estate, because a tool now sits on a machine nobody has examined. Scope that host before responding on this one -- isolating the source while the payload waits elsewhere achieves nothing.",
         build: (cast) => ({
           type: "PROCESS_STARTED",
           source: "edr",
