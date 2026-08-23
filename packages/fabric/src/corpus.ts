@@ -46,7 +46,13 @@ import type {
  * honest Windows equivalent are absent rather than assigned a plausible
  * number -- SESSION_STARTED is one, because a session is an abstraction over
  * the logon that 4624 already records, and emitting both would let a rule
- * count one sign-in twice. And the ids are only attached to Windows hosts,
+ * count one sign-in twice. ROLE_GRANTED is another: 4728 records a group
+ * membership change on a Windows domain controller, and a directory role
+ * grant here carries no host at all -- the code was assigned and, because
+ * codes are only attached to Windows hosts, never once applied. Dead
+ * configuration that would have been a lie if it had worked.
+ *
+ * And the ids are only attached to Windows hosts,
  * because a macOS laptop reporting 4688 would be a fabrication that a rule
  * author would reasonably rely on.
  */
@@ -57,7 +63,6 @@ const WINDOWS_EVENT_CODES: Readonly<
   AUTH_LOGIN_FAILED: 4625,
   PROCESS_STARTED: 4688,
   ACCOUNT_ENABLED: 4722,
-  ROLE_GRANTED: 4728,
   FILE_ACCESSED: 4663,
   NETWORK_CONNECTION: 5156,
 };
