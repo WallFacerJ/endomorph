@@ -200,6 +200,65 @@ export function compileScenario(
    * completed. The objective that depends on it had the same problem.
    */
   /*
+    What this incident actually does, so a response can only claim to stop
+    what is there.
+
+    The isolate action told every analyst it "stops the beacon and any
+    further lateral movement". Privileged-insider does neither -- it is an
+    administrator reading a file share from their own desk -- and each of the
+    other plans does one or the other, not both. A response that overstates
+    what it achieves is teaching the wrong thing about containment.
+  */
+  const incidentConnections =
+    incident.events.filter(
+      (event) =>
+        event.type ===
+        "NETWORK_CONNECTION",
+    );
+
+  const beacons =
+    incidentConnections.some(
+      (event) =>
+        !(
+          event.payload as {
+            destinationIp?: string;
+          }
+        ).destinationIp?.startsWith(
+          "10.",
+        ),
+    );
+
+  const movesLaterally =
+    incidentConnections.some(
+      (event) =>
+        (
+          event.payload as {
+            destinationPort?: number;
+          }
+        ).destinationPort === 445,
+    );
+
+  const isolationStops = [
+    beacons ? "the beacon" : undefined,
+    movesLaterally
+      ? "any further movement between hosts"
+      : undefined,
+  ].filter(
+    (value): value is string =>
+      value !== undefined,
+  );
+
+  const isolateDescription = `Cut ${
+    victimDevice?.hostname ?? "the host"
+  } off from the network while preserving it for investigation.${
+    isolationStops.length > 0
+      ? ` Stops ${isolationStops.join(
+          " and ",
+        )}.`
+      : " Anything still running on it loses its outbound path."
+  }`;
+
+  /*
     Why the half-measure is penalised, said in terms of this incident.
 
     It used to be one fixed sentence for every scenario: "The established
@@ -295,8 +354,7 @@ export function compileScenario(
       {
         id: "action-isolate-device",
         label: `Isolate ${victimDevice?.hostname ?? "the workstation"}`,
-        description:
-          "Cut the host off from the network while preserving it for investigation. Stops the beacon and any further lateral movement.",
+        description: isolateDescription,
         events: [
           {
             id: "response-isolate-heartbeat",
@@ -342,8 +400,10 @@ export function compileScenario(
         id: "action-revoke-session",
         label:
           "Revoke the attacker's session",
-        description:
-          "Terminate the active session established from the unfamiliar address.",
+        description: `Terminate the session this account has open on ${
+          victimDevice?.hostname ??
+          "the host"
+        }.`,
         events: [
           {
             id: "response-revoke-session",
@@ -366,7 +426,7 @@ export function compileScenario(
         label:
           "Reset the password and take no further action",
         description:
-          "Force a password reset but leave the session and host untouched.",
+          "Force a password reset and take no other action.",
         // A plausible-looking half-measure. It reads like real remediation,
         // which is the point: the penalty has to be earned by reasoning
         // about the evidence, not by spotting the obviously wrong card.

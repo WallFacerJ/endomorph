@@ -502,6 +502,84 @@ describe("every shipped plan compiles to a loadable scenario", () => {
       );
     });
 
+    it(`describes ${plan.id}'s isolation by what it actually stops`, () => {
+      /*
+        The isolate action told every analyst it "stops the beacon and any
+        further lateral movement". Privileged-insider does neither -- it is
+        an administrator reading a file share from their own desk -- and each
+        of the others does one or the other, not both. Overstating what a
+        response achieves teaches the wrong thing about containment.
+      */
+      const scenario = compileScenario({
+        id: `scenario-isolate-${plan.id}`,
+        name: `Isolate ${plan.id}`,
+        description:
+          "Compiled to check the response descriptions.",
+        incident: { planId: plan.id },
+      });
+
+      const parsed = parseScenarioFile(
+        scenario.file,
+      ).scenario;
+
+      const isolate =
+        parsed.actions.find(
+          (action) =>
+            action.id ===
+            "action-isolate-device",
+        );
+
+      if (!isolate) {
+        expect(
+          plan.containment.isolateDevice,
+        ).toBe(false);
+
+        return;
+      }
+
+      const connections =
+        parsed.openingEvents.filter(
+          (event) =>
+            event.type ===
+              "NETWORK_CONNECTION" &&
+            event.id.startsWith(
+              "incident-",
+            ),
+        );
+
+      const beacons = connections.some(
+        (event) =>
+          !(
+            event.payload as {
+              destinationIp?: string;
+            }
+          ).destinationIp?.startsWith(
+            "10.",
+          ),
+      );
+
+      const lateral = connections.some(
+        (event) =>
+          (
+            event.payload as {
+              destinationPort?: number;
+            }
+          ).destinationPort === 445,
+      );
+
+      expect(
+        `${plan.id} claims beacon: ${/the beacon/i.test(isolate.description)}`,
+      ).toBe(
+        `${plan.id} claims beacon: ${beacons}`,
+      );
+
+      expect(
+        `${plan.id} claims movement: ${/between hosts/i.test(isolate.description)}`,
+      ).toBe(
+        `${plan.id} claims movement: ${lateral}`,
+      );
+    });
+
     it(`offers ${plan.id} only the responses it declares`, () => {
       // `containment` was declared on every plan and read by nothing: the
       // compiler emitted all four actions for every incident. Dormant
