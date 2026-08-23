@@ -10,6 +10,10 @@ import {
   MACRO_EXECUTION_PLAN,
 } from "./attackPlanMacro.js";
 
+import {
+  CLOUD_ROLE_PLAN,
+} from "./attackPlanCloudRole.js";
+
 /**
  * The shipped plan library.
  *
@@ -953,4 +957,5 @@ export const ATTACK_PLANS: readonly AttackPlan[] =
     SERVICE_ACCOUNT_ABUSE_PLAN,
     DORMANT_ACCOUNT_PLAN,
     MACRO_EXECUTION_PLAN,
+    CLOUD_ROLE_PLAN,
   ];

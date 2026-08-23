@@ -109,6 +109,9 @@ function getMessage(
     case "ACCOUNT_ENABLED":
       return `Account enabled: ${event.payload.accountId}`;
 
+    case "ROLE_GRANTED":
+      return `Role granted: ${event.payload.role} to ${event.payload.accountId}`;
+
     case "SESSION_STARTED":
       return `Session started: ${event.payload.sessionId}`;
 
@@ -188,6 +191,18 @@ function getFields(
     case "ACCOUNT_ENABLED":
       return definedFields({
         accountId: event.payload.accountId,
+        reason: event.payload.reason,
+      });
+
+    // The role is a searchable field, not only prose in the message: an
+    // analyst hunting for grants of one privileged role should be able to
+    // query it the same way they query any other value.
+    case "ROLE_GRANTED":
+      return definedFields({
+        accountId: event.payload.accountId,
+        role: event.payload.role,
+        applicationId:
+          event.payload.applicationId,
         reason: event.payload.reason,
       });
 

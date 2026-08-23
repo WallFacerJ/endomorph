@@ -21,6 +21,7 @@ import {
 import type {
   AccountDisabledEvent,
   EndpointHeartbeatEvent,
+  RoleGrantedEvent,
 } from "./simulationEvent";
 
 import type {
@@ -251,5 +252,110 @@ describe("endpoint isolation", () => {
         },
       ),
     ).toThrow(/Device not found/);
+  });
+});
+
+describe("role grants", () => {
+  /*
+    Accounts carried roles from the beginning and nothing ever changed them,
+    so privilege escalation inside identity was not expressible: every
+    intrusion in the library had to reach a host to get anywhere. In practice
+    it is one of the most common modern paths -- an attacker with a valid
+    credential grants themselves an administrative role and never touches an
+    endpoint.
+  */
+  function createGrant(
+    role: string,
+  ): RoleGrantedEvent {
+    return {
+      id: `event-role-${role}`,
+      type: "ROLE_GRANTED",
+      timestamp: "2026-08-18T09:45:00Z",
+      source: "identity",
+      actorId: exampleAccount.id,
+      subjectId: exampleAccount.id,
+      payload: {
+        accountId: exampleAccount.id,
+        role,
+      },
+    };
+  }
+
+  it("adds the role to the account", () => {
+    const world = applySimulationEvent(
+      createTestWorld(),
+      createGrant(
+        "global-administrator",
+      ),
+    );
+
+    expect(
+      world.accounts[exampleAccount.id]
+        .roles,
+    ).toContain(
+      "global-administrator",
+    );
+  });
+
+  it("keeps the roles the account already had", () => {
+    // The grant adds a privilege; it does not replace the account's
+    // existing membership, and an analyst reading the roles afterwards
+    // needs to see both.
+    const before = createTestWorld()
+      .accounts[exampleAccount.id].roles;
+
+    const world = applySimulationEvent(
+      createTestWorld(),
+      createGrant(
+        "global-administrator",
+      ),
+    );
+
+    for (const role of before) {
+      expect(
+        world.accounts[
+          exampleAccount.id
+        ].roles,
+      ).toContain(role);
+    }
+  });
+
+  it("does not duplicate a role the account already holds", () => {
+    // Directories are not always tidy, and a repeated grant must not leave
+    // the same role listed twice on the account.
+    const granted = applySimulationEvent(
+      createTestWorld(),
+      createGrant("auditor"),
+    );
+
+    const twice = applySimulationEvent(
+      granted,
+      createGrant("auditor"),
+    );
+
+    expect(
+      twice.accounts[
+        exampleAccount.id
+      ].roles.filter(
+        (role) => role === "auditor",
+      ),
+    ).toHaveLength(1);
+  });
+
+  it("does not mutate the world it was given", () => {
+    const world = createTestWorld();
+
+    const before = JSON.stringify(world);
+
+    applySimulationEvent(
+      world,
+      createGrant(
+        "global-administrator",
+      ),
+    );
+
+    expect(JSON.stringify(world)).toBe(
+      before,
+    );
   });
 });

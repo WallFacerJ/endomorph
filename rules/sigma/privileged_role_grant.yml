@@ -1,0 +1,29 @@
+title: Administrative Role Granted To An Account
+id: endomorph-sigma-0011
+status: experimental
+description: >
+  Detects a directory or cloud role containing administrator, admin or owner
+  being granted to an account. Directories do not hand out administrative
+  roles by accident. This is a single record with no volume behind it, which
+  is why threshold detection never sees it, and it survives the response most
+  people reach for first: resetting the password removes the way in and
+  leaves the role exactly where it is.
+references:
+  - https://attack.mitre.org/techniques/T1098/003/
+logsource:
+  category: iam
+detection:
+  selection:
+    event.type: 'ROLE_GRANTED'
+  roles:
+    iam.role|contains:
+      - 'administrator'
+      - 'admin'
+      - 'owner'
+  condition: selection and roles
+falsepositives:
+  - Genuine privilege assignment processed outside the access-request workflow
+level: critical
+tags:
+  - attack.persistence
+  - attack.t1098.003

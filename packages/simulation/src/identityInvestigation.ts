@@ -8,7 +8,7 @@ import type {
 } from "@endomorph/domain";
 
 import type {
-  AccountStatusActivity,
+  AccountLifecycleActivity,
   IdentityActivity,
   IdentityProjectionState,
   LoginFailedActivity,
@@ -38,7 +38,14 @@ export interface IdentityAccountInvestigation {
   user: User;
   authentication: readonly IdentityAuthenticationActivity[];
   sessions: readonly IdentitySessionContext[];
-  accountStatusActivity: readonly AccountStatusActivity[];
+  /**
+   * What has happened to the account itself: enabled, disabled, roles added.
+   *
+   * A role grant is the most consequential change an account can undergo and
+   * was missing here, so the console reported "Account lifecycle 0" on an
+   * incident whose entire finding was a role grant.
+   */
+  accountStatusActivity: readonly AccountLifecycleActivity[];
 }
 
 export interface IdentityInventoryEntry {
@@ -144,9 +151,10 @@ export function getIdentityAccountInvestigation(
     .filter(
       (
         activity,
-      ): activity is AccountStatusActivity =>
+      ): activity is AccountLifecycleActivity =>
         (activity.kind === "account_disabled" ||
-          activity.kind === "account_enabled") &&
+          activity.kind === "account_enabled" ||
+          activity.kind === "role_granted") &&
         activity.accountId === account.id,
     )
     .slice()

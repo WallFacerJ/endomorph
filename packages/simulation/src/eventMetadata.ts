@@ -26,6 +26,7 @@ export function getSimulationEventFamily(
 
     case "ACCOUNT_DISABLED":
     case "ACCOUNT_ENABLED":
+    case "ROLE_GRANTED":
       return "identity";
 
     case "SESSION_STARTED":

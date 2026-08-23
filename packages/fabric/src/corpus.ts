@@ -57,6 +57,7 @@ const WINDOWS_EVENT_CODES: Readonly<
   AUTH_LOGIN_FAILED: 4625,
   PROCESS_STARTED: 4688,
   ACCOUNT_ENABLED: 4722,
+  ROLE_GRANTED: 4728,
   FILE_ACCESSED: 4663,
   NETWORK_CONNECTION: 5156,
 };
@@ -99,6 +100,9 @@ export interface CorpusRecord {
   "destination.port"?: number;
   "network.protocol"?: string;
   "process.pid"?: string;
+  /** Role added to the account, on a ROLE_GRANTED record. */
+  "iam.role"?: string;
+
   "process.parent.pid"?: string;
   "process.parent.executable"?: string;
   "process.executable"?: string;
@@ -394,6 +398,7 @@ function toRecord(
     "process.command_line",
     read("commandLine"),
   );
+  assign("iam.role", read("role"));
   assign("session.id", read("sessionId"));
   assign("rule.name", read("title"));
   assign("event.severity", read("severity"));

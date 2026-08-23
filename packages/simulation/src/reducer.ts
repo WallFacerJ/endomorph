@@ -70,6 +70,48 @@ export function applySimulationEvent(
       };
     }
 
+    /*
+      A granted role changes the account, which is the whole point: the
+      Identity console reads roles off the world, so an escalation is visible
+      there afterwards rather than only as a line in a log.
+    */
+    case "ROLE_GRANTED": {
+      const account =
+        world.accounts[
+          event.payload.accountId
+        ];
+
+      if (
+        account.roles.includes(
+          event.payload.role,
+        )
+      ) {
+        return {
+          ...world,
+          simulationTime:
+            event.timestamp,
+        };
+      }
+
+      return {
+        ...world,
+
+        simulationTime: event.timestamp,
+
+        accounts: {
+          ...world.accounts,
+
+          [account.id]: {
+            ...account,
+            roles: [
+              ...account.roles,
+              event.payload.role,
+            ],
+          },
+        },
+      };
+    }
+
     case "SESSION_STARTED": {
       const {
         sessionId,

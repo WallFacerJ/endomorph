@@ -1,0 +1,24 @@
+title: Repeated Multi-Factor Denials For One Account
+id: endomorph-sigma-0012
+status: experimental
+description: >
+  Detects a run of denied second factors against a single account. The naive
+  reading of failed sign-ins is that somebody is guessing a password; a denied
+  multi-factor prompt says the opposite, because a wrong password fails before
+  any second factor is involved. The password is already correct and only the
+  user's approval is missing.
+references:
+  - https://attack.mitre.org/techniques/T1621/
+logsource:
+  category: authentication
+detection:
+  selection:
+    event.type: 'AUTH_LOGIN_FAILED'
+    event.reason: 'mfa_failed'
+  condition: selection
+falsepositives:
+  - A user repeatedly dismissing prompts from their own stale session
+level: high
+tags:
+  - attack.credential-access
+  - attack.t1621

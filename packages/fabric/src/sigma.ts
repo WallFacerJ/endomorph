@@ -75,6 +75,8 @@ const FIELD_MAP: Readonly<
   SubjectUserName: "account.name",
   AccountName: "account.name",
   LogonType: "event.type",
+  TargetRole: "iam.role",
+  RoleName: "iam.role",
 
   // Host
   Computer: "host.name",
@@ -99,6 +101,8 @@ const FIELD_MAP: Readonly<
   "event.type": "event.type",
   "event.module": "event.module",
   "event.outcome": "event.outcome",
+  "event.reason": "event.reason",
+  "iam.role": "iam.role",
   "process.executable": "process.executable",
   "process.command_line":
     "process.command_line",

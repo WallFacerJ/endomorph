@@ -82,6 +82,15 @@ const BUILDS: readonly ScenarioBuild[] = [
     plan: "macro-execution",
     days: 3,
   },
+  {
+    out: "apps/web/public/scenarios/generated-cloud-role.json",
+    id: "scenario-generated-cloud-role-001",
+    name: "Generated enterprise: directory role elevation",
+    description:
+      "No process runs on any workstation in this incident. The whole chain is a valid password, a multi-factor prompt worn down until it was approved, and a privileged role granted to an account that never held it.",
+    plan: "cloud-role-elevation",
+    days: 3,
+  },
 ];
 
 function findWorkspaceRoot(): string {

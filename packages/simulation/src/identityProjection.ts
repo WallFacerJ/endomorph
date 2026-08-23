@@ -59,6 +59,26 @@ export interface AccountStatusActivity
   reason: string | undefined;
 }
 
+/**
+ * A role added to an account.
+ *
+ * Its own activity kind rather than folding into account status, because
+ * what an analyst needs from it is the role name -- "which privilege did
+ * they take" is the question, and a status change cannot carry it.
+ */
+export interface RoleGrantedActivity
+  extends IdentityActivityBase {
+  kind: "role_granted";
+
+  accountId: EntityId;
+
+  role: string;
+
+  applicationId: EntityId | undefined;
+
+  reason: string | undefined;
+}
+
 export interface SessionStartedActivity
   extends IdentityActivityBase {
   kind: "session_started";
@@ -81,10 +101,16 @@ export interface SessionRevokedActivity
   reason: string | undefined;
 }
 
+/** Everything the account-lifecycle view shows: status changes and grants. */
+export type AccountLifecycleActivity =
+  | AccountStatusActivity
+  | RoleGrantedActivity;
+
 export type IdentityActivity =
   | LoginSucceededActivity
   | LoginFailedActivity
   | AccountStatusActivity
+  | RoleGrantedActivity
   | SessionStartedActivity
   | SessionRevokedActivity;
 
@@ -207,6 +233,19 @@ function reduceIdentityProjection(
             event.payload.reason,
         },
       );
+
+    case "ROLE_GRANTED":
+      return appendActivity(state, {
+        kind: "role_granted",
+        eventId: event.id,
+        timestamp: event.timestamp,
+        accountId:
+          event.payload.accountId,
+        role: event.payload.role,
+        applicationId:
+          event.payload.applicationId,
+        reason: event.payload.reason,
+      });
 
     case "SESSION_STARTED":
       return appendActivity(

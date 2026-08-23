@@ -81,9 +81,37 @@ export type AccountEnabledEvent =
     AccountEnabledPayload
   >;
 
+/**
+ * A directory or cloud role added to an account.
+ *
+ * Accounts have always carried roles and nothing ever changed them, so
+ * privilege escalation inside identity was not expressible at all -- every
+ * intrusion in the library had to reach a host to get anywhere. In practice
+ * this is one of the most common modern paths: an attacker with a valid
+ * credential grants themselves an administrative role and never touches an
+ * endpoint.
+ */
+export interface RoleGrantedPayload {
+  accountId: EntityId;
+
+  /** The role added, e.g. "global-administrator". */
+  role: string;
+
+  /** Application the role belongs to, when it is not the directory. */
+  applicationId?: EntityId;
+
+  reason?: string;
+}
+
+export type RoleGrantedEvent = EventOf<
+  "ROLE_GRANTED",
+  RoleGrantedPayload
+>;
+
 export type IdentityEvent =
   | AccountDisabledEvent
-  | AccountEnabledEvent;
+  | AccountEnabledEvent
+  | RoleGrantedEvent;
 
 // -----------------------------------------------------------------------------
 // Sessions

@@ -111,6 +111,33 @@ export function validateSimulationEvent(
 
       return;
 
+    case "ROLE_GRANTED": {
+      requireEntity(
+        world.accounts,
+        event.payload.accountId,
+        "Account",
+      );
+
+      if (
+        event.payload.role.trim()
+          .length === 0
+      ) {
+        throw new Error(
+          `Role grant ${event.id} names no role.`,
+        );
+      }
+
+      if (event.payload.applicationId) {
+        requireEntity(
+          world.applications,
+          event.payload.applicationId,
+          "Application",
+        );
+      }
+
+      return;
+    }
+
     case "SESSION_STARTED": {
       const {
         sessionId,

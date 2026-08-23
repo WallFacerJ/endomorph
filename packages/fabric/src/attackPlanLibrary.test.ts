@@ -403,6 +403,61 @@ describe("attack plan library", () => {
       ).toThrow(/Unknown attack plan/);
     });
 
+    it("cloud-role-elevation never touches an endpoint", () => {
+      /*
+        Its whole reason for existing. Every other plan in the library
+        reaches a host, so an analyst who works them learns to pivot to the
+        endpoint and is right five times out of five -- which stops it being
+        a decision. This intrusion has no process tree, no command line and
+        no device on any of its events, and the Endpoint console has nothing
+        to show because there is genuinely nothing there.
+
+        Asserted rather than described, because the lesson is only worth
+        anything while it stays true.
+      */
+      const incident = generateIncident(
+        generateEnterprise(),
+        {
+          planId: "cloud-role-elevation",
+        },
+      );
+
+      const types = new Set(
+        incident.events.map(
+          (event) => event.type,
+        ),
+      );
+
+      expect(
+        types.has("PROCESS_STARTED"),
+      ).toBe(false);
+
+      expect(
+        types.has("NETWORK_CONNECTION"),
+      ).toBe(false);
+
+      const withDevice =
+        incident.events.filter(
+          (event) =>
+            (
+              event.payload as {
+                deviceId?: string;
+              }
+            ).deviceId !== undefined,
+        );
+
+      expect(withDevice).toEqual([]);
+
+      // And the containment reflects it: there is nothing to isolate.
+      expect(
+        ATTACK_PLANS.find(
+          (plan) =>
+            plan.id ===
+            "cloud-role-elevation",
+        )?.containment.isolateDevice,
+      ).toBe(false);
+    });
+
     it("stages Windows artefacts only on Windows hosts, across many seeds", () => {
       // Found by sweeping seeds, not by the suite: the renderer took the
       // subject's first listed device without checking what it was, so

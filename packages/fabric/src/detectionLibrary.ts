@@ -417,6 +417,64 @@ export const UNKNOWN_DESTINATION_BEACON_RULE: DetectionRule =
     },
   };
 
+/**
+ * A privileged role appearing on an account.
+ *
+ * Precise because the event is precise: directories do not grant
+ * administrative roles by accident, and the grant is a single record with no
+ * volume behind it -- which is exactly why threshold detection never sees
+ * it.
+ */
+export const PRIVILEGED_ROLE_GRANT_RULE: DetectionRule =
+  {
+    id: "privileged-role-grant",
+    name: "Administrative role granted to an account",
+    technique: "T1098.003",
+    severity: "critical",
+    selections: [
+      {
+        "event.type": "ROLE_GRANTED",
+      },
+      {
+        "iam.role": {
+          anyOf: [
+            { contains: "administrator" },
+            { contains: "admin" },
+            { contains: "owner" },
+          ],
+        },
+      },
+    ],
+  };
+
+/**
+ * A run of denied second factors against one account.
+ *
+ * The naive reading of failed sign-ins is that someone is guessing a
+ * password. A denied multi-factor prompt says the opposite: the password was
+ * already right and only the approval was missing. Keyed on the failure
+ * reason for that reason, rather than on failure volume.
+ */
+export const MFA_DENIAL_BURST_RULE: DetectionRule =
+  {
+    id: "mfa-denial-burst",
+    name: "Repeated multi-factor denials for one account",
+    technique: "T1621",
+    severity: "high",
+    selections: [
+      {
+        "event.type":
+          "AUTH_LOGIN_FAILED",
+      },
+      { "event.reason": "mfa_failed" },
+    ],
+    threshold: {
+      groupBy: ["account.name"],
+      count: 3,
+      withinMinutes: 20,
+    },
+  };
+
 export const DETECTION_RULES: readonly DetectionRule[] =
   [
     PASSWORD_SPRAY_RULE,
@@ -435,4 +493,6 @@ export const DETECTION_RULES: readonly DetectionRule[] =
     LSASS_DUMP_RULE,
     NAIVE_BEACON_RULE,
     UNKNOWN_DESTINATION_BEACON_RULE,
+    PRIVILEGED_ROLE_GRANT_RULE,
+    MFA_DENIAL_BURST_RULE,
   ];

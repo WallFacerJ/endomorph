@@ -1,7 +1,7 @@
 {
   "generator": "endomorph-fabric",
   "seed": 20260820,
-  "ruleCount": 16,
+  "ruleCount": 18,
   "plans": [
     {
       "planId": "credential-compromise",
@@ -421,12 +421,100 @@
           "recall": 1
         }
       ]
+    },
+    {
+      "planId": "cloud-role-elevation",
+      "planName": "MFA fatigue into a directory role grant",
+      "recordCount": 4628,
+      "maliciousCount": 10,
+      "coveredTechniques": [
+        "T1098.003",
+        "T1621"
+      ],
+      "uncoveredTechniques": [
+        "T1078.004",
+        "T1213"
+      ],
+      "rules": [
+        {
+          "ruleId": "auth-spray",
+          "technique": "T1110.003",
+          "truePositives": 5,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        {
+          "ruleId": "naive-powershell",
+          "technique": "T1059.001",
+          "truePositives": 0,
+          "falsePositives": 51,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "external-auth-success",
+          "technique": "T1078.002",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        {
+          "ruleId": "smb-lateral",
+          "technique": "T1021.002",
+          "truePositives": 0,
+          "falsePositives": 15,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "naive-beacon",
+          "technique": "T1071.001",
+          "truePositives": 0,
+          "falsePositives": 722,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "beacon-unknown-destination",
+          "technique": "T1071.001",
+          "truePositives": 0,
+          "falsePositives": 98,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "privileged-role-grant",
+          "technique": "T1098.003",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        {
+          "ruleId": "mfa-denial-burst",
+          "technique": "T1621",
+          "truePositives": 5,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      ]
     }
   ],
   "totals": {
-    "coveredTechniques": 14,
-    "totalTechniques": 26,
-    "truePositives": 29,
-    "falsePositives": 4431
+    "coveredTechniques": 16,
+    "totalTechniques": 30,
+    "truePositives": 41,
+    "falsePositives": 5317
   }
 }

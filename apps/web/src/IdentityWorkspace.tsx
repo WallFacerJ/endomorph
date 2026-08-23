@@ -592,7 +592,7 @@ export function IdentityWorkspace({
             <div className="identity-session-list">
               {investigation.accountStatusActivity.length === 0 ? (
                 <div className="identity-empty-state">
-                  No account status changes are recorded for this account in the current run.
+                  No lifecycle changes are recorded for this account in the current run &mdash; no status change, and no role granted or removed.
                 </div>
               ) : investigation.accountStatusActivity.map(
                 (activity) => (
@@ -611,9 +611,16 @@ export function IdentityWorkspace({
                         title:
                           activity.kind === "account_disabled"
                             ? "Account disabled"
-                            : "Account enabled",
+                            : activity.kind === "role_granted"
+                              ? "Role granted"
+                              : "Account enabled",
                         fields: [
                           ["Account", activity.accountId],
+                          // The role is the whole point of a grant, so it
+                          // leads rather than sitting under a reason.
+                          ...(activity.kind === "role_granted"
+                            ? ([["Role", activity.role]] as [string, string][])
+                            : []),
                           ["Reason", activity.reason ?? "—"],
                           ["Timestamp", activity.timestamp],
                         ],
@@ -621,7 +628,11 @@ export function IdentityWorkspace({
                     }
                   >
                     <span>
-                      <strong>{activity.kind.replaceAll("_", " ")}</strong>
+                      <strong>
+                        {activity.kind === "role_granted"
+                          ? `role granted: ${activity.role}`
+                          : activity.kind.replaceAll("_", " ")}
+                      </strong>
                       <small>{activity.reason ?? "No reason provided"}</small>
                     </span>
                     <time>{formatTimestamp(activity.timestamp)}</time>

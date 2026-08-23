@@ -63,6 +63,12 @@ export const SHIPPED_SCENARIOS:
       group: "generated",
     },
     {
+      path: "/scenarios/generated-cloud-role.json",
+      label:
+        "Directory role elevation",
+      group: "generated",
+    },
+    {
       path: "/scenarios/generated-insider.json",
       label:
         "Privileged insider (advanced)",

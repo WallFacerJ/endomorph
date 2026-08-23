@@ -261,6 +261,20 @@ const accountEnabledEventSchema =
     }).strict(),
   }).strict();
 
+const roleGrantedEventSchema =
+  z.object({
+    ...eventBaseShape,
+    type: z.literal("ROLE_GRANTED"),
+    payload: z.object({
+      accountId: entityIdSchema,
+      role: nonEmptyStringSchema,
+      applicationId:
+        optionalEntityIdSchema,
+      reason:
+        nonEmptyStringSchema.optional(),
+    }).strict(),
+  }).strict();
+
 const sessionStartedEventSchema =
   z.object({
     ...eventBaseShape,
@@ -379,6 +393,7 @@ export const scenarioEventSchema =
     authLoginFailedEventSchema,
     accountDisabledEventSchema,
     accountEnabledEventSchema,
+    roleGrantedEventSchema,
     sessionStartedEventSchema,
     sessionRevokedEventSchema,
     processStartedEventSchema,
