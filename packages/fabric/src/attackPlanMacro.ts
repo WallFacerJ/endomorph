@@ -155,6 +155,12 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
             destinationIp: cast.c2Ip,
             sourcePort: 49730 + index,
             destinationPort: 443,
+
+            // The PowerShell WINWORD.EXE spawned. The lineage the step turns
+            // on now survives into the network telemetry, so an analyst who
+            // starts from the traffic still arrives at the word processor.
+            processId: "3204",
+            image: POWERSHELL,
           },
         }),
       },

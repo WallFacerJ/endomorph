@@ -220,6 +220,26 @@ export interface NetworkConnectionPayload {
   destinationIp: string;
   sourcePort?: number;
   destinationPort?: number;
+
+  /**
+   * The process that opened the connection.
+   *
+   * Every real endpoint sensor reports this -- Sysmon event 3 carries the
+   * pid and the image -- and without it the console can say a host is
+   * beaconing but never say what is beaconing, which is the question a
+   * responder actually has.
+   *
+   * It is also what separates a beacon from a keepalive. Both are a
+   * long-lived process talking to one fixed address on 443 at an interval;
+   * traffic shape alone cannot tell them apart, and the process can.
+   *
+   * Optional because network sensors off the host see the packet and not the
+   * program. The generator populates it on everything it emits, benign
+   * traffic included -- an attribute only the intrusion carries would give
+   * the answer away.
+   */
+  processId?: string;
+  image?: string;
 }
 
 export type NetworkConnectionEvent =

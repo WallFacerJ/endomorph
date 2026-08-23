@@ -353,6 +353,20 @@ const networkConnectionEventSchema =
         networkPortSchema.optional(),
       destinationPort:
         networkPortSchema.optional(),
+
+      /*
+        The process responsible for the connection.
+
+        Optional in the schema so hand-authored v1 scenarios stay valid, but
+        the generator attributes every connection it emits -- benign and
+        malicious alike. An optional field that only the intrusion populates
+        is not a field, it is a label, and `processId exists` would be a
+        perfect ground-truth filter.
+      */
+      processId:
+        nonEmptyStringSchema.optional(),
+      image:
+        nonEmptyStringSchema.optional(),
     }).strict(),
   }).strict();
 

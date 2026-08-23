@@ -31,6 +31,25 @@ import {
 
 import "./EdrWorkspace.css";
 
+/**
+ * The program name alone, for the list row.
+ *
+ * The row is scanned, not read: a full image path pushes the address and
+ * the timestamp off the line. The path stays in the detail pane, where an
+ * analyst who needs to check the directory can find it -- and the
+ * directory is often the whole finding.
+ */
+function processName(image: string): string {
+  const segments = image.split(
+    /[\\/]/,
+  );
+
+  return (
+    segments[segments.length - 1] ??
+    image
+  );
+}
+
 interface EndpointInventoryItem {
   id: string;
   hostname: string;
@@ -653,7 +672,11 @@ export function EdrWorkspace({
                   <span className="edr-flow-arrow">→</span>
                   <span>
                     <strong>{connection.destinationIp}:{connection.destinationPort ?? "—"}</strong>
-                    <small>{connection.protocol.toUpperCase()}</small>
+                    <small>
+                      {connection.image
+                        ? processName(connection.image)
+                        : connection.protocol.toUpperCase()}
+                    </small>
                   </span>
                   <time>{formatTimestamp(connection.timestamp)}</time>
                 </button>
@@ -786,6 +809,18 @@ export function EdrWorkspace({
                 <div><dt>Source</dt><dd>{selectedNetwork.sourceIp}:{selectedNetwork.sourcePort ?? "—"}</dd></div>
                 <div><dt>Destination</dt><dd>{selectedNetwork.destinationIp}:{selectedNetwork.destinationPort ?? "—"}</dd></div>
                 <div><dt>Protocol</dt><dd>{selectedNetwork.protocol.toUpperCase()}</dd></div>
+                <div>
+                  <dt>Process</dt>
+                  <dd>
+                    {selectedNetwork.image
+                      ? `${selectedNetwork.image}${
+                          selectedNetwork.processId
+                            ? ` (pid ${selectedNetwork.processId})`
+                            : ""
+                        }`
+                      : "Not attributed — seen by a network sensor, off the host"}
+                  </dd>
+                </div>
                 <div><dt>Observed</dt><dd>{selectedNetwork.timestamp}</dd></div>
               </dl>
               <DetailActionBar

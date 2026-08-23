@@ -79,6 +79,11 @@ export interface NetworkConnectionObservation
   sourcePort: number | undefined;
 
   destinationPort: number | undefined;
+
+  /** The program that opened it, where the sensor saw the host side. */
+  processId: string | undefined;
+
+  image: string | undefined;
 }
 
 export interface EdrAlertObservation
@@ -218,6 +223,9 @@ function reduceEdrProjection(
               event.payload.sourcePort,
             destinationPort:
               event.payload.destinationPort,
+            processId:
+              event.payload.processId,
+            image: event.payload.image,
           },
         ],
       };

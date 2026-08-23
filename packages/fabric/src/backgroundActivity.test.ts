@@ -447,6 +447,84 @@ describe("generateBackgroundActivity", () => {
       }
     });
 
+    it("attributes every connection to a process, so attribution cannot identify the intrusion", () => {
+      /*
+        The point of this guard is not completeness for its own sake.
+
+        processId is optional on the payload, and the tempting shortcut is to
+        populate it only where the attack plan knows which process is
+        responsible. That would make `processId exists` a perfect filter for
+        the intrusion -- an analyst could skip the investigation entirely,
+        and any rule keyed on it would score a flawless, meaningless 1.000.
+
+        A field that only the malicious events carry is not telemetry. It is
+        the answer.
+      */
+      const connections = activity.filter(
+        (event) =>
+          event.type ===
+          "NETWORK_CONNECTION",
+      );
+
+      expect(
+        connections.length,
+      ).toBeGreaterThan(100);
+
+      const unattributed =
+        connections.filter(
+          (event) =>
+            !event.payload.processId ||
+            !event.payload.image,
+        );
+
+      expect(unattributed).toHaveLength(0);
+    });
+
+    it("keeps a program's pid stable across one day on one host", () => {
+      /*
+        A browser is one long-lived process. A fresh pid per connection would
+        make the traffic unpivotable, which is the exact analysis the field
+        exists to support. Across days it is expected to change -- machines
+        reboot -- so this only asserts stability within a calendar day.
+      */
+      const seen = new Map<
+        string,
+        Set<string>
+      >();
+
+      for (const event of activity) {
+        if (
+          event.type !==
+          "NETWORK_CONNECTION"
+        ) {
+          continue;
+        }
+
+        const key = [
+          event.timestamp.slice(0, 10),
+          event.payload.deviceId,
+          event.payload.image,
+        ].join("|");
+
+        const pids =
+          seen.get(key) ?? new Set();
+
+        pids.add(
+          event.payload.processId ?? "",
+        );
+
+        seen.set(key, pids);
+      }
+
+      const unstable = [
+        ...seen.entries(),
+      ].filter(
+        ([, pids]) => pids.size > 1,
+      );
+
+      expect(unstable).toHaveLength(0);
+    });
+
     it("produces benign authentication failures to rule out", () => {
       const failures = activity.filter(
         (event) =>

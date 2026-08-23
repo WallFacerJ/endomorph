@@ -210,6 +210,16 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
             destinationIp: cast.c2Ip,
             sourcePort: 51422 + index,
             destinationPort: 443,
+
+            /*
+              The encoded PowerShell two steps up, by pid. This is the pivot
+              the step's own reasoning asks for -- "check whether any other
+              host talked to the same address" is answerable from the
+              destination, but "what is beaconing" is only answerable from
+              here.
+            */
+            processId: "7734",
+            image: POWERSHELL,
           },
         }),
       },
@@ -286,6 +296,8 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
                 .ipAddresses[0],
             sourcePort: 51533,
             destinationPort: 445,
+            processId: "7734",
+            image: POWERSHELL,
           },
         }),
       },
@@ -813,6 +825,12 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
                 .ipAddresses[0],
             sourcePort: 52001,
             destinationPort: 445,
+
+            // The sweep's own PowerShell: the movement is the same process
+            // that did the discovery, which is what makes it movement rather
+            // than two unrelated connections.
+            processId: "6301",
+            image: POWERSHELL,
           },
         }),
       },
@@ -838,6 +856,8 @@ export const SERVICE_ACCOUNT_ABUSE_PLAN: AttackPlan =
                 .ipAddresses[0],
             sourcePort: 52014,
             destinationPort: 445,
+            processId: "6301",
+            image: POWERSHELL,
           },
         }),
       },

@@ -93,6 +93,24 @@ function createInitialState():
   };
 }
 
+/**
+ * Last path segment, for summary lines only.
+ *
+ * The summary is a one-line scan target and a full Windows image path is
+ * wider than the rest of the row put together. The whole path stays in the
+ * fields, where a filter can still match on it.
+ */
+function basename(path: string): string {
+  const segments = path.split(
+    /[\\/]/,
+  );
+
+  return (
+    segments[segments.length - 1] ??
+    path
+  );
+}
+
 function getMessage(
   event: SimulationEvent,
 ): string {
@@ -125,7 +143,9 @@ function getMessage(
       return `File ${event.payload.operation}: ${event.payload.fileId}`;
 
     case "NETWORK_CONNECTION":
-      return `Network connection ${event.payload.sourceIp} -> ${event.payload.destinationIp}`;
+      return event.payload.image
+        ? `Network connection ${event.payload.sourceIp} -> ${event.payload.destinationIp} (${basename(event.payload.image)})`
+        : `Network connection ${event.payload.sourceIp} -> ${event.payload.destinationIp}`;
 
     case "ENDPOINT_HEARTBEAT":
       return `Endpoint heartbeat from ${event.payload.deviceId}: ${event.payload.status}`;
@@ -250,6 +270,8 @@ function getFields(
         sourcePort: event.payload.sourcePort,
         destinationPort:
           event.payload.destinationPort,
+        processId: event.payload.processId,
+        image: event.payload.image,
       });
 
     case "ENDPOINT_HEARTBEAT":

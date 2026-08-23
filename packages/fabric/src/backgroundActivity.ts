@@ -296,6 +296,84 @@ function processPoolFor(
   return LINUX_PROCESSES;
 }
 
+/**
+ * The programs on a workstation that talk to the network.
+ *
+ * Connections have to be attributed to something. Attributing them to a
+ * process drawn from the general pool would put outbound 443 traffic under
+ * taskhostw.exe and MsMpEng.exe, which is worse than leaving the field
+ * empty: it teaches an analyst a lineage that does not occur.
+ *
+ * The first entry is the one that polls all day -- mail or chat -- because
+ * that is the process the keepalive traffic belongs to.
+ */
+interface NetworkClient {
+  readonly image: string;
+}
+
+const WINDOWS_NETWORK_CLIENTS: readonly NetworkClient[] =
+  [
+  {
+    image:
+      "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
+  },
+  {
+    image:
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  },
+  {
+    image:
+      "C:\\Program Files\\Microsoft Teams\\current\\Teams.exe",
+  },
+  {
+    image:
+      "C:\\Windows\\System32\\svchost.exe",
+  },
+];
+
+const MACOS_NETWORK_CLIENTS: readonly NetworkClient[] =
+  [
+  {
+    image:
+      "/Applications/Slack.app/Contents/MacOS/Slack",
+  },
+  {
+    image:
+      "/Applications/Safari.app/Contents/MacOS/Safari",
+  },
+  { image: "/usr/bin/ssh" },
+];
+
+/*
+  sshd is deliberately absent. It is the server side of the protocol and
+  accepts connections rather than making them, so attributing outbound
+  traffic to it would put a backwards lineage in front of an analyst -- the
+  sort of detail that costs a product its credibility with the people who
+  know the platform.
+*/
+const LINUX_NETWORK_CLIENTS: readonly NetworkClient[] =
+  [
+  { image: "/usr/bin/curl" },
+  { image: "/usr/bin/ssh" },
+  { image: "/usr/bin/docker" },
+];
+
+function networkClientsFor(
+  operatingSystem: string,
+): readonly NetworkClient[] {
+  if (
+    operatingSystem.startsWith("Windows")
+  ) {
+    return WINDOWS_NETWORK_CLIENTS;
+  }
+
+  if (operatingSystem.startsWith("macOS")) {
+    return MACOS_NETWORK_CLIENTS;
+  }
+
+  return LINUX_NETWORK_CLIENTS;
+}
+
 function isoAt(
   startMilliseconds: number,
   offsetMinutes: number,
@@ -739,6 +817,58 @@ export function generateBackgroundActivity(
     const parentPidCursor =
       cursor.fork("parent-pids");
 
+    /*
+      Which program each connection belongs to.
+
+      Both cursors below are dedicated forks. Attribution has to leave the
+      existing draws untouched -- pulling from the network cursor would shift
+      every port and destination after it and silently regenerate the whole
+      corpus, which is the one thing this generator must not do by accident.
+
+      Pids are stable per image per host for the same reason parent pids are:
+      a browser is one long-lived process, and a fresh pid per connection
+      would make the traffic unpivotable.
+    */
+    const networkClients =
+      networkClientsFor(
+        device.operatingSystem,
+      );
+
+    const clientPidCursor = cursor.fork(
+      "net-client-pids",
+    );
+
+    const clientPids = new Map<
+      string,
+      string
+    >();
+
+    const clientPidFor = (
+      image: string,
+    ): string => {
+      const existing =
+        clientPids.get(image);
+
+      if (existing !== undefined) {
+        return existing;
+      }
+
+      const pid = String(
+        clientPidCursor.nextInt(
+          1000,
+          65000,
+        ),
+      );
+
+      clientPids.set(image, pid);
+
+      return pid;
+    };
+
+    const attributionCursor = cursor.fork(
+      "net-attribution",
+    );
+
     const parentPids = new Map<
       string,
       string
@@ -828,6 +958,11 @@ export function generateBackgroundActivity(
             EXTERNAL_DESTINATIONS,
           );
 
+      const client =
+        attributionCursor.pick(
+          networkClients,
+        );
+
       push(
         arrival +
           dayOffset +
@@ -861,6 +996,10 @@ export function generateBackgroundActivity(
               : networkCursor.pick([
                   443, 443, 443, 80,
                 ]),
+            processId: clientPidFor(
+              client.image,
+            ),
+            image: client.image,
           },
         },
       );
@@ -886,6 +1025,10 @@ export function generateBackgroundActivity(
     const polled = keepaliveCursor.pick(
       EXTERNAL_DESTINATIONS,
     );
+
+    // First entry by convention: the program that polls all day.
+    const pollingClient =
+      networkClients[0] as NetworkClient;
 
     const pollStart =
       arrival +
@@ -927,6 +1070,19 @@ export function generateBackgroundActivity(
                 65535,
               ),
             destinationPort: 443,
+
+            /*
+              The polling client, not a random one. This traffic is a mail or
+              chat client holding a connection open, and it is the same shape
+              as a beacon -- one long-lived process, one fixed address, 443,
+              at a steady interval. Now that the process travels with the
+              connection, that is the field that tells the two apart, which
+              is exactly the discrimination the real job requires.
+            */
+            processId: clientPidFor(
+              pollingClient.image,
+            ),
+            image: pollingClient.image,
           },
         },
       );
