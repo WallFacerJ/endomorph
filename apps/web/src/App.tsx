@@ -83,6 +83,10 @@ import {
 } from "./EdrWorkspace";
 
 import {
+  LiveResponseWorkspace,
+} from "./LiveResponseWorkspace";
+
+import {
   IdentityWorkspace,
 } from "./IdentityWorkspace";
 
@@ -124,6 +128,7 @@ type WorkspaceView =
   | "timeline"
   | "siem"
   | "endpoint"
+  | "live"
   | "identity"
   | "questions"
   | "case";
@@ -183,6 +188,13 @@ const navGroups: ReadonlyArray<{
         label: "Endpoint",
         purpose:
           "Process trees, network and file activity for one host",
+      },
+      {
+        id: "live",
+        icon: "server",
+        label: "Live Response",
+        purpose:
+          "Ask a host what is true on it now, rather than what it did",
       },
       {
         id: "identity",
@@ -1670,6 +1682,22 @@ function ScenarioWorkspace({
               onCollect={collectEvidence}
               onSearchSiem={openSiem}
               onOpenCase={() => setActiveView("case")}
+            />
+          </section>
+        )}
+
+        {activeView === "live" && (
+          <section className="workspace-section live-section">
+            <LiveResponseWorkspace
+              devices={Object.values(
+                scenarioState.world.devices,
+              )}
+              events={viewedEvents}
+              initialDeviceId={context.deviceId}
+              finalized={scenarioState.finalized}
+              isCollected={isEvidenceCollected}
+              onCollect={collectEvidence}
+              onSearchSiem={openSiem}
             />
           </section>
         )}

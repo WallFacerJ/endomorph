@@ -234,6 +234,7 @@ test("no console scrolls the page sideways at laptop widths", async ({
       "Alerts",
       "SIEM Search",
       "Endpoint",
+      "Live Response",
       "Identity",
       "Case",
     ]) {

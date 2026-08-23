@@ -470,12 +470,25 @@ function connectionRows(
       primary: `${group.destination}:${
         group.port ?? "—"
       }`,
-      secondary: group.image
-        ? basename(group.image)
-        : "not attributed",
-      detail: `${group.count} connection${
+
+      /*
+        Count and program on the row itself.
+
+        Both were behind an expand, which put the two fields that actually
+        separate one connection from another out of reach of a scan. Repetition
+        is what automation looks like, and the program is what says whether the
+        automation is a mail client or somebody else's -- reading a list of
+        destinations without them tells an analyst almost nothing.
+      */
+      secondary: `${group.count} connection${
         group.count === 1 ? "" : "s"
-      }, last ${describeAge(
+      } · ${
+        group.image
+          ? basename(group.image)
+          : "not attributed"
+      }`,
+
+      detail: `Last ${describeAge(
         minutesBetween(
           group.last,
           request.now,
@@ -483,6 +496,10 @@ function connectionRows(
       )}${
         group.processId
           ? ` · pid ${group.processId}`
+          : ""
+      }${
+        group.image
+          ? ` · ${group.image}`
           : ""
       }`,
       state: undefined,
