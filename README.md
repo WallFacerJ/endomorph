@@ -136,6 +136,16 @@ Five commands, each labelled with the question it answers rather than the listin
 
 It invents nothing. Every fact is derived from events already in the corpus and already visible in the endpoint console, and only the framing changes. A live-response view that knew things the telemetry did not would be handing over the answer, and analysts would learn to run it first and think second.
 
+**Persistence is an odd-one-out exercise, not a presence check.** Every host in the estate carries three to seven legitimate autorun entries — sync clients, chat, updaters, the asset agent — held as state on the device itself. Without that baseline the compromised machine was the only one in the estate with anything in the list, and "does this host have persistence" would have been the whole investigation. With it, the planted entry sits in alphabetical order directly beneath the real one:
+
+```
+OneDrive       HKCU\...\CurrentVersion\Run   "C:\Program Files\Microsoft OneDrive\OneDrive.exe" /background
+OneDriveSync   HKCU\...\CurrentVersion\Run   C:\Users\Public\odsync.exe
+Teams          HKCU\...\CurrentVersion\Run   "C:\Program Files\Microsoft Teams\current\Teams.exe" --minimized
+```
+
+An installer and a foothold write the same kind of record. Only the name and the directory tell them apart, which is the thing worth practising.
+
 **It says when it does not know.** The sensor records process start and not process exit, so a process is called *running* only where something was attributed to it recently, *exited* only where the program is one that does its work and returns, and *unknown* otherwise — with the reason on every row. Real live response has exactly these gaps, and three states with their reasoning teach the job better than two states and a guess.
 
 **Any host is selectable, deliberately.** An analyst who has only ever run a command on a compromised machine has no idea which part of the output was the finding. Running the same command against a machine you suspect and one you do not is how you learn what ordinary looks like.
