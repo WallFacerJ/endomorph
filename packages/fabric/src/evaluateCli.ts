@@ -27,8 +27,14 @@ import {
 
 import {
   buildCorpus,
-  toNdjson,
 } from "./corpus.js";
+
+import {
+  CORPUS_FORMATS,
+  extensionFor,
+  formatCorpus,
+  isCorpusFormat,
+} from "./corpusFormats.js";
 
 import {
   DETECTION_RULES,
@@ -198,6 +204,25 @@ function main(): void {
   */
   const coveragePath = flag("report");
 
+  /*
+    The destination platform. ECS NDJSON is the neutral shape and is not what
+    any of the three common destinations actually ingest, so "load this into
+    your Splunk" hid a transformation step -- exactly the sort of thing that
+    gets written badly once per engagement.
+  */
+  const requestedFormat =
+    flag("format") ?? "ecs";
+
+  if (!isCorpusFormat(requestedFormat)) {
+    throw new Error(
+      `Unknown export format "${requestedFormat}". Known formats: ${CORPUS_FORMATS.join(
+        ", ",
+      )}.`,
+    );
+  }
+
+  const destinationIndex = flag("index");
+
   const planReports: PlanReport[] = [];
 
   const enterprise = generateEnterprise({
@@ -306,9 +331,12 @@ function main(): void {
     if (exportPath) {
       const target = resolveFromRoot(
         exportPath.replace(
-          /\.ndjson$/,
+          /\.(ndjson|json)$/,
           "",
-        ) + `-${plan.id}.ndjson`,
+        ) +
+          `-${plan.id}${extensionFor(
+            requestedFormat,
+          )}`,
       );
 
       mkdirSync(dirname(target), {
@@ -317,13 +345,16 @@ function main(): void {
 
       writeFileSync(
         target,
-        toNdjson(corpus.records),
+        formatCorpus(corpus.records, {
+          format: requestedFormat,
+          index: destinationIndex,
+        }),
         "utf8",
       );
 
       writeFileSync(
         target.replace(
-          /\.ndjson$/,
+          /\.(ndjson|json)$/,
           ".manifest.json",
         ),
         `${JSON.stringify(
