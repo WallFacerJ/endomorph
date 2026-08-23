@@ -78,3 +78,28 @@
   background: var(--panel-strong);
   color: var(--accent);
 }
+
+.case-report-label {
+  display: grid;
+  gap: 5px;
+  margin-top: 14px;
+  max-width: 46ch;
+}
+
+.case-report-label span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.case-report-label input {
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-strong);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+}

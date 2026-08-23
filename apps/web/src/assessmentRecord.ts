@@ -45,6 +45,16 @@ export interface AssessmentRecord {
   readonly format: "endomorph-assessment";
   readonly version: 1;
 
+  /**
+   * Optional label for whose result this is.
+   *
+   * Typed by the analyst at export time rather than collected by the
+   * product, which has no accounts and should not pretend to. It exists so
+   * an instructor holding thirty records can tell them apart; it is not an
+   * identity and nothing is verified about it.
+   */
+  readonly label?: string;
+
   readonly scenario: {
     readonly id: string;
     readonly name: string;
@@ -95,6 +105,9 @@ export interface AssessmentInput {
 
   /** Seed the scenario was generated from, when the file records one. */
   readonly seed?: number;
+
+  /** Whose result this is, if the analyst chose to say. */
+  readonly label?: string;
 }
 
 export function buildAssessmentRecord(
@@ -107,6 +120,7 @@ export function buildAssessmentRecord(
     questionAnswers,
     assistance,
     seed,
+    label,
   } = input;
 
   const questions = scenario.questions ?? [];
@@ -119,6 +133,10 @@ export function buildAssessmentRecord(
   return {
     format: "endomorph-assessment",
     version: 1,
+
+    ...(label && label.trim().length > 0
+      ? { label: label.trim() }
+      : {}),
 
     scenario: {
       id: scenario.id,

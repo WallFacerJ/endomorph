@@ -155,17 +155,20 @@ export function CaseWorkspace({
                 questionScore,
                 formatTimestamp,
               })}
-              assessmentJson={JSON.stringify(
-                buildAssessmentRecord({
-                  scenario,
-                  state: scenarioState,
-                  analystCase,
-                  questionAnswers,
-                  assistance,
-                }),
-                null,
-                2,
-              )}
+              buildAssessmentJson={(label) =>
+                JSON.stringify(
+                  buildAssessmentRecord({
+                    scenario,
+                    state: scenarioState,
+                    analystCase,
+                    questionAnswers,
+                    assistance,
+                    label,
+                  }),
+                  null,
+                  2,
+                )
+              }
             />
 
             <div className="section-heading">

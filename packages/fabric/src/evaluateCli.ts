@@ -61,6 +61,10 @@ import {
 } from "./coverageReport.js";
 
 import {
+  renderCohortReview,
+} from "./cohortReview.js";
+
+import {
   buildPlanReport,
   compareToBaseline,
   summarise,
@@ -464,6 +468,35 @@ function main(): void {
 
     process.stdout.write(
       `Coverage report written to ${coveragePath}
+
+`,
+    );
+  }
+
+  /*
+    The instructor's half of the assessment story. The product has no
+    accounts and no backend, which normally rules out seeing thirty results
+    side by side -- but every run exports a structured record, so the
+    collection problem is solvable with paste.
+  */
+  const cohortPath = flag("cohort-tool");
+
+  if (cohortPath) {
+    const target =
+      resolveFromRoot(cohortPath);
+
+    mkdirSync(dirname(target), {
+      recursive: true,
+    });
+
+    writeFileSync(
+      target,
+      renderCohortReview(),
+      "utf8",
+    );
+
+    process.stdout.write(
+      `Cohort review tool written to ${cohortPath}
 
 `,
     );

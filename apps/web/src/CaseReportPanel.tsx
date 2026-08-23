@@ -19,7 +19,9 @@ interface CaseReportPanelProps {
    * thirty of them or a hiring process comparing candidates, which needs
    * something a spreadsheet can read.
    */
-  readonly assessmentJson: string;
+  readonly buildAssessmentJson: (
+    label: string,
+  ) => string;
 }
 
 /**
@@ -37,7 +39,7 @@ interface CaseReportPanelProps {
  */
 export function CaseReportPanel({
   markdown,
-  assessmentJson,
+  buildAssessmentJson,
 }: CaseReportPanelProps) {
   const [open, setOpen] =
     useState(false);
@@ -45,6 +47,9 @@ export function CaseReportPanel({
   const [format, setFormat] = useState<
     "markdown" | "assessment"
   >("markdown");
+
+  const [label, setLabel] =
+    useState("");
 
   const [copied, setCopied] =
     useState(false);
@@ -55,7 +60,7 @@ export function CaseReportPanel({
   const shown =
     format === "markdown"
       ? markdown
-      : assessmentJson;
+      : buildAssessmentJson(label);
 
   const copy = async () => {
     try {
@@ -180,6 +185,23 @@ export function CaseReportPanel({
           </button>
         </div>
       </div>
+
+      {format === "assessment" && (
+        <label className="case-report-label">
+          <span>Label this result</span>
+          <input
+            type="text"
+            value={label}
+            placeholder="Optional — so an instructor can tell results apart"
+            onChange={(event) => {
+              setLabel(
+                event.target.value,
+              );
+              setCopied(false);
+            }}
+          />
+        </label>
+      )}
 
       {open && (
         <textarea
