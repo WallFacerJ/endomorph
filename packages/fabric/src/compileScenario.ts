@@ -199,6 +199,47 @@ export function compileScenario(
    * response row is hidden, became unreachable -- a run that cannot be
    * completed. The objective that depends on it had the same problem.
    */
+  /*
+    Why the half-measure is penalised, said in terms of this incident.
+
+    It used to be one fixed sentence for every scenario: "The established
+    session survives a password reset, and the host continues beaconing."
+    Neither half is true everywhere. Three of the five plans have no beacon
+    at all, and the macro intrusion never opens a session -- that is its
+    entire premise. So four scenarios out of five explained a scored penalty
+    with something that did not happen, which is the same failing as ground
+    truth that lies, only pointed at the analyst's feedback instead of the
+    data.
+
+    Built from what the incident actually leaves behind.
+  */
+  const remaining: string[] = [];
+
+  if (incident.containment.disableAccount) {
+    remaining.push(
+      "the credential is still enabled",
+    );
+  }
+
+  if (incident.containment.revokeSession) {
+    remaining.push(
+      "the session opened with it stays open",
+    );
+  }
+
+  if (incident.containment.isolateDevice) {
+    remaining.push(
+      `${victimDevice?.hostname ?? "the host"} is still on the network`,
+    );
+  }
+
+  const halfMeasureRationale =
+    remaining.length > 0
+      ? `A password reset changes the credential and nothing else: ${remaining.join(
+          ", ",
+        )}. Containment is incomplete.`
+      : "A password reset changes the credential and nothing else. Containment is incomplete.";
+
   const supportsAction = (
     actionId: string,
   ): boolean => {
@@ -331,8 +372,7 @@ export function compileScenario(
         // about the evidence, not by spotting the obviously wrong card.
         assessment: {
           penalty: 25,
-          rationale:
-            "The established session survives a password reset, and the host continues beaconing. Containment is incomplete.",
+          rationale: halfMeasureRationale,
         },
         events: [
           {

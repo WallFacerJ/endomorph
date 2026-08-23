@@ -445,6 +445,63 @@ describe("every shipped plan compiles to a loadable scenario", () => {
       ).not.toThrow();
     });
 
+    it(`explains ${plan.id}'s half-measure in terms of that incident`, () => {
+      /*
+        The penalty rationale was one fixed sentence for every scenario:
+        "The established session survives a password reset, and the host
+        continues beaconing." Neither half is true everywhere -- three plans
+        have no beacon at all, and the macro intrusion never opens a session,
+        which is its entire premise.
+
+        So four scenarios out of five justified a scored penalty with
+        something that did not happen. That is the same failing as ground
+        truth that lies, aimed at the analyst's feedback instead of the data.
+      */
+      const scenario = compileScenario({
+        id: `scenario-rationale-${plan.id}`,
+        name: `Rationale ${plan.id}`,
+        description:
+          "Compiled to check the penalty rationale.",
+        incident: { planId: plan.id },
+      });
+
+      const parsed = parseScenarioFile(
+        scenario.file,
+      ).scenario;
+
+      const halfMeasure =
+        parsed.actions.find(
+          (action) =>
+            action.id ===
+            "action-reset-password-only",
+        );
+
+      const rationale =
+        halfMeasure?.assessment
+          ?.rationale ?? "";
+
+      expect(rationale).not.toBe("");
+
+      // It may only mention a session where the incident opens one.
+      expect(
+        `${plan.id} mentions session: ${/session/i.test(rationale)}`,
+      ).toBe(
+        `${plan.id} mentions session: ${plan.containment.revokeSession}`,
+      );
+
+      // And a host where isolation is the response.
+      expect(
+        `${plan.id} mentions network: ${/on the network/i.test(rationale)}`,
+      ).toBe(
+        `${plan.id} mentions network: ${plan.containment.isolateDevice}`,
+      );
+
+      // Nothing about beaconing, which most of these incidents never do.
+      expect(rationale).not.toMatch(
+        /beacon/i,
+      );
+    });
+
     it(`offers ${plan.id} only the responses it declares`, () => {
       // `containment` was declared on every plan and read by nothing: the
       // compiler emitted all four actions for every incident. Dormant
