@@ -78,6 +78,7 @@ Endomorph includes:
 - one deterministic synthetic enterprise world per scenario;
 - shared identity, EDR, and SIEM projections over the same event history;
 - an alert-first analyst workspace with SIEM, endpoint, identity, and incident-command views;
+- a live-response console that asks a host what is true on it now, rather than what it did;
 - a Case that assembles the incident picture from collected evidence: an evidence graph, extracted indicators, incident phase, hypotheses, tasks, and decisions;
 - evidence collection by immutable event ID;
 - analyst-authored findings linked to collected evidence;
@@ -126,6 +127,22 @@ An analyst who works all six cannot come away with a checklist, which is the poi
 Generated scenarios are **build artifacts, not source** — `pnpm build` produces them and they are not committed.
 
 Use the **Scenario** selector in the application to switch between them. Direct deep links using `?scenario=/scenarios/<file>.json` are also supported for local/custom authoring.
+
+## Live response
+
+Every other console answers a historical question: what did this host do. A responder deciding whether to pull a machine off the network has a different one, and asks it of the machine — is that process still running, is the persistence still installed, who is signed in at this moment. Telemetry says a run key was written at 14:02; live response says it is still there now, and that is what decides whether the machine goes back to its owner.
+
+Five commands, each labelled with the question it answers rather than the listing it produces: processes, connections, persistence, logons and file changes.
+
+It invents nothing. Every fact is derived from events already in the corpus and already visible in the endpoint console, and only the framing changes. A live-response view that knew things the telemetry did not would be handing over the answer, and analysts would learn to run it first and think second.
+
+**It says when it does not know.** The sensor records process start and not process exit, so a process is called *running* only where something was attributed to it recently, *exited* only where the program is one that does its work and returns, and *unknown* otherwise — with the reason on every row. Real live response has exactly these gaps, and three states with their reasoning teach the job better than two states and a guess.
+
+**Any host is selectable, deliberately.** An analyst who has only ever run a command on a compromised machine has no idea which part of the output was the finding. Running the same command against a machine you suspect and one you do not is how you learn what ordinary looks like.
+
+**Containment does not cut you off.** Analysts routinely believe isolating a host loses them access to it and hesitate over containment for that reason. The agent channel is what survives — that is the point of containment — and the console says so at the moment somebody is deciding.
+
+Because it reads the replayed event window rather than the whole corpus, rewinding the scrubber and running a command again shows what the host would have said then. "Was the persistence there yet when the alert fired" is answerable.
 
 ## Detection engineering
 
