@@ -4,7 +4,7 @@ Thanks for trying Endomorph. You do **not** need to learn the project or read do
 
 ## The five-minute test
 
-1. Open the shared Endomorph link and stay in **Student mode**.
+1. Open the shared Endomorph link. Leave **Assistance** on **Guided**, which is the setting a first-time tester should be looking at.
 2. Open the alert and investigate until you think you understand what happened.
 3. Collect one or two pieces of evidence. If it feels natural, write one finding in **Case**.
 4. Choose the response action(s) you think are right, then click **Finalize investigation**.
@@ -26,7 +26,9 @@ Try any of these only if you want to:
 - Take a risky response action and see whether the post-incident penalty is explained clearly.
 - After finalization, try to change evidence, findings, or response actions. The submitted case should remain read-only until reset.
 - Reset the scenario and confirm that evidence, findings, actions, score, and finalization all return to a clean state.
-- After finishing a run, switch to **Instructor mode** and compare your conclusion with the authored ground truth.
+- Open **Live Response** and ask the compromised host what is running on it now. Then run the same command against a host you have no reason to suspect, and tell us whether the difference was obvious.
+- Switch **Assistance** to **Professional** and tell us whether the change is noticeable.
+- After finishing a run, switch to **Instructor** and compare your conclusion with the authored ground truth.
 
 ## What not to worry about
 
@@ -75,4 +77,4 @@ v1 runs in the browser and does not provide durable run persistence or real mult
 
 ## Instructor mode
 
-Instructor mode is for post-run comparison with authored ground truth. It is a presentation feature, not an authentication boundary. First-time testers should stay in Student mode until they have finalized at least one investigation.
+Instructor is for post-run comparison with authored ground truth. It is a presentation feature, not an authentication boundary. First-time testers should stay on Guided until they have finalized at least one investigation.

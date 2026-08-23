@@ -326,7 +326,7 @@ Generation draws from a **splittable random cursor** rather than a single sequen
 
 The practical consequence: raising `--headcount` by one adds a person without rewriting anyone else's name, device, or account. Editing content does not resequence the world.
 
-## Student workflow
+## Analyst workflow
 
 A normal run is intentionally simple:
 
@@ -336,7 +336,7 @@ A normal run is intentionally simple:
 4. Finalize the investigation.
 5. Review the result and score.
 
-Student mode does not reveal ground truth or authored response-quality rationale before submission.
+Neither Guided nor Professional reveals ground truth or authored response-quality rationale before submission. Only Instructor does, and only after finalization.
 
 ## Replay
 
@@ -416,7 +416,7 @@ CI runs frozen dependency installation, build, lint, deterministic unit/integrat
 For a friend or first-time tester, the preferred procedure is deliberately short:
 
 1. Share the hosted app: https://wallfacerj.github.io/endomorph/
-2. Ask them to stay in **Student mode** and use the in-product **Quick test** menu.
+2. Ask them to leave **Assistance** on **Guided** and use the in-product **Quick test** menu.
 3. Do not tell them the correct investigation or response path.
 4. After they finalize, ask where they hesitated, whether the result made sense, and what one thing they would change.
 
