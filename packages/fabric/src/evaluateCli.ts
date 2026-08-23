@@ -537,7 +537,10 @@ function main(): void {
           finding.severity ===
           "regression"
             ? "REGRESSION "
-            : "improvement"
+            : finding.severity ===
+                "notice"
+              ? "notice     "
+              : "improvement"
         }  ${finding.planId}: ${finding.message}\n`,
       );
     }
@@ -552,7 +555,7 @@ function main(): void {
       result.findings.length > 0
     ) {
       process.stdout.write(
-        "\nNo regressions. Update the baseline to accept these changes.\n",
+        "\nNo regressions. Review the notices, then update the baseline to accept these changes.\n",
       );
     }
   }

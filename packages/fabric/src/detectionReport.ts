@@ -138,7 +138,17 @@ export function summarise(
 
 export type RegressionSeverity =
   | "regression"
-  | "improvement";
+  | "improvement"
+  /**
+   * Worth seeing, but not a pass/fail judgement either way.
+   *
+   * Added false positives live here. The gate deliberately does not fail on
+   * them -- trading noise for recall is a call an author may be making on
+   * purpose -- but calling a rule that got noisier an "improvement" told the
+   * operator the opposite of what happened. Not failing and not lying are
+   * separate requirements, and only the first was being met.
+   */
+  | "notice";
 
 export interface RegressionFinding {
   readonly severity: RegressionSeverity;
@@ -252,12 +262,37 @@ export function compareToBaseline(
         continue;
       }
 
+      /*
+        A rule that started matching more than it used to.
+
+        This closes a blind spot rather than adding a rule: the comparison
+        looked at lost coverage, stopped rules and added noise, so a change
+        that altered what several rules matched could print "no change".
+        Attributing network connections to the process that opened them did
+        exactly that -- a rule looking for powershell.exe began matching
+        PowerShell's own traffic -- and the gate said nothing.
+
+        It does not fail. Matching more real attacker activity is usually the
+        goal. But it should never happen silently, because the same
+        signature is produced by a corpus change nobody intended.
+      */
+      if (
+        rule.truePositives >
+        baseRule.truePositives
+      ) {
+        findings.push({
+          severity: "notice",
+          planId: plan.planId,
+          message: `Rule ${baseRule.ruleId} now matches ${rule.truePositives} malicious event(s), up from ${baseRule.truePositives}.`,
+        });
+      }
+
       if (
         rule.falsePositives >
         baseRule.falsePositives
       ) {
         findings.push({
-          severity: "improvement",
+          severity: "notice",
           planId: plan.planId,
           message: `Rule ${baseRule.ruleId} gained ${rule.falsePositives - baseRule.falsePositives} false positive(s); precision ${baseRule.precision} to ${rule.precision}.`,
         });
@@ -280,16 +315,29 @@ export function compareToBaseline(
       continue;
     }
 
+    /*
+      A new plan nothing detects is not an improvement.
+
+      It was filed as one, which meant the moment the comment above calls
+      "the one moment someone most needs to be told" was reported in the same
+      words as good news. Whether it should also fail the build is a policy
+      question the README answers for false positives and not for this; until
+      that is settled it is reported honestly and does not block.
+    */
+    const uncovered =
+      plan.coveredTechniques.length === 0;
+
     findings.push({
-      severity: "improvement",
+      severity: uncovered
+        ? "notice"
+        : "improvement",
       planId: plan.planId,
-      message:
-        plan.coveredTechniques.length === 0
-          ? `New plan, and no rule covers any of its ${plan.uncoveredTechniques.length} technique(s).`
-          : `New plan, covering ${plan.coveredTechniques.length} of ${
-              plan.coveredTechniques.length +
-              plan.uncoveredTechniques.length
-            } technique(s).`,
+      message: uncovered
+        ? `New plan, and no rule covers any of its ${plan.uncoveredTechniques.length} technique(s).`
+        : `New plan, covering ${plan.coveredTechniques.length} of ${
+            plan.coveredTechniques.length +
+            plan.uncoveredTechniques.length
+          } technique(s).`,
     });
   }
 

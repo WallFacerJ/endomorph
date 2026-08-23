@@ -228,7 +228,11 @@ Non-zero exit, so it gates CI — and it does, on every push.
 
 Because the corpus is generated from a fixed seed, the comparison is **exact**: two runs produce identical numbers, so any difference is attributable to a rule change rather than to sampling. That is the property a captured corpus cannot offer.
 
-It fails on lost technique coverage and on a rule that stops firing — the second matters because a coverage count alone hides it, since another rule can cover the same technique while a specific one quietly dies. Added false positives are reported but do not fail: trading noise for recall is a legitimate call an author may be making deliberately.
+It fails on lost technique coverage and on a rule that stops firing — the second matters because a coverage count alone hides it, since another rule can cover the same technique while a specific one quietly dies.
+
+Everything else is reported as a **notice**: it prints, and it does not fail. Added false positives are a notice because trading noise for recall is a legitimate call an author may be making deliberately. So is a rule that starts matching *more* — usually the goal, but the same signature is produced by a corpus change nobody intended, and it should never happen silently. So is a new plan no rule covers.
+
+A notice is not an improvement, and the distinction is the point: a rule that got noisier used to be reported in the same word as good news, which is a way of telling someone that reliably stops them looking.
 
 #### The loop this enables
 

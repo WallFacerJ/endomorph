@@ -400,14 +400,28 @@ export function evaluateRule(
     matched.length,
   );
 
-  // Recall against nothing is vacuously perfect, not zero. Reporting 0 when
-  // the corpus contains no instance of the rule's technique makes a rule
-  // look broken on every incident it was never meant to catch.
+  /*
+    Recall against nothing is vacuously perfect, not zero. Reporting 0 when
+    the corpus contains no instance of the rule's technique makes a rule look
+    broken on every incident it was never meant to catch.
+
+    The numerator is the events this rule was supposed to catch and did, not
+    every malicious event it happened to match. Those are different
+    populations: a true positive here is any hit on a ground-truth event,
+    whatever its technique, while the denominator only counts ground-truth
+    events carrying this rule's technique. Dividing one by the other reported
+    a recall of 4 the moment a rule matched malicious events beyond its own
+    technique -- which stayed hidden while every rule matched exactly one.
+
+    Taken from the same subtraction that produces falseNegatives, so the two
+    numbers can no longer disagree about what was missed.
+  */
   const recall =
     shouldHaveMatched.length === 0
       ? 1
       : ratio(
-          truePositives.length,
+          shouldHaveMatched.length -
+            missed.length,
           shouldHaveMatched.length,
         );
 

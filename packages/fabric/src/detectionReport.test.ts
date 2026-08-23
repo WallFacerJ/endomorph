@@ -95,7 +95,7 @@ describe("detection report", () => {
         ),
       ).toEqual([
         {
-          severity: "improvement",
+          severity: "notice",
           planId: "brand-new",
           message:
             "New plan, and no rule covers any of its 2 technique(s).",
@@ -256,14 +256,22 @@ describe("detection report", () => {
         false,
       );
 
-      expect(
-        result.findings.some(
+      const noisier =
+        result.findings.filter(
           (finding) =>
             finding.message.includes(
               "false positive",
             ),
-        ),
-      ).toBe(true);
+        );
+
+      expect(noisier.length).toBe(1);
+
+      // Not blocked, and not called an improvement either. A rule that got
+      // noisier reported as good news is worse than not reporting it: the
+      // operator reads the word and stops looking.
+      expect(noisier[0]?.severity).toBe(
+        "notice",
+      );
     });
   });
 });

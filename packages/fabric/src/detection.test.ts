@@ -693,6 +693,41 @@ describe("detection evaluation", () => {
     expect(nonMatching.matched).toBe(0);
   });
 
+  it("never reports a recall above 1, whatever the rule matches", () => {
+    /*
+      Recall is a fraction of what the rule was supposed to catch, so it
+      cannot exceed 1. It did: a true positive is any hit on a ground-truth
+      event whatever its technique, while the denominator only counted
+      ground-truth events carrying the rule's own technique, and a rule that
+      matched malicious events beyond its technique divided the larger by the
+      smaller.
+
+      It stayed invisible for as long as every rule matched exactly one
+      malicious event, which is the reason to assert it across the whole
+      ruleset and every corpus rather than on one case.
+    */
+    for (const corpus of corpora) {
+      const report = evaluateRuleset(
+        DETECTION_RULES,
+        corpus.records,
+      );
+
+      for (const evaluation of report.evaluations) {
+        expect(
+          evaluation.recall,
+        ).toBeLessThanOrEqual(1);
+
+        expect(
+          evaluation.recall,
+        ).toBeGreaterThanOrEqual(0);
+
+        expect(
+          evaluation.precision,
+        ).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+
   it("scores an empty ruleset as no coverage", () => {
     const report = evaluateRuleset(
       [],

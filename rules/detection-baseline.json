@@ -6,7 +6,7 @@
     {
       "planId": "credential-compromise",
       "planName": "External credential compromise",
-      "recordCount": 4729,
+      "recordCount": 4732,
       "maliciousCount": 13,
       "coveredTechniques": [
         "T1059.001",
@@ -41,10 +41,10 @@
         {
           "ruleId": "naive-powershell",
           "technique": "T1059.001",
-          "truePositives": 1,
+          "truePositives": 4,
           "falsePositives": 51,
           "falseNegatives": 0,
-          "precision": 0.0192,
+          "precision": 0.0727,
           "recall": 1
         },
         {
@@ -84,6 +84,15 @@
           "recall": 0
         },
         {
+          "ruleId": "run-key-persistence",
+          "technique": "T1547.001",
+          "truePositives": 0,
+          "falsePositives": 1,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
           "ruleId": "naive-beacon",
           "technique": "T1071.001",
           "truePositives": 0,
@@ -106,7 +115,7 @@
     {
       "planId": "privileged-insider",
       "planName": "Privileged insider data collection",
-      "recordCount": 4609,
+      "recordCount": 4612,
       "maliciousCount": 7,
       "coveredTechniques": [
         "T1070.001",
@@ -164,6 +173,15 @@
           "recall": 0
         },
         {
+          "ruleId": "run-key-persistence",
+          "technique": "T1547.001",
+          "truePositives": 0,
+          "falsePositives": 1,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
           "ruleId": "naive-beacon",
           "technique": "T1071.001",
           "truePositives": 0,
@@ -186,7 +204,7 @@
     {
       "planId": "service-account-abuse",
       "planName": "Service account used from an unfamiliar host",
-      "recordCount": 4592,
+      "recordCount": 4595,
       "maliciousCount": 7,
       "coveredTechniques": [
         "T1021.002",
@@ -200,10 +218,10 @@
         {
           "ruleId": "naive-powershell",
           "technique": "T1059.001",
-          "truePositives": 1,
+          "truePositives": 3,
           "falsePositives": 50,
           "falseNegatives": 0,
-          "precision": 0.0196,
+          "precision": 0.0566,
           "recall": 1
         },
         {
@@ -234,6 +252,15 @@
           "recall": 1
         },
         {
+          "ruleId": "run-key-persistence",
+          "technique": "T1547.001",
+          "truePositives": 0,
+          "falsePositives": 1,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
           "ruleId": "naive-beacon",
           "technique": "T1071.001",
           "truePositives": 0,
@@ -256,7 +283,7 @@
     {
       "planId": "dormant-account-revival",
       "planName": "Dormant account revived for access",
-      "recordCount": 4608,
+      "recordCount": 4611,
       "maliciousCount": 6,
       "coveredTechniques": [
         "T1087.002",
@@ -313,6 +340,15 @@
           "recall": 1
         },
         {
+          "ruleId": "run-key-persistence",
+          "technique": "T1547.001",
+          "truePositives": 0,
+          "falsePositives": 1,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
           "ruleId": "naive-beacon",
           "technique": "T1071.001",
           "truePositives": 0,
@@ -335,7 +371,7 @@
     {
       "planId": "macro-execution",
       "planName": "Phishing attachment with macro execution",
-      "recordCount": 4673,
+      "recordCount": 4676,
       "maliciousCount": 9,
       "coveredTechniques": [
         "T1003.001",
@@ -360,10 +396,10 @@
         {
           "ruleId": "naive-powershell",
           "technique": "T1059.001",
-          "truePositives": 1,
+          "truePositives": 4,
           "falsePositives": 51,
           "falseNegatives": 0,
-          "precision": 0.0192,
+          "precision": 0.0727,
           "recall": 1
         },
         {
@@ -388,9 +424,9 @@
           "ruleId": "run-key-persistence",
           "technique": "T1547.001",
           "truePositives": 1,
-          "falsePositives": 0,
+          "falsePositives": 1,
           "falseNegatives": 0,
-          "precision": 1,
+          "precision": 0.5,
           "recall": 1
         },
         {
@@ -425,7 +461,7 @@
     {
       "planId": "cloud-role-elevation",
       "planName": "MFA fatigue into a directory role grant",
-      "recordCount": 4628,
+      "recordCount": 4631,
       "maliciousCount": 10,
       "coveredTechniques": [
         "T1098.003",
@@ -473,6 +509,15 @@
           "recall": 1
         },
         {
+          "ruleId": "run-key-persistence",
+          "technique": "T1547.001",
+          "truePositives": 0,
+          "falsePositives": 1,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
           "ruleId": "naive-beacon",
           "technique": "T1071.001",
           "truePositives": 0,
@@ -514,7 +559,7 @@
   "totals": {
     "coveredTechniques": 16,
     "totalTechniques": 30,
-    "truePositives": 41,
-    "falsePositives": 5317
+    "truePositives": 49,
+    "falsePositives": 5323
   }
 }

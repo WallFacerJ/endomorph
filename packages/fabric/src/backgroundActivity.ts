@@ -358,6 +358,103 @@ const LINUX_NETWORK_CLIENTS: readonly NetworkClient[] =
   { image: "/usr/bin/docker" },
 ];
 
+
+/**
+ * Software that legitimately installs itself to start with the machine.
+ *
+ * Without these the corpus contained exactly one run-key write in the whole
+ * estate -- the intrusion's -- and the rule that looks for them scored
+ * perfect precision. That number was measuring the corpus, not the rule.
+ * Installers, updaters and asset agents write autorun entries from a command
+ * line constantly, and a rule that cannot tell one from malware should be
+ * shown to be unable to tell one from malware.
+ *
+ * It is also what makes asking a host "what starts with you?" a real
+ * question. If the only host in the estate with an autorun entry were the
+ * compromised one, the answer would give the incident away.
+ */
+interface AutorunInstall {
+  readonly image: string;
+  readonly commandLine: string;
+  readonly parentImage: string;
+}
+
+const WINDOWS_AUTORUNS: readonly AutorunInstall[] =
+  [
+  {
+    image: "C:\\Windows\\System32\\reg.exe",
+    commandLine:
+      'reg.exe add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v OneDrive /t REG_SZ /d "C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe /background" /f',
+    parentImage: "C:\\Windows\\System32\\cmd.exe",
+  },
+  {
+    image: "C:\\Windows\\System32\\reg.exe",
+    commandLine:
+      'reg.exe add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v Teams /t REG_SZ /d "C:\\Program Files\\Microsoft Teams\\current\\Teams.exe --minimized" /f',
+    parentImage: "C:\\Windows\\System32\\cmd.exe",
+  },
+  {
+    image: "C:\\Windows\\System32\\reg.exe",
+    commandLine:
+      'reg.exe add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v ZoomUpdater /t REG_SZ /d "C:\\Program Files\\Zoom\\bin\\Zoom.exe --autostart" /f',
+    parentImage: "C:\\Windows\\System32\\cmd.exe",
+  },
+  {
+    image: "C:\\Windows\\System32\\reg.exe",
+    commandLine:
+      'reg.exe add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v AcmeAssetAgent /t REG_SZ /d "C:\\Program Files\\Acme\\AssetAgent\\agent.exe --service" /f',
+    parentImage: "C:\\Windows\\System32\\cmd.exe",
+  },
+];
+
+const MACOS_AUTORUNS: readonly AutorunInstall[] =
+  [
+  {
+    image: "/bin/launchctl",
+    commandLine:
+      "launchctl load -w /Library/LaunchAgents/com.acme.assetagent.plist",
+    parentImage: "/bin/zsh",
+  },
+  {
+    image: "/bin/launchctl",
+    commandLine:
+      "launchctl load -w /Library/LaunchAgents/com.microsoft.update.agent.plist",
+    parentImage: "/bin/zsh",
+  },
+];
+
+const LINUX_AUTORUNS: readonly AutorunInstall[] =
+  [
+  {
+    image: "/usr/bin/systemctl",
+    commandLine:
+      "systemctl --user enable --now acme-asset-agent.service",
+    parentImage: "/usr/bin/bash",
+  },
+  {
+    image: "/usr/bin/systemctl",
+    commandLine:
+      "systemctl enable --now node-exporter.service",
+    parentImage: "/usr/bin/bash",
+  },
+];
+
+function autorunsFor(
+  operatingSystem: string,
+): readonly AutorunInstall[] {
+  if (
+    operatingSystem.startsWith("Windows")
+  ) {
+    return WINDOWS_AUTORUNS;
+  }
+
+  if (operatingSystem.startsWith("macOS")) {
+    return MACOS_AUTORUNS;
+  }
+
+  return LINUX_AUTORUNS;
+}
+
 function networkClientsFor(
   operatingSystem: string,
 ): readonly NetworkClient[] {
@@ -932,6 +1029,64 @@ export function generateBackgroundActivity(
               chosenProcess.parentImage,
             parentProcessId: parentPidFor(
               chosenProcess.parentImage,
+            ),
+            accountId: account.id,
+          },
+        },
+      );
+    }
+
+    /*
+      Occasional software installs, not a daily event.
+
+      The rate is deliberately low. What this rule can match is a run key
+      written from a *command line*, and most software writes the registry
+      through the API instead -- it is deployment scripts and IT automation
+      that shell out to reg.exe. A dozen across a week in a 120-person
+      estate is the right order of magnitude; hundreds would be a different
+      lie from the one this fixes.
+    */
+    const autorunCursor = cursor.fork(
+      "autorun-installs",
+    );
+
+    if (autorunCursor.nextBoolean(0.02)) {
+      const install = autorunCursor.pick(
+        autorunsFor(
+          device.operatingSystem,
+        ),
+      );
+
+      push(
+        arrival +
+          dayOffset +
+          autorunCursor.nextInt(
+            1,
+            Math.max(
+              2,
+              durationMinutes - arrival,
+            ),
+          ),
+        `d${dayIndex}-${device.id}-autorun`,
+        {
+          type: "PROCESS_STARTED",
+          source: "edr",
+          subjectId: device.id,
+          payload: {
+            deviceId: device.id,
+            processId: String(
+              autorunCursor.nextInt(
+                1000,
+                65000,
+              ),
+            ),
+            image: install.image,
+            commandLine:
+              install.commandLine,
+            parentImage:
+              install.parentImage,
+            parentProcessId: parentPidFor(
+              install.parentImage,
             ),
             accountId: account.id,
           },
