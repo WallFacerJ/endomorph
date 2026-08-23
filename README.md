@@ -69,7 +69,7 @@ Content is data, not code. An attack plan declares its steps, techniques, and qu
 
 The hosted build is deployed from `main` with GitHub Pages. If the deployment is temporarily unavailable, use the local quick start below.
 
-For a first-time test, you do not need to read the repository first. Open **Quick test** inside the app and follow the five-minute flow, or use [TESTER_GUIDE.md](TESTER_GUIDE.md) for the same short procedure plus optional deeper checks.
+For a first-time test, you do not need to read the repository first. The app opens with a short orientation on the alert queue naming the console each step happens in; follow that, or use [TESTER_GUIDE.md](TESTER_GUIDE.md) for the same procedure plus optional deeper checks.
 
 ### A single-file build
 
@@ -416,7 +416,7 @@ CI runs frozen dependency installation, build, lint, deterministic unit/integrat
 For a friend or first-time tester, the preferred procedure is deliberately short:
 
 1. Share the hosted app: https://wallfacerj.github.io/endomorph/
-2. Ask them to leave **Assistance** on **Guided** and use the in-product **Quick test** menu.
+2. Ask them to leave **Assistance** on **Guided** and follow the orientation the app shows on first open.
 3. Do not tell them the correct investigation or response path.
 4. After they finalize, ask where they hesitated, whether the result made sense, and what one thing they would change.
 

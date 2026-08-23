@@ -27,7 +27,7 @@ const STEPS: ReadonlyArray<{
       "Read the alert. It names a host and an account, and almost nothing else — that is the point.",
   },
   {
-    where: "Investigation",
+    where: "Brief",
     action:
       "Read the brief. The questions tell you what you are expected to establish; you cannot answer them from the alert.",
   },
