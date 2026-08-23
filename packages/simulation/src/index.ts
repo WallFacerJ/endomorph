@@ -28,3 +28,4 @@ export * from "./scenarioScore";
 export * from "./scenario";
 export * from "./scenarioCompiler";
 export * from "./snapshot";
+export * from "./liveResponse";
