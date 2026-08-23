@@ -1,0 +1,45 @@
+{
+  "organizationName": "Northwind Logistics",
+  "domain": "northwind.internal",
+  "headcount": 240,
+  "workstationSubnetPrefix": "172.18",
+  "hostnamePattern": "NW{code}{n}",
+  "departments": [
+    {
+      "name": "Dispatch",
+      "weight": 30,
+      "subnetOctet": 10,
+      "hostCode": "DSP",
+      "titles": ["Dispatcher", "Route Planner", "Shift Lead"],
+      "baseRoles": ["domain-users", "dispatch-staff"],
+      "criticality": "high"
+    },
+    {
+      "name": "Warehouse",
+      "weight": 40,
+      "subnetOctet": 11,
+      "hostCode": "WHS",
+      "titles": ["Picker", "Inventory Controller", "Supervisor"],
+      "baseRoles": ["domain-users", "warehouse-staff"],
+      "criticality": "moderate"
+    },
+    {
+      "name": "Finance",
+      "weight": 12,
+      "subnetOctet": 12,
+      "hostCode": "FIN",
+      "titles": ["Accounts Payable", "Financial Controller"],
+      "baseRoles": ["domain-users", "finance-staff"],
+      "criticality": "severe"
+    },
+    {
+      "name": "IT",
+      "weight": 10,
+      "subnetOctet": 13,
+      "hostCode": "ITS",
+      "titles": ["Systems Administrator", "Service Desk Analyst"],
+      "baseRoles": ["domain-users", "it-staff"],
+      "criticality": "severe"
+    }
+  ]
+}

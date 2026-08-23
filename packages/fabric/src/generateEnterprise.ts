@@ -14,7 +14,6 @@ import {
 
 import {
   APPLICATION_PROFILES,
-  DEPARTMENT_PROFILES,
   FAMILY_NAMES,
   FILE_PROFILES,
   GIVEN_NAMES,
@@ -71,6 +70,28 @@ function slugify(value: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Substitutes a department code and ordinal into a hostname pattern.
+ *
+ * Naming conventions vary more between estates than anything else, and are
+ * the first thing an analyst notices is wrong. An unrecognised placeholder is
+ * left alone rather than silently dropped, so a mistyped pattern shows up in
+ * the hostnames instead of quietly producing plausible-looking rubbish.
+ */
+function formatHostname(
+  pattern: string,
+  code: string,
+  ordinal: number,
+): string {
+  return pattern
+    .replaceAll("{code}", code)
+    .replaceAll(
+      "{n}",
+      String(ordinal).padStart(3, "0"),
+    )
+    .toUpperCase();
 }
 
 /**
@@ -182,7 +203,7 @@ export function generateEnterprise(
   // ---------------------------------------------------------------------
 
   const segments: NetworkSegment[] =
-    DEPARTMENT_PROFILES.map(
+    profile.departments.map(
       (department) => ({
         name: `${department.name} LAN`,
         cidr: `10.${department.subnetOctet}.0.0/16`,
@@ -210,7 +231,7 @@ export function generateEnterprise(
         name: profile.organizationName,
         status: "active",
         departments:
-          DEPARTMENT_PROFILES.map(
+          profile.departments.map(
             (department) =>
               department.name,
           ),
@@ -245,7 +266,7 @@ export function generateEnterprise(
 
   const allocation = allocateHeadcount(
     profile.headcount,
-    DEPARTMENT_PROFILES,
+    profile.departments,
   );
 
   const usedEmails = new Map<
@@ -261,11 +282,11 @@ export function generateEnterprise(
   for (
     let departmentIndex = 0;
     departmentIndex <
-    DEPARTMENT_PROFILES.length;
+    profile.departments.length;
     departmentIndex += 1
   ) {
     const department =
-      DEPARTMENT_PROFILES[
+      profile.departments[
         departmentIndex
       ];
 
@@ -321,13 +342,13 @@ export function generateEnterprise(
 
       const deviceIds: string[] = [];
 
-      const primaryDeviceId = `device-${slugify(department.hostCode)}-lt-${String(hostOrdinal).padStart(3, "0")}`;
+      const primaryDeviceId = `device-${slugify(formatHostname(profile.hostnamePattern, department.hostCode, hostOrdinal))}`;
 
       devices.push({
         id: primaryDeviceId,
         organizationId,
         hostname:
-          `${department.hostCode}-LT-${String(hostOrdinal).padStart(3, "0")}`.toUpperCase(),
+          formatHostname(profile.hostnamePattern, department.hostCode, hostOrdinal),
         operatingSystem: member.pick(
           WORKSTATION_OPERATING_SYSTEMS,
         ),
@@ -337,7 +358,7 @@ export function generateEnterprise(
             : "inactive",
         ownerUserId: userId,
         ipAddresses: [
-          `10.${department.subnetOctet}.${member.nextInt(1, 250)}.${member.nextInt(2, 250)}`,
+          `${profile.workstationSubnetPrefix}.${department.subnetOctet}.${member.nextInt(1, 250)}.${member.nextInt(2, 250)}`,
         ],
       });
 
@@ -361,13 +382,13 @@ export function generateEnterprise(
       ) {
         hostOrdinal += 1;
 
-        const secondDeviceId = `device-${slugify(department.hostCode)}-lt-${String(hostOrdinal).padStart(3, "0")}`;
+        const secondDeviceId = `device-${slugify(formatHostname(profile.hostnamePattern, department.hostCode, hostOrdinal))}`;
 
         devices.push({
           id: secondDeviceId,
           organizationId,
           hostname:
-            `${department.hostCode}-LT-${String(hostOrdinal).padStart(3, "0")}`.toUpperCase(),
+            formatHostname(profile.hostnamePattern, department.hostCode, hostOrdinal),
           operatingSystem: member.pick(
             WORKSTATION_OPERATING_SYSTEMS,
           ),
@@ -377,7 +398,7 @@ export function generateEnterprise(
               : "inactive",
           ownerUserId: userId,
           ipAddresses: [
-            `10.${department.subnetOctet}.${member.nextInt(1, 250)}.${member.nextInt(2, 250)}`,
+            `${profile.workstationSubnetPrefix}.${department.subnetOctet}.${member.nextInt(1, 250)}.${member.nextInt(2, 250)}`,
           ],
         });
 

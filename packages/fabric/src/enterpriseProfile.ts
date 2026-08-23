@@ -1,3 +1,11 @@
+import {
+  DEPARTMENT_PROFILES,
+} from "./nameLibrary.js";
+
+import type {
+  DepartmentProfile,
+} from "./nameLibrary.js";
+
 import type {
   SimulationTimestamp,
 } from "@endomorph/domain";
@@ -71,6 +79,34 @@ export interface EnterpriseProfile {
 
   /** Share of staff whose account is dormant or disabled. */
   readonly inactiveStaffRate: number;
+
+  /**
+   * The departments the estate is built from.
+   *
+   * Left overridable so a generated enterprise can be made to resemble a
+   * specific client's: their department names, their host codes, their
+   * subnet layout. Training against an estate that looks like the one an
+   * analyst works in every day is a different exercise from training against
+   * a fictional one, and it is the difference between a demo and an
+   * engagement.
+   */
+  readonly departments: readonly DepartmentProfile[];
+
+  /**
+   * First two octets of the workstation address space.
+   *
+   * Departments carry the third octet, so this is the part that says whose
+   * network it is.
+   */
+  readonly workstationSubnetPrefix: string;
+
+  /**
+   * Hostname shape, with `{code}` and `{n}` substituted.
+   *
+   * Naming conventions vary more than anything else between estates and are
+   * the first thing an analyst notices is wrong.
+   */
+  readonly hostnamePattern: string;
 }
 
 export const DEFAULT_ENTERPRISE_PROFILE: EnterpriseProfile =
@@ -83,6 +119,9 @@ export const DEFAULT_ENTERPRISE_PROFILE: EnterpriseProfile =
     privilegedAccountRate: 0.18,
     secondDeviceRate: 0.22,
     inactiveStaffRate: 0.06,
+    departments: DEPARTMENT_PROFILES,
+    workstationSubnetPrefix: "10",
+    hostnamePattern: "{code}-LT-{n}",
   };
 
 export function resolveEnterpriseProfile(

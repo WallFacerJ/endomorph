@@ -30,6 +30,10 @@ import {
 } from "./corpus.js";
 
 import {
+  parseEnterpriseProfile,
+} from "./profileFile.js";
+
+import {
   CORPUS_FORMATS,
   extensionFor,
   formatCorpus,
@@ -223,11 +227,40 @@ function main(): void {
 
   const destinationIndex = flag("index");
 
+  /*
+    A client environment profile. Generating an estate that carries the
+    client's department names, host codes and subnets is what separates a
+    demo from an engagement -- an analyst training against something shaped
+    like their own network is doing a different exercise from one training
+    against Acme Financial.
+  */
+  const profilePath = flag("profile");
+
+  const profileOverrides = profilePath
+    ? parseEnterpriseProfile(
+        JSON.parse(
+          readFileSync(
+            resolveFromRoot(profilePath),
+            "utf8",
+          ),
+        ),
+      )
+    : undefined;
+
   const planReports: PlanReport[] = [];
 
-  const enterprise = generateEnterprise({
-    seed,
-  });
+  const enterprise = generateEnterprise(
+    profileOverrides
+      ? { ...profileOverrides, seed }
+      : { seed },
+  );
+
+  if (profilePath) {
+    process.stdout.write(
+      `Environment profile: ${profileOverrides?.organizationName} (${profileOverrides?.departments.length} departments)
+`,
+    );
+  }
 
   const background =
     generateBackgroundActivity(

@@ -26,7 +26,8 @@
     "@endomorph/domain": "workspace:*",
     "@endomorph/schema": "workspace:*",
     "@endomorph/simulation": "workspace:*",
-    "js-yaml": "^5.3.0"
+    "js-yaml": "^5.3.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
