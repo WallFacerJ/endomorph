@@ -86,7 +86,7 @@ Endomorph includes:
 - transparent objective score, response-quality penalty, and final score;
 - a read-only finalized case until reset;
 - post-finalization instructor ground-truth review;
-- four scenarios selectable in the UI, three hand-authored and one generated;
+- nine scenarios selectable in the UI, three hand-authored and six generated;
 - two persisted professional interface styles: **Midnight SOC** and **Graphite**;
 - deterministic replay/unit/integration coverage plus browser-level Playwright tests;
 - a deterministic enterprise generator (`packages/fabric`) producing hundreds of coherent entities and thousands of benign events from a seed.
@@ -98,14 +98,30 @@ Endomorph includes:
 | **Finance account compromise** | 15 | 34 | Suspicious login, encoded PowerShell, correlated outbound activity. |
 | **HR malware beacon** | 7 | 6 | Compromised HR session, unsigned executable, outbound beacon. |
 | **Cloud-admin compromise** | 7 | 6 | Privileged identity compromise and suspicious administrative tooling. |
-| **Generated: external credential compromise** | 444 | ~17.9k | Password spray from hosting infrastructure, encoded PowerShell, C2 beacon, lateral movement. **Default.** |
-| **Generated: privileged insider** | 444 | ~17.8k | No external address anywhere. A valid admin account, its own workstation, deviation from its own baseline. |
-| **Generated: service account abuse** | 444 | ~17.8k | A valid privileged credential used from a host it has no history with. All traffic internal. |
-| **Generated: dormant account revived** | 444 | ~11.8k | Every sign-in is unremarkable. The only anomalous event is an identity lifecycle change before any of them. |
+| **Generated: external credential compromise** | 444 | ~20.1k | Password spray from hosting infrastructure, encoded PowerShell, C2 beacon, lateral movement. **Default.** |
+| **Generated: phishing macro execution** | 444 | ~12.7k | A macro-enabled attachment spawns PowerShell from a word processor. The account is the genuine employee's; no authentication in the incident is anomalous. |
+| **Generated: directory role elevation** | 444 | ~12.7k | Multi-factor prompts denied until one is approved, then a privileged role granted. No process runs on any workstation. |
+| **Generated: privileged insider** | 444 | ~11.3k | No external address anywhere. A valid admin account, its own workstation, deviation from its own baseline. |
+| **Generated: service account abuse** | 444 | ~11.3k | A valid privileged credential used from a host it has no history with. All traffic internal. |
+| **Generated: dormant account revived** | 444 | ~11.3k | Every sign-in is unremarkable. The only anomalous event is an identity lifecycle change before any of them. |
 
-The selector groups them, because they are not the same kind of thing. Generated scenarios carry ATT&CK mapping, scored investigation questions, and analytical reasoning on every walkthrough step; the hand-authored v1 scenarios predate all three and are kept because they are small and fast.
+The selector groups them, because they are not the same kind of thing. Generated scenarios carry ATT&CK mapping, scored investigation questions, and analytical reasoning on every walkthrough step; the hand-authored v1 scenarios predate the generator and are kept because they are small and fast.
 
-The four generated incidents deliberately teach different lessons. The first trains the obvious heuristic — an unfamiliar external address is suspicious. The second breaks it: everything originates from a legitimate admin on their own workstation, and the only signal is deviation from that person's own baseline. The third breaks it again: the credential is valid and the traffic is internal, but the account is being used from a host it has never authenticated from. The fourth is not about authentication at all. An analyst who learns "look for the foreign IP" from the first will fail the other three.
+Each generated incident is built to defeat the habit the previous one rewards, which is the part of the design that took the most judgement.
+
+**External credential compromise** trains the obvious heuristic: an unfamiliar external address is suspicious.
+
+**Privileged insider** breaks it. Everything originates from a legitimate admin on their own workstation, and the only signal is deviation from that person's own baseline.
+
+**Service account abuse** breaks it again. The credential is valid and the traffic is internal, but the account is being used from a host it has never authenticated from.
+
+**Dormant account revived** is not about authentication at all — a single identity lifecycle change, with no volume behind it for a threshold to catch.
+
+**Phishing macro execution** begins with a process rather than a login. The account is the real employee's, signed in from their own device, and no authentication in the incident is anomalous, so an investigation that starts in Identity finds nothing to explain.
+
+**Directory role elevation** never touches an endpoint at all — no process tree, no command line — so an analyst who has learned to pivot to the host finds a console with genuinely nothing in it.
+
+An analyst who works all six cannot come away with a checklist, which is the point: any single heuristic fails on at least one of them.
 
 Generated scenarios are **build artifacts, not source** — `pnpm build` produces them and they are not committed.
 
@@ -118,7 +134,7 @@ pnpm evaluate                          # score the shipped ruleset
 pnpm evaluate -- --export out/corpus   # also write NDJSON + manifest
 ```
 
-Rules are evaluated against all three intrusions, because a rule's false positives come from the incidents it *wasn't* written for. Sample output:
+Rules are evaluated against every intrusion, because a rule's false positives come from the incidents it *wasn't* written for. Sample output:
 
 ```
 External credential compromise  (credential-compromise)
@@ -137,6 +153,40 @@ External credential compromise  (credential-compromise)
 Two of the shipped rules are deliberately imperfect, and the numbers say so. `naive-powershell` alerts on every PowerShell launch and scores **0.019 precision** — 1 true positive against 51 false. `external-auth-success` scores perfectly on the credential-compromise plan and **detects nothing at all** on the service-account plan, because that intrusion never leaves the corporate network.
 
 Corpora export as newline-delimited JSON in Elastic Common Schema field names, with a manifest recording the seed, the plan, technique counts, and the malicious ratio.
+
+### Deliverables and operator flags
+
+The evaluation is also the engine behind the outputs a services team would
+actually hand over.
+
+```bash
+pnpm evaluate -- --report coverage.html      # client-facing ATT&CK coverage report
+pnpm evaluate -- --cohort-tool cohort.html   # instructor tool for comparing results
+pnpm evaluate -- --profile client.json       # generate an estate shaped like a client's
+pnpm evaluate -- --export out/corpus --format splunk --index endomorph
+```
+
+**`--report`** writes a self-contained page: an ATT&CK matrix of what the
+ruleset covers, every technique nothing caught named alongside the incidents
+that used it, and rules ranked by the false positives they produced. It opens
+from an email attachment with no network access.
+
+**`--cohort-tool`** writes a page an instructor keeps. Analysts paste the
+assessment records their runs exported and get a comparison — including which
+question the group collectively missed, which names a gap in the teaching
+rather than in a person. Nothing is uploaded.
+
+**`--profile`** reshapes the generated estate to resemble a specific
+environment: department names, host codes, subnets and naming convention. See
+[`examples/client-profile.example.json`](examples/client-profile.example.json).
+Determinism survives the reshaping, so a client-specific corpus is still
+reproducible.
+
+**`--format`** targets the platform the corpus is going into — `splunk`,
+`elastic`, `sentinel` or neutral `ecs`. Labels travel with the data in every
+format, which is the entire reason to move a corpus into somebody else's
+platform: analysts can practise in the tool they use daily and engineers can
+score their own rules there, because the answers came along.
 
 ### Sigma rules
 
