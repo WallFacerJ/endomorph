@@ -238,6 +238,37 @@ export function compileScenario(
         ).destinationPort === 445,
     );
 
+  /*
+    Whether the intrusion signed in from outside the estate at all.
+
+    Two of these six do. The rest are an employee at their own desk, a
+    service account on a corporate host, or an attacker executing inside a
+    session the genuine user had already opened -- and for all of those,
+    "attacker infrastructure" and "the unfamiliar address" name something
+    that does not exist.
+  */
+  const signedInFromOutside =
+    incident.events.some(
+      (event) =>
+        event.type ===
+          "AUTH_LOGIN_SUCCEEDED" &&
+        !(
+          event.payload as {
+            sourceIp?: string;
+          }
+        ).sourceIp?.startsWith("10."),
+    );
+
+  const accountObjectiveDescription =
+    signedInFromOutside
+      ? `The account signed in from ${incident.attackerIp} can no longer be used.`
+      : "The account at the centre of this incident can no longer be used.";
+
+  const sessionObjectiveDescription =
+    signedInFromOutside
+      ? `The session opened from ${incident.attackerIp} is terminated.`
+      : "The session the incident was carried out in is terminated.";
+
   const isolationStops = [
     beacons ? "the beacon" : undefined,
     movesLaterally
@@ -462,7 +493,7 @@ export function compileScenario(
         label:
           "Compromised account disabled",
         description:
-          "The account used from attacker infrastructure is no longer usable.",
+          accountObjectiveDescription,
         accountId:
           incident.victimAccountId,
         expectedStatus: "disabled",
@@ -482,7 +513,7 @@ export function compileScenario(
         label:
           "Attacker session revoked",
         description:
-          "The session established from the unfamiliar address is terminated.",
+          sessionObjectiveDescription,
         sessionId:
           investigationSessionId,
         expectedStatus: "revoked",

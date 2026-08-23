@@ -580,6 +580,61 @@ describe("every shipped plan compiles to a loadable scenario", () => {
       );
     });
 
+    it(`describes ${plan.id}'s objectives without inventing an attacker address`, () => {
+      /*
+        The objectives read "the account used from attacker infrastructure"
+        and "the session established from the unfamiliar address" on every
+        scenario. Four of the six never see an external sign-in at all: an
+        employee at their own desk, a service account on a corporate host, an
+        attacker executing inside a session the genuine user already had.
+        Those phrases named something that does not exist, in the text the
+        analyst is scored against.
+      */
+      const scenario = compileScenario({
+        id: `scenario-objectives-${plan.id}`,
+        name: `Objectives ${plan.id}`,
+        description:
+          "Compiled to check the objective descriptions.",
+        incident: { planId: plan.id },
+      });
+
+      const parsed = parseScenarioFile(
+        scenario.file,
+      ).scenario;
+
+      const external =
+        parsed.openingEvents.some(
+          (event) =>
+            event.id.startsWith(
+              "incident-",
+            ) &&
+            event.type ===
+              "AUTH_LOGIN_SUCCEEDED" &&
+            !(
+              event.payload as {
+                sourceIp?: string;
+              }
+            ).sourceIp?.startsWith("10."),
+        );
+
+      const described = parsed.objectives
+        .map(
+          (objective) =>
+            objective.description,
+        )
+        .join(" ");
+
+      expect(
+        `${plan.id} names an address: ${/signed in from \d|opened from \d/.test(described)}`,
+      ).toBe(
+        `${plan.id} names an address: ${external}`,
+      );
+
+      expect(described).not.toMatch(
+        /attacker infrastructure|unfamiliar address/i,
+      );
+    });
+
     it(`offers ${plan.id} only the responses it declares`, () => {
       // `containment` was declared on every plan and read by nothing: the
       // compiler emitted all four actions for every incident. Dormant

@@ -1694,6 +1694,15 @@ function ScenarioWorkspace({
 
         {activeView === "case" && (
           <CaseWorkspace
+            scenario={scenario}
+            questionAnswers={
+              questionAnswers
+            }
+            questionScore={{
+              earned: questionScore.earned,
+              available:
+                questionScore.available,
+            }}
             scenarioState={scenarioState}
             siemRecords={
               projections.siem.events

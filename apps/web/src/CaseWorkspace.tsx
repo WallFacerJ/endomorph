@@ -6,9 +6,22 @@ import {
   IncidentCommand,
 } from "./IncidentCommand";
 
+import {
+  CaseReportPanel,
+} from "./CaseReportPanel";
+
+import {
+  buildCaseReport,
+} from "./caseReport";
+
+import {
+  buildIncidentReport,
+} from "./simulationAdapter";
+
 import type {
   AnalystCaseState,
   IncidentCaseState,
+  ScenarioDefinition,
   ScenarioState,
   SiemEventRecord,
   SimulationEvent,
@@ -28,7 +41,15 @@ import type {
  */
 
 export interface CaseWorkspaceProps {
+  scenario: ScenarioDefinition;
   scenarioState: ScenarioState;
+  questionAnswers: Readonly<
+    Record<string, string>
+  >;
+  questionScore: {
+    earned: number;
+    available: number;
+  };
   siemRecords: readonly SiemEventRecord[];
   analystCase: AnalystCaseState;
   incidentCase: IncidentCaseState;
@@ -64,6 +85,9 @@ export interface CaseWorkspaceProps {
 }
 
 export function CaseWorkspace({
+  scenario,
+  questionAnswers,
+  questionScore,
   scenarioState,
   siemRecords,
   analystCase,
@@ -99,6 +123,26 @@ export function CaseWorkspace({
               }
               onPivotToSiem={onPivotToSiem}
               readOnly={finalized}
+            />
+
+            {/*
+              The case view already called its timeline "the report". It was
+              not one until it could leave the page.
+            */}
+            <CaseReportPanel
+              markdown={buildCaseReport({
+                scenario,
+                state: scenarioState,
+                report: buildIncidentReport(
+                  scenarioState.world,
+                  siemRecords,
+                  analystCase.collectedEventIds,
+                  incidentCase,
+                ),
+                questionAnswers,
+                questionScore,
+                formatTimestamp,
+              })}
             />
 
             <div className="section-heading">
