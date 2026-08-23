@@ -71,6 +71,15 @@ The hosted build is deployed from `main` with GitHub Pages. If the deployment is
 
 For a first-time test, you do not need to read the repository first. Open **Quick test** inside the app and follow the five-minute flow, or use [TESTER_GUIDE.md](TESTER_GUIDE.md) for the same short procedure plus optional deeper checks.
 
+### A single-file build
+
+```bash
+pnpm bundle:standalone                       # every scenario, one HTML file
+pnpm --filter @endomorph/fabric bundle:standalone --   --scenarios=generated-enterprise,generated-macro    # a subset
+```
+
+`dist-standalone/endomorph.html` opens in a browser with no server and no network access — scenarios are gzipped and inlined, and the bundler verifies there are no external references. `--scenarios` names the ones to carry, for hosts with a size ceiling the product does not control; the point is that dropping a scenario stays an explicit decision rather than a silent cap on the plan library.
+
 ## What ships today
 
 Endomorph includes:

@@ -155,13 +155,55 @@ function main(): void {
     "scenarios",
   );
 
-  const scenarioFiles = existsSync(
+  /*
+    An optional subset, for builds that have to fit somewhere.
+
+    The full library is the default and the right thing to ship. But a hosted
+    artifact has a size ceiling the product does not control, and the choice
+    when a bundle stops fitting should be which scenarios travel -- an
+    explicit, visible decision -- rather than silently capping the plan library
+    for every consumer.
+
+    Names may be given with or without the .json suffix.
+  */
+  const requested = (
+    process.argv
+      .find((argument) =>
+        argument.startsWith("--scenarios="),
+      )
+      ?.slice("--scenarios=".length) ?? ""
+  )
+    .split(",")
+    .map((name) => name.trim())
+    .filter((name) => name.length > 0)
+    .map((name) =>
+      name.endsWith(".json")
+        ? name
+        : `${name}.json`,
+    );
+
+  const available = existsSync(
     scenarioDir,
   )
     ? readdirSync(scenarioDir).filter(
         (name) => name.endsWith(".json"),
       )
     : [];
+
+  for (const name of requested) {
+    if (!available.includes(name)) {
+      throw new Error(
+        `--scenarios names ${name}, which is not in ${scenarioDir}. Available: ${available.join(", ")}`,
+      );
+    }
+  }
+
+  const scenarioFiles =
+    requested.length > 0
+      ? available.filter((name) =>
+          requested.includes(name),
+        )
+      : available;
 
   const embedded = scenarioFiles
     .map((name) => {
