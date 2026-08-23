@@ -1,6 +1,7 @@
 import type {
   Account,
   Application,
+  AutorunEntry,
   Device,
   EntityStatus,
   FileEntity,
@@ -181,6 +182,168 @@ function buildEmail(
     : `${local}${disambiguator + 1}@${domain}`;
 }
 
+
+/**
+ * What legitimately starts with a corporate machine.
+ *
+ * Every workstation in a real estate carries a handful of these -- sync
+ * clients, chat, updaters, the asset agent IT deploys -- and modelling them is
+ * what stops the persistence question from answering itself. If the only
+ * autorun entry in the estate were the intrusion's, "does this host have
+ * persistence" would be the whole investigation. The real skill is picking the
+ * odd entry out of a dozen ordinary ones, because an installer and a foothold
+ * write the same kind of record and only the name and the directory tell them
+ * apart.
+ *
+ * This is host state rather than telemetry, which is why it lives on the
+ * entity: it is what a query of the machine returns, and most of it was
+ * configured long before any sensor was watching.
+ */
+const WINDOWS_BASELINE_AUTORUNS: readonly AutorunEntry[] =
+  [
+  {
+    name: "OneDrive",
+    location: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    target: '"C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe" /background',
+  },
+  {
+    name: "Teams",
+    location: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    target: '"C:\\Program Files\\Microsoft Teams\\current\\Teams.exe" --minimized',
+  },
+  {
+    name: "SecurityHealth",
+    location: "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    target: "C:\\Windows\\System32\\SecurityHealthSystray.exe",
+  },
+  {
+    name: "AcmeAssetAgent",
+    location: "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    target: '"C:\\Program Files\\Acme\\AssetAgent\\agent.exe" --service',
+  },
+  {
+    name: "ZoomUpdater",
+    location: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    target: '"C:\\Program Files\\Zoom\\bin\\Zoom.exe" --autostart',
+  },
+  {
+    name: "GoogleChromeAutoLaunch",
+    location: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    target: '"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" --no-startup-window',
+  },
+  {
+    name: "AdobeARMservice",
+    location: "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    target: '"C:\\Program Files (x86)\\Common Files\\Adobe\\ARM\\1.0\\AdobeARM.exe"',
+  },
+  {
+    name: "IntelGraphicsTray",
+    location: "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    target: "C:\\Windows\\System32\\igfxtray.exe",
+  },
+  {
+    name: "AcmeBackup",
+    location: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    target: '"C:\\Program Files\\Acme\\Backup\\backupd.exe" --quiet',
+  },
+];
+
+const MACOS_BASELINE_AUTORUNS: readonly AutorunEntry[] =
+  [
+  {
+    name: "com.acme.assetagent",
+    location: "/Library/LaunchAgents",
+    target: "/Library/Acme/AssetAgent/agent",
+  },
+  {
+    name: "com.microsoft.OneDriveLauncher",
+    location: "~/Library/LaunchAgents",
+    target: "/Applications/OneDrive.app/Contents/MacOS/OneDrive",
+  },
+  {
+    name: "com.tinyspeck.slackmacgap",
+    location: "~/Library/LaunchAgents",
+    target: "/Applications/Slack.app/Contents/MacOS/Slack",
+  },
+  {
+    name: "com.google.keystone.agent",
+    location: "~/Library/LaunchAgents",
+    target: "/Library/Google/GoogleSoftwareUpdate/GoogleSoftwareUpdate.bundle",
+  },
+  {
+    name: "com.acme.backup",
+    location: "/Library/LaunchDaemons",
+    target: "/Library/Acme/Backup/backupd",
+  },
+];
+
+const LINUX_BASELINE_AUTORUNS: readonly AutorunEntry[] =
+  [
+  {
+    name: "acme-asset-agent.service",
+    location: "/etc/systemd/system",
+    target: "/opt/acme/assetagent/agent",
+  },
+  {
+    name: "node-exporter.service",
+    location: "/etc/systemd/system",
+    target: "/usr/local/bin/node_exporter",
+  },
+  {
+    name: "docker.service",
+    location: "/lib/systemd/system",
+    target: "/usr/bin/dockerd",
+  },
+  {
+    name: "unattended-upgrades.service",
+    location: "/lib/systemd/system",
+    target: "/usr/bin/unattended-upgrade",
+  },
+  {
+    name: "acme-backup.timer",
+    location: "/etc/systemd/system",
+    target: "/opt/acme/backup/backupd",
+  },
+];
+
+/**
+ * The baseline for one host.
+ *
+ * Drawn from a fork addressed by the device id, so adding this could not
+ * resequence anything already generated -- the estate and every corpus built
+ * from it stay byte-identical, which was verified rather than assumed.
+ */
+function baselineAutoruns(
+  operatingSystem: string,
+  cursor: RandomCursor,
+  deviceId: string,
+): AutorunEntry[] {
+  const catalogue =
+    operatingSystem.startsWith("Windows")
+      ? WINDOWS_BASELINE_AUTORUNS
+      : operatingSystem.startsWith("macOS")
+        ? MACOS_BASELINE_AUTORUNS
+        : LINUX_BASELINE_AUTORUNS;
+
+  const draw = cursor.fork(
+    `autoruns-${deviceId}`,
+  );
+
+  /*
+    Not every machine carries every entry. Estates are not uniform -- software
+    arrives with the person and the role -- and a persistence listing identical
+    on all 154 hosts would teach an analyst to memorise it rather than read it.
+  */
+  const count = draw.nextInt(
+    3,
+    Math.min(7, catalogue.length),
+  );
+
+  return draw
+    .shuffle([...catalogue])
+    .slice(0, count);
+}
+
 export function generateEnterprise(
   overrides: Partial<EnterpriseProfile> = {},
 ): GeneratedEnterprise {
@@ -344,14 +507,16 @@ export function generateEnterprise(
 
       const primaryDeviceId = `device-${slugify(formatHostname(profile.hostnamePattern, department.hostCode, hostOrdinal))}`;
 
+      const primaryDeviceIdOs = member.pick(
+        WORKSTATION_OPERATING_SYSTEMS,
+      );
+
       devices.push({
         id: primaryDeviceId,
         organizationId,
         hostname:
           formatHostname(profile.hostnamePattern, department.hostCode, hostOrdinal),
-        operatingSystem: member.pick(
-          WORKSTATION_OPERATING_SYSTEMS,
-        ),
+        operatingSystem: primaryDeviceIdOs,
         status:
           status === "active"
             ? "active"
@@ -360,6 +525,11 @@ export function generateEnterprise(
         ipAddresses: [
           `${profile.workstationSubnetPrefix}.${department.subnetOctet}.${member.nextInt(1, 250)}.${member.nextInt(2, 250)}`,
         ],
+        autoruns: baselineAutoruns(
+          primaryDeviceIdOs,
+          member,
+          primaryDeviceId,
+        ),
       });
 
       deviceIds.push(primaryDeviceId);
@@ -384,14 +554,16 @@ export function generateEnterprise(
 
         const secondDeviceId = `device-${slugify(formatHostname(profile.hostnamePattern, department.hostCode, hostOrdinal))}`;
 
+        const secondDeviceIdOs = member.pick(
+          WORKSTATION_OPERATING_SYSTEMS,
+        );
+
         devices.push({
           id: secondDeviceId,
           organizationId,
           hostname:
             formatHostname(profile.hostnamePattern, department.hostCode, hostOrdinal),
-          operatingSystem: member.pick(
-            WORKSTATION_OPERATING_SYSTEMS,
-          ),
+          operatingSystem: secondDeviceIdOs,
           status:
             status === "active"
               ? "active"
@@ -400,6 +572,11 @@ export function generateEnterprise(
           ipAddresses: [
             `${profile.workstationSubnetPrefix}.${department.subnetOctet}.${member.nextInt(1, 250)}.${member.nextInt(2, 250)}`,
           ],
+          autoruns: baselineAutoruns(
+            secondDeviceIdOs,
+            member,
+            secondDeviceId,
+          ),
         });
 
         deviceIds.push(secondDeviceId);
@@ -532,17 +709,24 @@ export function generateEnterprise(
                   ),
           );
 
+    const serverOs =
+      cursor.pick(platformPool);
+
     devices.push({
       id: deviceId,
       organizationId,
       hostname:
         server.hostname.toUpperCase(),
-      operatingSystem:
-        cursor.pick(platformPool),
+      operatingSystem: serverOs,
       status: "active",
       ipAddresses: [
         `10.90.${cursor.nextInt(1, 20)}.${cursor.nextInt(2, 250)}`,
       ],
+      autoruns: baselineAutoruns(
+        serverOs,
+        cursor,
+        deviceId,
+      ),
     });
 
     assetContext[deviceId] = {

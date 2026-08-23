@@ -436,6 +436,157 @@ describe("runLiveResponse", () => {
     });
   });
 
+
+  describe("persistence", () => {
+    const baseline = [
+      {
+        name: "OneDrive",
+        location: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+        target: "C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe",
+      },
+      {
+        name: "Teams",
+        location: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+        target: "C:\\Teams.exe",
+      },
+    ];
+
+    const installed: SimulationEvent = {
+      id: "p-install",
+      type: "PROCESS_STARTED",
+      timestamp: "2026-08-20T11:40:00.000Z",
+      source: "edr",
+      subjectId: DEVICE,
+      payload: {
+        deviceId: DEVICE,
+        processId: "9000",
+        image: "C:\\reg.exe",
+        commandLine:
+          'reg.exe add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v OneDriveSync /t REG_SZ /d "C:\\Users\\Public\\odsync.exe" /f',
+      },
+    };
+
+    function run() {
+      return runLiveResponse({
+        command: "persistence",
+        deviceId: DEVICE,
+        now: NOW,
+        events: [
+          heartbeat(
+            "hb-1",
+            "2026-08-20T11:00:00.000Z",
+          ),
+          installed,
+        ],
+        autoruns: baseline,
+      });
+    }
+
+    it("shows configured entries alongside what was installed during the window", () => {
+      /*
+        Without the baseline this listing had one row on the compromised host
+        and none anywhere else, which made "does this host have persistence"
+        the entire investigation. The real question is which entry does not
+        belong beside the others.
+      */
+      const names = run().rows.map(
+        (row) => row.primary,
+      );
+
+      expect(names).toContain("OneDrive");
+      expect(names).toContain("Teams");
+      expect(names).toContain(
+        "OneDriveSync",
+      );
+    });
+
+    it("gives an installed entry the same shape as a configured one", () => {
+      /*
+        The parsing exists for this. Left as a raw command line the intrusion's
+        entry would be the only row on the screen that looked different, and
+        structure alone would mark it regardless of what it said.
+      */
+      const rows = run().rows;
+
+      for (const row of rows) {
+        expect(row.primary).toBeTruthy();
+        expect(row.secondary).toBeTruthy();
+        expect(row.detail).toBeTruthy();
+      }
+
+      const planted = rows.find(
+        (row) =>
+          row.primary === "OneDriveSync",
+      );
+
+      const genuine = rows.find(
+        (row) => row.primary === "OneDrive",
+      );
+
+      expect(planted?.secondary).toBe(
+        genuine?.secondary,
+      );
+
+      expect(planted?.detail).toBe(
+        "C:\\Users\\Public\\odsync.exe",
+      );
+    });
+
+    it("does not sort the planted entry to the top", () => {
+      /*
+        Sorting by recency would put "installed while you were watching" first
+        on every compromised host and reduce the exercise to reading row one.
+        A real autoruns listing is ordered by location and name, and so is
+        this.
+      */
+      const rows = run().rows;
+
+      expect(rows[0]?.primary).not.toBe(
+        "OneDriveSync",
+      );
+
+      expect(
+        rows.map((row) => row.primary),
+      ).toEqual([
+        "OneDrive",
+        "OneDriveSync",
+        "Teams",
+      ]);
+    });
+
+    it("marks which entry appeared during the window, without hiding it", () => {
+      const planted = run().rows.find(
+        (row) =>
+          row.primary === "OneDriveSync",
+      );
+
+      expect(planted?.origin).toBe(
+        "observed",
+      );
+
+      expect(planted?.basis).toContain(
+        "while the sensor was watching",
+      );
+
+      // Collectable as evidence, unlike host state with no event behind it.
+      expect(planted?.eventId).toBe(
+        "p-install",
+      );
+
+      const configured = run().rows.find(
+        (row) => row.primary === "OneDrive",
+      );
+
+      expect(configured?.origin).toBe(
+        "baseline",
+      );
+
+      expect(
+        configured?.eventId,
+      ).toBeUndefined();
+    });
+  });
+
   it("carries what the view cannot tell you, on every command", () => {
     for (const command of [
       "processes",

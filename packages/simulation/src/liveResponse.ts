@@ -1,4 +1,5 @@
 import type {
+  AutorunEntry,
   EntityId,
   SimulationTimestamp,
 } from "@endomorph/domain";
@@ -89,7 +90,19 @@ export interface LiveResponseRow {
   /** Lets a row be collected as evidence like any other observation. */
   readonly eventId: EntityId | undefined;
 
-  readonly timestamp: SimulationTimestamp;
+  /**
+   * Where the row came from.
+   *
+   * "baseline" is host state that predates the window -- there is no event
+   * behind it and nothing to collect. "observed" was seen being established
+   * while the sensor was watching.
+   */
+  readonly origin: "baseline" | "observed";
+
+  /** Absent for baseline state, which was configured before any of this. */
+  readonly timestamp:
+    | SimulationTimestamp
+    | undefined;
 }
 
 export interface LiveResponseResult {
@@ -118,6 +131,16 @@ export interface LiveResponseRequest {
   readonly now: SimulationTimestamp;
 
   readonly events: readonly SimulationEvent[];
+
+  /**
+   * What the host is configured to start, as world state.
+   *
+   * Passed in rather than derived, because it is not telemetry: most of a
+   * machine's autoruns were configured long before any sensor was watching,
+   * and a listing that showed only what was installed during the window would
+   * make the intrusion's entry the only row on the screen.
+   */
+  readonly autoruns?: readonly AutorunEntry[];
 }
 
 /**
@@ -166,6 +189,31 @@ const ONE_SHOT_IMAGES: readonly string[] =
     "systemctl",
     "launchctl",
   ];
+
+/**
+ * Newest first, with undated rows last.
+ *
+ * Baseline host state has no timestamp -- it was configured before the window
+ * opened -- and sorting it as if it were epoch zero would bury it or float it
+ * depending on the direction, neither of which means anything.
+ */
+function newestFirst(
+  left: { timestamp: string | undefined },
+  right: { timestamp: string | undefined },
+): number {
+  if (!left.timestamp) {
+    return right.timestamp ? 1 : 0;
+  }
+
+  if (!right.timestamp) {
+    return -1;
+  }
+
+  return (
+    Date.parse(right.timestamp) -
+    Date.parse(left.timestamp)
+  );
+}
 
 function basename(path: string): string {
   const segments = path.split(/[\\/]/);
@@ -372,6 +420,7 @@ function processRows(
       state,
       basis,
       eventId: event.id,
+      origin: "observed",
       timestamp: event.timestamp,
     });
   }
@@ -392,8 +441,7 @@ function processRows(
 
     return byState !== 0
       ? byState
-      : Date.parse(right.timestamp) -
-          Date.parse(left.timestamp);
+      : newestFirst(left, right);
   });
 }
 
@@ -505,23 +553,119 @@ function connectionRows(
       state: undefined,
       basis: undefined,
       eventId: group.eventId,
+      origin: "observed" as const,
       timestamp: group.last,
     }));
 }
 
 /**
- * Autorun entries this host is observed to have installed.
+ * Parse an autorun out of the command line that created it.
  *
- * Derived from the command lines that create them, which is what a responder
- * does by hand. The estate is full of legitimate ones -- installers, updaters
- * and asset agents write them constantly -- so this listing is a comparison
- * exercise rather than a detector, exactly as it is on a real machine.
+ * The parsing exists so an observed entry can be shown in the same shape as a
+ * configured one -- name, location, target. Left as a raw command line it
+ * would be the only row on the screen that looked different, and structure
+ * alone would mark the intrusion regardless of what it said.
+ */
+function parseInstall(
+  command: string,
+): AutorunEntry | undefined {
+  const quoted = command.match(/"([^"]+)"/g) ?? [];
+
+  const unquote = (value: string) =>
+    value.replace(/^"|"$/g, "");
+
+  if (
+    command.includes(
+      "CurrentVersion\\Run",
+    ) &&
+    command.includes(" add ")
+  ) {
+    const name = command.match(
+      /\/v\s+(\S+)/,
+    );
+
+    return {
+      name: name?.[1] ?? "(unnamed)",
+      location: unquote(
+        quoted[0] ?? "",
+      ),
+      target: unquote(
+        quoted[quoted.length - 1] ?? "",
+      ),
+    };
+  }
+
+  if (
+    command.includes("launchctl load")
+  ) {
+    const path =
+      command.match(/(\S+\.plist)/)?.[1] ??
+      "";
+
+    const segments = path.split("/");
+
+    return {
+      name:
+        segments[segments.length - 1]
+          ?.replace(/\.plist$/, "") ?? path,
+      location: segments
+        .slice(0, -1)
+        .join("/"),
+      target: path,
+    };
+  }
+
+  if (
+    command.includes("systemctl") &&
+    command.includes("enable")
+  ) {
+    const unit =
+      command.match(
+        /(\S+\.(?:service|timer))/,
+      )?.[1] ?? "";
+
+    return {
+      name: unit,
+      location: "systemd",
+      target: unit,
+    };
+  }
+
+  return undefined;
+}
+
+/**
+ * What starts with this machine.
+ *
+ * Two sources, shown as one list. The host's configured autoruns are world
+ * state and make up most of it; entries seen being installed during the
+ * window are merged in and marked with when.
+ *
+ * They are sorted by location and name, the way a real autoruns listing is,
+ * and deliberately not by recency. Putting "installed while you were watching"
+ * at the top would reduce this to reading the first row, when the skill being
+ * practised is noticing that OneDriveSync pointing at a world-writable
+ * directory does not belong beside OneDrive pointing at Program Files.
  */
 function persistenceRows(
   request: LiveResponseRequest,
   events: readonly SimulationEvent[],
 ): readonly LiveResponseRow[] {
   const rows: LiveResponseRow[] = [];
+
+  for (const entry of request.autoruns ??
+    []) {
+    rows.push({
+      primary: entry.name,
+      secondary: entry.location,
+      detail: entry.target,
+      state: undefined,
+      basis: undefined,
+      eventId: undefined,
+      origin: "baseline",
+      timestamp: undefined,
+    });
+  }
 
   for (const event of events) {
     if (
@@ -532,52 +676,44 @@ function persistenceRows(
       continue;
     }
 
-    const command =
-      event.payload.commandLine ?? "";
-
-    const isRunKey =
-      command.includes(
-        "CurrentVersion\\Run",
-      ) && command.includes(" add ");
-
-    const isLaunchAgent = command.includes(
-      "launchctl load",
+    const parsed = parseInstall(
+      event.payload.commandLine ?? "",
     );
 
-    const isUnit =
-      command.includes("systemctl") &&
-      command.includes("enable");
-
-    if (
-      !isRunKey &&
-      !isLaunchAgent &&
-      !isUnit
-    ) {
+    if (!parsed) {
       continue;
     }
 
     rows.push({
-      primary: isRunKey
-        ? "Registry run key"
-        : isLaunchAgent
-          ? "Launch agent"
-          : "Systemd unit",
-      secondary: basename(
-        event.payload.image,
-      ),
-      detail: command,
+      primary: parsed.name,
+      secondary: parsed.location,
+      detail: parsed.target,
       state: undefined,
-      basis: undefined,
+      basis: `Established ${describeAge(
+        minutesBetween(
+          event.timestamp,
+          request.now,
+        ),
+      )}, while the sensor was watching. The rest of this list was configured before the window opened.`,
       eventId: event.id,
+      origin: "observed",
       timestamp: event.timestamp,
     });
   }
 
-  return rows.sort(
-    (left, right) =>
-      Date.parse(right.timestamp) -
-      Date.parse(left.timestamp),
-  );
+  return rows.sort((left, right) => {
+    const byLocation = (
+      left.secondary ?? ""
+    ).localeCompare(
+      right.secondary ?? "",
+    );
+
+    return byLocation !== 0
+      ? byLocation
+      : left.primary.localeCompare(
+          right.primary,
+        );
+  });
 }
 
 function logonRows(
@@ -607,6 +743,7 @@ function logonRows(
         state: undefined,
         basis: undefined,
         eventId: event.id,
+        origin: "observed",
         timestamp: event.timestamp,
       });
 
@@ -619,9 +756,7 @@ function logonRows(
   }
 
   return [...open.values()].sort(
-    (left, right) =>
-      Date.parse(right.timestamp) -
-      Date.parse(left.timestamp),
+    newestFirst,
   );
 }
 
@@ -650,15 +785,12 @@ function fileRows(
       state: undefined,
       basis: undefined,
       eventId: event.id,
+      origin: "observed",
       timestamp: event.timestamp,
     });
   }
 
-  return rows.sort(
-    (left, right) =>
-      Date.parse(right.timestamp) -
-      Date.parse(left.timestamp),
-  );
+  return rows.sort(newestFirst);
 }
 
 const LIMITATIONS: Record<
@@ -671,7 +803,7 @@ const LIMITATIONS: Record<
     "Grouped by destination and process. Repetition to one address is what automation looks like, and legitimate software polling mail or chat looks the same -- the process is the field that separates them.",
 
   persistence:
-    "Read from the command lines that install autorun entries. Software that writes the registry through the API rather than a command line does not appear here, so this is a floor and not an inventory.",
+    "What the host is configured to start, plus anything seen being installed during this window. Most of an estate's autorun entries are legitimate and predate any incident, so the question is never whether a host has persistence -- it is which entry does not belong beside the others.",
 
   logons:
     "Sessions opened on this host and not since revoked. A session the corpus never saw end is still listed as open.",

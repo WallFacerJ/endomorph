@@ -131,6 +131,14 @@ export const scenarioDeviceSchema =
       optionalEntityIdSchema,
     ipAddresses:
       z.array(nonEmptyStringSchema),
+    autoruns:
+      z.array(
+        z.object({
+          name: nonEmptyStringSchema,
+          location: nonEmptyStringSchema,
+          target: nonEmptyStringSchema,
+        }).strict(),
+      ).optional(),
   }).strict();
 
 export const scenarioFileEntitySchema =

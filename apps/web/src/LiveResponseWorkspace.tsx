@@ -94,6 +94,11 @@ interface HostInventoryItem {
   readonly id: string;
   readonly hostname: string;
   readonly operatingSystem: string;
+  readonly autoruns?: readonly {
+    readonly name: string;
+    readonly location: string;
+    readonly target: string;
+  }[];
 }
 
 interface LiveResponseWorkspaceProps {
@@ -221,8 +226,18 @@ export function LiveResponseWorkspace({
       deviceId,
       now,
       events,
+      autoruns: devices.find(
+        (candidate) =>
+          candidate.id === deviceId,
+      )?.autoruns,
     });
-  }, [command, deviceId, now, events]);
+  }, [
+    command,
+    deviceId,
+    now,
+    events,
+    devices,
+  ]);
 
   const device = devices.find(
     (candidate) =>
