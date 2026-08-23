@@ -15,8 +15,16 @@ import {
 } from "./caseReport";
 
 import {
+  buildAssessmentRecord,
+} from "./assessmentRecord";
+
+import {
   buildIncidentReport,
 } from "./simulationAdapter";
+
+import type {
+  SessionMode,
+} from "./assistanceMode";
 
 import type {
   AnalystCaseState,
@@ -50,6 +58,9 @@ export interface CaseWorkspaceProps {
     earned: number;
     available: number;
   };
+
+  /** Recorded on the result: a guided run is not the same exercise. */
+  assistance: SessionMode;
   siemRecords: readonly SiemEventRecord[];
   analystCase: AnalystCaseState;
   incidentCase: IncidentCaseState;
@@ -88,6 +99,7 @@ export function CaseWorkspace({
   scenario,
   questionAnswers,
   questionScore,
+  assistance,
   scenarioState,
   siemRecords,
   analystCase,
@@ -143,6 +155,17 @@ export function CaseWorkspace({
                 questionScore,
                 formatTimestamp,
               })}
+              assessmentJson={JSON.stringify(
+                buildAssessmentRecord({
+                  scenario,
+                  state: scenarioState,
+                  analystCase,
+                  questionAnswers,
+                  assistance,
+                }),
+                null,
+                2,
+              )}
             />
 
             <div className="section-heading">

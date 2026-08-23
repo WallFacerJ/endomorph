@@ -1695,6 +1695,7 @@ function ScenarioWorkspace({
         {activeView === "case" && (
           <CaseWorkspace
             scenario={scenario}
+            assistance={sessionMode}
             questionAnswers={
               questionAnswers
             }

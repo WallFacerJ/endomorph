@@ -11,6 +11,15 @@ import "./CaseReportPanel.css";
 
 interface CaseReportPanelProps {
   readonly markdown: string;
+
+  /**
+   * The same run, structured.
+   *
+   * The Markdown is for a person; this is for an instructor collecting
+   * thirty of them or a hiring process comparing candidates, which needs
+   * something a spreadsheet can read.
+   */
+  readonly assessmentJson: string;
 }
 
 /**
@@ -28,9 +37,14 @@ interface CaseReportPanelProps {
  */
 export function CaseReportPanel({
   markdown,
+  assessmentJson,
 }: CaseReportPanelProps) {
   const [open, setOpen] =
     useState(false);
+
+  const [format, setFormat] = useState<
+    "markdown" | "assessment"
+  >("markdown");
 
   const [copied, setCopied] =
     useState(false);
@@ -38,10 +52,15 @@ export function CaseReportPanel({
   const textRef =
     useRef<HTMLTextAreaElement>(null);
 
+  const shown =
+    format === "markdown"
+      ? markdown
+      : assessmentJson;
+
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(
-        markdown,
+        shown,
       );
 
       setCopied(true);
@@ -76,15 +95,56 @@ export function CaseReportPanel({
           </h4>
 
           <p className="t-note">
-            Everything you collected and
-            decided, as Markdown. Nothing
-            in it was typed twice &mdash;
-            it is the case state, written
-            out.
+            The write-up is for a person
+            to read. The assessment record
+            is the same run structured, for
+            an instructor collecting
+            several or a hiring process
+            comparing candidates &mdash; it
+            carries the seed, so two
+            results are only comparable
+            when they came from the same
+            telemetry.
           </p>
         </div>
 
         <div className="case-report-actions">
+          <div
+            className="case-report-format"
+            role="radiogroup"
+            aria-label="Report format"
+          >
+            {(
+              [
+                ["markdown", "Write-up"],
+                [
+                  "assessment",
+                  "Assessment",
+                ],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                role="radio"
+                aria-checked={
+                  format === id
+                }
+                className={
+                  format === id
+                    ? "case-report-format-option active"
+                    : "case-report-format-option"
+                }
+                onClick={() => {
+                  setFormat(id);
+                  setCopied(false);
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <button
             type="button"
             className="secondary-button"
@@ -114,7 +174,9 @@ export function CaseReportPanel({
             />
             {copied
               ? "Copied"
-              : "Copy Markdown"}
+              : format === "markdown"
+                ? "Copy Markdown"
+                : "Copy JSON"}
           </button>
         </div>
       </div>
@@ -124,8 +186,12 @@ export function CaseReportPanel({
           ref={textRef}
           className="case-report-text"
           readOnly
-          value={markdown}
-          aria-label="Case report Markdown"
+          value={shown}
+          aria-label={
+            format === "markdown"
+              ? "Case report Markdown"
+              : "Assessment record JSON"
+          }
           rows={18}
           onFocus={(event) =>
             event.currentTarget.select()

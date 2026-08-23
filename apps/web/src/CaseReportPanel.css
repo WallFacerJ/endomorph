@@ -56,3 +56,25 @@
   line-height: 1.55;
   resize: vertical;
 }
+
+.case-report-format {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.case-report-format-option {
+  padding: 6px 11px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.case-report-format-option.active {
+  background: var(--panel-strong);
+  color: var(--accent);
+}
