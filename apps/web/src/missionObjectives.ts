@@ -68,7 +68,7 @@ export function buildMissionObjectives(
         id: "evidence",
         label: "Preserve the evidence",
         detail:
-          "Collect the events that support your account of the incident, from search, the endpoint, or identity.",
+          "Collect the events that support your account of the incident, from search, the endpoint, identity, or live response.",
         done:
           evidenceCount >=
           EVIDENCE_TARGET,

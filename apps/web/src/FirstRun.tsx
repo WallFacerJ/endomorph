@@ -42,6 +42,11 @@ const STEPS: ReadonlyArray<{
       "Follow the entity. Endpoint shows what ran on a host; Identity shows where an account signed in from and whether that is normal for it.",
   },
   {
+    where: "Live Response",
+    action:
+      "Ask the host what is true on it now, rather than what it did. Run the same command against a machine you do not suspect: knowing what ordinary looks like is most of the job.",
+  },
+  {
     where: "Case",
     action:
       "Collect evidence as you go. The case builds the entity graph and indicators from whatever you collected.",
