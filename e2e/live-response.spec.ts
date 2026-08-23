@@ -210,3 +210,98 @@ test("the host the alert names is visible in the inventory, not just selected", 
 
   expect(visibleInList).toBe(true);
 });
+
+test("a finding from live response becomes evidence in the case", async ({
+  page,
+}) => {
+  await openLiveResponse(page);
+
+  await page
+    .getByRole("button", {
+      name: "Persistence",
+      exact: true,
+    })
+    .click();
+
+  /*
+    The planted entry, reached the way an analyst reaches it: by reading the
+    targets rather than by position, since the list is ordered by location and
+    name and nothing floats the intrusion to the top.
+  */
+  const planted = page
+    .locator(".live-row-head")
+    .filter({ hasText: "OneDriveSync" });
+
+  await expect(planted).toHaveCount(1);
+
+  await planted.click();
+
+  await page
+    .getByRole("button", {
+      name: "Collect as evidence",
+    })
+    .click();
+
+  // Collected state is the console's own acknowledgement.
+  await expect(
+    page.locator(".live-collected"),
+  ).toBeVisible();
+
+  /*
+    And it has to survive the trip to the Case, which is where the analyst
+    assembles the picture -- a console that collects into nowhere is worse
+    than one that does not offer to.
+
+    The Case names evidence by the event underneath it, so this looks for the
+    count rather than for "OneDriveSync": the row an analyst read as an autorun
+    entry is stored as the reg.exe execution that created it, which is the
+    truthful record and the one a reviewer can check.
+  */
+  await page
+    .getByRole("button", { name: /^Case/ })
+    .click();
+
+  const evidenceCount = page
+    .getByRole("region", {
+      name: "Incident command",
+    })
+    .getByRole("definition")
+    .first();
+
+  await expect(evidenceCount).toHaveText(
+    "1",
+  );
+});
+
+test("host state with no event behind it cannot be collected", async ({
+  page,
+}) => {
+  await openLiveResponse(page);
+
+  await page
+    .getByRole("button", {
+      name: "Persistence",
+      exact: true,
+    })
+    .click();
+
+  /*
+    A configured autorun predates the window and has no event to cite. Offering
+    to collect it would put something in the case file that no evidence
+    supports, which is the habit this product spends most of its effort
+    working against.
+  */
+  const configured = page
+    .locator(".live-row-head")
+    .filter({ hasText: "SecurityHealth" });
+
+  await expect(configured).toHaveCount(1);
+
+  await configured.click();
+
+  await expect(
+    page.getByRole("button", {
+      name: "Collect as evidence",
+    }),
+  ).toHaveCount(0);
+});
