@@ -296,7 +296,16 @@
 }
 
 .live-row-secondary {
-  flex: 0 0 auto;
+  /*
+    Shrinkable and truncating, because this column now carries a file path on
+    the persistence listing. Left at `flex: 0 0 auto` a long target refused to
+    shrink and pushed the chevron off the row.
+  */
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 12px;
   color: var(--muted);
   font-variant-numeric: tabular-nums;

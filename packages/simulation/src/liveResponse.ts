@@ -657,8 +657,19 @@ function persistenceRows(
     []) {
     rows.push({
       primary: entry.name,
-      secondary: entry.location,
-      detail: entry.target,
+
+      /*
+        The target on the row, not the location.
+
+        Location is identical on almost every entry -- one Run key holds the
+        lot -- so showing it filled the only scannable column with the one
+        field that never varies, while the target, which is the whole
+        difference between OneDrive and OneDriveSync, sat behind an expand.
+        Making an analyst open seven rows one at a time is busywork, not
+        rigour.
+      */
+      secondary: entry.target,
+      detail: entry.location,
       state: undefined,
       basis: undefined,
       eventId: undefined,
@@ -686,8 +697,8 @@ function persistenceRows(
 
     rows.push({
       primary: parsed.name,
-      secondary: parsed.location,
-      detail: parsed.target,
+      secondary: parsed.target,
+      detail: parsed.location,
       state: undefined,
       basis: `Established ${describeAge(
         minutesBetween(
@@ -703,10 +714,8 @@ function persistenceRows(
 
   return rows.sort((left, right) => {
     const byLocation = (
-      left.secondary ?? ""
-    ).localeCompare(
-      right.secondary ?? "",
-    );
+      left.detail ?? ""
+    ).localeCompare(right.detail ?? "");
 
     return byLocation !== 0
       ? byLocation

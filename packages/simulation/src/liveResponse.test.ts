@@ -523,11 +523,13 @@ describe("runLiveResponse", () => {
         (row) => row.primary === "OneDrive",
       );
 
-      expect(planted?.secondary).toBe(
-        genuine?.secondary,
+      // Same location as the genuine entry, so nothing about where it lives
+      // gives it away -- only what it points at.
+      expect(planted?.detail).toBe(
+        genuine?.detail,
       );
 
-      expect(planted?.detail).toBe(
+      expect(planted?.secondary).toBe(
         "C:\\Users\\Public\\odsync.exe",
       );
     });
