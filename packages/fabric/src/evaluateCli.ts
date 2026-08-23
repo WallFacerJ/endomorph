@@ -47,6 +47,10 @@ import {
 } from "./workspaceRoot.js";
 
 import {
+  renderCoverageReport,
+} from "./coverageReport.js";
+
+import {
   buildPlanReport,
   compareToBaseline,
   summarise,
@@ -185,6 +189,14 @@ function main(): void {
   const jsonPath = flag("json");
 
   const baselinePath = flag("baseline");
+
+  /*
+    A client-facing deliverable rather than an engineer's output. The console
+    table and the JSON are the right shapes for someone changing the rules;
+    "here is what your ruleset catches and what it misses" is a different
+    conversation and has to survive being emailed.
+  */
+  const coveragePath = flag("report");
 
   const planReports: PlanReport[] = [];
 
@@ -360,6 +372,36 @@ function main(): void {
 
     process.stdout.write(
       `Report written to ${jsonPath}\n\n`,
+    );
+  }
+
+  if (coveragePath) {
+    const target =
+      resolveFromRoot(coveragePath);
+
+    mkdirSync(dirname(target), {
+      recursive: true,
+    });
+
+    writeFileSync(
+      target,
+      renderCoverageReport({
+        report: summary,
+        plans: ATTACK_PLANS,
+        rulesetName: sigmaDir
+          ? `Ruleset from ${sigmaDir}`
+          : "Endomorph shipped ruleset",
+        generatedAt: new Date()
+          .toISOString()
+          .slice(0, 10),
+      }),
+      "utf8",
+    );
+
+    process.stdout.write(
+      `Coverage report written to ${coveragePath}
+
+`,
     );
   }
 

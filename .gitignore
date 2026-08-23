@@ -21,3 +21,4 @@ apps/web/public/scenarios/generated-*.json
 chk.tmp.mjs
 probe.tmp.mjs
 play.tmp.mjs
+dist-reports/
