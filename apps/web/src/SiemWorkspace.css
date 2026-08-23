@@ -537,3 +537,42 @@
   padding: 12px 14px 8px;
   border-bottom: 1px solid var(--border, #1b3048);
 }
+
+/* -- query baseline ------------------------------------------------------ */
+
+.siem-volume-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+/*
+  Descriptive, not evaluative. It reports how rare the result is and leaves
+  the conclusion to the analyst, so it takes a neutral tone by default and
+  the alert colour only for the one reading that is genuinely notable: a
+  value with no history behind it at all.
+*/
+.siem-baseline {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 62ch;
+  color: var(--muted, #94a7bc);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.siem-baseline .icon {
+  flex: none;
+  color: var(--accent, #5bb7f4);
+}
+
+.siem-baseline.new {
+  color: var(--warning, #fbbf24);
+}
+
+.siem-baseline.new .icon {
+  color: var(--warning, #fbbf24);
+}

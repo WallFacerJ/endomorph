@@ -117,3 +117,60 @@ test("SIEM supports field pivots and run-local saved searches", async ({
     }),
   ).toContainText("powershell.exe");
 });
+
+test("search says whether a value has any history behind it", async ({
+  page,
+}) => {
+  /*
+    The instructor content asks for this constantly -- "compare against where
+    this account normally authenticates", "determine whether the account ever
+    legitimately touched this document before", "build that baseline from the
+    account's own history first" -- and the console could not answer any of
+    it. The generated enterprise is built so the question has an answer:
+    several days of ordinary history precede the intrusion. That property was
+    in the data and unreachable from the interface.
+  */
+  await page.goto(
+    "/?scenario=/scenarios/generated-enterprise.json",
+  );
+
+  await page
+    .getByRole("button", {
+      name: "Got it",
+    })
+    .click();
+
+  await page
+    .getByRole("navigation")
+    .getByRole("button", {
+      name: /^SIEM Search/,
+    })
+    .click();
+
+  const query = page.getByPlaceholder(
+    /Try:/,
+  );
+
+  // The address the intrusion came from: no history at all.
+  await query.fill("193.32.127.201");
+
+  await expect(
+    page.locator(".siem-baseline.new"),
+  ).toContainText(
+    /Nothing like it appears in the \d+ day/,
+  );
+
+  // The victim's own workstation: entirely routine, and must not be
+  // flagged, or the reading would mean nothing.
+  await query.fill(
+    "sourceIp:10.20.123.235",
+  );
+
+  await expect(
+    page.locator(".siem-baseline"),
+  ).toBeVisible();
+
+  await expect(
+    page.locator(".siem-baseline.new"),
+  ).toHaveCount(0);
+});

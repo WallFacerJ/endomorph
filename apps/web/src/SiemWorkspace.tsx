@@ -28,6 +28,11 @@ import {
   Icon,
 } from "./Icon";
 
+import {
+  describeQueryBaseline,
+  summariseQueryBaseline,
+} from "./queryBaseline";
+
 import "./SiemWorkspace.css";
 
 /** Rows rendered at once. Matches are still counted and faceted in full. */
@@ -210,6 +215,20 @@ export function SiemWorkspace({
 
     return names;
   }, [world]);
+
+  /*
+    How normal this result is. The scenarios ask for exactly this in their
+    reasoning -- has the account used this address before, has it ever
+    touched this document -- and the only way to answer it was to scroll.
+  */
+  const baseline = useMemo(
+    () =>
+      summariseQueryBaseline(
+        result.records,
+        records,
+      ),
+    [result.records, records],
+  );
 
   const resultVolume = useMemo(
     () =>
@@ -462,10 +481,34 @@ export function SiemWorkspace({
           */}
           {resultVolume.length > 0 && (
             <div className="siem-volume">
-              <span className="t-label">
-                {result.total.toLocaleString()}{" "}
-                matches over time
-              </span>
+              <div className="siem-volume-head">
+                <span className="t-label">
+                  {result.total.toLocaleString()}{" "}
+                  matches over time
+                </span>
+
+                {baseline && (
+                  <span
+                    className={
+                      baseline.onlyToday
+                        ? "siem-baseline new"
+                        : "siem-baseline"
+                    }
+                  >
+                    <Icon
+                      name={
+                        baseline.onlyToday
+                          ? "warning"
+                          : "chart"
+                      }
+                      size={13}
+                    />
+                    {describeQueryBaseline(
+                      baseline,
+                    )}
+                  </span>
+                )}
+              </div>
 
               <EventVolume
                 buckets={resultVolume}
