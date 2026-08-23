@@ -532,14 +532,33 @@ export function generateIncident(
     },
   } as SimulationEvent);
 
+  // Whether anything in this incident happened on a machine at all.
+  const touchesAnyDevice = events.some(
+    (event) =>
+      (
+        event.payload as {
+          deviceId?: string;
+        }
+      ).deviceId !== undefined,
+  );
+
   timeline.push({
     eventId: alertId,
     title:
       "The alert that opened the case",
     significance:
       "Detection fires. Everything before this is what the analyst has to reconstruct.",
-    reasoning:
-      "This is the last event in the attacker's timeline and the first in yours, which is why working forward from it finds nothing. The alert is also the weakest description of the incident you will ever have -- it names one observation out of many and was written before any of this happened. Treat it as a pointer to a host, an account and a minute, then rebuild the sequence from the telemetry rather than from the alert's own account of itself.",
+    /*
+      The pointer the alert gives you depends on the incident. An intrusion
+      that never touches a host does not hand you one, and telling an analyst
+      to treat the alert as a pointer to a host would send them to a console
+      with nothing in it.
+    */
+    reasoning: `This is the last event in the attacker's timeline and the first in yours, which is why working forward from it finds nothing. The alert is also the weakest description of the incident you will ever have -- it names one observation out of many and was written before any of this happened. Treat it as a pointer to ${
+      touchesAnyDevice
+        ? "a host, an account and a minute"
+        : "an account and a minute"
+    }, then rebuild the sequence from the telemetry rather than from the alert's own account of itself.`,
   });
 
   const questions: IncidentQuestion[] =

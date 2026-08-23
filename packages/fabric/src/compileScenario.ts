@@ -447,7 +447,9 @@ export function compileScenario(
               sessionId:
                 investigationSessionId,
               reason:
-                "Session originated from attacker infrastructure.",
+                signedInFromOutside
+                  ? `Session originated from ${incident.attackerIp}.`
+                  : "Session used to carry out the incident.",
             },
           },
         ],
