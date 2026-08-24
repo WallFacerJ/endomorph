@@ -42,6 +42,10 @@ Renamed to **Endomorph**, and the enterprise generator arrives.
 
 - `pnpm lint` now covers all five packages instead of `apps/web` alone, and warnings fail the build.
 
+### Added — threat intelligence on external indicators
+
+- External addresses now carry a reputation, not just an "external" flag. The generator classifies the adversary infrastructure it plants -- Tor exit, bulletproof hosting, anonymising VPN, datacenter hosting -- and the Case indicator list tags each recognised address with its category and the reasoning on hover. The classification is gathered from the addresses actually present in the incident, so it never labels an ordinary corporate or residential address as malicious.
+
 ### Added — containment where the judgement is formed
 
 - The live-response console can now isolate the host it examined. Its header always called it the console that decides whether a machine goes back to its owner; the containment that follows from looking now lives there rather than on a console the analyst had to leave for. It reads the isolation back off the event history like everything else, so the host reports itself contained without a local flag.
