@@ -162,6 +162,7 @@ export function CaseWorkspace({
                 ),
                 questionAnswers,
                 questionScore,
+                coverage,
                 formatTimestamp,
               })}
               buildAssessmentJson={(label) =>

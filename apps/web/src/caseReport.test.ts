@@ -214,6 +214,132 @@ describe("buildCaseReport", () => {
     );
   });
 
+  it("names a harmful response and its penalty once finalized", () => {
+    // A finalized run that isolated the wrong host should say so in the
+    // document a reviewer reads, not only in the score. Mirrors the record.
+    const report = buildCaseReport(
+      createInput({
+        scenario: {
+          id: "scenario-test-001",
+          name: "Test incident",
+          description: "x",
+          actions: [
+            {
+              id: "action-bad",
+              label: "Isolate the wrong host",
+              description: "",
+              events: [],
+              assessment: {
+                penalty: 25,
+                rationale:
+                  "This host was a bystander.",
+              },
+            },
+          ],
+        } as unknown as CaseReportInput["scenario"],
+        state: {
+          finalized: true,
+          score: { percentage: 75 },
+          performedActionIds: [
+            "action-bad",
+          ],
+          outcome: {
+            status: "succeeded",
+            objectives: [],
+          },
+        } as unknown as CaseReportInput["state"],
+      }),
+    );
+
+    expect(report).toContain(
+      "## Response quality",
+    );
+
+    expect(report).toContain(
+      "Isolate the wrong host",
+    );
+
+    expect(report).toContain(
+      "This host was a bystander.",
+    );
+  });
+
+  it("reports coverage and lists the entities never reached", () => {
+    const report = buildCaseReport(
+      createInput({
+        state: {
+          finalized: true,
+          score: { percentage: 100 },
+          performedActionIds: [],
+          outcome: {
+            status: "succeeded",
+            objectives: [],
+          },
+        } as unknown as CaseReportInput["state"],
+        coverage: {
+          percentage: 67,
+          entities: [
+            {},
+            {},
+            {},
+          ],
+          reached: [{}, {}],
+          missed: [
+            {
+              id: "203.0.113.10",
+              kind: "address",
+              label: "203.0.113.10",
+              reached: false,
+            },
+          ],
+        } as unknown as CaseReportInput["coverage"],
+      }),
+    );
+
+    expect(report).toContain(
+      "Incident coverage:** reached 2 of 3 entities (67%)",
+    );
+
+    expect(report).toContain(
+      "## Entities not reached",
+    );
+
+    expect(report).toContain(
+      "203.0.113.10 (address)",
+    );
+  });
+
+  it("tells the truth about reproducibility for a seeded scenario and an unseeded one", () => {
+    // The footer used to promise identical replay for every scenario. The
+    // hand-authored set records no seed and cannot make that promise, so the
+    // document has to say which case it is rather than overclaim.
+    const seeded = buildCaseReport(
+      createInput({
+        scenario: {
+          id: "scenario-generated-x",
+          name: "Gen",
+          description: "x",
+          provenance: {
+            generator: "endomorph-fabric",
+            seed: 4242,
+          },
+        } as unknown as CaseReportInput["scenario"],
+      }),
+    );
+
+    expect(seeded).toContain(
+      "(seed 4242). The same scenario and seed replay identically.",
+    );
+
+    const unseeded = buildCaseReport(
+      createInput(),
+    );
+
+    expect(unseeded).toContain(
+      "hand-authored and records no generation seed",
+    );
+  });
+
   it("records only questions that were actually answered", () => {
     const blank = buildCaseReport(
       createInput({

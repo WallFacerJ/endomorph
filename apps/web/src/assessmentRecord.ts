@@ -2,6 +2,10 @@ import {
   gradeQuestions,
 } from "./questionGrading";
 
+import {
+  summarizePerformedResponses,
+} from "./performedResponses";
+
 import type {
   AnalystCaseState,
   InvestigationCoverage,
@@ -192,43 +196,14 @@ export function buildAssessmentRecord(
     questionAnswers,
   );
 
-  // Joined against the scenario's actions so each performed response carries
-  // the authored quality judgement that decided its penalty, rather than an
-  // id a reviewer would have to cross-reference by hand. An id with no
-  // matching action would be a runtime inconsistency; it is recorded as a
-  // zero-penalty entry rather than dropped, so the record never silently
-  // loses an action the run says was taken.
-  const actionsById = new Map(
-    (scenario.actions ?? []).map((action) => [
-      action.id,
-      action,
-    ]),
-  );
-
+  // Derived by the shared helper so the case report and this record cannot
+  // give two accounts of the same run's responses. Each carries the authored
+  // quality judgement that decided its penalty, rather than an id a reviewer
+  // would have to cross-reference against the scenario by hand.
   const performedResponses =
-    state.performedActionIds.map(
-      (id) => {
-        const action =
-          actionsById.get(id);
-        const penalty =
-          action?.assessment?.penalty ??
-          0;
-
-        return {
-          id,
-          label: action?.label ?? id,
-          penalized: penalty > 0,
-          penalty,
-          ...(action?.assessment
-            ?.rationale
-            ? {
-                rationale:
-                  action.assessment
-                    .rationale,
-              }
-            : {}),
-        };
-      },
+    summarizePerformedResponses(
+      scenario.actions ?? [],
+      state.performedActionIds,
     );
 
   return {
