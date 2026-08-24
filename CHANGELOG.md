@@ -53,6 +53,7 @@ Renamed to **Endomorph**, and the enterprise generator arrives.
 - Investigation coverage -- how much of the incident the analyst's evidence reached, and which entities it never opened -- now appears in both the machine-readable assessment record and the human-readable case report, not only in the on-screen result.
 - Performed responses are annotated with quality: which action carried an authored penalty, how much, and the rationale, so a dented score is explained rather than opaque. The report names harmful actions in their own section.
 - Each generated scenario now records the seed it was produced from, so the assessment record's comparability claim -- two analysts worked byte-identical telemetry -- is true rather than asserted over an empty field. The record and report state plainly when a scenario is hand-authored and records no seed, instead of promising identical replay for one that cannot deliver it.
+- Key-evidence capture: which of the incident's ground-truth events the analyst actually collected, and which were missed, named by what they were and their ATT&CK technique. It appears in the record, the case report, and the finalized on-screen result beside coverage -- coverage says which entities were reached, key evidence says whether the smoking guns were banked, and the two diverge exactly when an analyst finalises on the right hosts with none of the proof.
 
 ### Fixed
 
