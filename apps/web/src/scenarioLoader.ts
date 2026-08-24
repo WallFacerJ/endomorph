@@ -134,9 +134,14 @@ export function compileScenarioPayload(
   const file =
     parseScenarioFile(input);
 
-  return compileScenarioDefinition(
-    file.scenario,
-  );
+  // provenance lives on the file wrapper, not the scenario, so it has to be
+  // folded back in here or it is lost at the boundary -- which is exactly
+  // where it used to be lost, leaving the assessment record unable to name
+  // the seed it claims makes two runs comparable.
+  return compileScenarioDefinition({
+    ...file.scenario,
+    provenance: file.provenance,
+  });
 }
 
 /**

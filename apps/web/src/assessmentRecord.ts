@@ -183,7 +183,14 @@ export function buildAssessmentRecord(
     reproducibility: {
       seed,
       scenarioId: scenario.id,
-      note: "Two runs of this scenario id and seed present byte-identical telemetry, so a difference in score is a difference in the analyst.",
+      // The comparability claim is only true when a seed is recorded. The
+      // hand-authored scenarios carry none, and asserting byte-identical
+      // telemetry for them would be a claim a reviewer might act on and be
+      // wrong to. The note states what is actually reproducible.
+      note:
+        seed === undefined
+          ? "This scenario records no generation seed, so identical telemetry between two runs is not guaranteed and scores are not strictly comparable."
+          : "Two runs of this scenario id and seed present byte-identical telemetry, so a difference in score is a difference in the analyst.",
     },
 
     assistance,

@@ -196,6 +196,57 @@ describe("compileScenario", () => {
         ).toBe(true);
       }
     });
+
+    it("records the seed and plan in file provenance", () => {
+      // The assessment record's whole comparability claim -- two analysts
+      // given this scenario worked byte-identical telemetry -- is only
+      // honest if the seed that produced the file can be read back from it.
+      // Before this it lived only in the generator's arguments and never
+      // reached the runtime.
+      const parsed = parseScenarioFile(
+        compileScenario({
+          id: "scenario-seeded-001",
+          name: "Seeded",
+          description:
+            "A generated enterprise compiled with an explicit seed.",
+          enterprise: { seed: 4242 },
+          incident: {
+            planId: "credential-compromise",
+          },
+        }).file,
+      );
+
+      expect(parsed.provenance).toEqual({
+        generator: "endomorph-fabric",
+        seed: 4242,
+        planId: "credential-compromise",
+      });
+    });
+
+    it("carries provenance through the runtime compiler onto the definition", () => {
+      // provenance lives on the file wrapper, not inside the scenario, so
+      // the boundary is where it is most easily dropped. This asserts it
+      // survives parse and compile and lands on the object the app reads the
+      // seed from.
+      const parsed = parseScenarioFile(
+        compiled.file,
+      );
+
+      const definition =
+        compileScenarioDefinition({
+          ...parsed.scenario,
+          provenance: parsed.provenance,
+        });
+
+      expect(
+        definition.provenance?.generator,
+      ).toBe("endomorph-fabric");
+
+      expect(
+        typeof definition.provenance
+          ?.seed,
+      ).toBe("number");
+    });
   });
 
   describe("determinism", () => {

@@ -112,6 +112,52 @@ describe("scenario file schema", () => {
     });
   });
 
+  it("accepts optional generation provenance on the file wrapper", () => {
+    // Provenance describes how the artifact was produced, so it belongs on
+    // the file, not inside the scenario. Generated files carry it; the
+    // hand-authored ones do not, which the optionality preserves.
+    const input =
+      createValidFile() as Record<
+        string,
+        unknown
+      >;
+
+    input.provenance = {
+      generator: "endomorph-fabric",
+      seed: 20260820,
+      planId: "credential-compromise",
+    };
+
+    expect(
+      parseScenarioFile(input)
+        .provenance,
+    ).toEqual({
+      generator: "endomorph-fabric",
+      seed: 20260820,
+      planId: "credential-compromise",
+    });
+  });
+
+  it("rejects provenance with a non-integer seed", () => {
+    // A seed is an integer cursor into the generator. A float would not
+    // reproduce the run, so a record carrying one would assert a
+    // comparability it cannot deliver.
+    const input =
+      createValidFile() as Record<
+        string,
+        unknown
+      >;
+
+    input.provenance = {
+      generator: "endomorph-fabric",
+      seed: 3.14,
+    };
+
+    expect(() =>
+      parseScenarioFile(input),
+    ).toThrow();
+  });
+
   it("accepts optional deterministic response assessment metadata", () => {
     const input =
       createValidFile() as {

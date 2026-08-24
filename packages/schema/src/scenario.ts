@@ -581,6 +581,24 @@ export const scenarioSpecSchema =
         .optional(),
   }).strict();
 
+/**
+ * How a scenario file was produced.
+ *
+ * Optional, and present only on generated files: the hand-authored v1
+ * scenarios were written, not seeded, and claiming a seed for them would be
+ * a lie a reviewer might act on. When present it is the record of record for
+ * reproducibility -- the same generator and seed yield byte-identical
+ * telemetry, which is the whole basis on which two analysts' scores are
+ * comparable. It lives on the file wrapper rather than inside the scenario
+ * because it describes the artifact's origin, not the incident.
+ */
+export const scenarioProvenanceSchema =
+  z.object({
+    generator: nonEmptyStringSchema,
+    seed: z.number().int(),
+    planId: nonEmptyStringSchema.optional(),
+  }).strict();
+
 export const scenarioFileSchema =
   z.object({
     version:
@@ -588,6 +606,8 @@ export const scenarioFileSchema =
     kind:
       z.literal("endomorph-scenario"),
     scenario: scenarioSpecSchema,
+    provenance:
+      scenarioProvenanceSchema.optional(),
   }).strict();
 
 export type ScenarioWorldSeedSpec =
@@ -613,6 +633,9 @@ export type ScenarioQuestionSpec =
 
 export type ScenarioGroundTruthSpec =
   z.infer<typeof scenarioGroundTruthSchema>;
+
+export type ScenarioProvenanceSpec =
+  z.infer<typeof scenarioProvenanceSchema>;
 
 export type ScenarioInvestigationSpec =
   z.infer<typeof scenarioInvestigationSchema>;

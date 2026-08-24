@@ -128,12 +128,31 @@ export interface ScenarioInvestigationContext {
     readonly string[];
 }
 
+/**
+ * How the scenario file was produced.
+ *
+ * Present only on generated scenarios; the hand-authored v1 set was written,
+ * not seeded. When present it is what makes two analysts' runs comparable --
+ * the same generator and seed yield byte-identical telemetry -- so it is
+ * carried onto the compiled definition rather than dropped at the file
+ * boundary, which is where it used to stop.
+ */
+export interface ScenarioProvenance {
+  readonly generator: string;
+
+  readonly seed: number;
+
+  readonly planId?: string;
+}
+
 export interface ScenarioDefinition {
   id: string;
 
   name: string;
 
   description: string;
+
+  provenance?: ScenarioProvenance;
 
   initialWorld: WorldState;
 

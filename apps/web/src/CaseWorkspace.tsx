@@ -173,6 +173,8 @@ export function CaseWorkspace({
                     questionAnswers,
                     assistance,
                     coverage,
+                    seed: scenario
+                      .provenance?.seed,
                     label,
                   }),
                   null,

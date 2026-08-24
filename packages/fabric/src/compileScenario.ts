@@ -577,6 +577,17 @@ What this incident teaches: ${incident.lesson}`,
       version: 1,
       kind: "endomorph-scenario",
       scenario,
+
+      // Recorded so the file carries its own reproduction recipe. The
+      // assessment record's comparability claim -- two analysts given this
+      // scenario worked identical telemetry -- is only true if the seed that
+      // produced it can be read back, and until now it lived nowhere the
+      // runtime could see.
+      provenance: {
+        generator: "endomorph-fabric",
+        seed: enterprise.profile.seed,
+        planId: incident.planId,
+      },
     },
     enterprise,
     incident,
