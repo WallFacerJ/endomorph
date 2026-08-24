@@ -576,3 +576,32 @@
 .siem-baseline.new .icon {
   color: var(--warning, #fbbf24);
 }
+
+/*
+  Asset criticality dot on a result's subject.
+
+  A compact mark rather than a badge: the results table is dense and scanned
+  fast, and a full pill per row would fight the message column. Only the top
+  two tiers are drawn, in the same palette the endpoint and identity consoles
+  use, so a severe subject reads the same weight everywhere. The tier and the
+  generator's rationale ride on the title.
+*/
+.siem-criticality-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+  cursor: help;
+}
+
+.siem-criticality-severe {
+  background: var(--danger);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 28%, transparent);
+}
+
+.siem-criticality-high {
+  background: var(--warning);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--warning) 26%, transparent);
+}

@@ -174,3 +174,50 @@ test("search says whether a value has any history behind it", async ({
     page.locator(".siem-baseline.new"),
   ).toHaveCount(0);
 });
+
+test("SIEM results flag the rows that touch a critical asset", async ({
+  page,
+}) => {
+  // Scanning two hundred rows, an analyst should see which of them involve a
+  // consequential asset rather than treating every subject as equal weight.
+  // The hand-authored scenarios carry no asset context, so this runs against
+  // a generated one and filters to endpoint process events, which are keyed
+  // to a device the generator has graded.
+  await page.goto(
+    "/?scenario=/scenarios/generated-enterprise.json",
+  );
+
+  await page
+    .getByRole("button", {
+      name: "SIEM Search",
+    })
+    .click();
+
+  const workspace = page.getByRole(
+    "region",
+    { name: "SIEM search workspace" },
+  );
+
+  await expect(workspace).toBeVisible();
+
+  await page
+    .getByLabel("SIEM query")
+    .fill("family:process");
+
+  const dots = workspace.locator(
+    ".siem-criticality-dot",
+  );
+
+  await expect(
+    dots.first(),
+  ).toBeVisible();
+
+  // The mark explains itself: tier and the generator's rationale ride on the
+  // title rather than being inferred a second time in the console.
+  await expect(
+    dots.first(),
+  ).toHaveAttribute(
+    "title",
+    /Severe|High/,
+  );
+});

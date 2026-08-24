@@ -1591,6 +1591,7 @@ function ScenarioWorkspace({
               world={scenarioState.world}
               key={`siem-${siemPivot.nonce}`}
               records={projections.siem.events}
+              assets={scenario.assets}
               initialQuery={siemPivot.query}
               finalized={scenarioState.finalized}
               isCollected={isEvidenceCollected}

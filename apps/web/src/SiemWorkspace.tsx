@@ -8,6 +8,8 @@ import {
 } from "./simulationAdapter";
 
 import type {
+  AssetContext,
+  AssetCriticality,
   SiemEventRecord,
 } from "./simulationAdapter";
 
@@ -51,6 +53,14 @@ interface SiemWorkspaceProps {
   world: WorldState;
 
   records: readonly SiemEventRecord[];
+
+  /**
+   * Business context per entity, when the scenario carries it. Used to flag
+   * the results that touch a consequential asset, so an analyst scanning two
+   * hundred rows sees which of them involve a crown jewel rather than
+   * treating every subject as equal weight.
+   */
+  assets?: readonly AssetContext[];
   initialQuery?: string;
   finalized: boolean;
   isCollected: (eventId: string) => boolean;
@@ -62,6 +72,37 @@ type TimePreset =
   | "all"
   | "5m"
   | "15m";
+
+/**
+ * Only the top two tiers are worth a mark in a result table. Flagging every
+ * moderate and low asset would paint most rows and draw the eye to nothing;
+ * the point is to make the crown-jewel rows stand out of the scan.
+ */
+const FLAGGED_CRITICALITY:
+  ReadonlySet<AssetCriticality> = new Set([
+    "severe",
+    "high",
+  ]);
+
+const CRITICALITY_RANK: Record<
+  AssetCriticality,
+  number
+> = {
+  severe: 3,
+  high: 2,
+  moderate: 1,
+  low: 0,
+};
+
+const CRITICALITY_LABEL: Record<
+  AssetCriticality,
+  string
+> = {
+  severe: "Severe",
+  high: "High",
+  moderate: "Moderate",
+  low: "Low",
+};
 
 function quoteValue(value: string): string {
   return /\s/.test(value)
@@ -127,6 +168,7 @@ function fieldDisplayValue(
 export function SiemWorkspace({
   world,
   records,
+  assets,
   initialQuery,
   finalized,
   isCollected,
@@ -215,6 +257,69 @@ export function SiemWorkspace({
 
     return names;
   }, [world]);
+
+  const assetByEntityId = useMemo(
+    () =>
+      new Map(
+        (assets ?? []).map(
+          (asset) =>
+            [
+              asset.entityId,
+              asset,
+            ] as const,
+        ),
+      ),
+    [assets],
+  );
+
+  /*
+    The most critical asset a row touches, across its subject and every
+    related entity, but only when that reaches a tier worth flagging. A row
+    can name a device in its subject and an account in its relations; the one
+    that matters for triage is whichever is most consequential.
+  */
+  const flaggedCriticality = (
+    record: SiemEventRecord,
+  ): AssetContext | undefined => {
+    const candidates = [
+      record.subjectId,
+      ...record.relatedEntityIds,
+    ];
+
+    let top: AssetContext | undefined;
+
+    for (const id of candidates) {
+      if (!id) {
+        continue;
+      }
+
+      const asset =
+        assetByEntityId.get(id);
+
+      if (
+        !asset ||
+        !FLAGGED_CRITICALITY.has(
+          asset.criticality,
+        )
+      ) {
+        continue;
+      }
+
+      if (
+        !top ||
+        CRITICALITY_RANK[
+          asset.criticality
+        ] >
+          CRITICALITY_RANK[
+            top.criticality
+          ]
+      ) {
+        top = asset;
+      }
+    }
+
+    return top;
+  };
 
   /*
     How normal this result is. The scenarios ask for exactly this in their
@@ -566,6 +671,20 @@ export function SiemWorkspace({
                       <code>{record.eventType}</code>
                     </td>
                     <td>
+                      {(() => {
+                        const asset =
+                          flaggedCriticality(
+                            record,
+                          );
+
+                        return asset ? (
+                          <span
+                            className={`siem-criticality-dot siem-criticality-${asset.criticality}`}
+                            title={`${CRITICALITY_LABEL[asset.criticality]} asset: ${asset.rationale}`}
+                            aria-label={`${CRITICALITY_LABEL[asset.criticality]} criticality asset`}
+                          />
+                        ) : null;
+                      })()}
                       {(record.subjectId &&
                         entityNames.get(
                           record.subjectId,
