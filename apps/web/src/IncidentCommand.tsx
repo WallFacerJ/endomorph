@@ -12,6 +12,7 @@ import {
 
 import type {
   AssetContext,
+  ThreatIntelEntry,
   IncidentCaseState,
   IncidentPhase,
   SiemEventRecord,
@@ -54,6 +55,9 @@ export interface IncidentCommandProps {
 
   /** Asset context, when the scenario carries it, for weighting the graph. */
   assets?: readonly AssetContext[];
+
+  /** Reputation for external indicators, when the scenario carries it. */
+  threatIntel?: readonly ThreatIntelEntry[];
 }
 
 export function IncidentCommand({
@@ -65,6 +69,7 @@ export function IncidentCommand({
   onPivotToSiem,
   readOnly,
   assets,
+  threatIntel,
 }: IncidentCommandProps) {
   const [
     hypothesisStatement,
@@ -147,6 +152,20 @@ export function IncidentCommand({
         ),
       ),
     [assets],
+  );
+
+  const threatByIndicator = useMemo(
+    () =>
+      new Map(
+        (threatIntel ?? []).map(
+          (entry) =>
+            [
+              entry.indicator,
+              entry,
+            ] as const,
+        ),
+      ),
+    [threatIntel],
   );
 
   const labelFor = (id: string) =>
@@ -470,6 +489,24 @@ export function IncidentCommand({
                         external
                       </span>
                     )}
+                    {(() => {
+                      const intel =
+                        threatByIndicator.get(
+                          indicator.value,
+                        );
+
+                      return intel ? (
+                        <span
+                          className={`incident-ioc-intel intel-${intel.category}`}
+                          title={intel.note}
+                        >
+                          {intel.category.replace(
+                            /-/g,
+                            " ",
+                          )}
+                        </span>
+                      ) : null;
+                    })()}
                   </li>
                 ))}
             </ul>

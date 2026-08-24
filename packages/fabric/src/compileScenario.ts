@@ -24,6 +24,10 @@ import type {
   EnterpriseProfile,
 } from "./enterpriseProfile.js";
 
+import {
+  classifyIndicators,
+} from "./threatIntel.js";
+
 const MINUTES_PER_DAY = 1440;
 
 /**
@@ -576,6 +580,31 @@ What this incident teaches: ${incident.lesson}`,
     // workstation instead of treating every asset as identical.
     assets: Object.values(
       enterprise.assetContext,
+    ),
+
+    // Reputation for the external addresses the intrusion actually used,
+    // gathered from the events themselves so the file never claims intel
+    // about an address that is not in it. "External" is where an analyst's
+    // question begins; this is the generator answering it truthfully, since
+    // it chose the infrastructure.
+    threatIntel: classifyIndicators(
+      openingEvents.flatMap(
+        (event) => {
+          const payload =
+            event.payload as {
+              sourceIp?: string;
+              destinationIp?: string;
+            };
+
+          return [
+            payload.sourceIp,
+            payload.destinationIp,
+          ].filter(
+            (value): value is string =>
+              typeof value === "string",
+          );
+        },
+      ),
     ),
   };
 

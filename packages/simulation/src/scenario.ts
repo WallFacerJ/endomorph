@@ -128,6 +128,25 @@ export interface ScenarioInvestigationContext {
     readonly string[];
 }
 
+export type ThreatCategory =
+  | "tor-exit"
+  | "bulletproof-hosting"
+  | "anonymizing-vpn"
+  | "hosting-provider";
+
+/**
+ * Reputation for one external indicator, carried onto the definition so the
+ * consoles can say why an external address matters rather than only that it
+ * is external. Present only on generated scenarios.
+ */
+export interface ThreatIntelEntry {
+  readonly indicator: string;
+
+  readonly category: ThreatCategory;
+
+  readonly note: string;
+}
+
 export type AssetCriticality =
   | "low"
   | "moderate"
@@ -195,6 +214,8 @@ export interface ScenarioDefinition {
   questions?: readonly ScenarioQuestion[];
 
   assets?: readonly AssetContext[];
+
+  threatIntel?: readonly ThreatIntelEntry[];
 }
 
 export interface ScenarioState {

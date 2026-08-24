@@ -285,6 +285,53 @@ describe("compileScenario", () => {
       }
     });
 
+    it("classifies the external addresses the intrusion used as threat intel", () => {
+      // The default plan signs in from a commercial-VPN address and beacons to
+      // a Tor exit. Both are external everywhere in the product; this asserts
+      // the file also says what they are, and only about addresses actually
+      // present in it.
+      const parsed = parseScenarioFile(
+        compiled.file,
+      );
+
+      const intel =
+        parsed.scenario.threatIntel ??
+        [];
+
+      expect(
+        intel.length,
+      ).toBeGreaterThan(0);
+
+      // Every classified indicator is an address that appears in the events,
+      // so the file never claims intel about an address it does not contain.
+      const addresses = new Set<string>();
+
+      for (const event of parsed.scenario
+        .openingEvents) {
+        const payload =
+          event.payload as {
+            sourceIp?: string;
+            destinationIp?: string;
+          };
+
+        if (payload.sourceIp) {
+          addresses.add(payload.sourceIp);
+        }
+
+        if (payload.destinationIp) {
+          addresses.add(
+            payload.destinationIp,
+          );
+        }
+      }
+
+      for (const entry of intel) {
+        expect(
+          addresses.has(entry.indicator),
+        ).toBe(true);
+      }
+    });
+
     it("carries provenance through the runtime compiler onto the definition", () => {
       // provenance lives on the file wrapper, not inside the scenario, so
       // the boundary is where it is most easily dropped. This asserts it

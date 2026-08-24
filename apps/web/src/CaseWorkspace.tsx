@@ -133,6 +133,9 @@ export function CaseWorkspace({
             <IncidentCommand
               world={scenarioState.world}
               assets={scenario.assets}
+              threatIntel={
+                scenario.threatIntel
+              }
               records={
                 siemRecords
               }

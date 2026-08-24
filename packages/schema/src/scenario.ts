@@ -585,6 +585,30 @@ export const scenarioAssetSchema =
     businessUnit: nonEmptyStringSchema,
   }).strict();
 
+export const threatCategorySchema =
+  z.enum([
+    "tor-exit",
+    "bulletproof-hosting",
+    "anonymizing-vpn",
+    "hosting-provider",
+  ]);
+
+/**
+ * Reputation for one external indicator.
+ *
+ * "External" is where an analyst's question about an address begins, not
+ * where it ends: a Tor exit and a residential ISP are both external and mean
+ * different things. This carries the generator's own knowledge of the
+ * infrastructure it planted, so the consoles can say which, rather than
+ * leaving every external address reading the same.
+ */
+export const scenarioThreatIntelSchema =
+  z.object({
+    indicator: nonEmptyStringSchema,
+    category: threatCategorySchema,
+    note: nonEmptyStringSchema,
+  }).strict();
+
 export const scenarioSpecSchema =
   z.object({
     id: nonEmptyStringSchema,
@@ -608,6 +632,9 @@ export const scenarioSpecSchema =
         .optional(),
     assets:
       z.array(scenarioAssetSchema)
+        .optional(),
+    threatIntel:
+      z.array(scenarioThreatIntelSchema)
         .optional(),
   }).strict();
 
@@ -672,6 +699,12 @@ export type AssetCriticalitySpec =
 
 export type ScenarioAssetSpec =
   z.infer<typeof scenarioAssetSchema>;
+
+export type ThreatCategorySpec =
+  z.infer<typeof threatCategorySchema>;
+
+export type ScenarioThreatIntelSpec =
+  z.infer<typeof scenarioThreatIntelSchema>;
 
 export type ScenarioInvestigationSpec =
   z.infer<typeof scenarioInvestigationSchema>;

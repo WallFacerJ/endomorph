@@ -226,6 +226,27 @@
   border: 1px solid rgba(248, 113, 113, 0.6);
 }
 
+/*
+  Threat-intel reputation on an external indicator.
+
+  "External" says the address is off the estate; this says what the address
+  is. All four categories are adversary infrastructure, so they share the
+  danger colour rather than a per-category palette that would imply one is
+  benign. The generator's note rides on the title, so the tag is explainable
+  on hover without spending a row on it.
+*/
+.incident-ioc-intel {
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  cursor: help;
+}
+
 .incident-form {
   display: flex;
   gap: 0.4rem;

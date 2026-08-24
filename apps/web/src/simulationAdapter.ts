@@ -28,6 +28,8 @@ export {
 export type {
   AssetContext,
   AssetCriticality,
+  ThreatCategory,
+  ThreatIntelEntry,
   EdrEndpointInvestigation,
   EdrProcessTreeNode,
   EdrProjectionState,

@@ -167,6 +167,53 @@ describe("scenario file schema", () => {
     ).toThrow();
   });
 
+  it("accepts optional threat intelligence on the scenario", () => {
+    const input =
+      createValidFile() as {
+        scenario: Record<string, unknown>;
+      };
+
+    input.scenario.threatIntel = [
+      {
+        indicator: "185.220.101.44",
+        category: "tor-exit",
+        note: "Known Tor exit relay.",
+      },
+    ];
+
+    expect(
+      parseScenarioFile(input)
+        .scenario.threatIntel,
+    ).toEqual([
+      {
+        indicator: "185.220.101.44",
+        category: "tor-exit",
+        note: "Known Tor exit relay.",
+      },
+    ]);
+  });
+
+  it("rejects a threat-intel entry with an unknown category", () => {
+    // The categories are a closed set the consoles render against; an unknown
+    // one would be an unstyled tag asserting a reputation nothing defines.
+    const input =
+      createValidFile() as {
+        scenario: Record<string, unknown>;
+      };
+
+    input.scenario.threatIntel = [
+      {
+        indicator: "185.220.101.44",
+        category: "definitely-evil",
+        note: "x",
+      },
+    ];
+
+    expect(() =>
+      parseScenarioFile(input),
+    ).toThrow();
+  });
+
   it("accepts optional generation provenance on the file wrapper", () => {
     // Provenance describes how the artifact was produced, so it belongs on
     // the file, not inside the scenario. Generated files carry it; the

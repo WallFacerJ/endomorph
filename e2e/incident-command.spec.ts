@@ -159,6 +159,21 @@ test("case derives the incident picture from collected evidence", async ({
       .locator(".evidence-criticality")
       .first(),
   ).toBeVisible();
+
+  // The attacker address is not merely external: the generator planted it
+  // from anonymising infrastructure and says so. The indicator carries a
+  // threat-intel reputation, so "external" becomes "external, and here is
+  // what kind of external".
+  const intel = command
+    .locator(".incident-ioc-intel")
+    .first();
+
+  await expect(intel).toBeVisible();
+
+  await expect(intel).toHaveAttribute(
+    "title",
+    /.+/,
+  );
 });
 
 test("case exposes incident phase as real workflow state", async ({
