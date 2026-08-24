@@ -472,3 +472,47 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+/*
+  Asset criticality on the host status.
+
+  Sits with the reachability because both bear on the same decision: whether
+  the machine comes off the network. A severe Finance host and a print-room
+  workstation are the same containment action with very different business
+  cost, and the responder should see which before they act. Same four-tier
+  palette as the other consoles; the rationale rides on the title.
+*/
+.live-criticality {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 9px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: help;
+}
+
+.live-criticality-severe {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+}
+
+.live-criticality-high {
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
+  border-color: color-mix(in srgb, var(--warning) 42%, transparent);
+}
+
+.live-criticality-moderate {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 38%, transparent);
+}
+
+.live-criticality-low {
+  color: var(--muted);
+  background: color-mix(in srgb, var(--muted) 12%, transparent);
+  border-color: var(--border);
+}

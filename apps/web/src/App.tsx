@@ -1728,6 +1728,7 @@ function ScenarioWorkspace({
               onPerformAction={
                 performResponseAction
               }
+              assets={scenario.assets}
             />
           </section>
         )}

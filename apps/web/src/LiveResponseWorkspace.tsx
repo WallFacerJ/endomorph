@@ -10,6 +10,8 @@ import {
 } from "./simulationAdapter";
 
 import type {
+  AssetContext,
+  AssetCriticality,
   LiveResponseCommandId,
   LiveResponseRow,
   ScenarioAction,
@@ -80,6 +82,16 @@ const COMMANDS: ReadonlyArray<{
   },
 ];
 
+const CRITICALITY_LABEL: Record<
+  AssetCriticality,
+  string
+> = {
+  severe: "Severe",
+  high: "High",
+  moderate: "Moderate",
+  low: "Low",
+};
+
 const STATE_LABEL: Record<
   string,
   string
@@ -141,6 +153,14 @@ interface LiveResponseWorkspaceProps {
   readonly onPerformAction: (
     actionId: string,
   ) => void;
+
+  /**
+   * Business context per entity, when the scenario carries it. Shown on the
+   * host status so the containment decision is made knowing what the host is
+   * worth -- isolating a severe-criticality Finance workstation and a
+   * print-room machine are not the same call.
+   */
+  readonly assets?: readonly AssetContext[];
 }
 
 export function LiveResponseWorkspace({
@@ -154,6 +174,7 @@ export function LiveResponseWorkspace({
   actions,
   performedActionIds,
   onPerformAction,
+  assets,
 }: LiveResponseWorkspaceProps) {
   const [deviceId, setDeviceId] = useState(
     initialDeviceId ??
@@ -265,6 +286,10 @@ export function LiveResponseWorkspace({
   const device = devices.find(
     (candidate) =>
       candidate.id === deviceId,
+  );
+
+  const asset = assets?.find(
+    (entry) => entry.entityId === deviceId,
   );
 
   // The response operations that act on the host being examined. Filtered by
@@ -414,6 +439,20 @@ export function LiveResponseWorkspace({
                       : result.host
                           .reachability}
                   </span>
+                  {asset && (
+                    <span
+                      className={`live-criticality live-criticality-${asset.criticality}`}
+                      title={asset.rationale}
+                    >
+                      {
+                        CRITICALITY_LABEL[
+                          asset.criticality
+                        ]
+                      }
+                      {" · "}
+                      {asset.businessUnit}
+                    </span>
+                  )}
                 </div>
                 <p>
                   {

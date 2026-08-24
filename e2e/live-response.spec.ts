@@ -349,3 +349,26 @@ test("the host can be contained from the console that examined it", async ({
     ),
   ).toBeVisible();
 });
+
+test("the host status carries the machine's criticality, for the containment call", async ({
+  page,
+}) => {
+  // Isolating a host is the same action whatever the machine is worth, and
+  // very different in consequence. The console that decides it shows the
+  // criticality beside the reachability, so the responder acts knowing which.
+  await openLiveResponse(page);
+
+  const status = page.locator(
+    ".live-status-head",
+  );
+
+  await expect(
+    status.locator(".live-criticality"),
+  ).toBeVisible();
+
+  // The generator's reason for the tier rides on the badge rather than being
+  // inferred again in the console.
+  await expect(
+    status.locator(".live-criticality"),
+  ).toHaveAttribute("title", /.+/);
+});
