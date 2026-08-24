@@ -79,10 +79,28 @@ cluster no other product is strong across:
    back to, not just a command they could run.
 3. **Grow ATT&CK coverage deliberately.** Technique breadth is the number
    detection engineers judge a corpus on. Six plans is the honest gap; each new
-   plan is pure event modelling, no infrastructure.
-4. **Make FP realism a measured headline.** Quantify and publish the noise floor
-   — "malicious traffic is not the loudest on its host" is a claim no static
-   dataset can make.
+   plan is pure event modelling, no infrastructure. (The benchmark manifest now
+   makes the number — 22 techniques — visible and diffable.)
+4. **Make FP realism a measured headline.** *Done:* `pnpm noise-floor` reports,
+   per technique, how many benign events share its event types — the
+   false-positive floor for an unspecific rule. At the shipped seed 18/22
+   techniques are buried among 10x+ benign look-alikes, a floor a corpus with
+   separable malicious traffic cannot offer.
+
+   *The tool's first finding, worth acting on:* it flags **two exposed
+   identity-lifecycle techniques** (T1098 account-enabled, T1098.003
+   role-granted) — the background never performs benign account-enables or role
+   grants, so a rule keyed on them catches the intrusion with zero false
+   positives. Closing this means adding benign `ACCOUNT_ENABLED` / `ROLE_GRANTED`
+   activity to `generateBackgroundActivity`, designed to be *realistically
+   distinguishable* from the malicious version (an admin actor granting to
+   another account through a change process, versus the malicious self-grant),
+   so a crafted rule survives while a naive one gains realistic FP. Note that
+   this **lowers the documented 1.000 precision** of the `account-reenabled` and
+   `privileged-role-grant` rules and **requires regenerating the detection
+   baseline** (`pnpm evaluate:baseline`) — a deliberate change, not a drive-by,
+   which is why it is recorded here rather than rushed. This is the
+   measure → find weakness → improve loop the noise floor exists to drive.
 
 ### Next — deepen where it compounds both audiences (months)
 
