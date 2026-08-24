@@ -184,9 +184,8 @@ Recorded so it is decided deliberately rather than discovered later.
 
 - **`moduleResolution: "Bundler"` repo-wide.** Built packages cannot run under plain node, which is why `packages/fabric` carries explicit `.js` import extensions and the rest of the repo does not. Phases 5 and 7 assume a server runtime and headless authoring; `NodeNext` everywhere is the fix and it gets more expensive the longer it waits.
 - **Event vocabulary lives in `packages/simulation`.** `simulationEvent.ts` is pure type definitions importing only from `@endomorph/domain`, which already owns `DomainEvent`. Today `fabric` depends on the whole runtime for type names alone. Moving the vocabulary down into `domain` is a mechanical 29-import refactor.
-- **The generated scenario is committed as a 4.7MB build artifact.** It is in git so Pages and local development work immediately. It belongs in CI.
-- **Business context is generated but unread.** `packages/fabric` emits asset criticality, rationale, and business unit keyed by entity id; no Ops tool surfaces it yet.
-- **The planted incident is one hardcoded chain**, not an ATT&CK-mapped plan library. Phase 4 is where that becomes a real gap.
+- **Business context is surfaced on the entity consoles, not yet in SIEM or Case.** `packages/fabric` emits asset criticality, rationale, and business unit keyed by entity id; it now rides on the scenario as an optional `assets` block and the Endpoint and Identity consoles badge and triage by it. SIEM results do not yet flag events that touch a critical asset, and Case does not weight a finding by the criticality of what it reached.
+- **The incident plan library is six hand-written plans, not a generator.** `packages/fabric` now carries an ATT&CK-mapped plan library (`ATTACK_PLANS`: credential compromise, privileged insider, service-account abuse, dormant-account revival, macro execution, cloud-role elevation), so the earlier "one hardcoded chain" gap is closed. The remaining gap is that new incident shapes are still authored by hand rather than composed from a technique catalogue -- Phase 4's concern.
 - **SIEM search is a linear scan.** Fine at 17.9k events; the cross-domain incidents Phase 3 describes will need an index.
 
 ## Technology currently in use

@@ -101,7 +101,7 @@ Status: **partially delivered.**
 - ~~professional mode hides explicit score/objectives during active work by default~~ **done** -- runs default to professional; the live objective checklist and running score are hidden until finalization;
 - ~~retain optional guided mode for learning~~ **done** -- guided restores the scaffolding on the same environment, persisted across reloads;
 - response actions move into relevant tool/system context rather than obvious answer cards -- **remaining**;
-- score investigation coverage, state outcomes, harmful actions, timing/process, and evidence quality where deterministically measurable -- **remaining**. The evidence graph now makes coverage measurable, since it knows which entities an analyst actually reached.
+- score investigation coverage, state outcomes, harmful actions, timing/process, and evidence quality where deterministically measurable -- **coverage and harmful actions done; timing/process and evidence quality remaining.** Investigation coverage (which entities the analyst's evidence reached, and which it missed) and response quality (which performed actions carried an authored penalty, and why) now appear in both the machine-readable assessment record and the human-readable case report, alongside state outcomes and objective score. The seed each generated scenario was produced from now rides on the file, so the record's comparability claim is finally true rather than asserted over an empty field. Timing is not yet deterministically measurable per analyst -- actions replay at fixed scenario times, not wall-clock -- and evidence quality (signal-to-noise in what was collected) is not yet scored.
 
 Exit criteria:
 

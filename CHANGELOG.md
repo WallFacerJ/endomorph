@@ -42,6 +42,22 @@ Renamed to **Endomorph**, and the enterprise generator arrives.
 
 - `pnpm lint` now covers all five packages instead of `apps/web` alone, and warnings fail the build.
 
+### Added — asset criticality on the entity consoles
+
+- Business context the generator has always produced -- criticality, a rationale, and a business unit for every entity -- now rides on the scenario as an optional `assets` block and reaches the runtime, closing the "generated but unread" gap. The schema accepts a closed set of four criticality tiers; the runtime compiler carries the block onto the definition the app reads.
+- The EDR endpoint inventory badges each host's criticality in the existing status palette, shows its business unit, carries the generator's rationale on hover, and sorts the inventory by criticality so the domain controllers and privileged hosts rise to the top and the list reads as a triage order.
+- The Identity directory badges each person's criticality beside their name and a privileged account's on its row, so the consequential accounts stand out from a wall of ordinary staff logins.
+
+### Added — the assessment record and case report tell the whole story
+
+- Investigation coverage -- how much of the incident the analyst's evidence reached, and which entities it never opened -- now appears in both the machine-readable assessment record and the human-readable case report, not only in the on-screen result.
+- Performed responses are annotated with quality: which action carried an authored penalty, how much, and the rationale, so a dented score is explained rather than opaque. The report names harmful actions in their own section.
+- Each generated scenario now records the seed it was produced from, so the assessment record's comparability claim -- two analysts worked byte-identical telemetry -- is true rather than asserted over an empty field. The record and report state plainly when a scenario is hand-authored and records no seed, instead of promising identical replay for one that cannot deliver it.
+
+### Fixed
+
+- The orientation-map e2e guard read its steps before the orientation had compiled and painted, so it flaked under parallel workers while passing alone. It now waits for the first step to be visible.
+
 ## v1.0.0
 
 Endomorph v1 is the first shareable local/static cybersecurity training release.
