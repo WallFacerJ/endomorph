@@ -120,3 +120,44 @@ test("a rule the Sigma subset cannot express is reported, not silently ignored",
     ),
   ).toBeVisible();
 });
+
+test("the lab has a front door at ?lab, reached without an investigation", async ({
+  page,
+}) => {
+  // The detection-engineer audience is not playing the investigation, so the
+  // scorer has to be reachable without one. This opens straight into the lab.
+  await page.goto("/?lab");
+
+  await expect(
+    page.getByRole("heading", {
+      name: /Score a detection rule against ground truth/i,
+    }),
+  ).toBeVisible();
+
+  const tester = page.getByRole(
+    "region",
+    {
+      name: "Test your own detection rule",
+    },
+  );
+
+  // No "Open investigation" or "Finalize" in between -- the tester is right
+  // there once the corpus compiles.
+  await expect(tester).toBeVisible({
+    timeout: 20000,
+  });
+
+  await tester
+    .getByRole("button", {
+      name: "Score rule",
+    })
+    .click();
+
+  await expect(
+    tester
+      .locator(
+        ".rule-tester-table tbody tr",
+      )
+      .first(),
+  ).toContainText("100.0%");
+});
