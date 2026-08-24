@@ -1233,3 +1233,21 @@ textarea:focus-visible {
   font-size: 0.79rem;
   line-height: 1.5;
 }
+
+.sidebar-lab-link {
+  display: block;
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.sidebar-lab-link:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}

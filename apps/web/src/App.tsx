@@ -1075,6 +1075,24 @@ function ScenarioWorkspace({
             </small>
           </span>
         </div>
+
+        {/*
+          A door out to the detection lab, for the other audience: someone who
+          wants to score a rule against this corpus rather than investigate. It
+          carries labels, so it is a separate page reached deliberately, never
+          a panel inside the run.
+        */}
+        <a
+          className="sidebar-lab-link"
+          href="?lab"
+          title="Score a detection rule against this scenario's labelled corpus"
+        >
+          Detection Lab
+          <span aria-hidden="true">
+            {" "}
+            &rarr;
+          </span>
+        </a>
       </aside>
 
       <main

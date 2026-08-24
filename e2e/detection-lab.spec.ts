@@ -235,3 +235,23 @@ test("opening a noisy rule shows the exact benign events it fired on", async ({
     ),
   ).toContainText("False positives");
 });
+
+test("the investigation app offers a door to the detection lab", async ({
+  page,
+}) => {
+  await page.goto(
+    "/?scenario=/scenarios/generated-enterprise.json",
+  );
+
+  const link = page
+    .getByRole("link", {
+      name: /Detection Lab/i,
+    })
+    .first();
+
+  await expect(link).toBeVisible();
+  await expect(link).toHaveAttribute(
+    "href",
+    /\?lab/,
+  );
+});
