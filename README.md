@@ -10,7 +10,7 @@ That makes two things possible that a captured corpus cannot support:
 - **Investigation training that cannot be memorised.** Change the seed and the enterprise, the staff, the addresses, and the intrusion all change — while the reasoning required stays the same.
 
 ```
-pnpm evaluate     # score the shipped ruleset against three ATT&CK-mapped intrusions
+pnpm evaluate     # score the shipped ruleset against six ATT&CK-mapped intrusions
 pnpm dev          # investigate one of them in the analyst console
 ```
 
@@ -189,6 +189,29 @@ External credential compromise  (credential-compromise)
 Two of the shipped rules are deliberately imperfect, and the numbers say so. `naive-powershell` alerts on every PowerShell launch and scores **0.019 precision** — 1 true positive against 51 false. `external-auth-success` scores perfectly on the credential-compromise plan and **detects nothing at all** on the service-account plan, because that intrusion never leaves the corporate network.
 
 Corpora export as newline-delimited JSON in Elastic Common Schema field names, with a manifest recording the seed, the plan, technique counts, and the malicious ratio.
+
+### Does the rule generalise, or did it memorise?
+
+A score against one world is worth less than it looks. A rule keyed on the exact address an intrusion happened to use scores a perfect recall on that world and catches nothing on the next one — and a captured corpus, having exactly one world, can never tell the two apart. A generated one can:
+
+```bash
+pnpm evaluate:robustness                 # score the ruleset across 20 seeded enterprises
+pnpm evaluate -- --robustness 20 --json robustness.json
+```
+
+Each seed is an independently generated enterprise: different staff, hosts, and addresses; the same techniques. A rule that catches its technique on every seed is detecting behaviour; one whose recall collapses to zero on some seeds memorised a coincidence of this repository. Sample output:
+
+```
+  RULE                      TECHNIQUE   DETECTED  RECALL min/mean/max   FP mean/max   VERDICT
+  auth-spray                T1110.003   20/20     1.00 1.00 1.00        0.0/0         STABLE
+  naive-beacon              T1071.001   20/20     1.00 1.00 1.00        4277.3/4429   STABLE
+  c2-exact-ip               T1071.001   7/20      1.00 0.35 1.00        0.0/0         FRAGILE
+
+  techniques covered on every seed   15/15
+  FRAGILE rules (miss their technique on at least one enterprise): c2-exact-ip
+```
+
+The verdict is on detection consistency; the false-positive columns carry the noise story separately, so `naive-beacon` reads as stable-but-deafening while a memorised rule reads as clean-but-fragile. `--robustness` exits non-zero when any rule is fragile, so a CI gate can hold a ruleset to generalising rather than to passing one lucky seed. This is the measurement a fixed dataset cannot make, and the reason a generated corpus is worth more than a captured one for detection work.
 
 ### Deliverables and operator flags
 

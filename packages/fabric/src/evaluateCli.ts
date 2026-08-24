@@ -75,6 +75,14 @@ import type {
   PlanReport,
 } from "./detectionReport.js";
 
+import {
+  summariseRobustness,
+} from "./robustness.js";
+
+import type {
+  RobustnessSummary,
+} from "./robustness.js";
+
 import type {
   DetectionRule,
 } from "./detection.js";
@@ -106,6 +114,140 @@ function pad(
   return text.length >= width
     ? `${text.slice(0, width - 2)} `
     : text.padEnd(width);
+}
+
+/**
+ * Scores the ruleset against one seeded enterprise, across every plan, and
+ * returns the per-seed report. Pure of output so the robustness mode can call
+ * it many times without printing a table each time.
+ */
+function evaluateSeed(
+  rules: readonly DetectionRule[],
+  seed: number,
+  profileOverrides:
+    | Parameters<
+        typeof generateEnterprise
+      >[0]
+    | undefined,
+): DetectionReport {
+  const enterprise = generateEnterprise(
+    profileOverrides
+      ? { ...profileOverrides, seed }
+      : { seed },
+  );
+
+  const background =
+    generateBackgroundActivity(
+      enterprise,
+      { days: 3 },
+    );
+
+  const planReports: PlanReport[] = [];
+
+  for (const plan of ATTACK_PLANS) {
+    const incident = generateIncident(
+      enterprise,
+      { planId: plan.id },
+    );
+
+    const detection =
+      incident.events[
+        incident.events.length - 1
+      ].timestamp;
+
+    const events = [
+      ...background.filter(
+        (event) =>
+          event.timestamp <= detection,
+      ),
+      ...incident.events,
+    ].sort((left, right) =>
+      left.timestamp.localeCompare(
+        right.timestamp,
+      ),
+    );
+
+    const corpus = buildCorpus(
+      enterprise,
+      events,
+      incident,
+    );
+
+    const report = evaluateRuleset(
+      rules,
+      corpus.records,
+    );
+
+    planReports.push(
+      buildPlanReport(
+        plan.id,
+        plan.name,
+        corpus.manifest.recordCount,
+        corpus.manifest.maliciousCount,
+        report,
+      ),
+    );
+  }
+
+  return summarise(
+    seed,
+    rules.length,
+    planReports,
+  );
+}
+
+function printRobustness(
+  summary: RobustnessSummary,
+): void {
+  process.stdout.write(
+    `Endomorph rule robustness\n  ${summary.seeds.length} seeds: ${summary.seeds[0]}..${summary.seeds[summary.seeds.length - 1]}\n\n`,
+  );
+
+  process.stdout.write(
+    `  ${pad("RULE", 26)}${pad("TECHNIQUE", 12)}${pad("DETECTED", 10)}${pad("RECALL min/mean/max", 22)}${pad("FP mean/max", 14)}VERDICT\n`,
+  );
+
+  for (const rule of summary.rules) {
+    process.stdout.write(
+      `  ${pad(rule.ruleId, 26)}${pad(
+        rule.technique ?? "-",
+        12,
+      )}${pad(
+        `${rule.detectedOn}/${rule.seeds}`,
+        10,
+      )}${pad(
+        `${rule.recall.min.toFixed(2)} ${rule.recall.mean.toFixed(2)} ${rule.recall.max.toFixed(2)}`,
+        22,
+      )}${pad(
+        `${rule.falsePositives.mean.toFixed(1)}/${rule.falsePositives.max}`,
+        14,
+      )}${rule.verdict.toUpperCase()}\n`,
+    );
+  }
+
+  const everySeed =
+    summary.techniques.filter(
+      (technique) =>
+        technique.coveredOnEverySeed,
+    ).length;
+
+  const fragile = summary.rules.filter(
+    (rule) => rule.verdict === "fragile",
+  );
+
+  process.stdout.write(
+    `\n  techniques covered on every seed   ${everySeed}/${summary.techniques.length}\n`,
+  );
+
+  if (fragile.length > 0) {
+    process.stdout.write(
+      `  FRAGILE rules (miss their technique on at least one enterprise): ${fragile
+        .map((rule) => rule.ruleId)
+        .join(", ")}\n`,
+    );
+  }
+
+  process.stdout.write("\n");
 }
 
 function main(): void {
@@ -250,6 +392,86 @@ function main(): void {
         ),
       )
     : undefined;
+
+  /*
+    Robustness mode: the measurement no fixed corpus can make. Score the same
+    ruleset against many seeded enterprises -- staff, hosts, and addresses all
+    different, the techniques the same -- and report whether each rule holds.
+    A rule that catches its technique on every seed is detecting behaviour; one
+    that misses on some memorised this world. This is the whole pitch of a
+    generated corpus over a captured one, so it gets its own path and returns
+    before the single-seed report.
+  */
+  const robustnessArg =
+    flag("robustness");
+
+  if (robustnessArg !== undefined) {
+    const count = Math.max(
+      2,
+      Math.floor(Number(robustnessArg)),
+    );
+
+    if (!Number.isFinite(count)) {
+      throw new Error(
+        `--robustness expects a seed count, got "${robustnessArg}".`,
+      );
+    }
+
+    const seeds = Array.from(
+      { length: count },
+      (_unused, index) => seed + index,
+    );
+
+    process.stdout.write(
+      `Endomorph rule robustness across ${count} seeds\n  this scores the ruleset against ${count} independently generated enterprises\n\n`,
+    );
+
+    const reports = seeds.map((each) =>
+      evaluateSeed(
+        rules,
+        each,
+        profileOverrides,
+      ),
+    );
+
+    const robustness =
+      summariseRobustness(reports);
+
+    printRobustness(robustness);
+
+    if (jsonPath) {
+      const target =
+        resolveFromRoot(jsonPath);
+
+      mkdirSync(dirname(target), {
+        recursive: true,
+      });
+
+      writeFileSync(
+        target,
+        `${JSON.stringify(robustness, null, 2)}\n`,
+        "utf8",
+      );
+
+      process.stdout.write(
+        `Robustness report written to ${jsonPath}\n\n`,
+      );
+    }
+
+    const fragile =
+      robustness.rules.filter(
+        (rule) =>
+          rule.verdict === "fragile",
+      );
+
+    if (fragile.length > 0) {
+      // A rule that only fires on some enterprises is a finding, not a pass:
+      // exit non-zero so a CI gate on rule quality can catch it.
+      process.exitCode = 1;
+    }
+
+    return;
+  }
 
   const planReports: PlanReport[] = [];
 

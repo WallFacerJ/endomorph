@@ -13,3 +13,4 @@ export * from "./detectionLibrary.js";
 export * from "./sigma.js";
 export * from "./attackPlanDormant.js";
 export * from "./detectionReport.js";
+export * from "./robustness.js";
