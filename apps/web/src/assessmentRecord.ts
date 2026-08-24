@@ -91,7 +91,32 @@ export interface AssessmentRecord {
   readonly work: {
     readonly evidenceCollected: number;
     readonly findingsRecorded: number;
-    readonly responsesPerformed: readonly string[];
+
+    /**
+     * The response actions the analyst performed, annotated with quality.
+     *
+     * A bare list of ids records that buttons were pressed, not whether
+     * pressing them was sound. A run can complete every objective and still
+     * have taken a harmful action along the way -- isolating the wrong host,
+     * disabling a valid account -- and the final score already docks the
+     * authored penalty for it. The record has to name which action carried
+     * that penalty and why, or a reviewer sees a dented score with nothing
+     * explaining the dent. Actions with no authored assessment are penalty
+     * zero, which is the ordinary case.
+     */
+    readonly responsesPerformed: readonly {
+      readonly id: string;
+      readonly label: string;
+      readonly penalized: boolean;
+      readonly penalty: number;
+      readonly rationale?: string;
+    }[];
+
+    /** How many performed actions carried a response-quality penalty. */
+    readonly harmfulActions: number;
+
+    /** Sum of authored penalties over the performed actions. */
+    readonly responsePenalty: number;
   };
 
   /**
@@ -167,6 +192,45 @@ export function buildAssessmentRecord(
     questionAnswers,
   );
 
+  // Joined against the scenario's actions so each performed response carries
+  // the authored quality judgement that decided its penalty, rather than an
+  // id a reviewer would have to cross-reference by hand. An id with no
+  // matching action would be a runtime inconsistency; it is recorded as a
+  // zero-penalty entry rather than dropped, so the record never silently
+  // loses an action the run says was taken.
+  const actionsById = new Map(
+    (scenario.actions ?? []).map((action) => [
+      action.id,
+      action,
+    ]),
+  );
+
+  const performedResponses =
+    state.performedActionIds.map(
+      (id) => {
+        const action =
+          actionsById.get(id);
+        const penalty =
+          action?.assessment?.penalty ??
+          0;
+
+        return {
+          id,
+          label: action?.label ?? id,
+          penalized: penalty > 0,
+          penalty,
+          ...(action?.assessment
+            ?.rationale
+            ? {
+                rationale:
+                  action.assessment
+                    .rationale,
+              }
+            : {}),
+        };
+      },
+    );
+
   return {
     format: "endomorph-assessment",
     version: 1,
@@ -238,9 +302,19 @@ export function buildAssessmentRecord(
           .length,
       findingsRecorded:
         analystCase.findings.length,
-      responsesPerformed: [
-        ...state.performedActionIds,
-      ],
+      responsesPerformed:
+        performedResponses,
+      harmfulActions:
+        performedResponses.filter(
+          (response) =>
+            response.penalized,
+        ).length,
+      responsePenalty:
+        performedResponses.reduce(
+          (total, response) =>
+            total + response.penalty,
+          0,
+        ),
     },
 
     ...(coverage &&

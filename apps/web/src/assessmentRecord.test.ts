@@ -167,9 +167,76 @@ describe("buildAssessmentRecord", () => {
       evidenceCollected: 3,
       findingsRecorded: 1,
       responsesPerformed: [
-        "action-isolate-device",
+        {
+          id: "action-isolate-device",
+          label: "action-isolate-device",
+          penalized: false,
+          penalty: 0,
+        },
       ],
+      harmfulActions: 0,
+      responsePenalty: 0,
     });
+  });
+
+  it("names the harmful action that dented the score, and why", () => {
+    // A run can complete every objective and still take a harmful action
+    // along the way. The final score docks the authored penalty for it; the
+    // record has to say which action carried that penalty and its rationale,
+    // or the reviewer sees an unexplained dent.
+    const record = buildAssessmentRecord(
+      createInput({
+        scenario: {
+          id: "scenario-harm-001",
+          name: "Harm",
+          actions: [
+            {
+              id: "action-isolate-device",
+              label: "Isolate the wrong host",
+              description: "",
+              events: [],
+              assessment: {
+                penalty: 25,
+                rationale:
+                  "This host was not involved; isolating it disrupts a bystander.",
+              },
+            },
+          ],
+        } as unknown as AssessmentInput["scenario"],
+        state: {
+          finalized: true,
+          score: { percentage: 75 },
+          outcome: {
+            status: "succeeded",
+            objectives: [],
+          },
+          performedActionIds: [
+            "action-isolate-device",
+          ],
+        } as unknown as AssessmentInput["state"],
+      }),
+    );
+
+    expect(
+      record.work.responsesPerformed,
+    ).toEqual([
+      {
+        id: "action-isolate-device",
+        label: "Isolate the wrong host",
+        penalized: true,
+        penalty: 25,
+        rationale:
+          "This host was not involved; isolating it disrupts a bystander.",
+      },
+    ]);
+
+    expect(
+      record.work.harmfulActions,
+    ).toBe(1);
+
+    expect(
+      record.work.responsePenalty,
+    ).toBe(25);
   });
 
   it("carries incident coverage and names what was missed", () => {
