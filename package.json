@@ -13,6 +13,7 @@
     "evaluate": "pnpm --filter \"./packages/**\" -r build && pnpm --filter @endomorph/fabric evaluate",
     "evaluate:baseline": "pnpm evaluate -- --json rules/detection-baseline.json",
     "evaluate:robustness": "pnpm evaluate -- --robustness 20",
+    "benchmark": "pnpm evaluate -- --benchmark dist/benchmark",
     "bundle:standalone": "pnpm build && pnpm --filter @endomorph/fabric bundle:standalone",
     "test:e2e": "playwright test"
   },

@@ -213,6 +213,24 @@ Each seed is an independently generated enterprise: different staff, hosts, and 
 
 The verdict is on detection consistency; the false-positive columns carry the noise story separately, so `naive-beacon` reads as stable-but-deafening while a memorised rule reads as clean-but-fragile. `--robustness` exits non-zero when any rule is fragile, so a CI gate can hold a ruleset to generalising rather than to passing one lucky seed. This is the measurement a fixed dataset cannot make, and the reason a generated corpus is worth more than a captured one for detection work.
 
+### The benchmark as one artifact
+
+```bash
+pnpm benchmark                               # write every plan's corpus + a manifest
+pnpm evaluate -- --benchmark out/bench --format ocsf
+```
+
+A pile of NDJSON files is data; a benchmark is data with a manifest that says what it contains, so it can be scored against, cited, and diffed. `--benchmark` writes every intrusion's labelled corpus plus a top-level `benchmark.json`:
+
+```
+Endomorph Detection Benchmark v1.0
+  seed 20260820  |  format ecs  |  6 plans
+  ...
+  27857 records, 52 malicious (0.187%), 22 techniques across 6 plans
+```
+
+The manifest carries aggregate counts, the union of techniques with how many plans exercise each, and a per-plan index pointing at the files. The corpus files are byte-deterministic for a given seed, so two people who generate `v1.0` at the shipped seed hold identical telemetry — which is what lets a score computed against it mean the same thing to both of them.
+
 ### Deliverables and operator flags
 
 The evaluation is also the engine behind the outputs a services team would

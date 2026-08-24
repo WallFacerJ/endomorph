@@ -19,6 +19,7 @@ import {
 
 import {
   dirname,
+  join,
 } from "node:path";
 
 import {
@@ -82,6 +83,11 @@ import {
 import type {
   RobustnessSummary,
 } from "./robustness.js";
+
+import {
+  buildBenchmarkManifest,
+  BENCHMARK_VERSION,
+} from "./benchmark.js";
 
 import type {
   DetectionRule,
@@ -469,6 +475,142 @@ function main(): void {
       // exit non-zero so a CI gate on rule quality can catch it.
       process.exitCode = 1;
     }
+
+    return;
+  }
+
+  /*
+    Benchmark mode: write the shipped corpus as one citable, versioned artifact
+    -- every plan's labelled telemetry plus a top-level manifest that says what
+    the set contains. A pile of NDJSON files is data; a benchmark is data with
+    a manifest a detection engineer can score against, cite, and diff. The
+    corpus files are byte-deterministic for a given seed; only the manifest's
+    generatedAt stamp varies, and the version and seed identify the set.
+  */
+  const benchmarkDir = flag("benchmark");
+
+  if (benchmarkDir !== undefined) {
+    const outDir =
+      resolveFromRoot(benchmarkDir);
+
+    mkdirSync(outDir, {
+      recursive: true,
+    });
+
+    const enterprise =
+      generateEnterprise(
+        profileOverrides
+          ? { ...profileOverrides, seed }
+          : { seed },
+      );
+
+    const background =
+      generateBackgroundActivity(
+        enterprise,
+        { days: 3 },
+      );
+
+    process.stdout.write(
+      `Endomorph Detection Benchmark v${BENCHMARK_VERSION}
+  seed ${seed}  |  format ${requestedFormat}  |  ${ATTACK_PLANS.length} plans
+
+`,
+    );
+
+    const entries: {
+      manifest: ReturnType<
+        typeof buildCorpus
+      >["manifest"];
+      file: string;
+    }[] = [];
+
+    for (const plan of ATTACK_PLANS) {
+      const incident = generateIncident(
+        enterprise,
+        { planId: plan.id },
+      );
+
+      const detection =
+        incident.events[
+          incident.events.length - 1
+        ].timestamp;
+
+      const events = [
+        ...background.filter(
+          (event) =>
+            event.timestamp <=
+            detection,
+        ),
+        ...incident.events,
+      ].sort((left, right) =>
+        left.timestamp.localeCompare(
+          right.timestamp,
+        ),
+      );
+
+      const corpus = buildCorpus(
+        enterprise,
+        events,
+        incident,
+      );
+
+      const fileName = `${plan.id}${extensionFor(
+        requestedFormat,
+      )}`;
+
+      writeFileSync(
+        join(outDir, fileName),
+        formatCorpus(corpus.records, {
+          format: requestedFormat,
+          index: destinationIndex,
+        }),
+        "utf8",
+      );
+
+      entries.push({
+        manifest: corpus.manifest,
+        file: fileName,
+      });
+
+      process.stdout.write(
+        `  ${pad(plan.id, 26)}${pad(
+          `${corpus.manifest.recordCount} records`,
+          16,
+        )}${pad(
+          `${corpus.manifest.maliciousCount} malicious`,
+          16,
+        )}-> ${fileName}
+`,
+      );
+    }
+
+    const benchmark =
+      buildBenchmarkManifest({
+        seed,
+        corpusFormat: requestedFormat,
+        generatedAt: new Date()
+          .toISOString()
+          .slice(0, 10),
+        entries,
+      });
+
+    writeFileSync(
+      join(outDir, "benchmark.json"),
+      `${JSON.stringify(benchmark, null, 2)}
+`,
+      "utf8",
+    );
+
+    process.stdout.write(
+      `
+  ${benchmark.totals.records} records, ${benchmark.totals.malicious} malicious (${(
+        benchmark.totals.maliciousRatio *
+        100
+      ).toFixed(3)}%), ${benchmark.totals.distinctTechniques} techniques across ${benchmark.totals.plans} plans
+  manifest written to ${benchmarkDir}/benchmark.json
+
+`,
+    );
 
     return;
   }
