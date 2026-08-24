@@ -66,11 +66,15 @@ cluster no other product is strong across:
 ### Now — sharpen the wedge (weeks, solo-doable)
 
 1. **Make the eval loop a product, not a CLI.** Bring-your-own-Sigma →
-   precision/recall/FP/coverage. *Done in part:* `pnpm evaluate:robustness`
-   scores a ruleset across many seeded enterprises and reports whether each rule
-   generalises (stable) or memorised one world (fragile) — the measurement no
-   fixed corpus can make. Next: a browser-facing version of this, not only a
-   CLI.
+   precision/recall/FP/coverage. *Done:* `pnpm evaluate:robustness` scores a
+   ruleset across many seeded enterprises and reports whether each rule
+   generalises (stable) or memorised one world (fragile). And the hosted app now
+   has a **browser Detection Lab** — paste a Sigma rule, score it against the
+   scenario's labelled corpus, get counted precision/recall — so the pitch is a
+   thing a detection engineer just did, reachable without cloning the repo.
+   Remaining: multi-seed robustness in the browser is deferred (each seed
+   regenerates a full enterprise, too slow for a UI); it stays a CLI/backend
+   job, and a hosted version would run it server-side.
 2. **Publish a stable benchmark corpus.** *Generation done:* `pnpm benchmark`
    writes the labelled telemetry as versioned ECS/OCSF NDJSON plus a manifest —
    "the Endomorph Detection Benchmark v1.0: 6 intrusions, 22 techniques, 27.8k

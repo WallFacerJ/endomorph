@@ -96,6 +96,7 @@ Endomorph includes:
 - transparent objective score, response-quality penalty, and final score;
 - a read-only finalized case until reset;
 - post-finalization instructor ground-truth review;
+- an in-app detection lab: paste a Sigma rule after finalizing and score it against the scenario's labelled corpus, with counted precision and recall;
 - nine scenarios selectable in the UI, three hand-authored and six generated;
 - two persisted professional interface styles: **Midnight SOC** and **Graphite**;
 - deterministic replay/unit/integration coverage plus browser-level Playwright tests;
