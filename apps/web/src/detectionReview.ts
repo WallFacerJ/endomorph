@@ -138,17 +138,14 @@ export interface CustomRuleReview {
   }[];
 }
 
-export function scoreSigmaRule(
-  scenario: ScenarioDefinition,
+export function scoreSigmaAgainstCorpus(
+  records: readonly CorpusRecord[],
   yaml: string,
 ): CustomRuleReview {
   const { rules, skipped } =
     importSigmaRules([
       { source: "pasted rule", yaml },
     ]);
-
-  const records =
-    buildScenarioCorpus(scenario);
 
   return {
     report: evaluateRuleset(
@@ -161,4 +158,14 @@ export function scoreSigmaRule(
     imported: rules.length,
     skipped,
   };
+}
+
+export function scoreSigmaRule(
+  scenario: ScenarioDefinition,
+  yaml: string,
+): CustomRuleReview {
+  return scoreSigmaAgainstCorpus(
+    buildScenarioCorpus(scenario),
+    yaml,
+  );
 }

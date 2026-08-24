@@ -136,3 +136,101 @@
   font-size: 0.82rem;
   color: var(--muted);
 }
+
+.rule-tester-row-clickable {
+  cursor: pointer;
+}
+
+.rule-tester-row-clickable:hover {
+  background: var(--panel-hover, rgba(148, 163, 184, 0.06));
+}
+
+.rule-tester-caret {
+  display: inline-block;
+  width: 14px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.rule-tester-matches-row td {
+  padding: 0 10px 12px;
+}
+
+.rule-tester-matches {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  border-left: 2px solid var(--border);
+  padding-left: 12px;
+}
+
+.rule-tester-matches li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+
+.rule-tester-chip {
+  flex: none;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.rule-tester-chip.tp {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+}
+
+.rule-tester-chip.fp {
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
+}
+
+.rule-tester-match-type {
+  flex: none;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.rule-tester-match-detail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+  font-family: ui-monospace, monospace;
+  font-size: 0.76rem;
+}
+
+.rule-tester-match-more {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.rule-tester-chip.fn {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.rule-tester-matchgroup + .rule-tester-matchgroup {
+  margin-top: 12px;
+}
+
+.rule-tester-matchgroup-head {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.rule-tester-matchgroup-head strong {
+  color: var(--text);
+}
+
+.rule-tester-sample {
+  font-style: italic;
+}

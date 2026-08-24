@@ -161,3 +161,77 @@ test("the lab has a front door at ?lab, reached without an investigation", async
       .first(),
   ).toContainText("100.0%");
 });
+
+test("opening a noisy rule shows the exact benign events it fired on", async ({
+  page,
+}) => {
+  // The question a detection engineer actually has is not the precision number
+  // but why: which benign events is my rule catching. A labelled corpus can
+  // answer it exactly, and this is where it does.
+  await page.goto("/?lab");
+
+  const tester = page.getByRole(
+    "region",
+    {
+      name: "Test your own detection rule",
+    },
+  );
+
+  await tester.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  // A rule keyed on any PowerShell launch: it catches the malicious encoded
+  // command and a great deal of benign administrative scripting with it.
+  await tester
+    .getByRole("textbox")
+    .fill(
+      [
+        "title: Any PowerShell launch",
+        "logsource:",
+        "  category: process_creation",
+        "detection:",
+        "  selection:",
+        "    Image|endswith: 'powershell.exe'",
+        "  condition: selection",
+        "tags:",
+        "  - attack.t1059.001",
+      ].join("\n"),
+    );
+
+  await tester
+    .getByRole("button", {
+      name: "Score rule",
+    })
+    .click();
+
+  const row = tester
+    .locator(
+      ".rule-tester-table tbody tr.rule-tester-row-clickable",
+    )
+    .first();
+
+  await expect(row).toBeVisible();
+  await row.click();
+
+  // The expanded detail names the false positives by their event, not by an
+  // id, so the noise is legible.
+  const matches = tester.locator(
+    ".rule-tester-matches li",
+  );
+
+  await expect(
+    matches.first(),
+  ).toBeVisible();
+
+  await expect(
+    matches.first(),
+  ).toContainText("FP");
+
+  await expect(
+    tester.locator(
+      ".rule-tester-matchgroup-head",
+    ),
+  ).toContainText("False positives");
+});
