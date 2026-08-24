@@ -71,9 +71,12 @@ cluster no other product is strong across:
    generalises (stable) or memorised one world (fragile) — the measurement no
    fixed corpus can make. Next: a browser-facing version of this, not only a
    CLI.
-2. **Publish a stable benchmark corpus.** Ship the labelled telemetry as
-   versioned ECS/OCSF NDJSON — "the Endomorph Detection Benchmark: N intrusions,
-   M techniques, seeded." Marketing *and* a standard others cite back.
+2. **Publish a stable benchmark corpus.** *Generation done:* `pnpm benchmark`
+   writes the labelled telemetry as versioned ECS/OCSF NDJSON plus a manifest —
+   "the Endomorph Detection Benchmark v1.0: 6 intrusions, 22 techniques, 27.8k
+   records, seeded." Remaining is *distribution*: put v1.0 somewhere citable (a
+   tagged GitHub release or a public URL) so it becomes a standard others point
+   back to, not just a command they could run.
 3. **Grow ATT&CK coverage deliberately.** Technique breadth is the number
    detection engineers judge a corpus on. Six plans is the honest gap; each new
    plan is pure event modelling, no infrastructure.
