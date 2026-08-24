@@ -29,6 +29,7 @@ import type {
 import type {
   AnalystCaseState,
   IncidentCaseState,
+  InvestigationCoverage,
   ScenarioDefinition,
   ScenarioState,
   SiemEventRecord,
@@ -61,6 +62,13 @@ export interface CaseWorkspaceProps {
 
   /** Recorded on the result: a guided run is not the same exercise. */
   assistance: SessionMode;
+
+  /**
+   * The run's coverage, when the scenario has ground truth. Threaded down so
+   * the exported assessment record carries the same figure the result panel
+   * shows, computed once in App rather than twice.
+   */
+  coverage?: InvestigationCoverage;
   siemRecords: readonly SiemEventRecord[];
   analystCase: AnalystCaseState;
   incidentCase: IncidentCaseState;
@@ -100,6 +108,7 @@ export function CaseWorkspace({
   questionAnswers,
   questionScore,
   assistance,
+  coverage,
   scenarioState,
   siemRecords,
   analystCase,
@@ -163,6 +172,7 @@ export function CaseWorkspace({
                     analystCase,
                     questionAnswers,
                     assistance,
+                    coverage,
                     label,
                   }),
                   null,

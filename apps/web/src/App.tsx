@@ -1724,6 +1724,7 @@ function ScenarioWorkspace({
           <CaseWorkspace
             scenario={scenario}
             assistance={sessionMode}
+            coverage={coverage}
             questionAnswers={
               questionAnswers
             }

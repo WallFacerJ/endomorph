@@ -4,6 +4,7 @@ import {
 
 import type {
   AnalystCaseState,
+  InvestigationCoverage,
   ScenarioDefinition,
   ScenarioState,
 } from "./simulationAdapter";
@@ -92,6 +93,33 @@ export interface AssessmentRecord {
     readonly findingsRecorded: number;
     readonly responsesPerformed: readonly string[];
   };
+
+  /**
+   * How much of the incident the analyst actually reached.
+   *
+   * The objective and question scores answer whether the world ended in the
+   * right state and whether the recall questions were answered. Neither can
+   * separate an analyst who scoped the intrusion from one who read the alert,
+   * guessed the containment, and stopped -- both can land the same numbers.
+   * Coverage is the one figure here that does, so the record carries it
+   * beside the others rather than leaving it in the on-screen result the
+   * instructor never receives. It is absent only when the scenario declares
+   * no ground truth to measure against.
+   *
+   * The missed entities are kept, not only the percentage: "reached 6 of 9"
+   * is a different result depending on which three were never opened, and a
+   * reviewer comparing thirty records needs the which, not only the count.
+   */
+  readonly coverage?: {
+    readonly percentage: number;
+    readonly reached: number;
+    readonly total: number;
+    readonly missed: readonly {
+      readonly id: string;
+      readonly kind: string;
+      readonly label: string;
+    }[];
+  };
 }
 
 export interface AssessmentInput {
@@ -102,6 +130,14 @@ export interface AssessmentInput {
     Record<string, string>
   >;
   readonly assistance: SessionMode;
+
+  /**
+   * The coverage assessment for this run, when the scenario has ground truth
+   * to measure against. Passed in rather than recomputed here so the record
+   * cannot disagree with the coverage the result panel and case already show
+   * from the same call.
+   */
+  readonly coverage?: InvestigationCoverage;
 
   /** Seed the scenario was generated from, when the file records one. */
   readonly seed?: number;
@@ -119,6 +155,7 @@ export function buildAssessmentRecord(
     analystCase,
     questionAnswers,
     assistance,
+    coverage,
     seed,
     label,
   } = input;
@@ -198,5 +235,23 @@ export function buildAssessmentRecord(
         ...state.performedActionIds,
       ],
     },
+
+    ...(coverage &&
+    coverage.entities.length > 0
+      ? {
+          coverage: {
+            percentage: coverage.percentage,
+            reached: coverage.reached.length,
+            total: coverage.entities.length,
+            missed: coverage.missed.map(
+              (entity) => ({
+                id: entity.id,
+                kind: entity.kind,
+                label: entity.label,
+              }),
+            ),
+          },
+        }
+      : {}),
   };
 }

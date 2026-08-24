@@ -172,6 +172,100 @@ describe("buildAssessmentRecord", () => {
     });
   });
 
+  it("carries incident coverage and names what was missed", () => {
+    // The objective and question numbers cannot separate an analyst who
+    // scoped the intrusion from one who guessed the containment and stopped.
+    // Coverage can, so the record has to carry it -- and the missed entities
+    // with it, because "reached 2 of 3" means nothing without the which.
+    const record = buildAssessmentRecord(
+      createInput({
+        coverage: {
+          percentage: 67,
+          entities: [
+            {
+              id: "FIN-LT-004",
+              kind: "device",
+              label: "FIN-LT-004",
+              reached: true,
+            },
+            {
+              id: "simone",
+              kind: "account",
+              label: "simone",
+              reached: true,
+            },
+            {
+              id: "203.0.113.10",
+              kind: "address",
+              label: "203.0.113.10",
+              reached: false,
+            },
+          ],
+          reached: [
+            {
+              id: "FIN-LT-004",
+              kind: "device",
+              label: "FIN-LT-004",
+              reached: true,
+            },
+            {
+              id: "simone",
+              kind: "account",
+              label: "simone",
+              reached: true,
+            },
+          ],
+          missed: [
+            {
+              id: "203.0.113.10",
+              kind: "address",
+              label: "203.0.113.10",
+              reached: false,
+            },
+          ],
+        } as unknown as AssessmentInput["coverage"],
+      }),
+    );
+
+    expect(record.coverage).toEqual({
+      percentage: 67,
+      reached: 2,
+      total: 3,
+      missed: [
+        {
+          id: "203.0.113.10",
+          kind: "address",
+          label: "203.0.113.10",
+        },
+      ],
+    });
+  });
+
+  it("omits coverage when the scenario has no ground truth", () => {
+    // The hand-authored scenarios measure against nothing. A coverage block
+    // of 100% over zero entities would read as a perfect score for reaching
+    // nothing, so the field is absent rather than misleadingly full.
+    const record = buildAssessmentRecord(
+      createInput({
+        coverage: {
+          percentage: 100,
+          entities: [],
+          reached: [],
+          missed: [],
+        } as unknown as AssessmentInput["coverage"],
+      }),
+    );
+
+    expect(record.coverage).toBeUndefined();
+  });
+
+  it("omits coverage when none was supplied", () => {
+    expect(
+      buildAssessmentRecord(createInput())
+        .coverage,
+    ).toBeUndefined();
+  });
+
   it("survives a scenario with no questions", () => {
     // The hand-authored scenarios carry none, and an assessment of one
     // should be an empty question set rather than a crash.
