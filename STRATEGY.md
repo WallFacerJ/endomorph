@@ -87,20 +87,18 @@ cluster no other product is strong across:
    techniques are buried among 10x+ benign look-alikes, a floor a corpus with
    separable malicious traffic cannot offer.
 
-   *The tool's first finding, worth acting on:* it flags **two exposed
-   identity-lifecycle techniques** (T1098 account-enabled, T1098.003
-   role-granted) — the background never performs benign account-enables or role
-   grants, so a rule keyed on them catches the intrusion with zero false
-   positives. Closing this means adding benign `ACCOUNT_ENABLED` / `ROLE_GRANTED`
-   activity to `generateBackgroundActivity`, designed to be *realistically
-   distinguishable* from the malicious version (an admin actor granting to
-   another account through a change process, versus the malicious self-grant),
-   so a crafted rule survives while a naive one gains realistic FP. Note that
-   this **lowers the documented 1.000 precision** of the `account-reenabled` and
-   `privileged-role-grant` rules and **requires regenerating the detection
-   baseline** (`pnpm evaluate:baseline`) — a deliberate change, not a drive-by,
-   which is why it is recorded here rather than rushed. This is the
-   measure → find weakness → improve loop the noise floor exists to drive.
+   *The tool's first finding, now acted on:* it flagged two exposed
+   identity-lifecycle techniques (T1098, T1098.003) — the background never
+   performed benign account-enables or role grants, so a rule keyed on them
+   scored a perfect precision it would never see in production. Benign
+   `ACCOUNT_ENABLED` / `ROLE_GRANTED` activity was added to
+   `generateBackgroundActivity`, designed distinguishable: the crafted
+   `privileged-role-grant` rule held at 1.000 (it keys on administrative roles;
+   the benign grants were not), while the naive `account-reenabled` rule dropped
+   to a realistic ~0.3 (keying on "an account was enabled" catches the ones that
+   are supposed to happen too). Baseline regenerated, docs corrected. This is
+   the measure → find weakness → improve loop the noise floor exists to drive,
+   and it now has one full turn on record.
 
 ### Next — deepen where it compounds both audiences (months)
 
