@@ -169,3 +169,44 @@ test("Identity performs session and account containment from the affected accoun
   await expect(workspace).toContainText("disabled");
   await expect(workspace).toContainText("Performed");
 });
+
+test("the identity directory badges account criticality on a generated scenario", async ({
+  page,
+}) => {
+  // Privileged accounts carry the top criticality tiers the generator
+  // assigns, and the directory is exactly where an analyst needs to pick
+  // them out of ordinary staff logins. The hand-authored scenarios carry no
+  // asset context, so this runs against a generated one.
+  await page.goto(
+    "/?scenario=/scenarios/generated-enterprise.json",
+  );
+
+  await page
+    .getByRole("navigation")
+    .getByRole("button", {
+      name: "Identity",
+      exact: true,
+    })
+    .click();
+
+  const directory = page.getByRole(
+    "complementary",
+    { name: "Identity inventory" },
+  );
+
+  await expect(directory).toBeVisible();
+
+  const badges = directory.locator(
+    ".identity-criticality",
+  );
+
+  await expect(
+    badges.first(),
+  ).toBeVisible();
+
+  // The rationale the generator wrote is carried onto the badge, not
+  // re-derived in the console.
+  await expect(
+    badges.first(),
+  ).toHaveAttribute("title", /.+/);
+});

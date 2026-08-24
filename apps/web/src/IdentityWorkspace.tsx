@@ -9,6 +9,8 @@ import {
 } from "./simulationAdapter";
 
 import type {
+  AssetContext,
+  AssetCriticality,
   IdentityProjectionState,
   ScenarioAction,
   ScenarioState,
@@ -40,7 +42,24 @@ interface IdentityWorkspaceProps {
   onPerformAction: (actionId: string) => void;
   onSearchSiem: (query: string) => void;
   onOpenCase: () => void;
+
+  /**
+   * Business context per entity, when the scenario carries it. On the
+   * identity console it is the privileged accounts -- the ones marked severe
+   * -- that most need to stand out from ordinary staff logins.
+   */
+  assets?: readonly AssetContext[];
 }
+
+const CRITICALITY_LABEL: Record<
+  AssetCriticality,
+  string
+> = {
+  severe: "Severe",
+  high: "High",
+  moderate: "Moderate",
+  low: "Low",
+};
 
 type IdentityTab =
   | "authentication"
@@ -80,6 +99,7 @@ function formatTimestamp(timestamp: string): string {
 export function IdentityWorkspace({
   world,
   state,
+  assets,
   initialAccountId,
   actions,
   performedActionIds,
@@ -90,6 +110,20 @@ export function IdentityWorkspace({
   onSearchSiem,
   onOpenCase,
 }: IdentityWorkspaceProps) {
+  const assetByEntityId = useMemo(
+    () =>
+      new Map(
+        (assets ?? []).map(
+          (asset) =>
+            [
+              asset.entityId,
+              asset,
+            ] as const,
+        ),
+      ),
+    [assets],
+  );
+
   const inventory = useMemo(
     () => getIdentityInventory(world, state),
     [world, state],
@@ -339,7 +373,31 @@ export function IdentityWorkspace({
               key={entry.user.id}
             >
               <div className="identity-user-summary">
-                <strong>{entry.user.displayName}</strong>
+                <span className="identity-user-name">
+                  <strong>{entry.user.displayName}</strong>
+                  {(() => {
+                    const asset =
+                      assetByEntityId.get(
+                        entry.user.id,
+                      );
+
+                    return asset ? (
+                      <span
+                        className={`identity-criticality identity-criticality-${asset.criticality}`}
+                        title={
+                          asset.rationale
+                        }
+                      >
+                        {
+                          CRITICALITY_LABEL[
+                            asset
+                              .criticality
+                          ]
+                        }
+                      </span>
+                    ) : null;
+                  })()}
+                </span>
                 <small>
                   {entry.user.department} · {entry.user.title}
                 </small>
@@ -365,6 +423,28 @@ export function IdentityWorkspace({
                   <span className={`identity-account-status ${account.status}`}>
                     {account.status}
                   </span>
+                  {(() => {
+                    const asset =
+                      assetByEntityId.get(
+                        account.id,
+                      );
+
+                    return asset ? (
+                      <span
+                        className={`identity-criticality identity-criticality-${asset.criticality}`}
+                        title={
+                          asset.rationale
+                        }
+                      >
+                        {
+                          CRITICALITY_LABEL[
+                            asset
+                              .criticality
+                          ]
+                        }
+                      </span>
+                    ) : null;
+                  })()}
                 </button>
               ))}
               <div className="identity-user-metrics">
@@ -411,6 +491,31 @@ export function IdentityWorkspace({
                 <small>Sessions</small>
                 <strong>{investigation.sessions.length}</strong>
               </span>
+              {(() => {
+                const asset =
+                  assetByEntityId.get(
+                    selectedAccountId,
+                  );
+
+                return asset ? (
+                  <span
+                    title={asset.rationale}
+                  >
+                    <small>
+                      Criticality
+                    </small>
+                    <strong
+                      className={`identity-criticality identity-criticality-${asset.criticality}`}
+                    >
+                      {
+                        CRITICALITY_LABEL[
+                          asset.criticality
+                        ]
+                      }
+                    </strong>
+                  </span>
+                ) : null;
+              })()}
             </div>
           </div>
 

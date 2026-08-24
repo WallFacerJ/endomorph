@@ -1708,6 +1708,7 @@ function ScenarioWorkspace({
             <IdentityWorkspace
               world={scenarioState.world}
               state={projections.identity}
+              assets={scenario.assets}
               initialAccountId={context.accountId}
               actions={responseActions}
               performedActionIds={scenarioState.performedActionIds}
