@@ -42,6 +42,10 @@ Renamed to **Endomorph**, and the enterprise generator arrives.
 
 - `pnpm lint` now covers all five packages instead of `apps/web` alone, and warnings fail the build.
 
+### Added — containment where the judgement is formed
+
+- The live-response console can now isolate the host it examined. Its header always called it the console that decides whether a machine goes back to its owner; the containment that follows from looking now lives there rather than on a console the analyst had to leave for. It reads the isolation back off the event history like everything else, so the host reports itself contained without a local flag.
+
 ### Added — asset criticality on the entity consoles
 
 - Business context the generator has always produced -- criticality, a rationale, and a business unit for every entity -- now rides on the scenario as an optional `assets` block and reaches the runtime, closing the "generated but unread" gap. The schema accepts a closed set of four criticality tiers; the runtime compiler carries the block onto the definition the app reads.
