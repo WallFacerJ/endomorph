@@ -220,6 +220,18 @@ test("the result reports coverage and names what was missed", async ({
   await expect(result).toContainText(
     "Never opened",
   );
+
+  // Coverage says which entities were reached; key evidence says whether the
+  // smoking guns were banked. Finalizing without collecting anything is
+  // exactly the case where the two diverge: nothing was reached and nothing
+  // was collected, and the result names the key events that got away.
+  await expect(result).toContainText(
+    "Key evidence",
+  );
+
+  await expect(result).toContainText(
+    "Never collected",
+  );
 });
 
 test("the default scenario is a generated one", async ({

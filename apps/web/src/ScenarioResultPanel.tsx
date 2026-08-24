@@ -4,6 +4,10 @@ import type {
   ScenarioScore,
 } from "./simulationAdapter";
 
+import type {
+  KeyEvidenceSummary,
+} from "./keyEvidence";
+
 import "./ScenarioResultPanel.css";
 
 interface ScenarioResultPanelProps {
@@ -24,6 +28,16 @@ interface ScenarioResultPanelProps {
    */
   coverage?: InvestigationCoverage;
 
+  /**
+   * Which of the incident's key events the analyst actually collected.
+   *
+   * Coverage says which entities were reached; this says whether the smoking
+   * guns themselves were banked. Shown side by side because a high coverage
+   * with low key-evidence capture is a real and instructive result: the
+   * analyst walked the right hosts without collecting the proof.
+   */
+  keyEvidence?: KeyEvidenceSummary;
+
   /** Points earned on the investigation questions, when a scenario has any. */
   questionScore?: {
     earned: number;
@@ -38,6 +52,7 @@ export function ScenarioResultPanel({
   evidenceCount,
   findingCount,
   coverage,
+  keyEvidence,
   questionScore,
 }: ScenarioResultPanelProps) {
   const succeeded =
@@ -114,6 +129,18 @@ export function ScenarioResultPanel({
               </strong>
             </div>
           )}
+        {keyEvidence &&
+          keyEvidence.total > 0 && (
+            <div>
+              <span>
+                Key evidence
+              </span>
+              <strong>
+                {keyEvidence.captured}/
+                {keyEvidence.total}
+              </strong>
+            </div>
+          )}
         {questionScore &&
           questionScore.available >
             0 && (
@@ -177,6 +204,50 @@ export function ScenarioResultPanel({
               decision reached without
               scoping the intrusion
               still leaves gaps.
+            </p>
+          </div>
+        )}
+
+      {keyEvidence &&
+        keyEvidence.missed.length > 0 && (
+          <div className="result-coverage">
+            <p className="result-coverage-head">
+              Collected{" "}
+              <strong>
+                {keyEvidence.captured}
+              </strong>{" "}
+              of{" "}
+              <strong>
+                {keyEvidence.total}
+              </strong>{" "}
+              key incident events. Never
+              collected:
+            </p>
+            <ul className="result-coverage-missed">
+              {keyEvidence.missed.map(
+                (step) => (
+                  <li
+                    key={step.eventId}
+                  >
+                    {step.techniqueId && (
+                      <span className="result-coverage-kind">
+                        {step.techniqueId}
+                      </span>
+                    )}
+                    <span>
+                      {step.title ??
+                        step.significance}
+                    </span>
+                  </li>
+                ),
+              )}
+            </ul>
+            <p className="result-note">
+              These are the events the
+              incident turned on. Reaching
+              the host is not the same as
+              banking the proof of what
+              happened on it.
             </p>
           </div>
         )}

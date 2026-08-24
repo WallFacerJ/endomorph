@@ -123,6 +123,10 @@ import {
   saveRun,
 } from "./runPersistence";
 
+import {
+  summarizeKeyEvidence,
+} from "./keyEvidence";
+
 type WorkspaceView =
   | "alerts"
   | "timeline"
@@ -597,6 +601,19 @@ function ScenarioWorkspace({
     projections.siem.events,
     analystCase.collectedEventIds,
   ]);
+
+  const keyEvidence = useMemo(
+    () =>
+      summarizeKeyEvidence(
+        scenario.groundTruth?.timeline ??
+          [],
+        analystCase.collectedEventIds,
+      ),
+    [
+      scenario.groundTruth,
+      analystCase.collectedEventIds,
+    ],
+  );
 
   // Only computed once the run is finalized: it searches every ordering of
   // the available operations, which is wasted work mid-investigation and
@@ -1643,6 +1660,7 @@ function ScenarioWorkspace({
               projections.siem.events
             }
             coverage={coverage}
+            keyEvidence={keyEvidence}
             questionScore={{
               earned:
                 questionScore.earned,

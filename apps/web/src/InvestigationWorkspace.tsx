@@ -35,6 +35,10 @@ import {
 } from "./ResponseComparisonPanel";
 
 import type {
+  KeyEvidenceSummary,
+} from "./keyEvidence";
+
+import type {
   AnalystCaseState,
   InvestigationCoverage,
   ResponseComparison,
@@ -84,6 +88,9 @@ export interface InvestigationWorkspaceProps {
   /** The SIEM projection of the events currently in view. */
   siemRecords: readonly SiemEventRecord[];
   coverage?: InvestigationCoverage;
+
+  /** Which of the incident's key events were collected, at finalization. */
+  keyEvidence?: KeyEvidenceSummary;
   questionScore: {
     earned: number;
     available: number;
@@ -101,6 +108,7 @@ export interface InvestigationWorkspaceProps {
 }
 
 export function InvestigationWorkspace({
+  keyEvidence,
   scenario,
   scenarioState,
   questionAnswers,
@@ -279,6 +287,7 @@ export function InvestigationWorkspace({
                 evidenceCount={analystCase.collectedEventIds.length}
                 findingCount={analystCase.findings.length}
                 coverage={coverage}
+                keyEvidence={keyEvidence}
                 questionScore={{
                   earned: questionScore.earned,
                   available:
