@@ -213,6 +213,29 @@ Each seed is an independently generated enterprise: different staff, hosts, and 
 
 The verdict is on detection consistency; the false-positive columns carry the noise story separately, so `naive-beacon` reads as stable-but-deafening while a memorised rule reads as clean-but-fragile. `--robustness` exits non-zero when any rule is fragile, so a CI gate can hold a ruleset to generalising rather than to passing one lucky seed. This is the measurement a fixed dataset cannot make, and the reason a generated corpus is worth more than a captured one for detection work.
 
+### Are the false positives realistic? Measured, not asserted.
+
+The standing objection to synthetic detection data is that its false positives do not transfer: if the benign traffic is too clean, a rule scores zero false positives here and drowns in production. Endomorph answers that with a number rather than a promise.
+
+```bash
+pnpm noise-floor    # for each technique, how many benign events share its event types
+```
+
+```
+  TECHNIQUE   MAL   BENIGN LOOK-ALIKES  PER MALICIOUS  EVENT TYPES
+  T1059.001   1     863                 863x           PROCESS_STARTED
+  T1071.001   3     1700                566.7x         NETWORK_CONNECTION
+  T1110.003   4     29                  7.3x           AUTH_LOGIN_FAILED
+  T1098.003   1     0                   0 (exposed)    ROLE_GRANTED
+
+  18/22 techniques are buried among 10x or more benign look-alikes;
+  2 are exposed (no benign event of their type -- a corpus with many of these would be too clean to trust).
+```
+
+Encoded PowerShell hides among 863 benign process starts; the C2 beacon among 1,700 benign connections. That is the false-positive floor for an unspecific rule keyed on the behaviour — a floor a corpus with separable malicious traffic cannot offer, because there is nothing benign to be confused with. It is a floor, not a verdict: a specific rule does better, and closing that gap is the detection engineer's job — but the floor establishes there is a gap to close.
+
+The report is honest about its own gaps, too. The **exposed** techniques above are identity-lifecycle actions the background never performs benignly, so a rule keyed on "a role was granted" catches the intrusion with zero false positives — realistic for role grants, which are rare, but a signal that those techniques are easy here for a reason worth checking rather than trusting.
+
 ### The benchmark as one artifact
 
 ```bash

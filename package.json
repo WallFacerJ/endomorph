@@ -14,6 +14,7 @@
     "evaluate:baseline": "pnpm evaluate -- --json rules/detection-baseline.json",
     "evaluate:robustness": "pnpm evaluate -- --robustness 20",
     "benchmark": "pnpm evaluate -- --benchmark dist/benchmark",
+    "noise-floor": "pnpm evaluate -- --noise-floor",
     "bundle:standalone": "pnpm build && pnpm --filter @endomorph/fabric bundle:standalone",
     "test:e2e": "playwright test"
   },

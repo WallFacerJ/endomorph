@@ -89,6 +89,14 @@ import {
   BENCHMARK_VERSION,
 } from "./benchmark.js";
 
+import {
+  computeNoiseFloor,
+} from "./noiseFloor.js";
+
+import type {
+  TechniqueNoiseFloor,
+} from "./noiseFloor.js";
+
 import type {
   DetectionRule,
 } from "./detection.js";
@@ -254,6 +262,60 @@ function printRobustness(
   }
 
   process.stdout.write("\n");
+}
+
+function printNoiseFloor(
+  techniques: readonly TechniqueNoiseFloor[],
+): void {
+  const sorted = [...techniques].sort(
+    (left, right) =>
+      right.lookalikeRatio -
+      left.lookalikeRatio,
+  );
+
+  process.stdout.write(
+    `  ${pad("TECHNIQUE", 12)}${pad("MAL", 6)}${pad("BENIGN LOOK-ALIKES", 20)}${pad("PER MALICIOUS", 15)}EVENT TYPES
+`,
+  );
+
+  for (const technique of sorted) {
+    process.stdout.write(
+      `  ${pad(
+        technique.technique,
+        12,
+      )}${pad(
+        technique.maliciousEvents,
+        6,
+      )}${pad(
+        technique.benignLookalikes,
+        20,
+      )}${pad(
+        technique.lookalikeRatio === 0
+          ? "0 (exposed)"
+          : `${technique.lookalikeRatio}x`,
+        15,
+      )}${technique.eventTypes.join(", ")}
+`,
+    );
+  }
+
+  const buried = sorted.filter(
+    (technique) =>
+      technique.lookalikeRatio >= 10,
+  ).length;
+
+  const exposed = sorted.filter(
+    (technique) =>
+      technique.benignLookalikes === 0,
+  ).length;
+
+  process.stdout.write(
+    `
+  ${buried}/${sorted.length} techniques are buried among 10x or more benign look-alikes;
+  ${exposed} are exposed (no benign event of their type -- a corpus with many of these would be too clean to trust).
+
+`,
+  );
 }
 
 function main(): void {
@@ -611,6 +673,100 @@ function main(): void {
 
 `,
     );
+
+    return;
+  }
+
+  /*
+    Noise-floor mode: the measured answer to "your false positives won't
+    transfer because the benign traffic is too clean". For each technique, how
+    many benign events share its event types -- the false positives an
+    unspecific rule keyed on that behaviour would eat. A technique with a large
+    haystack is realistically hard; one with none is a corpus telling on
+    itself.
+  */
+  if (argv.includes("--noise-floor")) {
+    const enterprise =
+      generateEnterprise(
+        profileOverrides
+          ? { ...profileOverrides, seed }
+          : { seed },
+      );
+
+    const background =
+      generateBackgroundActivity(
+        enterprise,
+        { days: 3 },
+      );
+
+    process.stdout.write(
+      `Endomorph corpus noise floor
+  seed ${seed}: how many benign events share each technique's event types
+
+`,
+    );
+
+    const byTechnique = new Map<
+      string,
+      TechniqueNoiseFloor
+    >();
+
+    for (const plan of ATTACK_PLANS) {
+      const incident = generateIncident(
+        enterprise,
+        { planId: plan.id },
+      );
+
+      const detection =
+        incident.events[
+          incident.events.length - 1
+        ].timestamp;
+
+      const events = [
+        ...background.filter(
+          (event) =>
+            event.timestamp <=
+            detection,
+        ),
+        ...incident.events,
+      ].sort((left, right) =>
+        left.timestamp.localeCompare(
+          right.timestamp,
+        ),
+      );
+
+      const corpus = buildCorpus(
+        enterprise,
+        events,
+        incident,
+      );
+
+      for (const technique of computeNoiseFloor(
+        corpus.records,
+      ).techniques) {
+        const existing =
+          byTechnique.get(
+            technique.technique,
+          );
+
+        // The same technique can appear in more than one plan; keep the
+        // instance with the most malicious events, as the fullest picture.
+        if (
+          !existing ||
+          technique.maliciousEvents >
+            existing.maliciousEvents
+        ) {
+          byTechnique.set(
+            technique.technique,
+            technique,
+          );
+        }
+      }
+    }
+
+    printNoiseFloor([
+      ...byTechnique.values(),
+    ]);
 
     return;
   }
