@@ -12,8 +12,13 @@ import {
 import type {
   LiveResponseCommandId,
   LiveResponseRow,
+  ScenarioAction,
   SimulationEvent,
 } from "./simulationAdapter";
+
+import {
+  actionTargetsDevice,
+} from "./actionRouting";
 
 import {
   Icon,
@@ -121,6 +126,21 @@ interface LiveResponseWorkspaceProps {
   readonly onSearchSiem: (
     query: string,
   ) => void;
+
+  /**
+   * Scenario response operations. The header calls this console the one that
+   * decides whether a machine goes back to its owner, so the containment that
+   * follows from looking belongs here, not on a console the analyst has to
+   * leave for -- the same response-in-context rule the endpoint and identity
+   * consoles already follow.
+   */
+  readonly actions: readonly ScenarioAction[];
+
+  readonly performedActionIds: readonly string[];
+
+  readonly onPerformAction: (
+    actionId: string,
+  ) => void;
 }
 
 export function LiveResponseWorkspace({
@@ -131,6 +151,9 @@ export function LiveResponseWorkspace({
   isCollected,
   onCollect,
   onSearchSiem,
+  actions,
+  performedActionIds,
+  onPerformAction,
 }: LiveResponseWorkspaceProps) {
   const [deviceId, setDeviceId] = useState(
     initialDeviceId ??
@@ -242,6 +265,20 @@ export function LiveResponseWorkspace({
   const device = devices.find(
     (candidate) =>
       candidate.id === deviceId,
+  );
+
+  // The response operations that act on the host being examined. Filtered by
+  // the same routing the endpoint console uses, so an operation appears on
+  // exactly the consoles that can perform it and nowhere else.
+  const hostActions = useMemo(
+    () =>
+      actions.filter((action) =>
+        actionTargetsDevice(
+          action,
+          deviceId,
+        ),
+      ),
+    [actions, deviceId],
   );
 
   const active = COMMANDS.find(
@@ -471,6 +508,72 @@ export function LiveResponseWorkspace({
                 <Icon name="info" size={13} />
                 {result.limitation}
               </p>
+
+              <section
+                className="live-response-operations"
+                aria-label="Host containment"
+              >
+                <p className="eyebrow">
+                  Host containment
+                </p>
+                <h4>
+                  Act on{" "}
+                  {device.hostname}
+                </h4>
+
+                {hostActions.length ===
+                0 ? (
+                  <p className="live-muted">
+                    No scenario response
+                    operation targets this
+                    host.
+                  </p>
+                ) : (
+                  <div className="live-action-list">
+                    {hostActions.map(
+                      (action) => {
+                        const performed =
+                          performedActionIds.includes(
+                            action.id,
+                          );
+
+                        return (
+                          <button
+                            key={action.id}
+                            type="button"
+                            className="live-action"
+                            disabled={
+                              finalized ||
+                              performed
+                            }
+                            onClick={() =>
+                              onPerformAction(
+                                action.id,
+                              )
+                            }
+                          >
+                            <strong>
+                              {action.label}
+                            </strong>
+                            <span>
+                              {
+                                action.description
+                              }
+                            </span>
+                            <small>
+                              {performed
+                                ? "Performed"
+                                : finalized
+                                  ? "Run finalized"
+                                  : "Execute operation"}
+                            </small>
+                          </button>
+                        );
+                      },
+                    )}
+                  </div>
+                )}
+              </section>
             </>
           ) : (
             <p className="live-empty">

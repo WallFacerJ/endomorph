@@ -1718,6 +1718,13 @@ function ScenarioWorkspace({
               isCollected={isEvidenceCollected}
               onCollect={collectEvidence}
               onSearchSiem={openSiem}
+              actions={responseActions}
+              performedActionIds={
+                scenarioState.performedActionIds
+              }
+              onPerformAction={
+                performResponseAction
+              }
             />
           </section>
         )}

@@ -305,3 +305,47 @@ test("host state with no event behind it cannot be collected", async ({
     }),
   ).toHaveCount(0);
 });
+
+test("the host can be contained from the console that examined it", async ({
+  page,
+}) => {
+  // The console's own header calls it the one that decides whether a machine
+  // goes back to its owner. Having looked, the analyst should be able to act
+  // here rather than leave for another console -- the response-in-context
+  // rule, applied to the surface where the containment judgement is formed.
+  await openLiveResponse(page);
+
+  const containment = page.getByRole(
+    "region",
+    { name: "Host containment" },
+  );
+
+  await expect(containment).toBeVisible();
+
+  const isolate = containment
+    .locator(".live-action")
+    .filter({ hasText: /Isolate/i })
+    .first();
+
+  await expect(isolate).toBeVisible();
+  await expect(isolate).toBeEnabled();
+
+  await isolate.click();
+
+  // The operation is one-shot: once performed it disables, the same as the
+  // endpoint console, so a run cannot double-apply a containment.
+  await expect(isolate).toBeDisabled();
+
+  await expect(isolate).toContainText(
+    /Performed/i,
+  );
+
+  // And the host now reports itself contained -- the console reads the
+  // isolation it just performed the same way it reads everything else, off
+  // the event history rather than a local flag.
+  await expect(
+    page.locator(
+      ".live-status-contained",
+    ),
+  ).toBeVisible();
+});

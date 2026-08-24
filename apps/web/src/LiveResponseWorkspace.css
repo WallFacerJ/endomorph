@@ -401,3 +401,74 @@
   flex: 0 0 auto;
   margin-top: 2px;
 }
+
+/*
+  Host containment on the live console.
+
+  The header calls this the console that decides whether a machine goes back
+  to its owner, so the operation that acts on that decision lives here rather
+  than on one the analyst has to leave for. Styled to match the endpoint
+  console's response bar, since it is the same kind of thing in a second place
+  the judgement is formed.
+*/
+.live-response-operations {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.live-response-operations .eyebrow {
+  color: var(--muted);
+}
+
+.live-response-operations h4 {
+  margin: 4px 0 12px;
+}
+
+.live-muted {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.live-action-list {
+  display: grid;
+  gap: 10px;
+}
+
+.live-action {
+  display: grid;
+  gap: 3px;
+  padding: 12px 14px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-strong);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.live-action:hover:not(:disabled) {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--panel-strong));
+}
+
+.live-action:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.live-action strong {
+  font-size: 0.92rem;
+}
+
+.live-action span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.live-action small {
+  color: var(--accent);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
