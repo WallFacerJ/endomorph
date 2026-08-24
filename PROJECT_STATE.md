@@ -208,12 +208,17 @@ Expected future technologies will be selected per the enterprise roadmap, with s
 At the beginning of future development sessions, read:
 
 1. `PROJECT_STATE.md`
-2. `ENTERPRISE_VISION.md`
-3. `COMPETITIVE_RESEARCH.md`
-4. `ROADMAP.md`
-5. `ARCHITECTURE.md`
-6. the latest open issues/PRs and tester feedback
+2. `STRATEGY.md` — the current bet: lead with detection engineering, keep the console as the demo
+3. `ENTERPRISE_VISION.md`
+4. `COMPETITIVE_RESEARCH.md`
+5. `ROADMAP.md`
+6. `ARCHITECTURE.md`
+7. the latest open issues/PRs and tester feedback
 
-Future feature proposals should be evaluated against one question:
+Future feature proposals should be evaluated against two questions:
+
+> **Does this strengthen the data/detection moat (ground truth, seeded variation, FP realism, scoring), or does it only polish the demo?**
 
 > **Does this make Endomorph feel more like a living, technically deep enterprise cyber-operations environment and less like a quiz or course?**
+
+The first question is the newer and, per `STRATEGY.md`, the more decision-relevant of the two: the console is the demo, the labelled-telemetry generator is the product.
