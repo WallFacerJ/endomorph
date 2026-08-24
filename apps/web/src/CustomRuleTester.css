@@ -234,3 +234,27 @@
 .rule-tester-sample {
   font-style: italic;
 }
+
+.rule-tester-input-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.rule-tester-input-head .rule-tester-label {
+  margin-bottom: 0;
+}
+
+.rule-tester-example {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--panel-strong);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  max-width: 60%;
+}

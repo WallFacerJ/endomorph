@@ -47,6 +47,76 @@ const STARTER_RULE = [
   "  - attack.t1059.001",
 ].join("\n");
 
+interface RuleExample {
+  readonly id: string;
+  readonly label: string;
+  readonly yaml: string;
+}
+
+/**
+ * A few rules that show the range of what scoring against ground truth
+ * reveals -- a clean hit, a precise-but-noisy rule, a plausible rule that
+ * misses, and a rule noisy on a different domain. Verified to produce exactly
+ * these outcomes against the default scenario's corpus, so a visitor who does
+ * not want to hand-write Sigma can click through and see the point.
+ */
+const EXAMPLES: readonly RuleExample[] = [
+  {
+    id: "encoded-ps",
+    label:
+      "Encoded PowerShell — a clean hit",
+    yaml: STARTER_RULE,
+  },
+  {
+    id: "any-ps",
+    label:
+      "Any PowerShell — right technique, noisy rule",
+    yaml: [
+      "title: Any PowerShell launch",
+      "logsource:",
+      "  category: process_creation",
+      "detection:",
+      "  selection:",
+      "    Image|endswith: 'powershell.exe'",
+      "  condition: selection",
+      "tags:",
+      "  - attack.t1059.001",
+    ].join("\n"),
+  },
+  {
+    id: "wrong-flag",
+    label:
+      "Encoded, wrong flag — a rule that misses",
+    yaml: [
+      "title: Encoded command, long form",
+      "logsource:",
+      "  category: process_creation",
+      "detection:",
+      "  selection:",
+      "    CommandLine|contains: '-EncodedCommand'",
+      "  condition: selection",
+      "tags:",
+      "  - attack.t1059.001",
+    ].join("\n"),
+  },
+  {
+    id: "failed-auth",
+    label:
+      "Any failed sign-in — noisy on identity",
+    yaml: [
+      "title: Any failed sign-in",
+      "logsource:",
+      "  category: authentication",
+      "detection:",
+      "  selection:",
+      "    event.type: 'AUTH_LOGIN_FAILED'",
+      "  condition: selection",
+      "tags:",
+      "  - attack.t1110.003",
+    ].join("\n"),
+  },
+];
+
 /** How many matched records to list under a rule before trailing off. */
 const MATCH_LIMIT = 12;
 
@@ -250,12 +320,47 @@ export function CustomRuleTester({
         </p>
       </div>
 
-      <label
-        className="rule-tester-label"
-        htmlFor="rule-tester-input"
-      >
-        Sigma rule
-      </label>
+      <div className="rule-tester-input-head">
+        <label
+          className="rule-tester-label"
+          htmlFor="rule-tester-input"
+        >
+          Sigma rule
+        </label>
+
+        <select
+          className="rule-tester-example"
+          aria-label="Load an example rule"
+          value=""
+          onChange={(event) => {
+            const example =
+              EXAMPLES.find(
+                (candidate) =>
+                  candidate.id ===
+                  event.target.value,
+              );
+
+            if (example) {
+              setYaml(example.yaml);
+              setReview(null);
+              setError(null);
+              setExpanded(null);
+            }
+          }}
+        >
+          <option value="">
+            Load an example…
+          </option>
+          {EXAMPLES.map((example) => (
+            <option
+              key={example.id}
+              value={example.id}
+            >
+              {example.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <textarea
         id="rule-tester-input"

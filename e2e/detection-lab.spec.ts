@@ -255,3 +255,54 @@ test("the investigation app offers a door to the detection lab", async ({
     /\?lab/,
   );
 });
+
+test("loading an example rule fills the box and scores it", async ({
+  page,
+}) => {
+  // A visitor who does not want to hand-write Sigma can pick an example and
+  // see the point immediately -- here the noisy one, which fires on benign
+  // administrative PowerShell as well as the malicious command.
+  await page.goto("/?lab");
+
+  const tester = page.getByRole(
+    "region",
+    {
+      name: "Test your own detection rule",
+    },
+  );
+
+  await tester.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  await tester
+    .getByRole("combobox", {
+      name: "Load an example rule",
+    })
+    .selectOption({
+      label:
+        "Any PowerShell — right technique, noisy rule",
+    });
+
+  await expect(
+    tester.getByRole("textbox"),
+  ).toHaveValue(
+    /Any PowerShell launch/,
+  );
+
+  await tester
+    .getByRole("button", {
+      name: "Score rule",
+    })
+    .click();
+
+  // The noisy rule is dominated by false positives, so opening it is offered.
+  await expect(
+    tester
+      .locator(
+        ".rule-tester-table tbody tr.rule-tester-row-clickable",
+      )
+      .first(),
+  ).toBeVisible();
+});
