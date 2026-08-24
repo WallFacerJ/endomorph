@@ -10,6 +10,7 @@ import {
 import type {
   AssetContext,
   AssetCriticality,
+  ThreatIntelEntry,
   SiemEventRecord,
 } from "./simulationAdapter";
 
@@ -61,6 +62,13 @@ interface SiemWorkspaceProps {
    * treating every subject as equal weight.
    */
   assets?: readonly AssetContext[];
+
+  /**
+   * Reputation for external indicators, when the scenario carries it. Used to
+   * annotate a classified address where the analyst inspects it, so an
+   * external IP in a record reads as "and here is what kind of external".
+   */
+  threatIntel?: readonly ThreatIntelEntry[];
   initialQuery?: string;
   finalized: boolean;
   isCollected: (eventId: string) => boolean;
@@ -169,6 +177,7 @@ export function SiemWorkspace({
   world,
   records,
   assets,
+  threatIntel,
   initialQuery,
   finalized,
   isCollected,
@@ -270,6 +279,20 @@ export function SiemWorkspace({
         ),
       ),
     [assets],
+  );
+
+  const threatByIndicator = useMemo(
+    () =>
+      new Map(
+        (threatIntel ?? []).map(
+          (entry) =>
+            [
+              entry.indicator,
+              entry,
+            ] as const,
+        ),
+      ),
+    [threatIntel],
   );
 
   /*
@@ -817,21 +840,41 @@ export function SiemWorkspace({
                 </div>
                 {Object.entries(
                   selectedRecord.fields,
-                ).map(([field, value]) => (
-                  <button
-                    key={field}
-                    type="button"
-                    onClick={() =>
-                      addFilter(
-                        field,
-                        fieldDisplayValue(value),
-                      )
-                    }
-                  >
-                    <span>{field}</span>
-                    <code>{fieldDisplayValue(value)}</code>
-                  </button>
-                ))}
+                ).map(([field, value]) => {
+                  const display =
+                    fieldDisplayValue(value);
+                  const intel =
+                    threatByIndicator.get(
+                      display,
+                    );
+
+                  return (
+                    <button
+                      key={field}
+                      type="button"
+                      onClick={() =>
+                        addFilter(
+                          field,
+                          display,
+                        )
+                      }
+                    >
+                      <span>{field}</span>
+                      <code>{display}</code>
+                      {intel && (
+                        <span
+                          className={`siem-field-intel intel-${intel.category}`}
+                          title={intel.note}
+                        >
+                          {intel.category.replace(
+                            /-/g,
+                            " ",
+                          )}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
 
               <details className="siem-raw-event">

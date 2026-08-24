@@ -605,3 +605,24 @@
   background: var(--warning);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--warning) 26%, transparent);
 }
+
+/*
+  Threat-intel reputation on a normalized field.
+
+  Only classified adversary addresses carry it, so it appears on exactly the
+  sourceIp or destinationIp that is known infrastructure and nowhere else. The
+  danger palette and the generator's note on hover, matching the case
+  indicator list, so an address reads the same wherever it is inspected.
+*/
+.siem-field-intel {
+  margin-left: 8px;
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 1px 7px;
+  border-radius: 999px;
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  cursor: help;
+}

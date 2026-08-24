@@ -1609,6 +1609,9 @@ function ScenarioWorkspace({
               key={`siem-${siemPivot.nonce}`}
               records={projections.siem.events}
               assets={scenario.assets}
+              threatIntel={
+                scenario.threatIntel
+              }
               initialQuery={siemPivot.query}
               finalized={scenarioState.finalized}
               isCollected={isEvidenceCollected}

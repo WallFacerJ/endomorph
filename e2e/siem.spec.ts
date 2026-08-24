@@ -1,7 +1,32 @@
 import {
+  readFileSync,
+} from "node:fs";
+
+import {
+  join,
+} from "node:path";
+
+import {
   expect,
   test,
 } from "@playwright/test";
+
+const generated = JSON.parse(
+  readFileSync(
+    join(
+      process.cwd(),
+      "apps",
+      "web",
+      "public",
+      "scenarios",
+      "generated-enterprise.json",
+    ),
+    "utf8",
+  ),
+).scenario;
+
+const attackerIp: string =
+  generated.questions[0].accepted[0];
 
 test("SIEM search filters noisy telemetry and preserves evidence in Case", async ({
   page,
@@ -220,4 +245,48 @@ test("SIEM results flag the rows that touch a critical asset", async ({
     "title",
     /Severe|High/,
   );
+});
+
+test("a classified address carries its reputation where the analyst inspects it", async ({
+  page,
+}) => {
+  // The access address is not merely external -- the generator planted it from
+  // anonymising infrastructure. Searching it and opening a result should say
+  // so on the address field itself, so "external" becomes "and here is what
+  // kind of external" at the point of inspection.
+  await page.goto(
+    "/?scenario=/scenarios/generated-enterprise.json",
+  );
+
+  await page
+    .getByRole("button", {
+      name: "SIEM Search",
+    })
+    .click();
+
+  await page
+    .getByLabel("SIEM query")
+    .fill(`sourceIp:${attackerIp}`);
+
+  const rows = page.locator(
+    ".siem-results-table tbody tr",
+  );
+
+  await expect(
+    rows.first(),
+  ).toBeVisible();
+
+  await rows.first().click();
+
+  const intel = page.locator(
+    ".siem-field-intel",
+  );
+
+  await expect(
+    intel.first(),
+  ).toBeVisible();
+
+  await expect(
+    intel.first(),
+  ).toHaveAttribute("title", /.+/);
 });
