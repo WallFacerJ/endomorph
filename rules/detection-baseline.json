@@ -6,7 +6,7 @@
     {
       "planId": "credential-compromise",
       "planName": "External credential compromise",
-      "recordCount": 4732,
+      "recordCount": 4738,
       "maliciousCount": 13,
       "coveredTechniques": [
         "T1059.001",
@@ -75,6 +75,15 @@
           "recall": 1
         },
         {
+          "ruleId": "account-reenabled",
+          "technique": "T1098",
+          "truePositives": 0,
+          "falsePositives": 2,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
           "ruleId": "office-spawns-script",
           "technique": "T1059.001",
           "truePositives": 0,
@@ -115,7 +124,7 @@
     {
       "planId": "privileged-insider",
       "planName": "Privileged insider data collection",
-      "recordCount": 4612,
+      "recordCount": 4618,
       "maliciousCount": 7,
       "coveredTechniques": [
         "T1070.001",
@@ -164,6 +173,15 @@
           "recall": 1
         },
         {
+          "ruleId": "account-reenabled",
+          "technique": "T1098",
+          "truePositives": 0,
+          "falsePositives": 2,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
           "ruleId": "disabled-account-enumeration",
           "technique": "T1087.002",
           "truePositives": 0,
@@ -204,7 +222,7 @@
     {
       "planId": "service-account-abuse",
       "planName": "Service account used from an unfamiliar host",
-      "recordCount": 4595,
+      "recordCount": 4601,
       "maliciousCount": 7,
       "coveredTechniques": [
         "T1021.002",
@@ -252,6 +270,15 @@
           "recall": 1
         },
         {
+          "ruleId": "account-reenabled",
+          "technique": "T1098",
+          "truePositives": 0,
+          "falsePositives": 2,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
           "ruleId": "run-key-persistence",
           "technique": "T1547.001",
           "truePositives": 0,
@@ -283,7 +310,7 @@
     {
       "planId": "dormant-account-revival",
       "planName": "Dormant account revived for access",
-      "recordCount": 4611,
+      "recordCount": 4617,
       "maliciousCount": 6,
       "coveredTechniques": [
         "T1087.002",
@@ -325,9 +352,9 @@
           "ruleId": "account-reenabled",
           "technique": "T1098",
           "truePositives": 1,
-          "falsePositives": 0,
+          "falsePositives": 2,
           "falseNegatives": 0,
-          "precision": 1,
+          "precision": 0.3333,
           "recall": 1
         },
         {
@@ -371,7 +398,7 @@
     {
       "planId": "macro-execution",
       "planName": "Phishing attachment with macro execution",
-      "recordCount": 4676,
+      "recordCount": 4682,
       "maliciousCount": 9,
       "coveredTechniques": [
         "T1003.001",
@@ -407,6 +434,15 @@
           "technique": "T1021.002",
           "truePositives": 0,
           "falsePositives": 15,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "account-reenabled",
+          "technique": "T1098",
+          "truePositives": 0,
+          "falsePositives": 2,
           "falseNegatives": 0,
           "precision": 0,
           "recall": 1
@@ -461,7 +497,7 @@
     {
       "planId": "cloud-role-elevation",
       "planName": "MFA fatigue into a directory role grant",
-      "recordCount": 4631,
+      "recordCount": 4637,
       "maliciousCount": 10,
       "coveredTechniques": [
         "T1098.003",
@@ -504,6 +540,15 @@
           "technique": "T1021.002",
           "truePositives": 0,
           "falsePositives": 15,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "account-reenabled",
+          "technique": "T1098",
+          "truePositives": 0,
+          "falsePositives": 2,
           "falseNegatives": 0,
           "precision": 0,
           "recall": 1
@@ -560,6 +605,6 @@
     "coveredTechniques": 16,
     "totalTechniques": 30,
     "truePositives": 49,
-    "falsePositives": 5323
+    "falsePositives": 5335
   }
 }

@@ -336,9 +336,11 @@ A notice is not an improvement, and the distinction is the point: a rule that go
 
 #### The loop this enables
 
-Adding the fourth attack plan showed the shipped ruleset detecting **nothing** on it — `techniques covered 0/4` — because no rule watched identity lifecycle. Two rules later (`account_reenabled`, `disabled_account_enumeration`) it reads `2/4`, both at 1.000 precision.
+Adding the fourth attack plan showed the shipped ruleset detecting **nothing** on it — `techniques covered 0/4` — because no rule watched identity lifecycle. Two rules later (`account_reenabled`, `disabled_account_enumeration`) it reads `2/4`.
 
 That is the whole argument for generating the corpus: the gap was a measurement, not a hunch, and closing it was verifiable.
+
+The same loop runs in the other direction. The noise floor (above) flagged the identity-lifecycle techniques as *exposed* — the background never re-enabled an account or granted a role benignly, so `account_reenabled` scored a perfect 1.000 precision it would never see in production. Adding a handful of benign re-enables and non-privileged role grants to the background dropped that rule to a realistic ~0.3, because keying on "an account was enabled" catches the ones that are supposed to happen too. `privileged-role-grant` held at 1.000, because it keys on administrative roles and the benign grants were not — which is the lesson made concrete: specificity is what separates a usable rule from a noisy one, and the corpus now contains the noise that proves it.
 
 **Anything the subset cannot express is refused, never skipped.** A rule that silently matches nothing is indistinguishable from coverage until an incident is missed, so aggregations, cross-selection disjunctions, and unmapped fields raise an error naming the reason. A test asserts every shipped rule fires against at least one corpus.
 

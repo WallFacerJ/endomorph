@@ -1298,6 +1298,150 @@ export function generateBackgroundActivity(
   }
 
   // -----------------------------------------------------------------------
+  // Identity administration (benign)
+  // -----------------------------------------------------------------------
+  // Real directories are not static: accounts are re-enabled for returning
+  // staff, and non-privileged roles are granted through ordinary access
+  // requests. With none of this, the corpus is trivially clean for the
+  // identity-lifecycle techniques -- a rule keyed on "an account was enabled"
+  // scores a perfect precision it would never see in production, and the noise
+  // floor reports the technique as exposed. A handful of benign events per
+  // window gives those techniques a realistic false-positive floor.
+  //
+  // The grants are deliberately of non-privileged roles. The rule that watches
+  // for privilege escalation keys on administrative roles, so it stays clean
+  // against these, while a naive rule keyed on "any role granted" does not --
+  // which is the honest lesson: specificity is what separates a usable rule
+  // from a noisy one, and the corpus has to contain the noise for that to mean
+  // anything. Forked off the root so it disturbs no other stream.
+
+  const identityCursor = root.fork(
+    "identity-admin",
+  );
+
+  const adminActorId =
+    enterprise.privilegedAccountIds[0] ??
+    enterprise.accounts[0]?.id;
+
+  const ordinaryAccounts =
+    enterprise.accounts.filter(
+      (account) =>
+        !account.id.endsWith("-adm"),
+    );
+
+  if (
+    adminActorId &&
+    ordinaryAccounts.length > 0
+  ) {
+    const NON_PRIVILEGED_ROLES = [
+      "reports-viewer",
+      "expense-approver",
+      "wiki-editor",
+      "billing-reader",
+      "helpdesk-agent",
+    ];
+
+    const businessMinute = (
+      cursor: typeof identityCursor,
+    ): number =>
+      // Working hours of the first day, before the incident begins. The
+      // detection-evaluation corpus is the pre-detection slice of the
+      // history, and an intrusion is planted a few hours into the first day,
+      // so an administrative action buried in that morning is both realistic
+      // and actually present in the corpus a rule is scored against -- an
+      // event placed later would be generated and then filtered straight back
+      // out, which is how the first draft of this quietly changed nothing.
+      30 + cursor.nextInt(0, 410);
+
+    const grantCursor =
+      identityCursor.fork("role-grants");
+
+    const grants = Math.min(
+      4,
+      ordinaryAccounts.length,
+    );
+
+    for (
+      let index = 0;
+      index < grants;
+      index += 1
+    ) {
+      const cursor = grantCursor.fork(
+        `grant-${index}`,
+      );
+
+      const target = cursor.pick(
+        ordinaryAccounts,
+      );
+
+      push(
+        businessMinute(cursor),
+        `identity-grant-${index}`,
+        {
+          type: "ROLE_GRANTED",
+          source: "identity",
+          actorId: adminActorId,
+          subjectId: target.id,
+          payload: {
+            accountId: target.id,
+            role: cursor.pick(
+              NON_PRIVILEGED_ROLES,
+            ),
+            ...(identityApplication
+              ? {
+                  applicationId:
+                    identityApplication.id,
+                }
+              : {}),
+            reason:
+              "Access request approved",
+          },
+        },
+      );
+    }
+
+    const enableCursor =
+      identityCursor.fork(
+        "account-enables",
+      );
+
+    const enables = Math.min(
+      2,
+      ordinaryAccounts.length,
+    );
+
+    for (
+      let index = 0;
+      index < enables;
+      index += 1
+    ) {
+      const cursor = enableCursor.fork(
+        `enable-${index}`,
+      );
+
+      const target = cursor.pick(
+        ordinaryAccounts,
+      );
+
+      push(
+        businessMinute(cursor),
+        `identity-enable-${index}`,
+        {
+          type: "ACCOUNT_ENABLED",
+          source: "identity",
+          actorId: adminActorId,
+          subjectId: target.id,
+          payload: {
+            accountId: target.id,
+            reason:
+              "Returning employee reactivation",
+          },
+        },
+      );
+    }
+  }
+
+  // -----------------------------------------------------------------------
   // Order and label
   // -----------------------------------------------------------------------
 
