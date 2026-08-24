@@ -149,6 +149,16 @@ test("case derives the incident picture from collected evidence", async ({
   await expect(
     command.getByText("Connections"),
   ).toBeVisible();
+
+  // The evidence graph carries asset criticality the same way the telemetry
+  // consoles do: the compromised Finance account's owner is a severe-tier
+  // entity, so at least one node in the graph the analyst reasons over is
+  // marked, rather than every entity reading as equal weight.
+  await expect(
+    command
+      .locator(".evidence-criticality")
+      .first(),
+  ).toBeVisible();
 });
 
 test("case exposes incident phase as real workflow state", async ({

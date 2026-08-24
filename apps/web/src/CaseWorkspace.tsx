@@ -132,6 +132,7 @@ export function CaseWorkspace({
           <section className="workspace-section">
             <IncidentCommand
               world={scenarioState.world}
+              assets={scenario.assets}
               records={
                 siemRecords
               }

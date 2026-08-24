@@ -11,6 +11,7 @@ import {
 } from "./simulationAdapter";
 
 import type {
+  AssetContext,
   IncidentCaseState,
   IncidentPhase,
   SiemEventRecord,
@@ -50,6 +51,9 @@ export interface IncidentCommandProps {
   ) => void;
   onPivotToSiem: (query: string) => void;
   readOnly: boolean;
+
+  /** Asset context, when the scenario carries it, for weighting the graph. */
+  assets?: readonly AssetContext[];
 }
 
 export function IncidentCommand({
@@ -60,6 +64,7 @@ export function IncidentCommand({
   onCaseChange,
   onPivotToSiem,
   readOnly,
+  assets,
 }: IncidentCommandProps) {
   const [
     hypothesisStatement,
@@ -128,6 +133,20 @@ export function IncidentCommand({
       collectedEventIds,
       caseState,
     ],
+  );
+
+  const criticalityById = useMemo(
+    () =>
+      new Map(
+        (assets ?? []).map(
+          (asset) =>
+            [
+              asset.entityId,
+              asset.criticality,
+            ] as const,
+        ),
+      ),
+    [assets],
   );
 
   const labelFor = (id: string) =>
@@ -347,6 +366,9 @@ export function IncidentCommand({
           ) : (
             <EvidenceGraphView
               graph={graph}
+              criticalityById={
+                criticalityById
+              }
               selectedId={selectedNodeId}
               onSelect={(node) => {
                 setSelectedNodeId(

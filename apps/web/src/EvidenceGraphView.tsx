@@ -1,4 +1,5 @@
 import type {
+  AssetCriticality,
   EvidenceGraph,
   EvidenceGraphNode,
 } from "./simulationAdapter";
@@ -58,13 +59,43 @@ interface EvidenceGraphViewProps {
   readonly onSelect: (
     node: EvidenceGraphNode,
   ) => void;
+
+  /**
+   * Criticality per entity id, when the scenario carries asset context. The
+   * case graph is where the analyst reasons about what the intrusion
+   * touched, so the weight of each entity belongs here too -- a severe node
+   * in the evidence is a different finding from a low one.
+   */
+  readonly criticalityById?: ReadonlyMap<
+    string,
+    AssetCriticality
+  >;
 }
+
+/** Only the top two tiers are marked, matching the telemetry consoles. */
+const MARKED_CRITICALITY:
+  ReadonlySet<AssetCriticality> = new Set([
+    "severe",
+    "high",
+  ]);
 
 export function EvidenceGraphView({
   graph,
   selectedId,
   onSelect,
+  criticalityById,
 }: EvidenceGraphViewProps) {
+  const markedCriticality = (
+    id: string,
+  ): AssetCriticality | undefined => {
+    const tier =
+      criticalityById?.get(id);
+
+    return tier &&
+      MARKED_CRITICALITY.has(tier)
+      ? tier
+      : undefined;
+  };
   const nodes = [...graph.nodes].sort(
     (left, right) => {
       const byKind =
@@ -174,6 +205,9 @@ export function EvidenceGraphView({
             return null;
           }
 
+          const nodeCriticality =
+            markedCriticality(node.id);
+
           return (
             <g
               key={node.id}
@@ -181,6 +215,9 @@ export function EvidenceGraphView({
                 "evidence-node",
                 node.external
                   ? "external"
+                  : "",
+                nodeCriticality
+                  ? `crit-${nodeCriticality}`
                   : "",
                 selectedId === node.id
                   ? "selected"
@@ -235,6 +272,20 @@ export function EvidenceGraphView({
               <span className="evidence-chip-label">
                 {node.label}
               </span>
+
+              {markedCriticality(
+                node.id,
+              ) && (
+                <span
+                  className={`evidence-criticality crit-${markedCriticality(
+                    node.id,
+                  )}`}
+                >
+                  {markedCriticality(
+                    node.id,
+                  )}
+                </span>
+              )}
 
               {node.external && (
                 <span className="evidence-external">

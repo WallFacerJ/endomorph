@@ -114,3 +114,38 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+
+/*
+  Asset criticality in the evidence graph.
+
+  A severe node in the evidence is a different finding from a low one, so the
+  case graph carries the same weight the telemetry consoles show. Only the top
+  two tiers are marked, in the shared palette. External still wins the ring
+  colour where the two coincide -- an address outside the estate is the sharper
+  signal -- but internal severe and high hosts and accounts now read at a
+  glance in the graph the analyst reasons over.
+*/
+.evidence-node.crit-severe circle {
+  stroke: var(--danger);
+  stroke-width: 2;
+}
+
+.evidence-node.crit-high circle {
+  stroke: var(--warning);
+  stroke-width: 2;
+}
+
+.evidence-criticality {
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.evidence-criticality.crit-severe {
+  color: var(--danger);
+}
+
+.evidence-criticality.crit-high {
+  color: var(--warning);
+}
