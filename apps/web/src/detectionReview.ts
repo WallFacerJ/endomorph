@@ -2,9 +2,11 @@ import {
   DETECTION_RULES,
   buildCorpusRecords,
   evaluateRuleset,
+  importSigmaRules,
 } from "@endomorph/fabric";
 
 import type {
+  CorpusRecord,
   CoverageReport,
 } from "@endomorph/fabric";
 
@@ -35,9 +37,14 @@ export interface DetectionReview {
   readonly ruleCount: number;
 }
 
-export function reviewDetections(
+/**
+ * The labelled corpus for a scenario, built in the browser from the same
+ * events the analyst worked. Extracted so both the shipped-ruleset review and
+ * the bring-your-own-rule tester score against exactly the same records.
+ */
+export function buildScenarioCorpus(
   scenario: ScenarioDefinition,
-): DetectionReview {
+): readonly CorpusRecord[] {
   const timeline =
     scenario.groundTruth?.timeline ?? [];
 
@@ -60,7 +67,7 @@ export function reviewDetections(
 
   const world = scenario.initialWorld;
 
-  const records = buildCorpusRecords(
+  return buildCorpusRecords(
     {
       users: Object.values(world.users),
       accounts: Object.values(
@@ -81,6 +88,22 @@ export function reviewDetections(
       ),
     }),
   );
+}
+
+function maliciousCountOf(
+  records: readonly CorpusRecord[],
+): number {
+  return records.filter(
+    (record) =>
+      record["label.malicious"],
+  ).length;
+}
+
+export function reviewDetections(
+  scenario: ScenarioDefinition,
+): DetectionReview {
+  const records =
+    buildScenarioCorpus(scenario);
 
   return {
     report: evaluateRuleset(
@@ -88,10 +111,54 @@ export function reviewDetections(
       records,
     ),
     recordCount: records.length,
-    maliciousCount: records.filter(
-      (record) =>
-        record["label.malicious"],
-    ).length,
+    maliciousCount:
+      maliciousCountOf(records),
     ruleCount: DETECTION_RULES.length,
+  };
+}
+
+/**
+ * The result of scoring a pasted Sigma rule against this scenario's corpus.
+ *
+ * This is the detection-data pitch made interactive: the ground truth is
+ * known, so a rule the user brings gets a precision and recall that are
+ * counted, not estimated -- the thing a captured corpus cannot give them.
+ * Rules the supported Sigma subset cannot express are reported with a reason
+ * rather than dropped, because a rule that silently matches nothing looks
+ * exactly like a rule that works.
+ */
+export interface CustomRuleReview {
+  readonly report: CoverageReport;
+  readonly recordCount: number;
+  readonly maliciousCount: number;
+  readonly imported: number;
+  readonly skipped: readonly {
+    readonly source: string;
+    readonly reason: string;
+  }[];
+}
+
+export function scoreSigmaRule(
+  scenario: ScenarioDefinition,
+  yaml: string,
+): CustomRuleReview {
+  const { rules, skipped } =
+    importSigmaRules([
+      { source: "pasted rule", yaml },
+    ]);
+
+  const records =
+    buildScenarioCorpus(scenario);
+
+  return {
+    report: evaluateRuleset(
+      rules,
+      records,
+    ),
+    recordCount: records.length,
+    maliciousCount:
+      maliciousCountOf(records),
+    imported: rules.length,
+    skipped,
   };
 }

@@ -23,6 +23,10 @@ import {
 } from "./DetectionReviewPanel";
 
 import {
+  CustomRuleTester,
+} from "./CustomRuleTester";
+
+import {
   reviewDetections,
 } from "./detectionReview";
 
@@ -276,6 +280,13 @@ export function InvestigationWorkspace({
               detectionReview && (
                 <DetectionReviewPanel
                   review={detectionReview}
+                />
+              )}
+
+            {scenarioState.finalized &&
+              detectionReview && (
+                <CustomRuleTester
+                  scenario={scenario}
                 />
               )}
 
