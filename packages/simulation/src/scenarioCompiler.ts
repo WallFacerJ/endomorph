@@ -17,6 +17,7 @@ import {
 
 import type {
   ScenarioAction,
+  AssetContext,
   ScenarioDefinition,
   ScenarioProvenance,
   ScenarioGroundTruth,
@@ -63,6 +64,8 @@ export interface ScenarioDefinitionInput {
   questions?: readonly ScenarioQuestion[];
 
   provenance?: ScenarioProvenance;
+
+  assets?: readonly AssetContext[];
 }
 
 function requireInvestigationContext(
@@ -227,6 +230,11 @@ export function compileScenarioDefinition(
   if (input.provenance) {
     scenario.provenance =
       structuredClone(input.provenance);
+  }
+
+  if (input.assets) {
+    scenario.assets =
+      structuredClone(input.assets);
   }
 
   validateScenarioDefinition(scenario);

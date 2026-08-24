@@ -561,3 +561,55 @@
 .edr-endpoint-row.selected .chart-sparkline {
   opacity: 1;
 }
+
+/*
+  Asset criticality.
+
+  The generator has always known a Finance executive's laptop from a
+  print-room workstation; the inventory now shows it. Four tiers map to the
+  existing status palette rather than new colors -- severe reads as danger,
+  high as warning -- so criticality speaks the same visual language as the
+  alerts beside it. The rationale rides on the title attribute, so the tier
+  is explainable on hover without spending a row on it.
+*/
+.edr-criticality {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  cursor: help;
+}
+
+.edr-criticality-severe {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+}
+
+.edr-criticality-high {
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
+  border-color: color-mix(in srgb, var(--warning) 42%, transparent);
+}
+
+.edr-criticality-moderate {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 38%, transparent);
+}
+
+.edr-criticality-low {
+  color: var(--muted);
+  background: color-mix(in srgb, var(--muted) 12%, transparent);
+  border-color: var(--border);
+}
+
+.edr-endpoint-unit {
+  font-style: normal;
+}

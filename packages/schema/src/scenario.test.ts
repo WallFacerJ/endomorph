@@ -112,6 +112,61 @@ describe("scenario file schema", () => {
     });
   });
 
+  it("accepts optional per-entity asset context on the scenario", () => {
+    // The generator has always known which assets matter and now carries the
+    // judgement to the file. The schema has to accept it, keyed by entity id.
+    const input =
+      createValidFile() as {
+        scenario: Record<string, unknown>;
+      };
+
+    input.scenario.assets = [
+      {
+        entityId: "device-fin-lt-004",
+        criticality: "severe",
+        rationale:
+          "Workstation assigned to a Finance executive.",
+        businessUnit: "Finance",
+      },
+    ];
+
+    expect(
+      parseScenarioFile(input)
+        .scenario.assets,
+    ).toEqual([
+      {
+        entityId: "device-fin-lt-004",
+        criticality: "severe",
+        rationale:
+          "Workstation assigned to a Finance executive.",
+        businessUnit: "Finance",
+      },
+    ]);
+  });
+
+  it("rejects an asset with an unknown criticality tier", () => {
+    // The four tiers are a closed set the consoles style against. An
+    // unknown tier would render as an unstyled badge and sort as if it had
+    // no context, so it is refused at the boundary.
+    const input =
+      createValidFile() as {
+        scenario: Record<string, unknown>;
+      };
+
+    input.scenario.assets = [
+      {
+        entityId: "device-fin-lt-004",
+        criticality: "catastrophic",
+        rationale: "x",
+        businessUnit: "Finance",
+      },
+    ];
+
+    expect(() =>
+      parseScenarioFile(input),
+    ).toThrow();
+  });
+
   it("accepts optional generation provenance on the file wrapper", () => {
     // Provenance describes how the artifact was produced, so it belongs on
     // the file, not inside the scenario. Generated files carry it; the

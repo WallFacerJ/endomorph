@@ -558,6 +558,33 @@ export const scenarioInvestigationSchema =
         .optional(),
   }).strict();
 
+export const assetCriticalitySchema =
+  z.enum([
+    "low",
+    "moderate",
+    "high",
+    "severe",
+  ]);
+
+/**
+ * Business context for one entity, keyed by its id.
+ *
+ * The generator has always known which hosts and accounts matter -- a
+ * Finance executive's laptop is not a print-room workstation -- and emitted
+ * it. Until now it had nowhere to live in the file the runtime loads, so the
+ * consoles triaged every asset as if it were identical. This carries the
+ * judgement to them: criticality for sorting, the rationale so the label is
+ * explainable rather than a bare tier, and the business unit so a host reads
+ * as belonging to a part of the company.
+ */
+export const scenarioAssetSchema =
+  z.object({
+    entityId: entityIdSchema,
+    criticality: assetCriticalitySchema,
+    rationale: nonEmptyStringSchema,
+    businessUnit: nonEmptyStringSchema,
+  }).strict();
+
 export const scenarioSpecSchema =
   z.object({
     id: nonEmptyStringSchema,
@@ -578,6 +605,9 @@ export const scenarioSpecSchema =
       scenarioGroundTruthSchema.optional(),
     questions:
       z.array(scenarioQuestionSchema)
+        .optional(),
+    assets:
+      z.array(scenarioAssetSchema)
         .optional(),
   }).strict();
 
@@ -636,6 +666,12 @@ export type ScenarioGroundTruthSpec =
 
 export type ScenarioProvenanceSpec =
   z.infer<typeof scenarioProvenanceSchema>;
+
+export type AssetCriticalitySpec =
+  z.infer<typeof assetCriticalitySchema>;
+
+export type ScenarioAssetSpec =
+  z.infer<typeof scenarioAssetSchema>;
 
 export type ScenarioInvestigationSpec =
   z.infer<typeof scenarioInvestigationSchema>;

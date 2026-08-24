@@ -1668,6 +1668,7 @@ function ScenarioWorkspace({
             <EdrWorkspace
               world={scenarioState.world}
               state={projections.edr}
+              assets={scenario.assets}
               devices={Object.values(scenarioState.world.devices)}
               initialDeviceId={context.deviceId}
               actions={responseActions}

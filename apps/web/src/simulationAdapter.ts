@@ -26,6 +26,8 @@ export {
 } from "@endomorph/simulation";
 
 export type {
+  AssetContext,
+  AssetCriticality,
   EdrEndpointInvestigation,
   EdrProcessTreeNode,
   EdrProjectionState,

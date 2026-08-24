@@ -128,6 +128,30 @@ export interface ScenarioInvestigationContext {
     readonly string[];
 }
 
+export type AssetCriticality =
+  | "low"
+  | "moderate"
+  | "high"
+  | "severe";
+
+/**
+ * Business context for one entity, keyed by its id.
+ *
+ * Carried onto the compiled definition so the consoles can triage a Finance
+ * executive's laptop differently from a print-room workstation, which the
+ * generator has always known and the runtime never saw. Present only on
+ * generated scenarios; the hand-authored set predates it.
+ */
+export interface AssetContext {
+  readonly entityId: string;
+
+  readonly criticality: AssetCriticality;
+
+  readonly rationale: string;
+
+  readonly businessUnit: string;
+}
+
 /**
  * How the scenario file was produced.
  *
@@ -169,6 +193,8 @@ export interface ScenarioDefinition {
   groundTruth?: ScenarioGroundTruth;
 
   questions?: readonly ScenarioQuestion[];
+
+  assets?: readonly AssetContext[];
 }
 
 export interface ScenarioState {

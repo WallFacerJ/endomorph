@@ -223,6 +223,68 @@ describe("compileScenario", () => {
       });
     });
 
+    it("emits per-entity asset context the runtime compiler carries onto the definition", () => {
+      // The business context the generator has always produced used to stop
+      // at the file boundary. This asserts it now reaches the object the
+      // consoles read, keyed by entity id, with a real criticality tier.
+      const parsed = parseScenarioFile(
+        compiled.file,
+      );
+
+      const assets =
+        parsed.scenario.assets ?? [];
+
+      expect(
+        assets.length,
+      ).toBeGreaterThan(0);
+
+      const tiers = new Set(
+        assets.map(
+          (asset) => asset.criticality,
+        ),
+      );
+
+      // A generated enterprise is not uniformly critical; if every asset
+      // were the same tier the badge would carry no information.
+      expect(
+        tiers.size,
+      ).toBeGreaterThan(1);
+
+      const definition =
+        compileScenarioDefinition({
+          ...parsed.scenario,
+          provenance: parsed.provenance,
+        });
+
+      expect(
+        definition.assets?.length,
+      ).toBe(assets.length);
+
+      // Every asset points at an entity the world actually holds, so a badge
+      // can never describe a host that is not in the inventory.
+      const world =
+        definition.initialWorld;
+      const knownIds = new Set([
+        ...Object.keys(world.devices),
+        ...Object.keys(world.accounts),
+        ...Object.keys(world.users),
+        ...Object.keys(world.files),
+        ...Object.keys(
+          world.applications,
+        ),
+        ...Object.keys(
+          world.organizations,
+        ),
+      ]);
+
+      for (const asset of
+        definition.assets ?? []) {
+        expect(
+          knownIds.has(asset.entityId),
+        ).toBe(true);
+      }
+    });
+
     it("carries provenance through the runtime compiler onto the definition", () => {
       // provenance lives on the file wrapper, not inside the scenario, so
       // the boundary is where it is most easily dropped. This asserts it

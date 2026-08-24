@@ -9,6 +9,8 @@ import {
 } from "./simulationAdapter";
 
 import type {
+  AssetContext,
+  AssetCriticality,
   EdrProjectionState,
   ScenarioAction,
 } from "./simulationAdapter";
@@ -83,6 +85,13 @@ interface EdrWorkspaceProps {
   onCollect: (eventId: string) => void;
   onSearchSiem: (query: string) => void;
   onOpenCase: () => void;
+
+  /**
+   * Business context per entity, when the scenario carries it. Generated
+   * scenarios do; the hand-authored set predates it, so the inventory falls
+   * back to no criticality rather than inventing one.
+   */
+  assets?: readonly AssetContext[];
 }
 
 type EdrTab =
@@ -150,6 +159,13 @@ function DetailActionBar({
   onCollect: (eventId: string) => void;
   onSearchSiem: (query: string) => void;
   onOpenCase: () => void;
+
+  /**
+   * Business context per entity, when the scenario carries it. Generated
+   * scenarios do; the hand-authored set predates it, so the inventory falls
+   * back to no criticality rather than inventing one.
+   */
+  assets?: readonly AssetContext[];
 }) {
   return (
     <div className="edr-detail-actions">
@@ -187,7 +203,33 @@ function DetailActionBar({
   );
 }
 
+/**
+ * Triage order: the most critical asset is the one to look at first, so it
+ * sorts to the top of the inventory. Assets with no context sort last rather
+ * than jumping the queue on a rank of zero.
+ */
+const CRITICALITY_RANK: Record<
+  AssetCriticality,
+  number
+> = {
+  severe: 0,
+  high: 1,
+  moderate: 2,
+  low: 3,
+};
+
+const CRITICALITY_LABEL: Record<
+  AssetCriticality,
+  string
+> = {
+  severe: "Severe",
+  high: "High",
+  moderate: "Moderate",
+  low: "Low",
+};
+
 export function EdrWorkspace({
+  assets,
   world,
   state,
   devices,
@@ -321,25 +363,72 @@ export function EdrWorkspace({
     [world.accounts],
   );
 
+  const assetByEntityId = useMemo(
+    () =>
+      new Map(
+        (assets ?? []).map(
+          (asset) =>
+            [
+              asset.entityId,
+              asset,
+            ] as const,
+        ),
+      ),
+    [assets],
+  );
+
   const filteredDevices = useMemo(() => {
     const needle = endpointFilter
       .trim()
       .toLowerCase();
 
-    if (needle.length === 0) {
-      return availableDevices;
-    }
+    const base =
+      needle.length === 0
+        ? availableDevices
+        : availableDevices.filter(
+            (device) =>
+              device.hostname
+                .toLowerCase()
+                .includes(needle) ||
+              device.operatingSystem
+                .toLowerCase()
+                .includes(needle),
+          );
 
-    return availableDevices.filter(
-      (device) =>
-        device.hostname
-          .toLowerCase()
-          .includes(needle) ||
-        device.operatingSystem
-          .toLowerCase()
-          .includes(needle),
+    // Rank a device by the criticality of its asset context, most critical
+    // first, with unranked assets last. Ties break on hostname so the order
+    // is deterministic rather than dependent on generation order.
+    const rankOf = (
+      deviceId: string,
+    ): number => {
+      const asset =
+        assetByEntityId.get(deviceId);
+
+      return asset
+        ? CRITICALITY_RANK[
+            asset.criticality
+          ]
+        : 4;
+    };
+
+    return [...base].sort(
+      (left, right) => {
+        const rankDelta =
+          rankOf(left.id) -
+          rankOf(right.id);
+
+        return rankDelta !== 0
+          ? rankDelta
+          : left.hostname.localeCompare(
+              right.hostname,
+            );
+      },
     );
-  }, [availableDevices, endpointFilter]);
+  }, [
+    availableDevices,
+    endpointFilter,
+    assetByEntityId,
+  ]);
 
   const [selectedDeviceId, setSelectedDeviceId] =
     useState(
@@ -488,6 +577,8 @@ export function EdrWorkspace({
           {filteredDevices.map((device) => {
             const observation =
               state.endpointObservations[device.id];
+            const asset =
+              assetByEntityId.get(device.id);
             const processCount = state.processes.filter(
               (process) => process.deviceId === device.id,
             ).length;
@@ -513,7 +604,24 @@ export function EdrWorkspace({
                 <span className="edr-endpoint-name">
                   <strong>{device.hostname}</strong>
                   <small>{device.operatingSystem}</small>
+                  {asset && (
+                    <small className="edr-endpoint-unit">
+                      {asset.businessUnit}
+                    </small>
+                  )}
                 </span>
+                {asset && (
+                  <span
+                    className={`edr-criticality edr-criticality-${asset.criticality}`}
+                    title={asset.rationale}
+                  >
+                    {
+                      CRITICALITY_LABEL[
+                        asset.criticality
+                      ]
+                    }
+                  </span>
+                )}
                 <span className="edr-endpoint-meta">
                   <span>{observation?.status ?? device.status}</span>
                   <span>{processCount} proc</span>
@@ -558,6 +666,46 @@ export function EdrWorkspace({
                 <small>Status</small>
                 <strong>{investigation.endpoint?.status ?? selectedDevice?.status ?? "—"}</strong>
               </span>
+              {(() => {
+                const selectedAsset =
+                  assetByEntityId.get(
+                    selectedDeviceId,
+                  );
+
+                return selectedAsset ? (
+                  <>
+                    <span>
+                      <small>
+                        Business unit
+                      </small>
+                      <strong>
+                        {
+                          selectedAsset.businessUnit
+                        }
+                      </strong>
+                    </span>
+                    <span
+                      title={
+                        selectedAsset.rationale
+                      }
+                    >
+                      <small>
+                        Criticality
+                      </small>
+                      <strong
+                        className={`edr-criticality edr-criticality-${selectedAsset.criticality}`}
+                      >
+                        {
+                          CRITICALITY_LABEL[
+                            selectedAsset
+                              .criticality
+                          ]
+                        }
+                      </strong>
+                    </span>
+                  </>
+                ) : null;
+              })()}
             </div>
           </div>
 

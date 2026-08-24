@@ -569,6 +569,14 @@ What this incident teaches: ${incident.lesson}`,
     },
 
     questions: incident.questions,
+
+    // The business context the generator has always produced and, until now,
+    // always dropped at the file boundary. Emitting it lets the consoles
+    // triage a severe-criticality Finance host differently from a print-room
+    // workstation instead of treating every asset as identical.
+    assets: Object.values(
+      enterprise.assetContext,
+    ),
   };
 
 

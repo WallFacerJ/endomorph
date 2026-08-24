@@ -322,3 +322,58 @@ test("no console renders the whole event stream", async ({
     ).toBe(`${view} nodes true`);
   }
 });
+
+test("the endpoint inventory shows asset criticality and triages the critical hosts first", async ({
+  page,
+}) => {
+  // The generator has always known a severe-criticality Finance host from a
+  // print-room workstation. Until the asset context reached the file, every
+  // host in the inventory triaged identically. This is that context made
+  // visible: a criticality badge on the row, a business unit, and the most
+  // critical hosts sorted to the top so the queue reads as a triage order.
+  await page.goto(GENERATED_SCENARIO);
+
+  await page
+    .getByRole("button", {
+      name: "Endpoint",
+    })
+    .click();
+
+  const inventory = page.getByRole(
+    "complementary",
+    {
+      name: "EDR endpoint inventory",
+    },
+  );
+
+  await expect(inventory).toBeVisible();
+
+  const badges = inventory.locator(
+    ".edr-criticality",
+  );
+
+  await expect(
+    badges.first(),
+  ).toBeVisible();
+
+  // The most critical assets sort to the top, so the first badge in the
+  // inventory is the highest tier present -- never a "Low" host above a
+  // "Severe" one.
+  await expect(
+    badges.first(),
+  ).toHaveText(/Severe|High/);
+
+  // The rationale is carried, not inferred a second time in the console.
+  const firstRow = inventory
+    .locator(".edr-endpoint-row")
+    .first();
+
+  await expect(
+    firstRow.locator(
+      ".edr-criticality",
+    ),
+  ).toHaveAttribute(
+    "title",
+    /.+/,
+  );
+});
