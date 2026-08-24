@@ -67,6 +67,8 @@ Content is data, not code. An attack plan declares its steps, techniques, and qu
 
 **Hosted app:** https://wallfacerj.github.io/endomorph/
 
+**Detection lab:** https://wallfacerj.github.io/endomorph/?lab — for detection engineers, not trainees: pick a generated scenario, see how a sample ruleset scores against its labelled corpus, then paste your own Sigma rule and get precision and recall counted against ground truth. No investigation to play through.
+
 The hosted build is deployed from `main` with GitHub Pages. If the deployment is temporarily unavailable, use the local quick start below.
 
 For a first-time test, you do not need to read the repository first. The app opens with a short orientation on the alert queue naming the console each step happens in; follow that, or use [TESTER_GUIDE.md](TESTER_GUIDE.md) for the same procedure plus optional deeper checks.
