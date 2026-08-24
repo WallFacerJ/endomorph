@@ -51,6 +51,7 @@ export type {
   ScenarioDefinition,
   ScenarioOutcomeStatus,
   ScenarioQuestion,
+  ScenarioGroundTruthEvent,
   ScenarioTechnique,
   ScenarioScore,
   ScenarioState,

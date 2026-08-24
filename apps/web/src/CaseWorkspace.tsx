@@ -164,6 +164,8 @@ export function CaseWorkspace({
                 questionAnswers,
                 questionScore,
                 coverage,
+                collectedEventIds:
+                  analystCase.collectedEventIds,
                 formatTimestamp,
               })}
               buildAssessmentJson={(label) =>

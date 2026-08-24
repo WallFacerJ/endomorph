@@ -105,6 +105,8 @@ function createInput(
       available: 100,
     },
 
+    collectedEventIds: [],
+
     formatTimestamp: (value) =>
       value ?? "—",
 
@@ -337,6 +339,68 @@ describe("buildCaseReport", () => {
 
     expect(unseeded).toContain(
       "hand-authored and records no generation seed",
+    );
+  });
+
+  it("reports which key incident events were collected and names the misses", () => {
+    // Coverage says which entities were reached; this says whether the
+    // smoking guns were banked. A finalized run that collected one of two
+    // key events should say so and name the one that got away.
+    const report = buildCaseReport(
+      createInput({
+        scenario: {
+          id: "scenario-test-001",
+          name: "Test incident",
+          description: "x",
+          groundTruth: {
+            summary: "s",
+            timeline: [
+              {
+                eventId: "evt-powershell",
+                title:
+                  "Encoded PowerShell executed",
+                significance: "x",
+                techniqueId: "T1059.001",
+              },
+              {
+                eventId: "evt-beacon",
+                title:
+                  "C2 beacon established",
+                significance: "y",
+                techniqueId: "T1071.001",
+              },
+            ],
+          },
+        } as unknown as CaseReportInput["scenario"],
+        state: {
+          finalized: true,
+          score: { percentage: 50 },
+          outcome: {
+            status: "failed",
+            objectives: [],
+          },
+        } as unknown as CaseReportInput["state"],
+        collectedEventIds: [
+          "evt-powershell",
+        ],
+      }),
+    );
+
+    expect(report).toContain(
+      "Key evidence collected:** 1 of 2 incident events",
+    );
+
+    expect(report).toContain(
+      "## Key evidence not collected",
+    );
+
+    expect(report).toContain(
+      "C2 beacon established (T1071.001)",
+    );
+
+    // The one that was collected is not listed as a miss.
+    expect(report).not.toContain(
+      "Encoded PowerShell executed (T1059.001)",
     );
   });
 

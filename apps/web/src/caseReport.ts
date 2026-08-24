@@ -9,6 +9,10 @@ import {
   summarizePerformedResponses,
 } from "./performedResponses";
 
+import {
+  summarizeKeyEvidence,
+} from "./keyEvidence";
+
 /**
  * The case, as a document somebody can take away.
  *
@@ -44,6 +48,13 @@ export interface CaseReportInput {
    * scenarios, which declare none.
    */
   readonly coverage?: InvestigationCoverage;
+
+  /**
+   * The evidence the analyst banked, for measuring which of the incident's
+   * key events were actually collected. The same list the case and coverage
+   * read, passed in rather than re-derived.
+   */
+  readonly collectedEventIds: readonly string[];
   readonly formatTimestamp: (
     timestamp: string | undefined,
   ) => string;
@@ -68,6 +79,7 @@ export function buildCaseReport(
     questionAnswers,
     questionScore,
     coverage,
+    collectedEventIds,
     formatTimestamp,
   } = input;
 
@@ -101,6 +113,20 @@ export function buildCaseReport(
     ) {
       lines.push(
         `- **Incident coverage:** reached ${coverage.reached.length} of ${coverage.entities.length} entities (${coverage.percentage}%)`,
+        "",
+      );
+    }
+
+    const keyEvidence =
+      summarizeKeyEvidence(
+        scenario.groundTruth?.timeline ??
+          [],
+        collectedEventIds,
+      );
+
+    if (keyEvidence) {
+      lines.push(
+        `- **Key evidence collected:** ${keyEvidence.captured} of ${keyEvidence.total} incident events`,
         "",
       );
     }
@@ -185,6 +211,32 @@ export function buildCaseReport(
             `- **${response.label}** (−${response.penalty})${
               response.rationale
                 ? ` — ${response.rationale}`
+                : ""
+            }`,
+        ),
+      ),
+    );
+  }
+
+  // The incident's key events the analyst never banked -- the smoking guns
+  // that were there to be collected and were not. Named by what they were,
+  // so the omission is legible rather than an id.
+  if (state.finalized) {
+    const keyEvidence =
+      summarizeKeyEvidence(
+        scenario.groundTruth?.timeline ??
+          [],
+        collectedEventIds,
+      );
+
+    lines.push(
+      ...section(
+        "Key evidence not collected",
+        (keyEvidence?.missed ?? []).map(
+          (step) =>
+            `- ${step.title ?? step.significance}${
+              step.techniqueId
+                ? ` (${step.techniqueId})`
                 : ""
             }`,
         ),

@@ -6,6 +6,10 @@ import {
   summarizePerformedResponses,
 } from "./performedResponses";
 
+import {
+  summarizeKeyEvidence,
+} from "./keyEvidence";
+
 import type {
   AnalystCaseState,
   InvestigationCoverage,
@@ -149,6 +153,27 @@ export interface AssessmentRecord {
       readonly label: string;
     }[];
   };
+
+  /**
+   * Which of the incident's key events the analyst actually collected.
+   *
+   * Coverage records which entities were reached; this records whether the
+   * smoking guns themselves were banked. An analyst can reach the host and
+   * never collect the beacon that proves what ran on it, and for a review
+   * that difference is the point. Absent when the scenario declares no
+   * ground-truth timeline to measure against. The missed steps are named so
+   * the result reads as "never collected the beacon", not a bare ratio.
+   */
+  readonly keyEvidence?: {
+    readonly captured: number;
+    readonly total: number;
+    readonly missed: readonly {
+      readonly eventId: string;
+      readonly title?: string;
+      readonly techniqueId?: string;
+      readonly significance: string;
+    }[];
+  };
 }
 
 export interface AssessmentInput {
@@ -204,6 +229,13 @@ export function buildAssessmentRecord(
     summarizePerformedResponses(
       scenario.actions ?? [],
       state.performedActionIds,
+    );
+
+  const keyEvidence =
+    summarizeKeyEvidence(
+      scenario.groundTruth?.timeline ??
+        [],
+      analystCase.collectedEventIds,
     );
 
   return {
@@ -308,6 +340,10 @@ export function buildAssessmentRecord(
             ),
           },
         }
+      : {}),
+
+    ...(keyEvidence
+      ? { keyEvidence }
       : {}),
   };
 }

@@ -326,6 +326,63 @@ describe("buildAssessmentRecord", () => {
     expect(record.coverage).toBeUndefined();
   });
 
+  it("records which key incident events were captured and names the misses", () => {
+    // The record has to carry whether the smoking guns were collected, not
+    // only which entities were reached. A run that banked one of two key
+    // events reports one captured and names the other.
+    const record = buildAssessmentRecord(
+      createInput({
+        scenario: {
+          id: "scenario-ke-001",
+          name: "KE",
+          groundTruth: {
+            summary: "s",
+            timeline: [
+              {
+                eventId: "evt-a",
+                title: "Encoded PowerShell",
+                significance: "x",
+                techniqueId: "T1059.001",
+              },
+              {
+                eventId: "evt-b",
+                title: "C2 beacon",
+                significance: "y",
+                techniqueId: "T1071.001",
+              },
+            ],
+          },
+        } as unknown as AssessmentInput["scenario"],
+        analystCase: {
+          collectedEventIds: ["evt-a"],
+          findings: [],
+        } as unknown as AssessmentInput["analystCase"],
+      }),
+    );
+
+    expect(record.keyEvidence).toEqual({
+      captured: 1,
+      total: 2,
+      missed: [
+        {
+          eventId: "evt-b",
+          title: "C2 beacon",
+          techniqueId: "T1071.001",
+          significance: "y",
+        },
+      ],
+    });
+  });
+
+  it("omits key evidence when the scenario has no ground truth", () => {
+    // The default fixture scenario declares none; the field is absent rather
+    // than a captured-zero-of-zero that would read as a perfect miss.
+    expect(
+      buildAssessmentRecord(createInput())
+        .keyEvidence,
+    ).toBeUndefined();
+  });
+
   it("omits coverage when none was supplied", () => {
     expect(
       buildAssessmentRecord(createInput())
