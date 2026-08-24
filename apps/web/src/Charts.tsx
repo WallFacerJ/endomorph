@@ -93,7 +93,15 @@ export function EventVolume({
               : 0;
 
           return (
-            <g key={bucket.label}>
+            /*
+              Keyed by position, not by label. bucketByTime labels each
+              bucket with the ISO timestamp at its left edge, and on a narrow
+              event window several adjacent edges round to the same
+              millisecond -- so labels collide and React saw duplicate keys.
+              The buckets are a fixed-length positional array; their index is
+              their identity.
+            */
+            <g key={index}>
               <rect
                 className="chart-bar"
                 x={index * 8}
