@@ -586,6 +586,13 @@ function main(): void {
       file: string;
     }[] = [];
 
+    // The difficulty half of the benchmark: how buried each technique is,
+    // merged across plans so the manifest carries it beside the coverage.
+    const floorByTechnique = new Map<
+      string,
+      TechniqueNoiseFloor
+    >();
+
     for (const plan of ATTACK_PLANS) {
       const incident = generateIncident(
         enterprise,
@@ -615,6 +622,26 @@ function main(): void {
         events,
         incident,
       );
+
+      for (const technique of computeNoiseFloor(
+        corpus.records,
+      ).techniques) {
+        const existing =
+          floorByTechnique.get(
+            technique.technique,
+          );
+
+        if (
+          !existing ||
+          technique.benignLookalikes >
+            existing.benignLookalikes
+        ) {
+          floorByTechnique.set(
+            technique.technique,
+            technique,
+          );
+        }
+      }
 
       const fileName = `${plan.id}${extensionFor(
         requestedFormat,
@@ -654,6 +681,9 @@ function main(): void {
           .toISOString()
           .slice(0, 10),
         entries,
+        noiseFloor: [
+          ...floorByTechnique.values(),
+        ],
       });
 
     writeFileSync(

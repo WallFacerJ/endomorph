@@ -252,7 +252,7 @@ Endomorph Detection Benchmark v1.0
   27857 records, 52 malicious (0.187%), 22 techniques across 6 plans
 ```
 
-The manifest carries aggregate counts, the union of techniques with how many plans exercise each, and a per-plan index pointing at the files. The corpus files are byte-deterministic for a given seed, so two people who generate `v1.0` at the shipped seed hold identical telemetry — which is what lets a score computed against it mean the same thing to both of them.
+The manifest carries aggregate counts, the union of techniques with how many plans exercise each and — from the noise floor — how buried each is, and a per-plan index pointing at the files. So the artifact says not only what it covers but how hard each technique is to detect cleanly, without a second command. The corpus files are byte-deterministic for a given seed, so two people who generate `v1.0` at the shipped seed hold identical telemetry — which is what lets a score computed against it mean the same thing to both of them.
 
 ### Deliverables and operator flags
 

@@ -2,6 +2,10 @@ import type {
   CorpusManifest,
 } from "./corpus.js";
 
+import type {
+  TechniqueNoiseFloor,
+} from "./noiseFloor.js";
+
 /**
  * The Endomorph Detection Benchmark: the shipped corpus as one citable thing.
  *
@@ -29,6 +33,19 @@ export interface BenchmarkTechnique {
 
   /** Total malicious events demonstrating it across the benchmark. */
   readonly maliciousEvents: number;
+
+  /**
+   * Benign events sharing this technique's event types -- the false-positive
+   * floor for an unspecific rule. Present when the benchmark was built with
+   * the corpus records to measure it, so the artifact says not only which
+   * techniques it covers but how hard each is to detect cleanly. Zero here is
+   * a warning that the technique is trivially separable and the corpus is too
+   * clean for its false positives to transfer.
+   */
+  readonly benignLookalikes?: number;
+
+  /** Benign look-alikes per malicious event: the size of the haystack. */
+  readonly lookalikeRatio?: number;
 }
 
 export interface BenchmarkPlanEntry {
@@ -88,6 +105,13 @@ export interface BenchmarkInput {
     readonly manifest: CorpusManifest;
     readonly file: string;
   }[];
+
+  /**
+   * The noise floor for the benchmark, merged across plans, keyed by
+   * technique. Optional: when absent the technique entries carry no
+   * difficulty figure rather than a misleading zero.
+   */
+  readonly noiseFloor?: readonly TechniqueNoiseFloor[];
 }
 
 function round(value: number): number {
@@ -116,6 +140,16 @@ export function buildBenchmarkManifest(
         ),
       file: entry.file,
     }));
+
+  const noiseFloorByTechnique = new Map(
+    (input.noiseFloor ?? []).map(
+      (entry) =>
+        [
+          entry.technique,
+          entry,
+        ] as const,
+    ),
+  );
 
   // Union of techniques across plans, in first-seen order for a stable file.
   const techniqueOrder: string[] = [];
@@ -186,9 +220,22 @@ export function buildBenchmarkManifest(
         techniques.size,
     },
     techniques: techniqueOrder
-      .map(
-        (id) => techniques.get(id)!,
-      )
+      .map((id) => {
+        const technique =
+          techniques.get(id)!;
+        const floor =
+          noiseFloorByTechnique.get(id);
+
+        return floor
+          ? {
+              ...technique,
+              benignLookalikes:
+                floor.benignLookalikes,
+              lookalikeRatio:
+                floor.lookalikeRatio,
+            }
+          : technique;
+      })
       .sort((left, right) =>
         left.id.localeCompare(right.id),
       ),

@@ -152,6 +152,80 @@ describe("buildBenchmarkManifest", () => {
     ]);
   });
 
+  it("attaches the noise floor to matching techniques when supplied", () => {
+    const result = buildBenchmarkManifest({
+      seed: 1,
+      corpusFormat: "ecs",
+      generatedAt: "2026-08-24",
+      entries: [
+        {
+          manifest: manifest({
+            plan: "a",
+            techniques: [
+              {
+                id: "T1059.001",
+                name: "PowerShell",
+                tactic: "execution",
+                eventCount: 2,
+              },
+            ],
+          }),
+          file: "a.ndjson",
+        },
+      ],
+      noiseFloor: [
+        {
+          technique: "T1059.001",
+          maliciousEvents: 2,
+          eventTypes: ["PROCESS_STARTED"],
+          benignLookalikes: 863,
+          lookalikeRatio: 431.5,
+        },
+      ],
+    });
+
+    const technique =
+      result.techniques[0];
+
+    expect(
+      technique.benignLookalikes,
+    ).toBe(863);
+    expect(
+      technique.lookalikeRatio,
+    ).toBe(431.5);
+  });
+
+  it("leaves techniques without a difficulty figure when no floor is supplied", () => {
+    // A missing floor is absent, not a misleading zero that would read as a
+    // trivially separable technique.
+    const result = buildBenchmarkManifest({
+      seed: 1,
+      corpusFormat: "ecs",
+      generatedAt: "2026-08-24",
+      entries: [
+        {
+          manifest: manifest({
+            plan: "a",
+            techniques: [
+              {
+                id: "T1059.001",
+                name: "PowerShell",
+                tactic: "execution",
+                eventCount: 2,
+              },
+            ],
+          }),
+          file: "a.ndjson",
+        },
+      ],
+    });
+
+    expect(
+      result.techniques[0]
+        .benignLookalikes,
+    ).toBeUndefined();
+  });
+
   it("indexes each plan to its corpus file", () => {
     const result = buildBenchmarkManifest({
       seed: 1,
