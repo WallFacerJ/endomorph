@@ -69,9 +69,10 @@ cluster no other product is strong across:
    precision/recall/FP/coverage. *Done:* `pnpm evaluate:robustness` scores a
    ruleset across many seeded enterprises and reports whether each rule
    generalises (stable) or memorised one world (fragile). And the hosted app now
-   has a **browser Detection Lab** — paste a Sigma rule, score it against the
-   scenario's labelled corpus, get counted precision/recall — so the pitch is a
-   thing a detection engineer just did, reachable without cloning the repo.
+   has a **browser Detection Lab** with its own front door at `?lab` — a
+   detection engineer opens the link, picks a scenario, and scores a pasted
+   Sigma rule against the labelled corpus in under two seconds, no investigation
+   to play through and no repo checkout. The pitch is now a thing they just did.
    Remaining: multi-seed robustness in the browser is deferred (each seed
    regenerates a full enterprise, too slow for a UI); it stays a CLI/backend
    job, and a hosted version would run it server-side.
