@@ -100,6 +100,15 @@ const BUILDS: readonly ScenarioBuild[] = [
     plan: "phishing-link",
     days: 3,
   },
+  {
+    out: "apps/web/public/scenarios/generated-cloud-consent.json",
+    id: "scenario-generated-cloud-consent-001",
+    name: "Generated enterprise: OAuth consent grant to cloud data theft",
+    description:
+      "Nothing touches a host. A user consents to a malicious OAuth application, and from the token that returns an attacker mints a credential, enumerates storage, and copies data to an external account -- an intrusion visible only in the cloud control-plane audit log.",
+    plan: "cloud-consent-grant",
+    days: 3,
+  },
 ];
 
 function findWorkspaceRoot(): string {

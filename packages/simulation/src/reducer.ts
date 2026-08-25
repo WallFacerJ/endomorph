@@ -234,6 +234,13 @@ export function applySimulationEvent(
         simulationTime: event.timestamp,
       };
 
+    // A control-plane audit record is likewise a log line.
+    case "CLOUD_AUDIT":
+      return {
+        ...world,
+        simulationTime: event.timestamp,
+      };
+
     default:
       return assertNever(event);
   }

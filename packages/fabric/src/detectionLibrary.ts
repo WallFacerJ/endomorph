@@ -493,6 +493,22 @@ export const PHISHING_LINK_RULE: DetectionRule =
     ],
   };
 
+export const CLOUD_EXFIL_RULE: DetectionRule =
+  {
+    id: "cloud-external-copy",
+    name: "Storage copied to an account outside the tenant",
+    technique: "T1537",
+    severity: "high",
+    selections: [
+      {
+        "event.type": "CLOUD_AUDIT",
+        "cloud.action": {
+          contains: "External",
+        },
+      },
+    ],
+  };
+
 export const DETECTION_RULES: readonly DetectionRule[] =
   [
     PASSWORD_SPRAY_RULE,
@@ -514,4 +530,5 @@ export const DETECTION_RULES: readonly DetectionRule[] =
     PRIVILEGED_ROLE_GRANT_RULE,
     MFA_DENIAL_BURST_RULE,
     PHISHING_LINK_RULE,
+    CLOUD_EXFIL_RULE,
   ];

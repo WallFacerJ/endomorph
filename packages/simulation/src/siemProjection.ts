@@ -79,6 +79,7 @@ function createFamilyCounts():
     process: 0,
     file: 0,
     mail: 0,
+    cloud: 0,
     network: 0,
     endpoint: 0,
     security: 0,
@@ -156,6 +157,9 @@ function getMessage(
 
     case "EMAIL_RECEIVED":
       return `Email to ${event.payload.accountId} from ${event.payload.senderAddress}: ${event.payload.subject}`;
+
+    case "CLOUD_AUDIT":
+      return `Cloud ${event.payload.service} ${event.payload.action}${event.payload.resource ? ` on ${event.payload.resource}` : ""} by ${event.payload.accountId}`;
 
     default:
       return assertNever(event);
@@ -312,6 +316,18 @@ function getFields(
         attachmentName:
           event.payload.attachmentName,
         sourceIp: event.payload.sourceIp,
+      });
+
+    case "CLOUD_AUDIT":
+      return definedFields({
+        accountId: event.payload.accountId,
+        action: event.payload.action,
+        service: event.payload.service,
+        resource: event.payload.resource,
+        appDisplayName:
+          event.payload.appDisplayName,
+        sourceIp: event.payload.sourceIp,
+        outcome: event.payload.outcome,
       });
 
     default:

@@ -1563,6 +1563,114 @@ export function generateBackgroundActivity(
         },
       );
     }
+
+    // Benign cloud control-plane activity, so the consent-grant intrusion's
+    // steps have look-alikes: legitimate app consents, routine credential
+    // rotations, and storage enumeration by administrators and CI. None of it
+    // copies data to an external account, which is the one thing the malicious
+    // exfil does and benign operations never do.
+    const BENIGN_CLOUD: readonly {
+      readonly action: string;
+      readonly service: string;
+      readonly app?: string;
+      readonly resource?: string;
+    }[] = [
+      {
+        action: "ConsentToApplication",
+        service: "EntraID",
+        app: "Slack",
+        resource: "User.Read",
+      },
+      {
+        action: "ConsentToApplication",
+        service: "EntraID",
+        app: "Zoom",
+        resource: "User.Read, Calendars.Read",
+      },
+      {
+        action: "CreateAccessKey",
+        service: "IAM",
+        resource: "ci-deploy",
+      },
+      {
+        action: "ListStorageContainers",
+        service: "Storage",
+        resource: "tenant-storage-audit",
+      },
+      {
+        action: "ListStorageContainers",
+        service: "Storage",
+        resource: "backups",
+      },
+      {
+        action: "RotateAccessKey",
+        service: "IAM",
+        resource: "backup-service",
+      },
+      {
+        action: "ConsentToApplication",
+        service: "EntraID",
+        app: "Salesforce",
+        resource: "User.Read",
+      },
+    ];
+
+    const cloudCursor =
+      root.fork("cloud-audit");
+
+    const cloudCount = Math.min(
+      14,
+      ordinaryAccounts.length,
+    );
+
+    for (
+      let index = 0;
+      index < cloudCount;
+      index += 1
+    ) {
+      const cursor = cloudCursor.fork(
+        `cloud-${index}`,
+      );
+
+      const account = cursor.pick(
+        ordinaryAccounts,
+      );
+
+      const template = cursor.pick(
+        BENIGN_CLOUD,
+      );
+
+      push(
+        businessMinute(cursor),
+        `cloud-${index}`,
+        {
+          type: "CLOUD_AUDIT",
+          source: "cloud",
+          subjectId: account.id,
+          payload: {
+            accountId: account.id,
+            ...(account.userId
+              ? { userId: account.userId }
+              : {}),
+            action: template.action,
+            service: template.service,
+            ...(template.app
+              ? {
+                  appDisplayName:
+                    template.app,
+                }
+              : {}),
+            ...(template.resource
+              ? {
+                  resource:
+                    template.resource,
+                }
+              : {}),
+            outcome: "success",
+          },
+        },
+      );
+    }
   }
 
   // -----------------------------------------------------------------------

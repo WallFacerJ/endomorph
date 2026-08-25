@@ -78,17 +78,17 @@ cluster no other product is strong across:
    job, and a hosted version would run it server-side.
 2. **Publish a stable benchmark corpus.** *Generation done:* `pnpm benchmark`
    writes the labelled telemetry as versioned ECS/OCSF NDJSON plus a manifest —
-   "the Endomorph Detection Benchmark v1.0: 7 intrusions, 24 techniques, 32.6k
+   "the Endomorph Detection Benchmark v1.0: 8 intrusions, 28 techniques, 37.3k
    records, seeded." Remaining is *distribution*: put v1.0 somewhere citable (a
    tagged GitHub release or a public URL) so it becomes a standard others point
    back to, not just a command they could run.
 3. **Grow ATT&CK coverage deliberately.** Technique breadth is the number
-   detection engineers judge a corpus on. Seven plans now, with a mail/phishing domain added; each new
+   detection engineers judge a corpus on. Eight plans now, with mail/phishing and cloud control-plane domains added; each new
    plan is pure event modelling, no infrastructure. (The benchmark manifest now
-   makes the number — 24 techniques — visible and diffable.)
+   makes the number — 28 techniques — visible and diffable.)
 4. **Make FP realism a measured headline.** *Done:* `pnpm noise-floor` reports,
    per technique, how many benign events share its event types — the
-   false-positive floor for an unspecific rule. At the shipped seed 20/24
+   false-positive floor for an unspecific rule. At the shipped seed 23/28
    techniques are buried among 10x+ benign look-alikes, a floor a corpus with
    separable malicious traffic cannot offer.
 
@@ -176,7 +176,7 @@ it builds on so it is not a green field.
    *Remaining:* Elastic ES|QL, if demand appears. *Built on* the rule model and the
    Sigma importer (`packages/fabric/src/sigma.ts`).
 
-3. **Add the domains real detections live in — MAIL DONE (first).** Email
+3. **Add the domains real detections live in — MAIL + CLOUD DONE.** Email
    (headers/links/attachments), cloud/SaaS audit (OAuth, IAM, control plane),
    DNS/proxy, and Sysmon-fidelity Windows event codes. *Done:* a mail domain --
    an `EMAIL_RECEIVED` event modelled end-to-end (schema, projections, corpus
@@ -184,9 +184,14 @@ it builds on so it is not a green field.
    and a `phishing-link` intrusion (spearphishing link → click → valid-account
    login) adding techniques T1566.002 and T1204.001. The background now generates
    benign mail, so the phish competes with 16 look-alike inbox messages rather
-   than standing alone; the shipped `phishing-verify-link` rule holds 1.000/1.000
-   against that floor, and the scenario is scoreable in all four languages in the
-   browser lab. *Remaining:* cloud/SaaS audit, DNS/proxy, Sysmon codes. Each
+   than standing alone. A **cloud control-plane** domain followed: one `CLOUD_AUDIT`
+   event type (a CloudTrail/Entra-shaped `action`+`service` record, fields
+   `cloud.action`/`cloud.service`/`cloud.resource`/`cloud.application`) and an
+   `cloud-consent-grant` intrusion (OAuth consent → token → minted credential →
+   storage enumeration → external copy) adding techniques T1528, T1098.001, T1526,
+   T1537. Benign consents, key rotations, and listings give it a floor; the shipped
+   `cloud-external-copy` rule holds 1.000/1.000. Both domains are scoreable in all
+   four languages in the browser lab. *Remaining:* DNS/proxy, Sysmon codes. Each
    unlocks many ATT&CK techniques and more addressable teams; the noise floor
    guides each domain's FP realism. Biggest moat-deepener (roadmap Phase 3).
 

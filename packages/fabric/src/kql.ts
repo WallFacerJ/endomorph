@@ -106,6 +106,14 @@ const FIELD_MAP: Readonly<
   SenderFromAddress: "email.from.address",
   Subject: "email.subject",
   Url: "url.original",
+
+  // Cloud control-plane fields.
+  "cloud.action": "cloud.action",
+  "cloud.service": "cloud.service",
+  "cloud.resource": "cloud.resource",
+  "cloud.application": "cloud.application",
+  OperationName: "cloud.action",
+  Operation: "cloud.action",
 };
 
 export interface KqlDocument {

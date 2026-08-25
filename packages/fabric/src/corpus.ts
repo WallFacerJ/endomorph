@@ -121,6 +121,12 @@ export interface CorpusRecord {
   "email.subject"?: string;
   "email.direction"?: string;
   "url.original"?: string;
+
+  /** Cloud control-plane fields, on a CLOUD_AUDIT record. */
+  "cloud.action"?: string;
+  "cloud.service"?: string;
+  "cloud.resource"?: string;
+  "cloud.application"?: string;
   "event.outcome"?: string;
   "event.reason"?: string;
   "session.id"?: string;
@@ -174,6 +180,9 @@ function outcomeFor(
     case "AUTH_LOGIN_FAILED":
       return "failure";
 
+    case "CLOUD_AUDIT":
+      return event.payload.outcome;
+
     default:
       return undefined;
   }
@@ -185,6 +194,7 @@ const MODULES: Record<string, string> = {
   network: "network",
   file_server: "file",
   mail: "email",
+  cloud: "cloud",
 };
 
 /**
@@ -451,6 +461,20 @@ function toRecord(
       ? "inbound-external"
       : "inbound-internal";
   }
+
+  assign("cloud.action", read("action"));
+  assign(
+    "cloud.service",
+    read("service"),
+  );
+  assign(
+    "cloud.resource",
+    read("resource"),
+  );
+  assign(
+    "cloud.application",
+    read("appDisplayName"),
+  );
 
   const actorId = event.actorId;
 

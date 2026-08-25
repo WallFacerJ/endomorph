@@ -108,6 +108,13 @@ const FIELD_MAP: Readonly<
   sender: "email.from.address",
   subject: "email.subject",
   url: "url.original",
+
+  // Cloud control-plane fields.
+  "cloud.action": "cloud.action",
+  "cloud.service": "cloud.service",
+  "cloud.resource": "cloud.resource",
+  "cloud.application": "cloud.application",
+  action_name: "cloud.action",
 };
 
 /** Selectors that choose the data source rather than express detection logic. */

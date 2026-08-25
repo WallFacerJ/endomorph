@@ -260,6 +260,15 @@ export function validateSimulationEvent(
 
       return;
 
+    case "CLOUD_AUDIT":
+      requireEntity(
+        world.accounts,
+        event.payload.accountId,
+        "Account",
+      );
+
+      return;
+
     default:
       return assertNever(event);
   }

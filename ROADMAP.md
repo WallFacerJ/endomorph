@@ -14,8 +14,8 @@ infrastructure. No competitor combines ground truth + benign noise + seeded
 variation + a scoring harness + zero infra. The investigation console stays the
 demo that makes it tangible, and the door into a training product later.
 
-At a glance: **7 intrusions · 24 ATT&CK techniques · ~32.6k labelled events ·
-4 rule languages · 5 event domains · 0 infrastructure.**
+At a glance: **8 intrusions · 28 ATT&CK techniques · ~37.3k labelled events ·
+4 rule languages · 6 event domains · 0 infrastructure.**
 
 ### Lane 1 — Shipped (the wedge is real)
 
@@ -32,16 +32,18 @@ At a glance: **7 intrusions · 24 ATT&CK techniques · ~32.6k labelled events ·
   `--baseline` regression gate + `--badge`. *Done.*
 - **AI detection-eval harness** — `--ai-eval` exports label-stripped tasks + hidden
   key; `--rubric` grades generated detections *N/M techniques to standard*. *Done.*
-- **Event domains** — endpoint, identity, network, file, **mail** (mail added a
-  credential-phishing intrusion + techniques T1566.002, T1204.001). *Done.*
+- **Event domains** — endpoint, identity, network, file, **mail**, **cloud**. Mail
+  added a credential-phishing intrusion (T1566.002, T1204.001); cloud added an
+  OAuth-consent control-plane intrusion (T1528, T1098.001, T1526, T1537). *Done.*
 - **Landing page + benchmark v1.0 generation.** *Done.*
 
 ### Lane 2 — Now → Next (sharpen the wedge, priority order)
 
 1. **Publish benchmark v1.0 as a citable release.** *Gated on `gh` auth.* Artifacts
    build clean; cutting the release makes it a dataset others cite, not a command.
-2. **More event domains — the deepest moat.** Cloud / SaaS audit (OAuth, IAM,
-   control plane) first, then DNS / proxy. Mail proved the pattern.
+2. **More event domains — the deepest moat.** Mail and cloud/SaaS control-plane
+   are shipped; **DNS / proxy** and Sysmon-fidelity Windows codes are next. Each
+   new domain unlocks many ATT&CK techniques and more addressable teams.
 3. **Point it at your own org.** Surface `--profile` as a product feature — the
    digital-twin wedge, determinism intact.
 4. **Ship the generator + scorer as an npm package / API.** *Gated on npm auth.*

@@ -15,7 +15,8 @@ export type SimulationEventFamily =
   | "network"
   | "endpoint"
   | "security"
-  | "mail";
+  | "mail"
+  | "cloud";
 
 export function getSimulationEventFamily(
   event: SimulationEvent,
@@ -51,6 +52,9 @@ export function getSimulationEventFamily(
 
     case "EMAIL_RECEIVED":
       return "mail";
+
+    case "CLOUD_AUDIT":
+      return "cloud";
 
     default:
       return assertNever(event);

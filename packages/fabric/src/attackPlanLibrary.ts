@@ -18,6 +18,10 @@ import {
   PHISHING_LINK_PLAN,
 } from "./attackPlanPhishingLink.js";
 
+import {
+  CLOUD_CONSENT_PLAN,
+} from "./attackPlanCloudConsent.js";
+
 /**
  * The shipped plan library.
  *
@@ -983,4 +987,5 @@ export const ATTACK_PLANS: readonly AttackPlan[] =
     MACRO_EXECUTION_PLAN,
     CLOUD_ROLE_PLAN,
     PHISHING_LINK_PLAN,
+    CLOUD_CONSENT_PLAN,
   ];

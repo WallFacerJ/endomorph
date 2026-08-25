@@ -92,6 +92,12 @@ export const SHIPPED_SCENARIOS:
         "Credential phishing by link",
       group: "generated",
     },
+    {
+      path: "/scenarios/generated-cloud-consent.json",
+      label:
+        "OAuth consent to cloud data theft (advanced)",
+      group: "generated",
+    },
   ];
 
 /**

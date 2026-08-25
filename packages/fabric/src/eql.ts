@@ -86,6 +86,13 @@ const FIELD_MAP: Readonly<
   "email.subject": "email.subject",
   "email.direction": "email.direction",
   "url.original": "url.original",
+
+  // Cloud control-plane fields.
+  "cloud.action": "cloud.action",
+  "cloud.service": "cloud.service",
+  "cloud.resource": "cloud.resource",
+  "cloud.application": "cloud.application",
+
 };
 
 export interface EqlDocument {

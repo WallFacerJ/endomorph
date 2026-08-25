@@ -348,6 +348,54 @@ export type MailEvent =
   EmailReceivedEvent;
 
 // -----------------------------------------------------------------------------
+// Cloud control plane
+// -----------------------------------------------------------------------------
+
+/**
+ * A cloud / SaaS control-plane audit record.
+ *
+ * The identity and endpoint domains cannot express the intrusions that now
+ * dominate: an OAuth application consented to, an access key minted for
+ * persistence, a storage bucket enumerated and copied out -- all of it in a
+ * provider's audit log, none of it touching a host. Modelled the way a real
+ * audit log is: one record shape with an `action` and a `service`, so the whole
+ * control plane is one event type and a detection reads the action rather than
+ * the schema.
+ */
+export interface CloudAuditPayload {
+  /** The identity the action was performed by or against. */
+  accountId: EntityId;
+
+  userId?: EntityId;
+
+  /** The control-plane operation, e.g. "ConsentToApplication", "CreateAccessKey". */
+  action: string;
+
+  /** The provider service, e.g. "EntraID", "IAM", "Storage". */
+  service: string;
+
+  /** The resource acted on, when the action names one. */
+  resource?: string;
+
+  /** A modelled application, when the action involves one. */
+  applicationId?: EntityId;
+
+  /** The application's display name, when it is not a modelled entity. */
+  appDisplayName?: string;
+
+  sourceIp?: string;
+
+  outcome?: "success" | "failure";
+}
+
+export type CloudAuditEvent = EventOf<
+  "CLOUD_AUDIT",
+  CloudAuditPayload
+>;
+
+export type CloudEvent = CloudAuditEvent;
+
+// -----------------------------------------------------------------------------
 // Endomorph event union
 // -----------------------------------------------------------------------------
 
@@ -360,7 +408,8 @@ export type SimulationEvent =
   | NetworkEvent
   | EndpointEvent
   | SecurityEvent
-  | MailEvent;
+  | MailEvent
+  | CloudEvent;
 
 export type SimulationEventType =
   SimulationEvent["type"];

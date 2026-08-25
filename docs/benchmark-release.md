@@ -12,10 +12,10 @@ seed.
 
 ## What's in it
 
-- **7 intrusions**, each a separate ECS-shaped NDJSON file.
-- **32,557 records**, of which **56 are malicious** — a **0.17% malicious
+- **8 intrusions**, each a separate ECS-shaped NDJSON file.
+- **37,311 records**, of which **63 are malicious** — a **0.17% malicious
   ratio**, realistically skewed, not a balanced toy set.
-- **24 distinct ATT&CK techniques** across the set, spanning endpoint, identity, network, cloud, and mail telemetry.
+- **28 distinct ATT&CK techniques** across the set, spanning endpoint, identity, network, file, mail, and cloud control-plane telemetry.
 - Generated at **seed 20260820**, so the files are **byte-deterministic**: anyone
   who regenerates v1.0 at this seed holds identical telemetry, and a score
   computed against it means the same thing to everyone.

@@ -429,6 +429,29 @@ const emailReceivedEventSchema =
     }).strict(),
   }).strict();
 
+const cloudAuditEventSchema =
+  z.object({
+    ...eventBaseShape,
+    type: z.literal("CLOUD_AUDIT"),
+    payload: z.object({
+      accountId: entityIdSchema,
+      userId: optionalEntityIdSchema,
+      action: nonEmptyStringSchema,
+      service: nonEmptyStringSchema,
+      resource:
+        nonEmptyStringSchema.optional(),
+      applicationId:
+        optionalEntityIdSchema,
+      appDisplayName:
+        nonEmptyStringSchema.optional(),
+      sourceIp:
+        nonEmptyStringSchema.optional(),
+      outcome: z
+        .enum(["success", "failure"])
+        .optional(),
+    }).strict(),
+  }).strict();
+
 export const scenarioEventSchema =
   z.discriminatedUnion("type", [
     authLoginSucceededEventSchema,
@@ -444,6 +467,7 @@ export const scenarioEventSchema =
     endpointHeartbeatEventSchema,
     alertCreatedEventSchema,
     emailReceivedEventSchema,
+    cloudAuditEventSchema,
   ]);
 
 export const scenarioActionAssessmentSchema =
