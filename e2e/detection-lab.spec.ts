@@ -392,3 +392,111 @@ test("switching to SPL scores a Splunk search against the same corpus", async ({
       .first(),
   ).toContainText("T1059.001");
 });
+
+test("a shared result link reopens the rule and auto-scores it", async ({
+  page,
+}) => {
+  // A scored rule is shareable: the language and the rule text ride in the URL,
+  // so a recipient opening the link lands on the result, not an empty form.
+  const rule = [
+    "title: Encoded PowerShell Command Line",
+    "logsource:",
+    "  category: process_creation",
+    "detection:",
+    "  selection:",
+    "    Image|endswith: 'powershell.exe'",
+    "    CommandLine|contains: '-enc'",
+    "  condition: selection",
+    "tags:",
+    "  - attack.t1059.001",
+  ].join("\n");
+
+  const encoded = Buffer.from(rule, "utf8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+
+  await page.goto(
+    `/?lab&lang=sigma&rule=${encoded}`,
+  );
+
+  const tester = page.getByRole(
+    "region",
+    {
+      name: "Test your own detection rule",
+    },
+  );
+
+  await tester.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  // The rule text is hydrated from the link...
+  await expect(
+    tester.getByRole("textbox"),
+  ).toHaveValue(/CommandLine\|contains/);
+
+  // ...and the result is already there without a click on Score.
+  await expect(
+    tester
+      .locator(
+        ".rule-tester-table tbody tr",
+      )
+      .first(),
+  ).toContainText("T1059.001", {
+    timeout: 20000,
+  });
+});
+
+test("the share link round-trips through the clipboard", async ({
+  page,
+  context,
+}) => {
+  // Clicking "Copy share link" writes a URL that reproduces the current rule.
+  await context.grantPermissions([
+    "clipboard-read",
+    "clipboard-write",
+  ]);
+
+  await page.goto("/?lab");
+
+  const tester = page.getByRole(
+    "region",
+    {
+      name: "Test your own detection rule",
+    },
+  );
+
+  await tester.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  await tester
+    .getByRole("button", {
+      name: "Copy share link",
+    })
+    .click();
+
+  const shared = await page.evaluate(() =>
+    navigator.clipboard.readText(),
+  );
+
+  expect(shared).toContain("lab");
+  expect(shared).toContain("rule=");
+
+  // Opening the copied link reproduces the scored rule.
+  await page.goto(shared);
+
+  await expect(
+    tester
+      .locator(
+        ".rule-tester-table tbody tr",
+      )
+      .first(),
+  ).toContainText("T1059.001", {
+    timeout: 20000,
+  });
+});

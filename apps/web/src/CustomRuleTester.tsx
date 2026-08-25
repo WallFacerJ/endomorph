@@ -1,6 +1,8 @@
 import {
   Fragment,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -187,6 +189,79 @@ DeviceProcessEvents
 /** How many matched records to list under a rule before trailing off. */
 const MATCH_LIMIT = 12;
 
+/**
+ * A pasted rule is shareable: the language and the rule text encode into the
+ * URL so "here is my rule scored against Endomorph" is a link, not a
+ * screenshot. The rule is base64url-encoded UTF-8 so a YAML/KQL/SPL body with
+ * newlines and quotes survives the query string intact.
+ */
+function encodeRule(text: string): string {
+  const bytes = new TextEncoder().encode(
+    text,
+  );
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+function decodeRule(
+  encoded: string,
+): string | null {
+  try {
+    const base64 = encoded
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(
+      binary,
+      (character) =>
+        character.charCodeAt(0),
+    );
+    return new TextDecoder().decode(bytes);
+  } catch {
+    return null;
+  }
+}
+
+interface SharedRule {
+  readonly language: RuleLanguage;
+  readonly text: string;
+}
+
+/** Reads a shared rule out of the URL, if this page was opened from a share link. */
+function readSharedRule(): SharedRule | null {
+  const params = new URLSearchParams(
+    window.location.search,
+  );
+
+  const encoded = params.get("rule");
+
+  if (!encoded) {
+    return null;
+  }
+
+  const text = decodeRule(encoded);
+
+  if (text === null) {
+    return null;
+  }
+
+  const lang = params.get("lang");
+
+  return {
+    language:
+      lang === "kql" || lang === "spl"
+        ? lang
+        : "sigma",
+    text,
+  };
+}
+
 function percent(value: number): string {
   return `${(value * 100).toFixed(1)}%`;
 }
@@ -295,11 +370,21 @@ function MatchRows({
 
 interface CustomRuleTesterProps {
   readonly scenario: ScenarioDefinition;
+  /**
+   * The scenario's corpus path, used to build a shareable result link. The
+   * detection lab passes it; the in-investigation tester does not, so the
+   * share affordance is simply absent there.
+   */
+  readonly scenarioPath?: string;
 }
 
 export function CustomRuleTester({
   scenario,
+  scenarioPath,
 }: CustomRuleTesterProps) {
+  const [shared] = useState(
+    readSharedRule,
+  );
   const records = useMemo(
     () => buildScenarioCorpus(scenario),
     [scenario],
@@ -317,7 +402,7 @@ export function CustomRuleTester({
   );
 
   const [yaml, setYaml] = useState(
-    STARTER_RULE,
+    shared?.text ?? STARTER_RULE,
   );
 
   const [review, setReview] =
@@ -333,7 +418,12 @@ export function CustomRuleTester({
     useState<string | null>(null);
 
   const [language, setLanguage] =
-    useState<RuleLanguage>("sigma");
+    useState<RuleLanguage>(
+      shared?.language ?? "sigma",
+    );
+
+  const [copied, setCopied] =
+    useState(false);
 
   const examplesFor = (
     lang: RuleLanguage,
@@ -386,6 +476,71 @@ export function CustomRuleTester({
           : "The rule could not be parsed.",
       );
     }
+  };
+
+  // If this page was opened from a share link, score the shared rule once the
+  // corpus is ready, so the recipient lands on the result, not an empty form.
+  // Guarded to fire a single time: switching scenario afterwards must not
+  // silently overwrite a rule the visitor has since edited.
+  const autoScored = useRef(false);
+
+  useEffect(() => {
+    if (!shared || autoScored.current) {
+      return;
+    }
+
+    autoScored.current = true;
+
+    try {
+      setReview(
+        shared.language === "kql"
+          ? scoreKqlAgainstCorpus(
+              records,
+              shared.text,
+            )
+          : shared.language === "spl"
+            ? scoreSplAgainstCorpus(
+                records,
+                shared.text,
+              )
+            : scoreSigmaAgainstCorpus(
+                records,
+                shared.text,
+              ),
+      );
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "The rule could not be parsed.",
+      );
+    }
+  }, [records, shared]);
+
+  const shareLink = () => {
+    if (!scenarioPath) {
+      return;
+    }
+
+    const base = `${window.location.origin}${window.location.pathname}`;
+    const url = `${base}?lab&scenario=${encodeURIComponent(
+      scenarioPath,
+    )}&lang=${language}&rule=${encodeRule(
+      yaml,
+    )}`;
+
+    void navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        setCopied(true);
+        window.setTimeout(
+          () => setCopied(false),
+          2000,
+        );
+      })
+      .catch(() => {
+        setCopied(false);
+      });
   };
 
   const scored =
@@ -551,7 +706,9 @@ export function CustomRuleTester({
           type="button"
           className="rule-tester-reset"
           onClick={() => {
-            setYaml(STARTER_RULE);
+            setYaml(
+              activeExamples[0].yaml,
+            );
             setReview(null);
             setError(null);
             setExpanded(null);
@@ -559,6 +716,18 @@ export function CustomRuleTester({
         >
           Reset to example
         </button>
+
+        {scenarioPath && (
+          <button
+            type="button"
+            className="rule-tester-share"
+            onClick={shareLink}
+          >
+            {copied
+              ? "Link copied ✓"
+              : "Copy share link"}
+          </button>
+        )}
       </div>
 
       {error && (

@@ -204,6 +204,7 @@ export function DetectionLabPage() {
             />
             <CustomRuleTester
               scenario={scenario}
+              scenarioPath={path}
             />
           </>
         )}

@@ -76,6 +76,28 @@
   cursor: pointer;
 }
 
+.rule-tester-share {
+  margin-left: auto;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.rule-tester-share:hover {
+  color: var(--text);
+  border-color: color-mix(
+    in srgb,
+    var(--accent) 55%,
+    var(--border)
+  );
+}
+
 .rule-tester-error,
 .rule-tester-skipped {
   margin-top: 14px;
