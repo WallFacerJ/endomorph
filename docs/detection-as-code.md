@@ -45,6 +45,20 @@ express — a transforming command, mixed AND/OR, an unmapped field — is repor
 by name with a reason rather than imported as a query that silently matches
 nothing.
 
+## A coverage badge for your README
+
+`--badge <file>` writes a self-contained SVG showing how many of the benchmark's
+techniques your ruleset covers — the number the CI job already computes, rendered
+for the repo's front page:
+
+```bash
+pnpm evaluate -- --sigma path/to/your/rules --badge coverage.svg
+```
+
+Commit it and reference it from the README (`![detection coverage](coverage.svg)`),
+or regenerate and commit it from CI so it moves every time the rules do. The SVG
+carries no external references, so it renders offline and can't leak a request.
+
 ## In GitHub Actions
 
 A ready-to-adapt workflow is in

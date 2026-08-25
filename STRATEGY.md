@@ -187,9 +187,12 @@ it builds on so it is not a green field.
    set for LLM-generated detections and AI SOC agents. Timely, and exactly what
    ground-truth-by-construction is for.
 
-6. **Distribution/friction.** A 10-second landing page, shareable result
-   permalinks, a coverage badge for a detection repo README, and shipping the
-   generator + scorer as an npm package/API.
+6. **Distribution/friction — permalinks + badge DONE.** *Done:* the Detection
+   Lab now emits **shareable result permalinks** (language + rule encoded in the
+   URL; opening one auto-scores against the corpus), and the evaluator has a
+   `--badge <file>` flag that writes a self-contained **coverage badge** SVG a
+   detection repo embeds in its README. *Remaining:* a 10-second landing page and
+   shipping the generator + scorer as an npm package/API.
 
 Still deferred: interactive Range (containers/VMs) and the multi-user enterprise
 control plane — capital-intensive, in arenas incumbents own, wrong until a

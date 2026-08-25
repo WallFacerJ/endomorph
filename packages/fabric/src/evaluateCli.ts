@@ -70,6 +70,10 @@ import {
 } from "./coverageReport.js";
 
 import {
+  renderCoverageBadge,
+} from "./coverageBadge.js";
+
+import {
   renderCohortReview,
 } from "./cohortReview.js";
 
@@ -1135,6 +1139,33 @@ function main(): void {
       `Coverage report written to ${coveragePath}
 
 `,
+    );
+  }
+
+  const badgePath = flag("badge");
+
+  if (badgePath) {
+    const target =
+      resolveFromRoot(badgePath);
+
+    mkdirSync(dirname(target), {
+      recursive: true,
+    });
+
+    writeFileSync(
+      target,
+      renderCoverageBadge({
+        covered:
+          summary.totals
+            .coveredTechniques,
+        total:
+          summary.totals.totalTechniques,
+      }),
+      "utf8",
+    );
+
+    process.stdout.write(
+      `Coverage badge written to ${badgePath} (${summary.totals.coveredTechniques}/${summary.totals.totalTechniques} techniques)\n\n`,
     );
   }
 

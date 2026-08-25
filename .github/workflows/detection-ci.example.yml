@@ -64,3 +64,19 @@ jobs:
         # Exits non-zero when a rule stops detecting a technique it used to
         # catch, failing the pull request. Notices (a rule got noisier) are
         # printed but do not fail.
+
+      # Optional: refresh a coverage badge for your README on pushes to main.
+      # Swap --sigma for --kql or --spl if that is the language you author in.
+      - name: Update the coverage badge
+        if: github.event_name == 'push'
+        working-directory: endomorph
+        run: |
+          node packages/fabric/dist/evaluateCli.js \
+            --sigma "$GITHUB_WORKSPACE/rules-repo/${RULES_DIR}" \
+            --badge "$GITHUB_WORKSPACE/rules-repo/coverage.svg"
+          cd "$GITHUB_WORKSPACE/rules-repo"
+          if ! git diff --quiet coverage.svg; then
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git commit -am "Update detection coverage badge" && git push
+          fi
