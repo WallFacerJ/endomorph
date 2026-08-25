@@ -1131,6 +1131,150 @@ function main(): void {
     haystack is realistically hard; one with none is a corpus telling on
     itself.
   */
+  /*
+    Evasion report: does the ruleset survive the attacker trying? Score it at
+    the standard and stealth evasion levels and report, per technique, whether
+    each rule's recall held or collapsed. A rule pinned to a loud command-line
+    shape reads as "evaded" here; a behavioural rule holds -- which is the whole
+    argument for behavioural detection, measured rather than asserted.
+  */
+  if (argv.includes("--evasion-report")) {
+    const enterprise = generateEnterprise(
+      profileOverrides
+        ? { ...profileOverrides, seed }
+        : { seed },
+    );
+
+    const background =
+      generateBackgroundActivity(
+        enterprise,
+        { days: 3 },
+      );
+
+    const recallAt = (
+      level: "standard" | "stealth",
+    ) => {
+      const byRule = new Map<
+        string,
+        { technique?: string; recall: number }
+      >();
+
+      for (const plan of ATTACK_PLANS) {
+        const incident = generateIncident(
+          enterprise,
+          {
+            planId: plan.id,
+            evasion: level,
+          },
+        );
+
+        const detection =
+          incident.events[
+            incident.events.length - 1
+          ].timestamp;
+
+        const events = [
+          ...background.filter(
+            (event) =>
+              event.timestamp <=
+              detection,
+          ),
+          ...incident.events,
+        ].sort((left, right) =>
+          left.timestamp.localeCompare(
+            right.timestamp,
+          ),
+        );
+
+        const corpus = buildCorpus(
+          enterprise,
+          events,
+          incident,
+        );
+
+        for (const evaluation of evaluateRuleset(
+          rules,
+          corpus.records,
+        ).evaluations) {
+          if (
+            evaluation.truePositives +
+              evaluation.falseNegatives ===
+            0
+          ) {
+            continue;
+          }
+          byRule.set(
+            `${plan.id}::${evaluation.ruleId}`,
+            {
+              technique:
+                evaluation.technique,
+              recall: evaluation.recall,
+            },
+          );
+        }
+      }
+
+      return byRule;
+    };
+
+    const std = recallAt("standard");
+    const stealth = recallAt("stealth");
+
+    process.stdout.write(
+      `Endomorph evasion report
+  does each rule survive the attacker trying? (standard vs stealth)
+
+`,
+    );
+
+    process.stdout.write(
+      `  ${pad("RULE", 34)}${pad("TECHNIQUE", 12)}${pad("STD", 7)}${pad("STEALTH", 9)}VERDICT
+`,
+    );
+
+    let survived = 0;
+    let degraded = 0;
+
+    for (const [key, base] of std) {
+      const after =
+        stealth.get(key)?.recall ?? 0;
+      const ruleId = key.split("::")[1];
+      const drops = after < base.recall;
+
+      if (base.recall === 0) {
+        // The rule did not catch this technique even at standard; nothing to
+        // say about whether it survives evasion.
+        continue;
+      }
+
+      if (drops) {
+        degraded += 1;
+      } else {
+        survived += 1;
+      }
+
+      process.stdout.write(
+        `  ${pad(ruleId, 34)}${pad(
+          base.technique ?? "-",
+          12,
+        )}${pad(base.recall.toFixed(2), 7)}${pad(
+          after.toFixed(2),
+          9,
+        )}${drops ? "EVADED" : "held"}
+`,
+      );
+    }
+
+    process.stdout.write(
+      `
+  ${survived} rule/plan pair(s) held under stealth, ${degraded} evaded.
+
+`,
+    );
+
+    return;
+  }
+
   if (argv.includes("--noise-floor")) {
     const enterprise =
       generateEnterprise(

