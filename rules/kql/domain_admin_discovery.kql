@@ -1,5 +1,4 @@
 // title: Domain Admin Enumeration
 // technique: T1069.002
 DeviceProcessEvents
-| where ProcessCommandLine contains "Get-ADGroupMember"
-    and ProcessCommandLine contains "Domain Admins"
+| where ProcessCommandLine contains "Domain Admins"

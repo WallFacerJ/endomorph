@@ -5,6 +5,7 @@ import {
   importSigmaRules,
   importKqlRules,
   importSplRules,
+  importEqlRules,
 } from "@endomorph/fabric";
 
 import type {
@@ -200,6 +201,28 @@ export function scoreSplAgainstCorpus(
 ): CustomRuleReview {
   const { rules, skipped } =
     importSplRules([
+      { source: "pasted rule", query },
+    ]);
+
+  return {
+    report: evaluateRuleset(
+      rules,
+      records,
+    ),
+    recordCount: records.length,
+    maliciousCount:
+      maliciousCountOf(records),
+    imported: rules.length,
+    skipped,
+  };
+}
+
+export function scoreEqlAgainstCorpus(
+  records: readonly CorpusRecord[],
+  query: string,
+): CustomRuleReview {
+  const { rules, skipped } =
+    importEqlRules([
       { source: "pasted rule", query },
     ]);
 

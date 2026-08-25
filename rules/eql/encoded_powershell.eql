@@ -1,0 +1,3 @@
+// title: Encoded PowerShell Command Line
+// technique: T1059.001
+process where process.name : "*powershell.exe" and process.command_line : "*-enc*"

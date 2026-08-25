@@ -500,3 +500,46 @@ test("the share link round-trips through the clipboard", async ({
     timeout: 20000,
   });
 });
+
+test("switching to EQL scores an Elastic query against the same corpus", async ({
+  page,
+}) => {
+  // Elastic is a top-tier SIEM whose detections are written as EQL. Switching
+  // the language loads an EQL example and scores its condition against the same
+  // labelled records.
+  await page.goto("/?lab");
+
+  const tester = page.getByRole(
+    "region",
+    {
+      name: "Test your own detection rule",
+    },
+  );
+
+  await tester.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  await tester
+    .getByRole("button", { name: "EQL" })
+    .click();
+
+  await expect(
+    tester.getByRole("textbox"),
+  ).toHaveValue(/process where/);
+
+  await tester
+    .getByRole("button", {
+      name: "Score rule",
+    })
+    .click();
+
+  await expect(
+    tester
+      .locator(
+        ".rule-tester-table tbody tr",
+      )
+      .first(),
+  ).toContainText("T1059.001");
+});

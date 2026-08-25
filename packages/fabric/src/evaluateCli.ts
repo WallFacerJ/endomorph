@@ -62,6 +62,10 @@ import {
 } from "./spl.js";
 
 import {
+  importEqlRules,
+} from "./eql.js";
+
+import {
   resolveFromRoot,
 } from "./workspaceRoot.js";
 
@@ -510,6 +514,58 @@ function main(): void {
     );
 
     for (const skip of importedSpl.skipped) {
+      process.stdout.write(
+        `  SKIPPED ${skip.source}: ${skip.reason}
+`,
+      );
+    }
+
+    process.stdout.write("\n");
+  }
+
+  const eqlIndex = argv.indexOf("--eql");
+
+  const eqlDir =
+    eqlIndex >= 0
+      ? argv[eqlIndex + 1]
+      : undefined;
+
+  if (eqlDir) {
+    const eqlRoot =
+      resolveFromRoot(eqlDir);
+
+    if (!existsSync(eqlRoot)) {
+      throw new Error(
+        `EQL directory not found: ${eqlRoot}`,
+      );
+    }
+
+    const eqlDocuments = readdirSync(
+      eqlRoot,
+    )
+      .filter((name) =>
+        name.endsWith(".eql"),
+      )
+      .map((name) => ({
+        source: name,
+        query: readFileSync(
+          `${eqlRoot}/${name}`,
+          "utf8",
+        ),
+      }));
+
+    const importedEql =
+      importEqlRules(eqlDocuments);
+
+    rules = [...importedEql.rules];
+
+    process.stdout.write(
+      `EQL import from ${eqlDir}
+  imported ${importedEql.rules.length}, skipped ${importedEql.skipped.length}
+`,
+    );
+
+    for (const skip of importedEql.skipped) {
       process.stdout.write(
         `  SKIPPED ${skip.source}: ${skip.reason}
 `,

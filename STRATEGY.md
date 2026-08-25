@@ -162,16 +162,19 @@ it builds on so it is not a green field.
    repo can adopt it. *Remaining:* publish the generator (npm or a container) so
    the CI job does not have to build from source.
 
-2. **Meet engineers in their own language — KQL + SPL DONE.** Most write Splunk
-   SPL, Elastic EQL/ES|QL, or Sentinel KQL, not Sigma. *Done:* `packages/fabric/src/kql.ts`
-   imports Sentinel/Defender KQL (`where` predicates → the internal rule) and
-   `packages/fabric/src/spl.ts` imports Splunk SPL (base-search wildcards, IN-lists,
-   `| search`/`| where`), each refusing a construct it can't express by name rather
-   than importing a query that silently matches nothing. Both are wired into the CLI
-   (`--kql`, `--spl`, mirroring `--sigma` + `--baseline`) and the browser Detection
-   Lab's language toggle (Sigma / KQL / SPL), so an engineer scores *their* rule
-   unchanged. *Remaining:* Elastic EQL/ES|QL, the other widespread dialect. *Built on*
-   the rule model and the Sigma importer (`packages/fabric/src/sigma.ts`).
+2. **Meet engineers in their own language — KQL + SPL + EQL DONE.** Most write
+   Splunk SPL, Elastic EQL, or Sentinel KQL, not Sigma. *Done:* `kql.ts` imports
+   Sentinel/Defender KQL (`where` predicates), `spl.ts` imports Splunk SPL
+   (base-search wildcards, IN-lists, `| search`/`| where`), and `eql.ts` imports
+   Elastic EQL (`<category> where <condition>`, ECS-native so field names map
+   almost one-to-one) — each refusing a construct it can't express by name rather
+   than importing a query that silently matches nothing. All three are wired into
+   the CLI (`--kql`, `--spl`, `--eql`, mirroring `--sigma` + `--baseline`) and the
+   browser Detection Lab's language toggle (Sigma / KQL / SPL / EQL), so an engineer
+   scores *their* rule unchanged. Demonstrated equivalence: the domain-admin
+   detection expressed in all three dialects scores an identical 1.000/1.000.
+   *Remaining:* Elastic ES|QL, if demand appears. *Built on* the rule model and the
+   Sigma importer (`packages/fabric/src/sigma.ts`).
 
 3. **Add the domains real detections live in.** Email (headers/links/attachments),
    cloud/SaaS audit (OAuth, IAM, control plane), DNS/proxy, and Sysmon-fidelity

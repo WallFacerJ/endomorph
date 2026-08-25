@@ -31,13 +31,14 @@ the change reviewable.
 ## Score in your own query language
 
 You don't have to translate to Sigma first. `--kql` reads a folder of `.kql`
-files (Microsoft Sentinel / Defender) and `--spl` reads a folder of `.spl` files
-(Splunk) — each maps the *filtering* part of a query onto the same internal rule
-and scores it identically:
+files (Microsoft Sentinel / Defender), `--spl` reads `.spl` files (Splunk), and
+`--eql` reads `.eql` files (Elastic) — each maps the *filtering* part of a query
+onto the same internal rule and scores it identically:
 
 ```bash
 pnpm evaluate -- --kql path/to/your/kql-rules --baseline detection-baseline.json
 pnpm evaluate -- --spl path/to/your/spl-rules --baseline detection-baseline.json
+pnpm evaluate -- --eql path/to/your/eql-rules --baseline detection-baseline.json
 ```
 
 The subset each importer supports is deliberately narrow, and anything it can't

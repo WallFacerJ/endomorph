@@ -11,6 +11,7 @@ import {
   scoreSigmaAgainstCorpus,
   scoreKqlAgainstCorpus,
   scoreSplAgainstCorpus,
+  scoreEqlAgainstCorpus,
 } from "./detectionReview";
 
 import type {
@@ -124,7 +125,37 @@ const EXAMPLES: readonly RuleExample[] = [
 type RuleLanguage =
   | "sigma"
   | "kql"
-  | "spl";
+  | "spl"
+  | "eql";
+
+/** The same lessons again, written as Elastic EQL for the Elastic Stack's authors. */
+const EQL_EXAMPLES: readonly RuleExample[] = [
+  {
+    id: "eql-encoded",
+    label:
+      "Encoded PowerShell — a clean hit",
+    yaml: `// title: Encoded PowerShell
+// technique: T1059.001
+process where process.name : "*powershell.exe"
+    and process.command_line : "*-enc*"`,
+  },
+  {
+    id: "eql-any",
+    label:
+      "Any PowerShell — right technique, noisy rule",
+    yaml: `// title: Any PowerShell launch
+// technique: T1059.001
+process where process.name : "*powershell.exe"`,
+  },
+  {
+    id: "eql-wrong",
+    label:
+      "Encoded, wrong flag — a rule that misses",
+    yaml: `// title: Encoded command, long form
+// technique: T1059.001
+process where process.command_line : "*-EncodedCommand*"`,
+  },
+];
 
 /** The same lessons again, written as Splunk searches for the largest SIEM's authors. */
 const SPL_EXAMPLES: readonly RuleExample[] = [
@@ -255,7 +286,9 @@ function readSharedRule(): SharedRule | null {
 
   return {
     language:
-      lang === "kql" || lang === "spl"
+      lang === "kql" ||
+      lang === "spl" ||
+      lang === "eql"
         ? lang
         : "sigma",
     text,
@@ -432,7 +465,9 @@ export function CustomRuleTester({
       ? KQL_EXAMPLES
       : lang === "spl"
         ? SPL_EXAMPLES
-        : EXAMPLES;
+        : lang === "eql"
+          ? EQL_EXAMPLES
+          : EXAMPLES;
 
   const activeExamples =
     examplesFor(language);
@@ -463,10 +498,15 @@ export function CustomRuleTester({
                 records,
                 yaml,
               )
-            : scoreSigmaAgainstCorpus(
-                records,
-                yaml,
-              ),
+            : language === "eql"
+              ? scoreEqlAgainstCorpus(
+                  records,
+                  yaml,
+                )
+              : scoreSigmaAgainstCorpus(
+                  records,
+                  yaml,
+                ),
       );
     } catch (caught) {
       setReview(null);
@@ -503,10 +543,15 @@ export function CustomRuleTester({
                 records,
                 shared.text,
               )
-            : scoreSigmaAgainstCorpus(
-                records,
-                shared.text,
-              ),
+            : shared.language === "eql"
+              ? scoreEqlAgainstCorpus(
+                  records,
+                  shared.text,
+                )
+              : scoreSigmaAgainstCorpus(
+                  records,
+                  shared.text,
+                ),
       );
     } catch (caught) {
       setError(
@@ -608,6 +653,22 @@ export function CustomRuleTester({
           >
             SPL
           </button>
+          <button
+            type="button"
+            className={
+              language === "eql"
+                ? "rule-tester-lang active"
+                : "rule-tester-lang"
+            }
+            aria-pressed={
+              language === "eql"
+            }
+            onClick={() =>
+              switchLanguage("eql")
+            }
+          >
+            EQL
+          </button>
         </div>
         <h3>
           Score a rule against this
@@ -626,7 +687,9 @@ export function CustomRuleTester({
             ? "KQL"
             : language === "spl"
               ? "Splunk"
-              : "Sigma"}{" "}
+              : language === "eql"
+                ? "Elastic EQL"
+                : "Sigma"}{" "}
           rule, score it against the{" "}
           {records.length.toLocaleString()}{" "}
           labelled records, and open a rule
@@ -645,7 +708,9 @@ export function CustomRuleTester({
             ? "KQL query"
             : language === "spl"
               ? "SPL search"
-              : "Sigma rule"}
+              : language === "eql"
+                ? "EQL query"
+                : "Sigma rule"}
         </label>
 
         <select
@@ -746,7 +811,9 @@ export function CustomRuleTester({
                 ? "KQL"
                 : language === "spl"
                   ? "SPL"
-                  : "Sigma"}{" "}
+                  : language === "eql"
+                    ? "EQL"
+                    : "Sigma"}{" "}
               subset
               could not express this rule
               &mdash; reported rather than
