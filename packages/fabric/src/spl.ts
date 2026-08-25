@@ -99,6 +99,15 @@ const FIELD_MAP: Readonly<
   "destination.ip": "destination.ip",
   "destination.port": "destination.port",
   "file.name": "file.name",
+
+  // Mail / URL fields.
+  "email.from.address": "email.from.address",
+  "email.subject": "email.subject",
+  "email.direction": "email.direction",
+  "url.original": "url.original",
+  sender: "email.from.address",
+  subject: "email.subject",
+  url: "url.original",
 };
 
 /** Selectors that choose the data source rather than express detection logic. */

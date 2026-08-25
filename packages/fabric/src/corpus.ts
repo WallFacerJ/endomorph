@@ -115,6 +115,12 @@ export interface CorpusRecord {
   "file.id"?: string;
   "file.name"?: string;
   "file.classification"?: string;
+
+  /** Mail fields, on an EMAIL_RECEIVED record. */
+  "email.from.address"?: string;
+  "email.subject"?: string;
+  "email.direction"?: string;
+  "url.original"?: string;
   "event.outcome"?: string;
   "event.reason"?: string;
   "session.id"?: string;
@@ -178,6 +184,7 @@ const MODULES: Record<string, string> = {
   edr: "endpoint",
   network: "network",
   file_server: "file",
+  mail: "email",
 };
 
 /**
@@ -418,6 +425,31 @@ function toRecord(
     record["file.name"] = file.name;
     record["file.classification"] =
       file.classification;
+  }
+
+  assign(
+    "email.from.address",
+    read("senderAddress"),
+  );
+  assign("email.subject", read("subject"));
+  assign("url.original", read("url"));
+
+  const attachmentName = read(
+    "attachmentName",
+  );
+
+  if (attachmentName) {
+    // An email attachment has no file entity; surface its name under file.name
+    // so a rule (and the importers) can match it the way they match any file.
+    record["file.name"] = attachmentName;
+  }
+
+  const external = payload["external"];
+
+  if (typeof external === "boolean") {
+    record["email.direction"] = external
+      ? "inbound-external"
+      : "inbound-internal";
   }
 
   const actorId = event.actorId;

@@ -10,7 +10,7 @@ That makes two things possible that a captured corpus cannot support:
 - **Investigation training that cannot be memorised.** Change the seed and the enterprise, the staff, the addresses, and the intrusion all change — while the reasoning required stays the same.
 
 ```
-pnpm evaluate     # score the shipped ruleset against six ATT&CK-mapped intrusions
+pnpm evaluate     # score the shipped ruleset against seven ATT&CK-mapped intrusions
 pnpm dev          # investigate one of them in the analyst console
 ```
 
@@ -102,7 +102,7 @@ Endomorph includes:
 - post-finalization instructor ground-truth review;
 - an in-app detection lab, with its own front door at `?lab`: paste a rule in **Sigma, KQL, SPL, or EQL** and score it against the scenario's labelled corpus, with counted precision and recall, a false-positive/missed-event drill-down, and shareable result links;
 - a coverage-badge SVG (`--badge`) and an AI-detection eval harness (`--ai-eval` / `--rubric`) for grading generated detections against ground truth;
-- nine scenarios selectable in the UI, three hand-authored and six generated;
+- ten scenarios selectable in the UI, three hand-authored and seven generated, spanning endpoint, identity, network, cloud, and mail telemetry;
 - two persisted professional interface styles: **Midnight SOC** and **Graphite**;
 - deterministic replay/unit/integration coverage plus browser-level Playwright tests;
 - a deterministic enterprise generator (`packages/fabric`) producing hundreds of coherent entities and thousands of benign events from a seed.
@@ -120,6 +120,7 @@ Endomorph includes:
 | **Generated: privileged insider** | 444 | ~11.3k | No external address anywhere. A valid admin account, its own workstation, deviation from its own baseline. |
 | **Generated: service account abuse** | 444 | ~11.3k | A valid privileged credential used from a host it has no history with. All traffic internal. |
 | **Generated: dormant account revived** | 444 | ~11.3k | Every sign-in is unremarkable. The only anomalous event is an identity lifecycle change before any of them. |
+| **Generated: credential phishing by link** | 444 | ~12.7k | A lookalike-domain lure and a link to a credential-harvesting host, then a valid-credential sign-in from an unfamiliar address. No malware runs; the whole chain is mail and identity. |
 
 The selector groups them, because they are not the same kind of thing. Generated scenarios carry ATT&CK mapping, scored investigation questions, and analytical reasoning on every walkthrough step; the hand-authored v1 scenarios predate the generator and are kept because they are small and fast.
 
@@ -137,7 +138,9 @@ Each generated incident is built to defeat the habit the previous one rewards, w
 
 **Directory role elevation** never touches an endpoint at all — no process tree, no command line — so an analyst who has learned to pivot to the host finds a console with genuinely nothing in it.
 
-An analyst who works all six cannot come away with a checklist, which is the point: any single heuristic fails on at least one of them.
+**Credential phishing by link** is the first plan to exercise the mail domain, and it lives entirely in mail and identity: a lookalike-sender lure, a click to a credential-harvesting host, and a valid-credential login from a new address. There is no malware and no anomalous process — the earliest place to catch it is the message, but only with a rule specific enough to clear the ordinary external mail the background now carries.
+
+An analyst who works all seven cannot come away with a checklist, which is the point: any single heuristic fails on at least one of them.
 
 Generated scenarios are **build artifacts, not source** — `pnpm build` produces them and they are not committed.
 
@@ -234,7 +237,7 @@ pnpm noise-floor    # for each technique, how many benign events share its event
   T1110.003   4     29                  7.3x           AUTH_LOGIN_FAILED
   T1098.003   1     0                   0 (exposed)    ROLE_GRANTED
 
-  18/22 techniques are buried among 10x or more benign look-alikes;
+  20/24 techniques are buried among 10x or more benign look-alikes;
   2 are exposed (no benign event of their type -- a corpus with many of these would be too clean to trust).
 ```
 
@@ -255,7 +258,7 @@ A pile of NDJSON files is data; a benchmark is data with a manifest that says wh
 Endomorph Detection Benchmark v1.0
   seed 20260820  |  format ecs  |  6 plans
   ...
-  27857 records, 52 malicious (0.187%), 22 techniques across 6 plans
+  32557 records, 56 malicious (0.172%), 24 techniques across 7 plans
 ```
 
 The manifest carries aggregate counts, the union of techniques with how many plans exercise each and — from the noise floor — how buried each is, and a per-plan index pointing at the files. So the artifact says not only what it covers but how hard each technique is to detect cleanly, without a second command. The corpus files are byte-deterministic for a given seed, so two people who generate `v1.0` at the shipped seed hold identical telemetry — which is what lets a score computed against it mean the same thing to both of them.

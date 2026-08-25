@@ -409,6 +409,26 @@ const alertCreatedEventSchema =
     }).strict(),
   }).strict();
 
+const emailReceivedEventSchema =
+  z.object({
+    ...eventBaseShape,
+    type: z.literal("EMAIL_RECEIVED"),
+    payload: z.object({
+      accountId: entityIdSchema,
+      userId: optionalEntityIdSchema,
+      senderAddress: nonEmptyStringSchema,
+      senderDisplayName:
+        nonEmptyStringSchema.optional(),
+      subject: nonEmptyStringSchema,
+      external: z.boolean(),
+      url: nonEmptyStringSchema.optional(),
+      attachmentName:
+        nonEmptyStringSchema.optional(),
+      sourceIp:
+        nonEmptyStringSchema.optional(),
+    }).strict(),
+  }).strict();
+
 export const scenarioEventSchema =
   z.discriminatedUnion("type", [
     authLoginSucceededEventSchema,
@@ -423,6 +443,7 @@ export const scenarioEventSchema =
     networkConnectionEventSchema,
     endpointHeartbeatEventSchema,
     alertCreatedEventSchema,
+    emailReceivedEventSchema,
   ]);
 
 export const scenarioActionAssessmentSchema =

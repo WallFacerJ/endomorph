@@ -80,6 +80,12 @@ const FIELD_MAP: Readonly<
   "account.name": "account.name",
   "actor.account.name":
     "actor.account.name",
+
+  // Mail / URL fields.
+  "email.from.address": "email.from.address",
+  "email.subject": "email.subject",
+  "email.direction": "email.direction",
+  "url.original": "url.original",
 };
 
 export interface EqlDocument {

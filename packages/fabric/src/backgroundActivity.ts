@@ -1439,6 +1439,130 @@ export function generateBackgroundActivity(
         },
       );
     }
+
+    // Benign mail, so the phishing plan's spearphishing-link technique has the
+    // look-alikes a real inbox carries: external senders, some with links and
+    // attachments. A rule that fires on "external mail with a link" has to eat
+    // all of this; only one that reads the link's destination clears it.
+    const BENIGN_MAIL: readonly {
+      readonly sender: string;
+      readonly display: string;
+      readonly subject: string;
+      readonly external: boolean;
+      readonly url?: string;
+      readonly attachment?: string;
+    }[] = [
+      {
+        sender: "newsletter@industry-weekly.example",
+        display: "Industry Weekly",
+        subject: "This week in security operations",
+        external: true,
+        url: "https://industry-weekly.example/read/latest",
+      },
+      {
+        sender: "billing@cloud-vendor.example",
+        display: "Cloud Vendor Billing",
+        subject: "Your July invoice is ready",
+        external: true,
+        url: "https://portal.cloud-vendor.example/invoices",
+      },
+      {
+        sender: "no-reply@calendar.example",
+        display: "Calendar",
+        subject: "Reminder: quarterly planning at 14:00",
+        external: true,
+      },
+      {
+        sender: "hr-announcements@internal.example",
+        display: "People Team",
+        subject: "Updated travel policy (effective Monday)",
+        external: false,
+        attachment: "Travel_Policy_v4.pdf",
+      },
+      {
+        sender: "it-helpdesk@internal.example",
+        display: "IT Helpdesk",
+        subject: "Scheduled maintenance this weekend",
+        external: false,
+      },
+      {
+        sender: "orders@office-supplies.example",
+        display: "Office Supplies",
+        subject: "Your order has shipped",
+        external: true,
+        url: "https://office-supplies.example/track/8842",
+      },
+      {
+        sender: "team-lead@internal.example",
+        display: "Team Lead",
+        subject: "Notes from today's stand-up",
+        external: false,
+        attachment: "Standup_Notes.docx",
+      },
+      {
+        sender: "security-digest@vendor.example",
+        display: "Vendor Security",
+        subject: "Monthly patch summary",
+        external: true,
+        url: "https://vendor.example/patch-notes/august",
+      },
+    ];
+
+    const mailCursor = root.fork("mail");
+
+    const mailCount = Math.min(
+      16,
+      ordinaryAccounts.length,
+    );
+
+    for (
+      let index = 0;
+      index < mailCount;
+      index += 1
+    ) {
+      const cursor = mailCursor.fork(
+        `mail-${index}`,
+      );
+
+      const recipient = cursor.pick(
+        ordinaryAccounts,
+      );
+
+      const template = cursor.pick(
+        BENIGN_MAIL,
+      );
+
+      push(
+        businessMinute(cursor),
+        `mail-${index}`,
+        {
+          type: "EMAIL_RECEIVED",
+          source: "mail",
+          subjectId: recipient.id,
+          payload: {
+            accountId: recipient.id,
+            ...(recipient.userId
+              ? { userId: recipient.userId }
+              : {}),
+            senderAddress:
+              template.sender,
+            senderDisplayName:
+              template.display,
+            subject: template.subject,
+            external: template.external,
+            ...(template.url
+              ? { url: template.url }
+              : {}),
+            ...(template.attachment
+              ? {
+                  attachmentName:
+                    template.attachment,
+                }
+              : {}),
+          },
+        },
+      );
+    }
   }
 
   // -----------------------------------------------------------------------

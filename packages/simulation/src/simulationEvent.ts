@@ -300,6 +300,54 @@ export type SecurityEvent =
   AlertCreatedEvent;
 
 // -----------------------------------------------------------------------------
+// Mail
+// -----------------------------------------------------------------------------
+
+/**
+ * A message delivered to a mailbox.
+ *
+ * Email is where a large share of intrusions begin, and none of it was
+ * expressible before: a plan that started with a phish had to open on a process
+ * or a login, skipping the step a detection engineer most wants to write a rule
+ * against. The payload carries what a mail-security log actually records -- who
+ * it was from, the subject, a link, an attachment -- so a phishing detection can
+ * be written and scored against benign mail that shares the same shape.
+ */
+export interface EmailReceivedPayload {
+  /** The recipient's account. */
+  accountId: EntityId;
+
+  userId?: EntityId;
+
+  /** Sender address, e.g. "billing@vendor.example". */
+  senderAddress: string;
+
+  senderDisplayName?: string;
+
+  subject: string;
+
+  /** True when the sender's domain is outside the organization. */
+  external: boolean;
+
+  /** A link in the body, when the message carries one. */
+  url?: string;
+
+  /** An attachment's file name, when the message carries one. */
+  attachmentName?: string;
+
+  /** The delivering mail gateway's address, when known. */
+  sourceIp?: string;
+}
+
+export type EmailReceivedEvent = EventOf<
+  "EMAIL_RECEIVED",
+  EmailReceivedPayload
+>;
+
+export type MailEvent =
+  EmailReceivedEvent;
+
+// -----------------------------------------------------------------------------
 // Endomorph event union
 // -----------------------------------------------------------------------------
 
@@ -311,7 +359,8 @@ export type SimulationEvent =
   | FileEvent
   | NetworkEvent
   | EndpointEvent
-  | SecurityEvent;
+  | SecurityEvent
+  | MailEvent;
 
 export type SimulationEventType =
   SimulationEvent["type"];

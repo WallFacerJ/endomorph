@@ -14,7 +14,8 @@ export type SimulationEventFamily =
   | "file"
   | "network"
   | "endpoint"
-  | "security";
+  | "security"
+  | "mail";
 
 export function getSimulationEventFamily(
   event: SimulationEvent,
@@ -47,6 +48,9 @@ export function getSimulationEventFamily(
 
     case "ALERT_CREATED":
       return "security";
+
+    case "EMAIL_RECEIVED":
+      return "mail";
 
     default:
       return assertNever(event);

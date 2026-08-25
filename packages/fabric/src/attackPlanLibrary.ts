@@ -14,6 +14,10 @@ import {
   CLOUD_ROLE_PLAN,
 } from "./attackPlanCloudRole.js";
 
+import {
+  PHISHING_LINK_PLAN,
+} from "./attackPlanPhishingLink.js";
+
 /**
  * The shipped plan library.
  *
@@ -978,4 +982,5 @@ export const ATTACK_PLANS: readonly AttackPlan[] =
     DORMANT_ACCOUNT_PLAN,
     MACRO_EXECUTION_PLAN,
     CLOUD_ROLE_PLAN,
+    PHISHING_LINK_PLAN,
   ];

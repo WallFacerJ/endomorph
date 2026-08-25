@@ -78,6 +78,7 @@ function createFamilyCounts():
     session: 0,
     process: 0,
     file: 0,
+    mail: 0,
     network: 0,
     endpoint: 0,
     security: 0,
@@ -152,6 +153,9 @@ function getMessage(
 
     case "ALERT_CREATED":
       return `Alert created: ${event.payload.title}`;
+
+    case "EMAIL_RECEIVED":
+      return `Email to ${event.payload.accountId} from ${event.payload.senderAddress}: ${event.payload.subject}`;
 
     default:
       return assertNever(event);
@@ -296,6 +300,18 @@ function getFields(
         relatedEntityIds: [
           ...event.payload.relatedEntityIds,
         ],
+      });
+
+    case "EMAIL_RECEIVED":
+      return definedFields({
+        accountId: event.payload.accountId,
+        senderAddress:
+          event.payload.senderAddress,
+        subject: event.payload.subject,
+        url: event.payload.url,
+        attachmentName:
+          event.payload.attachmentName,
+        sourceIp: event.payload.sourceIp,
       });
 
     default:

@@ -226,6 +226,14 @@ export function applySimulationEvent(
           event.timestamp,
       };
 
+    // A received message is a log line; it changes no world state, only the
+    // clock, the same as a process start or a network connection.
+    case "EMAIL_RECEIVED":
+      return {
+        ...world,
+        simulationTime: event.timestamp,
+      };
+
     default:
       return assertNever(event);
   }

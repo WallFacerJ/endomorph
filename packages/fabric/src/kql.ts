@@ -97,6 +97,15 @@ const FIELD_MAP: Readonly<
   "file.classification":
     "file.classification",
   "user.department": "user.department",
+
+  // Mail / URL fields.
+  "email.from.address": "email.from.address",
+  "email.subject": "email.subject",
+  "email.direction": "email.direction",
+  "url.original": "url.original",
+  SenderFromAddress: "email.from.address",
+  Subject: "email.subject",
+  Url: "url.original",
 };
 
 export interface KqlDocument {

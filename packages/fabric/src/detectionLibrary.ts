@@ -475,6 +475,24 @@ export const MFA_DENIAL_BURST_RULE: DetectionRule =
     },
   };
 
+export const PHISHING_LINK_RULE: DetectionRule =
+  {
+    id: "phishing-verify-link",
+    name: "External mail linking to a credential-verification page",
+    technique: "T1566.002",
+    severity: "high",
+    selections: [
+      {
+        "event.type": "EMAIL_RECEIVED",
+        "email.direction":
+          "inbound-external",
+        "url.original": {
+          contains: "verify",
+        },
+      },
+    ],
+  };
+
 export const DETECTION_RULES: readonly DetectionRule[] =
   [
     PASSWORD_SPRAY_RULE,
@@ -495,4 +513,5 @@ export const DETECTION_RULES: readonly DetectionRule[] =
     UNKNOWN_DESTINATION_BEACON_RULE,
     PRIVILEGED_ROLE_GRANT_RULE,
     MFA_DENIAL_BURST_RULE,
+    PHISHING_LINK_RULE,
   ];

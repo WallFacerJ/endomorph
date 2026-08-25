@@ -1,12 +1,12 @@
 {
   "generator": "endomorph-fabric",
   "seed": 20260820,
-  "ruleCount": 18,
+  "ruleCount": 19,
   "plans": [
     {
       "planId": "credential-compromise",
       "planName": "External credential compromise",
-      "recordCount": 4738,
+      "recordCount": 4754,
       "maliciousCount": 13,
       "coveredTechniques": [
         "T1059.001",
@@ -124,7 +124,7 @@
     {
       "planId": "privileged-insider",
       "planName": "Privileged insider data collection",
-      "recordCount": 4618,
+      "recordCount": 4634,
       "maliciousCount": 7,
       "coveredTechniques": [
         "T1070.001",
@@ -222,7 +222,7 @@
     {
       "planId": "service-account-abuse",
       "planName": "Service account used from an unfamiliar host",
-      "recordCount": 4601,
+      "recordCount": 4617,
       "maliciousCount": 7,
       "coveredTechniques": [
         "T1021.002",
@@ -310,7 +310,7 @@
     {
       "planId": "dormant-account-revival",
       "planName": "Dormant account revived for access",
-      "recordCount": 4617,
+      "recordCount": 4633,
       "maliciousCount": 6,
       "coveredTechniques": [
         "T1087.002",
@@ -398,7 +398,7 @@
     {
       "planId": "macro-execution",
       "planName": "Phishing attachment with macro execution",
-      "recordCount": 4682,
+      "recordCount": 4698,
       "maliciousCount": 9,
       "coveredTechniques": [
         "T1003.001",
@@ -497,7 +497,7 @@
     {
       "planId": "cloud-role-elevation",
       "planName": "MFA fatigue into a directory role grant",
-      "recordCount": 4637,
+      "recordCount": 4653,
       "maliciousCount": 10,
       "coveredTechniques": [
         "T1098.003",
@@ -599,12 +599,99 @@
           "recall": 1
         }
       ]
+    },
+    {
+      "planId": "phishing-link",
+      "planName": "Credential phishing by link",
+      "recordCount": 4568,
+      "maliciousCount": 4,
+      "coveredTechniques": [
+        "T1566.002"
+      ],
+      "uncoveredTechniques": [
+        "T1078.004",
+        "T1204.001"
+      ],
+      "rules": [
+        {
+          "ruleId": "naive-powershell",
+          "technique": "T1059.001",
+          "truePositives": 0,
+          "falsePositives": 49,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "external-auth-success",
+          "technique": "T1078.002",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        },
+        {
+          "ruleId": "smb-lateral",
+          "technique": "T1021.002",
+          "truePositives": 0,
+          "falsePositives": 15,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "account-reenabled",
+          "technique": "T1098",
+          "truePositives": 0,
+          "falsePositives": 2,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "run-key-persistence",
+          "technique": "T1547.001",
+          "truePositives": 0,
+          "falsePositives": 1,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "naive-beacon",
+          "technique": "T1071.001",
+          "truePositives": 0,
+          "falsePositives": 722,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "beacon-unknown-destination",
+          "technique": "T1071.001",
+          "truePositives": 0,
+          "falsePositives": 98,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "phishing-verify-link",
+          "technique": "T1566.002",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      ]
     }
   ],
   "totals": {
-    "coveredTechniques": 16,
-    "totalTechniques": 30,
-    "truePositives": 49,
-    "falsePositives": 5335
+    "coveredTechniques": 17,
+    "totalTechniques": 33,
+    "truePositives": 51,
+    "falsePositives": 6222
   }
 }

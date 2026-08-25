@@ -91,6 +91,15 @@ const BUILDS: readonly ScenarioBuild[] = [
     plan: "cloud-role-elevation",
     days: 3,
   },
+  {
+    out: "apps/web/public/scenarios/generated-phishing.json",
+    id: "scenario-generated-phishing-001",
+    name: "Generated enterprise: credential phishing by link",
+    description:
+      "No malware runs and the eventual login uses a valid credential. The whole intrusion lives in mail and identity: a lookalike-domain lure, a click to a credential-harvesting host, and a sign-in from an address the account has never used.",
+    plan: "phishing-link",
+    days: 3,
+  },
 ];
 
 function findWorkspaceRoot(): string {

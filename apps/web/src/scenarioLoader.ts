@@ -86,6 +86,12 @@ export const SHIPPED_SCENARIOS:
         "Dormant account revived (advanced)",
       group: "generated",
     },
+    {
+      path: "/scenarios/generated-phishing.json",
+      label:
+        "Credential phishing by link",
+      group: "generated",
+    },
   ];
 
 /**

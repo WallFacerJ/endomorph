@@ -251,6 +251,15 @@ export function validateSimulationEvent(
 
       return;
 
+    case "EMAIL_RECEIVED":
+      requireEntity(
+        world.accounts,
+        event.payload.accountId,
+        "Account",
+      );
+
+      return;
+
     default:
       return assertNever(event);
   }
