@@ -1724,6 +1724,75 @@ export function generateBackgroundActivity(
         },
       );
     }
+
+    // Benign web traffic, so the malware download, the beacon's hardcoded user
+    // agent, and the large exfil POST have ordinary requests to hide among:
+    // real browser user agents, known hosts, GETs and the occasional form POST.
+    const BROWSER_UA =
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36";
+
+    const BENIGN_WEB: readonly {
+      readonly domain: string;
+      readonly path: string;
+      readonly method: string;
+      readonly bytesIn?: number;
+      readonly bytesOut?: number;
+    }[] = [
+      { domain: "www.microsoft.com", path: "/", method: "GET", bytesIn: 48213 },
+      { domain: "teams.microsoft.com", path: "/api/health", method: "GET", bytesIn: 512 },
+      { domain: "cdn.jsdelivr.net", path: "/npm/app.js", method: "GET", bytesIn: 91204 },
+      { domain: "github.com", path: "/login", method: "GET", bytesIn: 30112 },
+      { domain: "portal.cloud-vendor.example", path: "/api/session", method: "POST", bytesOut: 640, bytesIn: 210 },
+      { domain: "www.google.com", path: "/search", method: "GET", bytesIn: 60233 },
+      { domain: "slack.com", path: "/api/rtm", method: "GET", bytesIn: 1024 },
+      { domain: "docs.internal.example", path: "/upload", method: "POST", bytesOut: 24576, bytesIn: 180 },
+    ];
+
+    const webCursor = root.fork("web");
+
+    const webCount = Math.min(
+      26,
+      ordinaryAccounts.length,
+    );
+
+    for (
+      let index = 0;
+      index < webCount;
+      index += 1
+    ) {
+      const cursor = webCursor.fork(
+        `web-${index}`,
+      );
+
+      const template = cursor.pick(
+        BENIGN_WEB,
+      );
+
+      push(
+        businessMinute(cursor),
+        `web-${index}`,
+        {
+          type: "WEB_REQUEST",
+          source: "web",
+          payload: {
+            url: `https://${template.domain}${template.path}`,
+            domain: template.domain,
+            method: template.method,
+            userAgent: BROWSER_UA,
+            statusCode: 200,
+            ...(template.bytesIn
+              ? { bytesIn: template.bytesIn }
+              : {}),
+            ...(template.bytesOut
+              ? {
+                  bytesOut:
+                    template.bytesOut,
+                }
+              : {}),
+          },
+        },
+      );
+    }
   }
 
   // -----------------------------------------------------------------------

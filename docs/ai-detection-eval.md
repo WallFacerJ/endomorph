@@ -15,7 +15,7 @@ to grade what it produces.
 pnpm evaluate -- --ai-eval eval-set
 ```
 
-For each of the nine intrusions this writes, into `eval-set/`:
+For each of the ten intrusions this writes, into `eval-set/`:
 
 - `<plan>.telemetry.ndjson` — the telemetry **with every `label.*` field
   removed**. This is all a detection agent is allowed to see; the answer is not

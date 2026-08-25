@@ -78,17 +78,17 @@ cluster no other product is strong across:
    job, and a hosted version would run it server-side.
 2. **Publish a stable benchmark corpus.** *Generation done:* `pnpm benchmark`
    writes the labelled telemetry as versioned ECS/OCSF NDJSON plus a manifest —
-   "the Endomorph Detection Benchmark v1.0: 9 intrusions, 31 techniques, 42.4k
+   "the Endomorph Detection Benchmark v1.0: 10 intrusions, 33 techniques, 47.4k
    records, seeded." Remaining is *distribution*: put v1.0 somewhere citable (a
    tagged GitHub release or a public URL) so it becomes a standard others point
    back to, not just a command they could run.
 3. **Grow ATT&CK coverage deliberately.** Technique breadth is the number
-   detection engineers judge a corpus on. Nine plans now, with mail/phishing, cloud control-plane, and DNS domains added; each new
+   detection engineers judge a corpus on. Ten plans now, with mail/phishing, cloud control-plane, DNS, and web/proxy domains added; each new
    plan is pure event modelling, no infrastructure. (The benchmark manifest now
-   makes the number — 31 techniques — visible and diffable.)
+   makes the number — 33 techniques — visible and diffable.)
 4. **Make FP realism a measured headline.** *Done:* `pnpm noise-floor` reports,
    per technique, how many benign events share its event types — the
-   false-positive floor for an unspecific rule. At the shipped seed 24/31
+   false-positive floor for an unspecific rule. At the shipped seed 26/33
    techniques are buried among 10x+ benign look-alikes, a floor a corpus with
    separable malicious traffic cannot offer.
 
@@ -192,7 +192,7 @@ it builds on so it is not a green field.
    storage enumeration → external copy) adding techniques T1528, T1098.001, T1526,
    T1537. Benign consents, key rotations, and listings give it a floor; the shipped
    `cloud-external-copy` rule holds 1.000/1.000. A **DNS** domain followed: a `DNS_QUERY` event (fields `dns.question.name`/`dns.question.type`/`dns.resolved_ip`) and a `dns-tunnel` intrusion (DGA beacon → DNS C2 → tunnelled TXT exfil) adding T1568.002, T1071.004, T1048.003, with the shipped `dns-txt-tunnel` rule at 1.000/1.000. All three domains are scoreable in all
-   four languages in the browser lab. *Remaining:* web/proxy, Sysmon codes. Each
+   four languages in the browser lab. A **web/proxy** domain followed: a `WEB_REQUEST` event (fields `url.domain`/`http.request.method`/`user_agent.original`/`http.response.status_code`) and a `web-c2` intrusion (HTTP tool download → web C2 with a hardcoded user agent → large POST exfil) adding T1105, T1567.002, with the shipped `web-malware-user-agent` rule at 1.000/1.000 and the connection-based beacon rules honestly missing it. *Remaining:* Sysmon-fidelity Windows codes. Each
    unlocks many ATT&CK techniques and more addressable teams; the noise floor
    guides each domain's FP realism. Biggest moat-deepener (roadmap Phase 3).
 

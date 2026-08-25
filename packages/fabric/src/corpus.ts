@@ -132,6 +132,14 @@ export interface CorpusRecord {
   "dns.question.name"?: string;
   "dns.question.type"?: string;
   "dns.resolved_ip"?: string;
+
+  /** Web/proxy fields, on a WEB_REQUEST record. */
+  "url.domain"?: string;
+  "http.request.method"?: string;
+  "user_agent.original"?: string;
+  "http.response.status_code"?: number;
+  "http.request.bytes"?: number;
+  "http.response.bytes"?: number;
   "event.outcome"?: string;
   "event.reason"?: string;
   "session.id"?: string;
@@ -200,6 +208,7 @@ const MODULES: Record<string, string> = {
   file_server: "file",
   mail: "email",
   cloud: "cloud",
+  web: "web",
 };
 
 /**
@@ -493,6 +502,32 @@ function toRecord(
     "dns.resolved_ip",
     read("resolvedIp"),
   );
+
+  assign("url.domain", read("domain"));
+  assign(
+    "http.request.method",
+    read("method"),
+  );
+  assign(
+    "user_agent.original",
+    read("userAgent"),
+  );
+  assign(
+    "http.response.status_code",
+    readNumber("statusCode"),
+  );
+  assign(
+    "http.request.bytes",
+    readNumber("bytesOut"),
+  );
+  assign(
+    "http.response.bytes",
+    readNumber("bytesIn"),
+  );
+  // A proxy request's URL surfaces under the shared url.original field.
+  if (read("url") && event.type === "WEB_REQUEST") {
+    record["url.original"] = read("url");
+  }
 
   const actorId = event.actorId;
 

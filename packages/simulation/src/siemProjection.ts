@@ -164,6 +164,9 @@ function getMessage(
     case "DNS_QUERY":
       return `DNS ${event.payload.queryType} query for ${event.payload.queryName}`;
 
+    case "WEB_REQUEST":
+      return `HTTP ${event.payload.method} ${event.payload.url}`;
+
     default:
       return assertNever(event);
   }
@@ -340,6 +343,18 @@ function getFields(
         queryType: event.payload.queryType,
         resolvedIp: event.payload.resolvedIp,
         sourceIp: event.payload.sourceIp,
+      });
+
+    case "WEB_REQUEST":
+      return definedFields({
+        deviceId: event.payload.deviceId,
+        url: event.payload.url,
+        domain: event.payload.domain,
+        method: event.payload.method,
+        userAgent: event.payload.userAgent,
+        statusCode: event.payload.statusCode,
+        destinationIp:
+          event.payload.destinationIp,
       });
 
     default:

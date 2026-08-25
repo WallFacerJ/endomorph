@@ -1,12 +1,12 @@
 {
   "generator": "endomorph-fabric",
   "seed": 20260820,
-  "ruleCount": 21,
+  "ruleCount": 22,
   "plans": [
     {
       "planId": "credential-compromise",
       "planName": "External credential compromise",
-      "recordCount": 4792,
+      "recordCount": 4818,
       "maliciousCount": 13,
       "coveredTechniques": [
         "T1059.001",
@@ -118,13 +118,22 @@
           "falseNegatives": 2,
           "precision": 0,
           "recall": 0
+        },
+        {
+          "ruleId": "web-malware-user-agent",
+          "technique": "T1071.001",
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 2,
+          "precision": 0,
+          "recall": 0
         }
       ]
     },
     {
       "planId": "privileged-insider",
       "planName": "Privileged insider data collection",
-      "recordCount": 4672,
+      "recordCount": 4698,
       "maliciousCount": 7,
       "coveredTechniques": [
         "T1070.001",
@@ -222,7 +231,7 @@
     {
       "planId": "service-account-abuse",
       "planName": "Service account used from an unfamiliar host",
-      "recordCount": 4655,
+      "recordCount": 4681,
       "maliciousCount": 7,
       "coveredTechniques": [
         "T1021.002",
@@ -310,7 +319,7 @@
     {
       "planId": "dormant-account-revival",
       "planName": "Dormant account revived for access",
-      "recordCount": 4671,
+      "recordCount": 4697,
       "maliciousCount": 6,
       "coveredTechniques": [
         "T1087.002",
@@ -398,7 +407,7 @@
     {
       "planId": "macro-execution",
       "planName": "Phishing attachment with macro execution",
-      "recordCount": 4736,
+      "recordCount": 4762,
       "maliciousCount": 9,
       "coveredTechniques": [
         "T1003.001",
@@ -491,13 +500,22 @@
           "falseNegatives": 0,
           "precision": 0.0297,
           "recall": 1
+        },
+        {
+          "ruleId": "web-malware-user-agent",
+          "technique": "T1071.001",
+          "truePositives": 0,
+          "falsePositives": 0,
+          "falseNegatives": 3,
+          "precision": 0,
+          "recall": 0
         }
       ]
     },
     {
       "planId": "cloud-role-elevation",
       "planName": "MFA fatigue into a directory role grant",
-      "recordCount": 4691,
+      "recordCount": 4717,
       "maliciousCount": 10,
       "coveredTechniques": [
         "T1098.003",
@@ -603,7 +621,7 @@
     {
       "planId": "phishing-link",
       "planName": "Credential phishing by link",
-      "recordCount": 4606,
+      "recordCount": 4632,
       "maliciousCount": 4,
       "coveredTechniques": [
         "T1566.002"
@@ -690,7 +708,7 @@
     {
       "planId": "cloud-consent-grant",
       "planName": "OAuth consent grant to cloud data theft",
-      "recordCount": 4680,
+      "recordCount": 4706,
       "maliciousCount": 7,
       "coveredTechniques": [
         "T1537"
@@ -769,7 +787,7 @@
     {
       "planId": "dns-tunnel",
       "planName": "DNS command-and-control and tunnelled exfiltration",
-      "recordCount": 4861,
+      "recordCount": 4887,
       "maliciousCount": 9,
       "coveredTechniques": [
         "T1048.003"
@@ -843,12 +861,90 @@
           "recall": 1
         }
       ]
+    },
+    {
+      "planId": "web-c2",
+      "planName": "Malicious download, web C2, and HTTP exfiltration",
+      "recordCount": 4759,
+      "maliciousCount": 6,
+      "coveredTechniques": [
+        "T1071.001"
+      ],
+      "uncoveredTechniques": [
+        "T1105",
+        "T1567.002"
+      ],
+      "rules": [
+        {
+          "ruleId": "naive-powershell",
+          "technique": "T1059.001",
+          "truePositives": 0,
+          "falsePositives": 51,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "smb-lateral",
+          "technique": "T1021.002",
+          "truePositives": 0,
+          "falsePositives": 15,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "account-reenabled",
+          "technique": "T1098",
+          "truePositives": 0,
+          "falsePositives": 2,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "run-key-persistence",
+          "technique": "T1547.001",
+          "truePositives": 0,
+          "falsePositives": 1,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "naive-beacon",
+          "technique": "T1071.001",
+          "truePositives": 0,
+          "falsePositives": 722,
+          "falseNegatives": 3,
+          "precision": 0,
+          "recall": 0
+        },
+        {
+          "ruleId": "beacon-unknown-destination",
+          "technique": "T1071.001",
+          "truePositives": 0,
+          "falsePositives": 98,
+          "falseNegatives": 3,
+          "precision": 0,
+          "recall": 0
+        },
+        {
+          "ruleId": "web-malware-user-agent",
+          "technique": "T1071.001",
+          "truePositives": 4,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      ]
     }
   ],
   "totals": {
-    "coveredTechniques": 19,
-    "totalTechniques": 40,
-    "truePositives": 53,
-    "falsePositives": 8004
+    "coveredTechniques": 20,
+    "totalTechniques": 43,
+    "truePositives": 57,
+    "falsePositives": 8893
   }
 }

@@ -104,6 +104,12 @@ export const SHIPPED_SCENARIOS:
         "DNS tunnelling & exfiltration (advanced)",
       group: "generated",
     },
+    {
+      path: "/scenarios/generated-web-c2.json",
+      label:
+        "Malicious download & web C2 (advanced)",
+      group: "generated",
+    },
   ];
 
 /**

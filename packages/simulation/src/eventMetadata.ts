@@ -43,6 +43,7 @@ export function getSimulationEventFamily(
 
     case "NETWORK_CONNECTION":
     case "DNS_QUERY":
+    case "WEB_REQUEST":
       return "network";
 
     case "ENDPOINT_HEARTBEAT":

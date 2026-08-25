@@ -526,6 +526,22 @@ export const DNS_EXFIL_RULE: DetectionRule =
     ],
   };
 
+export const WEB_MALWARE_UA_RULE: DetectionRule =
+  {
+    id: "web-malware-user-agent",
+    name: "Web request with a hardcoded malware user agent",
+    technique: "T1071.001",
+    severity: "high",
+    selections: [
+      {
+        "event.type": "WEB_REQUEST",
+        "user_agent.original": {
+          contains: "Gh0st",
+        },
+      },
+    ],
+  };
+
 export const DETECTION_RULES: readonly DetectionRule[] =
   [
     PASSWORD_SPRAY_RULE,
@@ -549,4 +565,5 @@ export const DETECTION_RULES: readonly DetectionRule[] =
     PHISHING_LINK_RULE,
     CLOUD_EXFIL_RULE,
     DNS_EXFIL_RULE,
+    WEB_MALWARE_UA_RULE,
   ];

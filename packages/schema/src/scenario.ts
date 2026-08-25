@@ -468,6 +468,27 @@ const dnsQueryEventSchema =
     }).strict(),
   }).strict();
 
+const webRequestEventSchema =
+  z.object({
+    ...eventBaseShape,
+    type: z.literal("WEB_REQUEST"),
+    payload: z.object({
+      deviceId: optionalEntityIdSchema,
+      accountId: optionalEntityIdSchema,
+      url: nonEmptyStringSchema,
+      domain: nonEmptyStringSchema,
+      method: nonEmptyStringSchema,
+      userAgent: nonEmptyStringSchema,
+      statusCode: z.number().optional(),
+      bytesOut: z.number().optional(),
+      bytesIn: z.number().optional(),
+      sourceIp:
+        nonEmptyStringSchema.optional(),
+      destinationIp:
+        nonEmptyStringSchema.optional(),
+    }).strict(),
+  }).strict();
+
 export const scenarioEventSchema =
   z.discriminatedUnion("type", [
     authLoginSucceededEventSchema,
@@ -485,6 +506,7 @@ export const scenarioEventSchema =
     emailReceivedEventSchema,
     cloudAuditEventSchema,
     dnsQueryEventSchema,
+    webRequestEventSchema,
   ]);
 
 export const scenarioActionAssessmentSchema =

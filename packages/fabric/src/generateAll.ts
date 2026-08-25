@@ -118,6 +118,15 @@ const BUILDS: readonly ScenarioBuild[] = [
     plan: "dns-tunnel",
     days: 3,
   },
+  {
+    out: "apps/web/public/scenarios/generated-web-c2.json",
+    id: "scenario-generated-web-c2-001",
+    name: "Generated enterprise: malicious download, web C2, and HTTP exfiltration",
+    description:
+      "A connection log shows only traffic to a few addresses on 443. The proxy shows the intrusion: a payload downloaded over plain HTTP, a beacon carrying a user agent no real browser sends, and a large POST to an anonymous paste service.",
+    plan: "web-c2",
+    days: 3,
+  },
 ];
 
 function findWorkspaceRoot(): string {

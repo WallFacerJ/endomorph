@@ -14,8 +14,8 @@ infrastructure. No competitor combines ground truth + benign noise + seeded
 variation + a scoring harness + zero infra. The investigation console stays the
 demo that makes it tangible, and the door into a training product later.
 
-At a glance: **9 intrusions · 31 ATT&CK techniques · ~42.4k labelled events ·
-5 rule languages · 7 event domains · 0 infrastructure.**
+At a glance: **10 intrusions · 33 ATT&CK techniques · ~47.4k labelled events ·
+5 rule languages · 8 event domains · 0 infrastructure.**
 
 ### Lane 1 — Shipped (the wedge is real)
 
@@ -32,19 +32,19 @@ At a glance: **9 intrusions · 31 ATT&CK techniques · ~42.4k labelled events ·
   `--baseline` regression gate + `--badge`. *Done.*
 - **AI detection-eval harness** — `--ai-eval` exports label-stripped tasks + hidden
   key; `--rubric` grades generated detections *N/M techniques to standard*. *Done.*
-- **Event domains** — endpoint, identity, network, file, **mail**, **cloud**, **DNS**.
-  Mail added credential phishing (T1566.002/T1204.001); cloud an OAuth-consent
-  control-plane intrusion (T1528/T1098.001/T1526/T1537); DNS a tunnelling/DGA
-  intrusion (T1568.002/T1071.004/T1048.003). *Done.*
+- **Event domains** — endpoint, identity, network, file, **mail**, **cloud**, **DNS**,
+  **web/proxy**. Recent: credential phishing (mail), an OAuth-consent control-plane
+  intrusion (cloud), DNS tunnelling/DGA, and a web download/C2/exfil intrusion
+  (T1105/T1071.001/T1567.002). *Done.*
 - **Landing page + benchmark v1.0 generation.** *Done.*
 
 ### Lane 2 — Now → Next (sharpen the wedge, priority order)
 
 1. **Publish benchmark v1.0 as a citable release.** *Gated on `gh` auth.* Artifacts
    build clean; cutting the release makes it a dataset others cite, not a command.
-2. **More event domains — the deepest moat.** Mail, cloud/SaaS control-plane, and
-   DNS are shipped; **web/proxy** and Sysmon-fidelity Windows codes are next. Each
-   new domain unlocks many ATT&CK techniques and more addressable teams.
+2. **More event domains — the deepest moat.** Mail, cloud/SaaS control-plane, DNS,
+   and web/proxy are shipped; **Sysmon-fidelity Windows codes** are the main gap left.
+   Each new domain unlocks many ATT&CK techniques and more addressable teams.
 3. **Point it at your own org.** Surface `--profile` as a product feature — the
    digital-twin wedge, determinism intact.
 4. **Ship the generator + scorer as an npm package / API.** *Gated on npm auth.*

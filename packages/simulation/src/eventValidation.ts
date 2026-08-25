@@ -274,6 +274,10 @@ export function validateSimulationEvent(
       // need not name either, so there is nothing to require.
       return;
 
+    case "WEB_REQUEST":
+      // Device and account are optional on a proxy record too.
+      return;
+
     default:
       return assertNever(event);
   }

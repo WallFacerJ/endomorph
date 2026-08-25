@@ -142,6 +142,12 @@ const FIELD_MAP: Readonly<
   "dns.question.type": "dns.question.type",
   "dns.resolved_ip": "dns.resolved_ip",
   QueryName: "dns.question.name",
+
+  // Web / proxy fields.
+  "url.domain": "url.domain",
+  "http.request.method": "http.request.method",
+  "user_agent.original": "user_agent.original",
+  "c-useragent": "user_agent.original",
 };
 
 export interface SigmaRule {

@@ -248,6 +248,13 @@ export function applySimulationEvent(
         simulationTime: event.timestamp,
       };
 
+    // A proxy request is a log line; no world state changes.
+    case "WEB_REQUEST":
+      return {
+        ...world,
+        simulationTime: event.timestamp,
+      };
+
     default:
       return assertNever(event);
   }

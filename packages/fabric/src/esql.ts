@@ -98,6 +98,12 @@ const FIELD_MAP: Readonly<
   "account.name": "account.name",
   "actor.account.name":
     "actor.account.name",
+
+  // Web / proxy fields.
+  "url.domain": "url.domain",
+  "http.request.method": "http.request.method",
+  "user_agent.original": "user_agent.original",
+
 };
 
 export interface EsqlDocument {

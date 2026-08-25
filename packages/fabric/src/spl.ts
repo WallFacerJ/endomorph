@@ -122,6 +122,13 @@ const FIELD_MAP: Readonly<
   "dns.resolved_ip": "dns.resolved_ip",
   query: "dns.question.name",
   query_type: "dns.question.type",
+
+  // Web / proxy fields.
+  "url.domain": "url.domain",
+  "http.request.method": "http.request.method",
+  "user_agent.original": "user_agent.original",
+  http_user_agent: "user_agent.original",
+  http_method: "http.request.method",
 };
 
 /** Selectors that choose the data source rather than express detection logic. */

@@ -26,6 +26,10 @@ import {
   DNS_TUNNEL_PLAN,
 } from "./attackPlanDnsTunnel.js";
 
+import {
+  WEB_C2_PLAN,
+} from "./attackPlanWebC2.js";
+
 /**
  * The shipped plan library.
  *
@@ -993,4 +997,5 @@ export const ATTACK_PLANS: readonly AttackPlan[] =
     PHISHING_LINK_PLAN,
     CLOUD_CONSENT_PLAN,
     DNS_TUNNEL_PLAN,
+    WEB_C2_PLAN,
   ];

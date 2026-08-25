@@ -435,6 +435,56 @@ export type DnsQueryEvent = EventOf<
 export type DnsEvent = DnsQueryEvent;
 
 // -----------------------------------------------------------------------------
+// Web / proxy
+// -----------------------------------------------------------------------------
+
+/**
+ * An HTTP request seen at the web proxy.
+ *
+ * The raw NETWORK_CONNECTION event carries addresses and ports; the proxy sees
+ * one layer up -- the URL, the host, the method, the user agent, the bytes.
+ * That layer is where a great deal of detection lives: a hardcoded malware user
+ * agent, a payload downloaded over HTTP, a large POST to an unfamiliar host. It
+ * had no representation, so those detections could not be written.
+ */
+export interface WebRequestPayload {
+  deviceId?: EntityId;
+
+  accountId?: EntityId;
+
+  /** The full request URL. */
+  url: string;
+
+  /** The request host, e.g. "cdn.example.com". */
+  domain: string;
+
+  /** The HTTP method, e.g. "GET", "POST". */
+  method: string;
+
+  /** The client's User-Agent header. */
+  userAgent: string;
+
+  statusCode?: number;
+
+  /** Bytes sent in the request body. */
+  bytesOut?: number;
+
+  /** Bytes returned in the response. */
+  bytesIn?: number;
+
+  sourceIp?: string;
+
+  destinationIp?: string;
+}
+
+export type WebRequestEvent = EventOf<
+  "WEB_REQUEST",
+  WebRequestPayload
+>;
+
+export type WebEvent = WebRequestEvent;
+
+// -----------------------------------------------------------------------------
 // Endomorph event union
 // -----------------------------------------------------------------------------
 
@@ -449,7 +499,8 @@ export type SimulationEvent =
   | SecurityEvent
   | MailEvent
   | CloudEvent
-  | DnsEvent;
+  | DnsEvent
+  | WebEvent;
 
 export type SimulationEventType =
   SimulationEvent["type"];
