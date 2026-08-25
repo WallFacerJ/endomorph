@@ -145,7 +145,7 @@ export const PHISHING_LINK_PLAN: AttackPlan =
         ],
         hint: "Read the mail log for the message that opened the incident.",
         surface: "siem",
-        points: 20,
+        points: 25,
         evidenceStepId: "phish-email",
       },
       {
@@ -158,7 +158,7 @@ export const PHISHING_LINK_PLAN: AttackPlan =
         ],
         hint: "It impersonates the sign-in provider but is not the genuine domain.",
         surface: "siem",
-        points: 20,
+        points: 25,
         evidenceStepId: "phish-email",
       },
       {
@@ -170,8 +170,20 @@ export const PHISHING_LINK_PLAN: AttackPlan =
         ],
         hint: "Look for a successful sign-in from an address the account has not used before.",
         surface: "identity",
-        points: 20,
+        points: 25,
         evidenceStepId: "attacker-auth",
+      },
+      {
+        id: "q-subject",
+        prompt: () =>
+          "What was the subject line of the phishing email?",
+        accepted: () => [
+          "Action required: your mailbox will be locked in 24 hours",
+        ],
+        hint: "The lure used urgency about mailbox access.",
+        surface: "siem",
+        points: 25,
+        evidenceStepId: "phish-email",
       },
     ],
 

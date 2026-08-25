@@ -154,7 +154,7 @@ export const DNS_TUNNEL_PLAN: AttackPlan =
         ],
         hint: "Repeated TXT lookups to one domain at a steady interval.",
         surface: "siem",
-        points: 20,
+        points: 25,
         evidenceStepId: "dns-c2",
       },
       {
@@ -164,13 +164,28 @@ export const DNS_TUNNEL_PLAN: AttackPlan =
         accepted: () => ["TXT", "txt"],
         hint: "The query name was an encoded blob far longer than any real hostname.",
         surface: "siem",
-        points: 20,
+        points: 25,
         evidenceStepId: "dns-exfil",
+      },
+      {
+        id: "q-dga",
+        prompt: () =>
+          "Name one of the algorithmically-generated domains the beacon resolved.",
+        accepted: () => [
+          "kq3n9x2p4m8t.info",
+          "z7b1r5w0c6vh.info",
+          "j2m8k4x9q1np.top",
+          "p5t0n3z8b2rk.top",
+        ],
+        hint: "High-entropy labels on throwaway TLDs, resolved in sequence.",
+        surface: "siem",
+        points: 25,
+        evidenceStepId: "dga-resolve",
       },
     ],
 
-    alertTitle: (cast) =>
-      `DNS beaconing and tunnelled exfiltration from ${cast.subjectDevice.hostname}`,
+    alertTitle: () =>
+      `DNS beaconing and tunnelled exfiltration detected`,
     alertSeverity: "high",
     alertStepIds: ["dns-exfil"],
 

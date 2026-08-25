@@ -188,7 +188,7 @@ export const CLOUD_CONSENT_PLAN: AttackPlan =
         ],
         hint: "The consent came from the user's own address; the credential and exfil did not.",
         surface: "siem",
-        points: 20,
+        points: 25,
         evidenceStepId: "add-credential",
       },
       {
@@ -199,7 +199,19 @@ export const CLOUD_CONSENT_PLAN: AttackPlan =
           STORAGE_RESOURCE,
         ],
         surface: "siem",
-        points: 20,
+        points: 25,
+        evidenceStepId: "exfil",
+      },
+      {
+        id: "q-action",
+        prompt: () =>
+          "Which control-plane operation carried the data out of the tenant?",
+        accepted: () => [
+          "CopyObjectToExternalAccount",
+        ],
+        hint: "Read the cloud audit log for the storage action with an external destination.",
+        surface: "siem",
+        points: 25,
         evidenceStepId: "exfil",
       },
     ],

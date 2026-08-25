@@ -20,7 +20,8 @@
     "generate:scenario": "node dist/cli.js",
     "generate:all": "node dist/generateAll.js",
     "evaluate": "node dist/evaluateCli.js",
-    "bundle:standalone": "node dist/bundleStandalone.js"
+    "bundle:standalone": "node dist/bundleStandalone.js",
+    "test": "vitest run"
   },
   "dependencies": {
     "@endomorph/domain": "workspace:*",
