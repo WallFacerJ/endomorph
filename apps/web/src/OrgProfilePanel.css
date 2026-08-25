@@ -1,0 +1,138 @@
+.org-panel {
+  margin: 40px auto 0;
+  max-width: 1040px;
+  padding: 28px 24px 8px;
+  border-top: 1px solid var(--border);
+}
+
+.org-panel-head {
+  margin-bottom: 22px;
+}
+
+.org-panel-head h3 {
+  margin: 8px 0 10px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-strong, var(--text));
+}
+
+.org-panel-lede {
+  margin: 0;
+  max-width: 70ch;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.org-panel-lede em {
+  font-style: normal;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.org-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+  padding: 18px;
+  background: var(--pm-panel, var(--panel, rgba(255, 255, 255, 0.02)));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.org-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 180px;
+}
+
+.org-field-narrow {
+  flex: 0 1 110px;
+}
+
+.org-field span {
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.org-field input,
+.org-field select {
+  padding: 9px 11px;
+  border-radius: 9px;
+  border: 1px solid var(--border-strong, var(--border));
+  background: var(--pm-control, rgba(255, 255, 255, 0.03));
+  color: var(--text);
+  font-size: 0.92rem;
+  font-family: inherit;
+}
+
+.org-field input:focus,
+.org-field select:focus {
+  outline: 2px solid
+    var(--pm-focus, var(--accent));
+  outline-offset: 1px;
+}
+
+.org-generate {
+  flex: 0 0 auto;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--accent);
+  color: var(--pm-bg, #06121f);
+  font-weight: 650;
+  font-size: 0.94rem;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.org-generate:hover {
+  filter: brightness(1.08);
+}
+
+.org-generate:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.org-error {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid
+    color-mix(in srgb, var(--warning, #f6b545) 45%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--warning, #f6b545) 12%,
+    transparent
+  );
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.org-stats {
+  margin: 20px 0 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.org-stats strong {
+  color: var(--text-strong, var(--text));
+}
+
+.org-stats code {
+  font-family: var(--lab-mono, monospace);
+  font-size: 0.85em;
+  color: var(--accent);
+  background: color-mix(
+    in srgb,
+    var(--accent) 12%,
+    transparent
+  );
+  padding: 1px 5px;
+  border-radius: 5px;
+}

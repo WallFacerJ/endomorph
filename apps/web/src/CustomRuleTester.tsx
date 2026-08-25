@@ -437,25 +437,36 @@ function MatchRows({
 }
 
 interface CustomRuleTesterProps {
-  readonly scenario: ScenarioDefinition;
+  /** A compiled scenario whose corpus to score against. */
+  readonly scenario?: ScenarioDefinition;
+  /**
+   * Pre-built corpus records to score against, instead of a scenario. The
+   * digital-twin panel generates these in the browser from a client profile.
+   */
+  readonly records?: readonly CorpusRecord[];
   /**
    * The scenario's corpus path, used to build a shareable result link. The
-   * detection lab passes it; the in-investigation tester does not, so the
-   * share affordance is simply absent there.
+   * detection lab passes it; the in-investigation tester and the digital-twin
+   * panel do not, so the share affordance is simply absent there.
    */
   readonly scenarioPath?: string;
 }
 
 export function CustomRuleTester({
   scenario,
+  records: recordsProp,
   scenarioPath,
 }: CustomRuleTesterProps) {
   const [shared] = useState(
     readSharedRule,
   );
   const records = useMemo(
-    () => buildScenarioCorpus(scenario),
-    [scenario],
+    () =>
+      recordsProp ??
+      (scenario
+        ? buildScenarioCorpus(scenario)
+        : []),
+    [recordsProp, scenario],
   );
 
   const recordById = useMemo(

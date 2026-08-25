@@ -7,6 +7,10 @@ import {
   importSplRules,
   importEqlRules,
   importEsqlRules,
+  generateEnterprise,
+  generateBackgroundActivity,
+  generateIncident,
+  buildCorpus,
 } from "@endomorph/fabric";
 
 import type {
@@ -259,5 +263,92 @@ export function scoreEsqlAgainstCorpus(
       maliciousCountOf(records),
     imported: rules.length,
     skipped,
+  };
+}
+
+
+/**
+ * A corpus generated in the browser from a client-shaped profile -- the
+ * digital-twin path. It runs the same deterministic pipeline the CLI's
+ * single-plan mode does (`generateEnterprise` -> background -> incident ->
+ * `buildCorpus`), so a detection engineer scores their rules against telemetry
+ * shaped like their own estate, not the shipped Acme world. Fast enough to run
+ * on the main thread (a full enterprise is tens of milliseconds).
+ */
+export interface ProfileCorpusOptions {
+  readonly seed: number;
+  readonly organizationName: string;
+  readonly headcount: number;
+  readonly domain: string;
+  readonly planId: string;
+}
+
+export interface ProfileCorpusResult {
+  readonly records: readonly CorpusRecord[];
+  readonly maliciousCount: number;
+  readonly organizationName: string;
+  readonly sampleHost?: string;
+  readonly sampleUser?: string;
+}
+
+export function generateProfileCorpus(
+  options: ProfileCorpusOptions,
+): ProfileCorpusResult {
+  const enterprise = generateEnterprise({
+    seed: options.seed,
+    organizationName:
+      options.organizationName,
+    headcount: options.headcount,
+    domain: options.domain,
+  });
+
+  const background =
+    generateBackgroundActivity(
+      enterprise,
+      { days: 3 },
+    );
+
+  const incident = generateIncident(
+    enterprise,
+    { planId: options.planId },
+  );
+
+  const detection =
+    incident.events[
+      incident.events.length - 1
+    ].timestamp;
+
+  const events = [
+    ...background.filter(
+      (event) =>
+        event.timestamp <= detection,
+    ),
+    ...incident.events,
+  ].sort((left, right) =>
+    left.timestamp.localeCompare(
+      right.timestamp,
+    ),
+  );
+
+  const corpus = buildCorpus(
+    enterprise,
+    events,
+    incident,
+  );
+
+  const records = [...corpus.records];
+
+  return {
+    records,
+    maliciousCount:
+      corpus.manifest.maliciousCount,
+    organizationName:
+      enterprise.profile.organizationName,
+    sampleHost: records.find(
+      (record) => record["host.name"],
+    )?.["host.name"],
+    sampleUser: records.find(
+      (record) => record["user.name"],
+    )?.["user.name"],
   };
 }

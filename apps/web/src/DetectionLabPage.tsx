@@ -21,6 +21,10 @@ import {
   CustomRuleTester,
 } from "./CustomRuleTester";
 
+import {
+  OrgProfilePanel,
+} from "./OrgProfilePanel";
+
 import type {
   ScenarioDefinition,
 } from "./simulationAdapter";
@@ -206,6 +210,8 @@ export function DetectionLabPage() {
             />
           </>
         )}
+
+        <OrgProfilePanel />
       </main>
     </div>
   );
