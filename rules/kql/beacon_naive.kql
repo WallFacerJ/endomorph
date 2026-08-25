@@ -1,0 +1,4 @@
+// title: Outbound HTTPS to a single external address
+// technique: T1071.001
+DeviceNetworkEvents
+| where RemotePort == 443

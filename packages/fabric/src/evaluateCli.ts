@@ -54,6 +54,10 @@ import {
 } from "./sigma.js";
 
 import {
+  importKqlRules,
+} from "./kql.js";
+
+import {
   resolveFromRoot,
 } from "./workspaceRoot.js";
 
@@ -391,6 +395,61 @@ function main(): void {
     );
 
     for (const skip of imported.skipped) {
+      process.stdout.write(
+        `  SKIPPED ${skip.source}: ${skip.reason}
+`,
+      );
+    }
+
+    process.stdout.write("\n");
+  }
+
+  // The same idea for Kusto: point at a folder of .kql queries and score that
+  // ruleset. If both --sigma and --kql are given the later block wins, made
+  // explicit here rather than silently merging two authors' rules.
+  const kqlIndex = argv.indexOf("--kql");
+
+  const kqlDir =
+    kqlIndex >= 0
+      ? argv[kqlIndex + 1]
+      : undefined;
+
+  if (kqlDir) {
+    const kqlRoot =
+      resolveFromRoot(kqlDir);
+
+    if (!existsSync(kqlRoot)) {
+      throw new Error(
+        `KQL directory not found: ${kqlRoot}`,
+      );
+    }
+
+    const kqlDocuments = readdirSync(
+      kqlRoot,
+    )
+      .filter((name) =>
+        name.endsWith(".kql"),
+      )
+      .map((name) => ({
+        source: name,
+        query: readFileSync(
+          `${kqlRoot}/${name}`,
+          "utf8",
+        ),
+      }));
+
+    const importedKql =
+      importKqlRules(kqlDocuments);
+
+    rules = [...importedKql.rules];
+
+    process.stdout.write(
+      `KQL import from ${kqlDir}
+  imported ${importedKql.rules.length}, skipped ${importedKql.skipped.length}
+`,
+    );
+
+    for (const skip of importedKql.skipped) {
       process.stdout.write(
         `  SKIPPED ${skip.source}: ${skip.reason}
 `,

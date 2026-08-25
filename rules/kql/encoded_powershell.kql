@@ -1,0 +1,6 @@
+// title: Encoded PowerShell Command Line
+// technique: T1059.001
+// Detects PowerShell launched with an encoded command payload.
+DeviceProcessEvents
+| where FileName endswith "powershell.exe"
+    and ProcessCommandLine contains "-enc"
