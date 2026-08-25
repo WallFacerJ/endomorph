@@ -335,3 +335,30 @@
 .rule-tester-caret {
   color: var(--pm-accent, var(--muted));
 }
+
+.rule-tester-langs {
+  display: inline-flex;
+  gap: 2px;
+  margin: 10px 0 4px;
+  padding: 3px;
+  border: 1px solid var(--pm-border, var(--border));
+  border-radius: 10px;
+  background: var(--pm-panel-subtle, var(--panel-strong));
+}
+
+.rule-tester-lang {
+  border: 0;
+  background: transparent;
+  color: var(--pm-muted, var(--muted));
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 5px 16px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.rule-tester-lang.active {
+  background: var(--pm-accent-soft, var(--panel-hover));
+  color: var(--pm-accent, var(--accent));
+}

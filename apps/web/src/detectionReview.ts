@@ -3,6 +3,7 @@ import {
   buildCorpusRecords,
   evaluateRuleset,
   importSigmaRules,
+  importKqlRules,
 } from "@endomorph/fabric";
 
 import type {
@@ -168,4 +169,26 @@ export function scoreSigmaRule(
     buildScenarioCorpus(scenario),
     yaml,
   );
+}
+
+export function scoreKqlAgainstCorpus(
+  records: readonly CorpusRecord[],
+  query: string,
+): CustomRuleReview {
+  const { rules, skipped } =
+    importKqlRules([
+      { source: "pasted rule", query },
+    ]);
+
+  return {
+    report: evaluateRuleset(
+      rules,
+      records,
+    ),
+    recordCount: records.length,
+    maliciousCount:
+      maliciousCountOf(records),
+    imported: rules.length,
+    skipped,
+  };
 }

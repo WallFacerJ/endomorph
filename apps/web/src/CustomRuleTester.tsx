@@ -7,6 +7,7 @@ import {
 import {
   buildScenarioCorpus,
   scoreSigmaAgainstCorpus,
+  scoreKqlAgainstCorpus,
 } from "./detectionReview";
 
 import type {
@@ -114,6 +115,40 @@ const EXAMPLES: readonly RuleExample[] = [
       "tags:",
       "  - attack.t1110.003",
     ].join("\n"),
+  },
+];
+
+type RuleLanguage = "sigma" | "kql";
+
+/** The same lessons as the Sigma examples, written in Kusto for Sentinel/Defender authors. */
+const KQL_EXAMPLES: readonly RuleExample[] = [
+  {
+    id: "kql-encoded",
+    label:
+      "Encoded PowerShell — a clean hit",
+    yaml: `// title: Encoded PowerShell
+// technique: T1059.001
+DeviceProcessEvents
+| where FileName endswith "powershell.exe"
+    and ProcessCommandLine contains "-enc"`,
+  },
+  {
+    id: "kql-any",
+    label:
+      "Any PowerShell — right technique, noisy rule",
+    yaml: `// title: Any PowerShell launch
+// technique: T1059.001
+DeviceProcessEvents
+| where FileName endswith "powershell.exe"`,
+  },
+  {
+    id: "kql-wrong",
+    label:
+      "Encoded, wrong flag — a rule that misses",
+    yaml: `// title: Encoded command, long form
+// technique: T1059.001
+DeviceProcessEvents
+| where ProcessCommandLine contains "-EncodedCommand"`,
   },
 ];
 
@@ -265,16 +300,43 @@ export function CustomRuleTester({
   const [expanded, setExpanded] =
     useState<string | null>(null);
 
+  const [language, setLanguage] =
+    useState<RuleLanguage>("sigma");
+
+  const activeExamples =
+    language === "kql"
+      ? KQL_EXAMPLES
+      : EXAMPLES;
+
+  const switchLanguage = (
+    next: RuleLanguage,
+  ) => {
+    setLanguage(next);
+    setYaml(
+      (next === "kql"
+        ? KQL_EXAMPLES
+        : EXAMPLES)[0].yaml,
+    );
+    setReview(null);
+    setError(null);
+    setExpanded(null);
+  };
+
   const score = () => {
     setError(null);
     setExpanded(null);
 
     try {
       setReview(
-        scoreSigmaAgainstCorpus(
-          records,
-          yaml,
-        ),
+        language === "kql"
+          ? scoreKqlAgainstCorpus(
+              records,
+              yaml,
+            )
+          : scoreSigmaAgainstCorpus(
+              records,
+              yaml,
+            ),
       );
     } catch (caught) {
       setReview(null);
@@ -298,8 +360,46 @@ export function CustomRuleTester({
         <p className="eyebrow">
           Bring your own rule
         </p>
+        <div
+          className="rule-tester-langs"
+          role="group"
+          aria-label="Rule language"
+        >
+          <button
+            type="button"
+            className={
+              language === "sigma"
+                ? "rule-tester-lang active"
+                : "rule-tester-lang"
+            }
+            aria-pressed={
+              language === "sigma"
+            }
+            onClick={() =>
+              switchLanguage("sigma")
+            }
+          >
+            Sigma
+          </button>
+          <button
+            type="button"
+            className={
+              language === "kql"
+                ? "rule-tester-lang active"
+                : "rule-tester-lang"
+            }
+            aria-pressed={
+              language === "kql"
+            }
+            onClick={() =>
+              switchLanguage("kql")
+            }
+          >
+            KQL
+          </button>
+        </div>
         <h3>
-          Score a Sigma rule against this
+          Score a rule against this
           corpus
         </h3>
         <p className="rule-tester-lede">
@@ -325,7 +425,9 @@ export function CustomRuleTester({
           className="rule-tester-label"
           htmlFor="rule-tester-input"
         >
-          Sigma rule
+          {language === "kql"
+            ? "KQL query"
+            : "Sigma rule"}
         </label>
 
         <select
@@ -334,7 +436,7 @@ export function CustomRuleTester({
           value=""
           onChange={(event) => {
             const example =
-              EXAMPLES.find(
+              activeExamples.find(
                 (candidate) =>
                   candidate.id ===
                   event.target.value,
@@ -351,7 +453,7 @@ export function CustomRuleTester({
           <option value="">
             Load an example…
           </option>
-          {EXAMPLES.map((example) => (
+          {activeExamples.map((example) => (
             <option
               key={example.id}
               value={example.id}

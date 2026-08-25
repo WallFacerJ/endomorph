@@ -306,3 +306,47 @@ test("loading an example rule fills the box and scores it", async ({
       .first(),
   ).toBeVisible();
 });
+
+test("switching to KQL scores a Kusto query against the same corpus", async ({
+  page,
+}) => {
+  // Most detection engineers write Kusto, not Sigma. Switching the language
+  // loads a KQL example and scores it against the same labelled records.
+  await page.goto("/?lab");
+
+  const tester = page.getByRole(
+    "region",
+    {
+      name: "Test your own detection rule",
+    },
+  );
+
+  await tester.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  await tester
+    .getByRole("button", { name: "KQL" })
+    .click();
+
+  await expect(
+    tester.getByRole("textbox"),
+  ).toHaveValue(
+    /DeviceProcessEvents/,
+  );
+
+  await tester
+    .getByRole("button", {
+      name: "Score rule",
+    })
+    .click();
+
+  await expect(
+    tester
+      .locator(
+        ".rule-tester-table tbody tr",
+      )
+      .first(),
+  ).toContainText("T1059.001");
+});
