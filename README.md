@@ -1,13 +1,20 @@
 # Endomorph
 
-**Endomorph generates realistic enterprise security telemetry with ground truth known by construction.**
+**A deterministic generator of labelled enterprise security telemetry — attack and benign — with ground truth known by construction, so detections can be *measured* instead of estimated.**
 
-A corpus captured from a real network has to be labelled by hand, and the labels are opinions. Here the generator decided which events were the intrusion before it wrote them — so every record is labelled benign or malicious, mapped to the ATT&CK technique it demonstrates, and reproducible from a seed.
+**[Open the Detection Lab →](https://wallfacerj.github.io/endomorph/?lab)** · [Investigate an incident →](https://wallfacerj.github.io/endomorph/) · runs in a browser tab, no signup, no infrastructure.
 
-That makes two things possible that a captured corpus cannot support:
+A corpus captured from a real network has to be labelled by hand, and the labels are opinions. Endomorph inverts that: the generator decides which events are the intrusion *before* it writes them, so every record is labelled benign or malicious, mapped to the ATT&CK technique it demonstrates, and reproducible from a seed. That is the one thing a captured dataset cannot give you, and it is what makes a detection rule's precision and recall **counted** rather than guessed.
 
-- **Detection engineering with real numbers.** Score a rule against known ground truth and get true positives, false positives, and technique coverage instead of an estimate.
-- **Investigation training that cannot be memorised.** Change the seed and the enterprise, the staff, the addresses, and the intrusion all change — while the reasoning required stays the same.
+## What you can do with it
+
+- **Score a detection rule against ground truth.** Paste **Sigma, KQL, SPL, or EQL** into the browser [Detection Lab](https://wallfacerj.github.io/endomorph/?lab) and get counted precision, recall, and ATT&CK coverage in under two seconds — with a drill-down into the exact benign events it fired on and the malicious ones it missed. A scored rule is a shareable link.
+- **Gate a detection-rules repo in CI.** Score a whole ruleset on every pull request, fail on regression against a baseline, and emit a coverage badge for the README — [detection-as-code](docs/detection-as-code.md).
+- **Benchmark against a stable corpus.** Eight seeded intrusions, 28 ATT&CK techniques, ~37k labelled events across endpoint, identity, network, file, mail, and cloud control-plane telemetry, with realistic false-positive noise — exportable as ECS / OCSF / Splunk.
+- **Grade AI-generated detections.** The labelled corpus is a ground-truth eval set: [`--ai-eval`](docs/ai-detection-eval.md) hands an agent label-stripped tasks, and `--rubric` grades what it writes back — *N/M techniques detected to standard*.
+- **Investigate the incidents by hand.** A full analyst console — SIEM, EDR, identity, live response, and an incident-command Case — over the same generated world, for training that cannot be memorised because changing the seed changes the enterprise while the reasoning holds.
+
+Everything is deterministic and runs in the browser; the same seed reproduces the same world byte-for-byte.
 
 ```
 pnpm evaluate     # score the shipped ruleset against eight ATT&CK-mapped intrusions
