@@ -114,6 +114,13 @@ const FIELD_MAP: Readonly<
   "cloud.application": "cloud.application",
   OperationName: "cloud.action",
   Operation: "cloud.action",
+
+  // DNS fields.
+  "dns.question.name": "dns.question.name",
+  "dns.question.type": "dns.question.type",
+  "dns.resolved_ip": "dns.resolved_ip",
+  QueryName: "dns.question.name",
+  Query: "dns.question.name",
 };
 
 export interface KqlDocument {

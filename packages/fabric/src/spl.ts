@@ -115,6 +115,13 @@ const FIELD_MAP: Readonly<
   "cloud.resource": "cloud.resource",
   "cloud.application": "cloud.application",
   action_name: "cloud.action",
+
+  // DNS fields.
+  "dns.question.name": "dns.question.name",
+  "dns.question.type": "dns.question.type",
+  "dns.resolved_ip": "dns.resolved_ip",
+  query: "dns.question.name",
+  query_type: "dns.question.type",
 };
 
 /** Selectors that choose the data source rather than express detection logic. */

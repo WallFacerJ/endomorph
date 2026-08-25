@@ -396,6 +396,45 @@ export type CloudAuditEvent = EventOf<
 export type CloudEvent = CloudAuditEvent;
 
 // -----------------------------------------------------------------------------
+// DNS
+// -----------------------------------------------------------------------------
+
+/**
+ * A DNS resolution.
+ *
+ * DNS is one of the highest-signal detection surfaces and had no representation:
+ * command-and-control over DNS, domain-generation-algorithm beacons, and data
+ * tunnelled out through query names all live here and nowhere else in a
+ * network's telemetry. Modelled as a resolver log line -- who asked, for what
+ * name, of what type -- so a rule can read the query name and type the way a
+ * DNS analytic does.
+ */
+export interface DnsQueryPayload {
+  deviceId?: EntityId;
+
+  accountId?: EntityId;
+
+  /** The queried name, e.g. "login.microsoftonline.com". */
+  queryName: string;
+
+  /** The record type, e.g. "A", "AAAA", "TXT", "CNAME". */
+  queryType: string;
+
+  /** The resolved address, when the query returned one. */
+  resolvedIp?: string;
+
+  /** The querying host's address. */
+  sourceIp?: string;
+}
+
+export type DnsQueryEvent = EventOf<
+  "DNS_QUERY",
+  DnsQueryPayload
+>;
+
+export type DnsEvent = DnsQueryEvent;
+
+// -----------------------------------------------------------------------------
 // Endomorph event union
 // -----------------------------------------------------------------------------
 
@@ -409,7 +448,8 @@ export type SimulationEvent =
   | EndpointEvent
   | SecurityEvent
   | MailEvent
-  | CloudEvent;
+  | CloudEvent
+  | DnsEvent;
 
 export type SimulationEventType =
   SimulationEvent["type"];

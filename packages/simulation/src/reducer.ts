@@ -241,6 +241,13 @@ export function applySimulationEvent(
         simulationTime: event.timestamp,
       };
 
+    // A DNS resolution is a log line; no world state changes.
+    case "DNS_QUERY":
+      return {
+        ...world,
+        simulationTime: event.timestamp,
+      };
+
     default:
       return assertNever(event);
   }

@@ -109,6 +109,15 @@ const BUILDS: readonly ScenarioBuild[] = [
     plan: "cloud-consent-grant",
     days: 3,
   },
+  {
+    out: "apps/web/public/scenarios/generated-dns-tunnel.json",
+    id: "scenario-generated-dns-tunnel-001",
+    name: "Generated enterprise: DNS command-and-control and tunnelled exfiltration",
+    description:
+      "No process is anomalous and no sign-in is out of place. A host beacons over DNS to algorithmically-generated domains and tunnels data out inside oversized TXT query names -- an intrusion visible only in the resolver log, in the shape of the names it queries.",
+    plan: "dns-tunnel",
+    days: 3,
+  },
 ];
 
 function findWorkspaceRoot(): string {

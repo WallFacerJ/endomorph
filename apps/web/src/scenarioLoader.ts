@@ -98,6 +98,12 @@ export const SHIPPED_SCENARIOS:
         "OAuth consent to cloud data theft (advanced)",
       group: "generated",
     },
+    {
+      path: "/scenarios/generated-dns-tunnel.json",
+      label:
+        "DNS tunnelling & exfiltration (advanced)",
+      group: "generated",
+    },
   ];
 
 /**

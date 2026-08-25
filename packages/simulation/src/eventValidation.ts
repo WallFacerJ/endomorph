@@ -269,6 +269,11 @@ export function validateSimulationEvent(
 
       return;
 
+    case "DNS_QUERY":
+      // Device and account are optional on a DNS record; a resolver log line
+      // need not name either, so there is nothing to require.
+      return;
+
     default:
       return assertNever(event);
   }

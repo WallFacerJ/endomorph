@@ -93,6 +93,12 @@ const FIELD_MAP: Readonly<
   "cloud.resource": "cloud.resource",
   "cloud.application": "cloud.application",
 
+
+  // DNS fields.
+  "dns.question.name": "dns.question.name",
+  "dns.question.type": "dns.question.type",
+  "dns.resolved_ip": "dns.resolved_ip",
+
 };
 
 export interface EqlDocument {

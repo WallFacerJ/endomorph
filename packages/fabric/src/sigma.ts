@@ -136,6 +136,12 @@ const FIELD_MAP: Readonly<
   "cloud.application": "cloud.application",
   eventName: "cloud.action",
   eventSource: "cloud.service",
+
+  // DNS fields.
+  "dns.question.name": "dns.question.name",
+  "dns.question.type": "dns.question.type",
+  "dns.resolved_ip": "dns.resolved_ip",
+  QueryName: "dns.question.name",
 };
 
 export interface SigmaRule {

@@ -127,6 +127,11 @@ export interface CorpusRecord {
   "cloud.service"?: string;
   "cloud.resource"?: string;
   "cloud.application"?: string;
+
+  /** DNS fields, on a DNS_QUERY record. */
+  "dns.question.name"?: string;
+  "dns.question.type"?: string;
+  "dns.resolved_ip"?: string;
   "event.outcome"?: string;
   "event.reason"?: string;
   "session.id"?: string;
@@ -474,6 +479,19 @@ function toRecord(
   assign(
     "cloud.application",
     read("appDisplayName"),
+  );
+
+  assign(
+    "dns.question.name",
+    read("queryName"),
+  );
+  assign(
+    "dns.question.type",
+    read("queryType"),
+  );
+  assign(
+    "dns.resolved_ip",
+    read("resolvedIp"),
   );
 
   const actorId = event.actorId;

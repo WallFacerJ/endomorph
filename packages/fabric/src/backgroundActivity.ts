@@ -1671,6 +1671,59 @@ export function generateBackgroundActivity(
         },
       );
     }
+
+    // Benign DNS, so the beacon's high-entropy lookups and the tunnel's long
+    // TXT names have the ordinary resolver traffic to hide among: pronounceable
+    // registered domains, A records, a couple of short SPF-style TXT lookups.
+    const BENIGN_DNS: readonly {
+      readonly name: string;
+      readonly type: string;
+    }[] = [
+      { name: "login.microsoftonline.com", type: "A" },
+      { name: "outlook.office365.com", type: "A" },
+      { name: "teams.microsoft.com", type: "A" },
+      { name: "www.google.com", type: "A" },
+      { name: "cdn.jsdelivr.net", type: "A" },
+      { name: "github.com", type: "A" },
+      { name: "slack.com", type: "A" },
+      { name: "update.googleapis.com", type: "A" },
+      { name: "_dmarc.acme.test", type: "TXT" },
+      { name: "acme.test", type: "TXT" },
+    ];
+
+    const dnsCursor = root.fork("dns");
+
+    const dnsCount = Math.min(
+      24,
+      ordinaryAccounts.length,
+    );
+
+    for (
+      let index = 0;
+      index < dnsCount;
+      index += 1
+    ) {
+      const cursor = dnsCursor.fork(
+        `dns-${index}`,
+      );
+
+      const template = cursor.pick(
+        BENIGN_DNS,
+      );
+
+      push(
+        businessMinute(cursor),
+        `dns-${index}`,
+        {
+          type: "DNS_QUERY",
+          source: "network",
+          payload: {
+            queryName: template.name,
+            queryType: template.type,
+          },
+        },
+      );
+    }
   }
 
   // -----------------------------------------------------------------------

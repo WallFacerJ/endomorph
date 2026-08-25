@@ -509,6 +509,23 @@ export const CLOUD_EXFIL_RULE: DetectionRule =
     ],
   };
 
+export const DNS_EXFIL_RULE: DetectionRule =
+  {
+    id: "dns-txt-tunnel",
+    name: "Oversized TXT query name (DNS tunnelling / exfiltration)",
+    technique: "T1048.003",
+    severity: "high",
+    selections: [
+      {
+        "event.type": "DNS_QUERY",
+        "dns.question.type": "TXT",
+        "dns.question.name": {
+          regex: "^.{50,}$",
+        },
+      },
+    ],
+  };
+
 export const DETECTION_RULES: readonly DetectionRule[] =
   [
     PASSWORD_SPRAY_RULE,
@@ -531,4 +548,5 @@ export const DETECTION_RULES: readonly DetectionRule[] =
     MFA_DENIAL_BURST_RULE,
     PHISHING_LINK_RULE,
     CLOUD_EXFIL_RULE,
+    DNS_EXFIL_RULE,
   ];

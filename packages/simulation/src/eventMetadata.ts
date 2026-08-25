@@ -42,6 +42,7 @@ export function getSimulationEventFamily(
       return "file";
 
     case "NETWORK_CONNECTION":
+    case "DNS_QUERY":
       return "network";
 
     case "ENDPOINT_HEARTBEAT":

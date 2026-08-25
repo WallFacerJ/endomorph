@@ -22,6 +22,10 @@ import {
   CLOUD_CONSENT_PLAN,
 } from "./attackPlanCloudConsent.js";
 
+import {
+  DNS_TUNNEL_PLAN,
+} from "./attackPlanDnsTunnel.js";
+
 /**
  * The shipped plan library.
  *
@@ -988,4 +992,5 @@ export const ATTACK_PLANS: readonly AttackPlan[] =
     CLOUD_ROLE_PLAN,
     PHISHING_LINK_PLAN,
     CLOUD_CONSENT_PLAN,
+    DNS_TUNNEL_PLAN,
   ];

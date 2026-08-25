@@ -161,6 +161,9 @@ function getMessage(
     case "CLOUD_AUDIT":
       return `Cloud ${event.payload.service} ${event.payload.action}${event.payload.resource ? ` on ${event.payload.resource}` : ""} by ${event.payload.accountId}`;
 
+    case "DNS_QUERY":
+      return `DNS ${event.payload.queryType} query for ${event.payload.queryName}`;
+
     default:
       return assertNever(event);
   }
@@ -328,6 +331,15 @@ function getFields(
           event.payload.appDisplayName,
         sourceIp: event.payload.sourceIp,
         outcome: event.payload.outcome,
+      });
+
+    case "DNS_QUERY":
+      return definedFields({
+        deviceId: event.payload.deviceId,
+        queryName: event.payload.queryName,
+        queryType: event.payload.queryType,
+        resolvedIp: event.payload.resolvedIp,
+        sourceIp: event.payload.sourceIp,
       });
 
     default:
