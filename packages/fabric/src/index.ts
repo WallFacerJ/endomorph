@@ -17,3 +17,4 @@ export * from "./robustness.js";
 export * from "./benchmark.js";
 export * from "./noiseFloor.js";
 export * from "./kql.js";
+export * from "./spl.js";

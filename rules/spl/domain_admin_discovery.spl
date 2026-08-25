@@ -1,0 +1,3 @@
+// title: Domain Admin Enumeration
+// technique: T1069.002
+index=edr CommandLine="*Get-ADGroupMember*"

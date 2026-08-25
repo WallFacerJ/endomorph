@@ -350,3 +350,45 @@ test("switching to KQL scores a Kusto query against the same corpus", async ({
       .first(),
   ).toContainText("T1059.001");
 });
+
+test("switching to SPL scores a Splunk search against the same corpus", async ({
+  page,
+}) => {
+  // Splunk is the largest SIEM. Switching the language loads an SPL example and
+  // scores its base-search wildcards against the same labelled records.
+  await page.goto("/?lab");
+
+  const tester = page.getByRole(
+    "region",
+    {
+      name: "Test your own detection rule",
+    },
+  );
+
+  await tester.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  await tester
+    .getByRole("button", { name: "SPL" })
+    .click();
+
+  await expect(
+    tester.getByRole("textbox"),
+  ).toHaveValue(/index=edr/);
+
+  await tester
+    .getByRole("button", {
+      name: "Score rule",
+    })
+    .click();
+
+  await expect(
+    tester
+      .locator(
+        ".rule-tester-table tbody tr",
+      )
+      .first(),
+  ).toContainText("T1059.001");
+});

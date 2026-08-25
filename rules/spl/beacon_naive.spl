@@ -1,0 +1,3 @@
+// title: Outbound HTTPS to a single external address
+// technique: T1071.001
+index=network dest_port=443

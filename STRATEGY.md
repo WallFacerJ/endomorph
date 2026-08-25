@@ -162,10 +162,16 @@ it builds on so it is not a green field.
    repo can adopt it. *Remaining:* publish the generator (npm or a container) so
    the CI job does not have to build from source.
 
-2. **Meet engineers in their own language.** Most write Splunk SPL, Elastic
-   EQL/ES|QL, or Sentinel KQL, not Sigma. Add importers/adapters so they can
-   score *their* rules. Widest-reach unlock. *Builds on* the rule model and the
-   Sigma importer (`packages/fabric/src/sigma.ts`).
+2. **Meet engineers in their own language — KQL + SPL DONE.** Most write Splunk
+   SPL, Elastic EQL/ES|QL, or Sentinel KQL, not Sigma. *Done:* `packages/fabric/src/kql.ts`
+   imports Sentinel/Defender KQL (`where` predicates → the internal rule) and
+   `packages/fabric/src/spl.ts` imports Splunk SPL (base-search wildcards, IN-lists,
+   `| search`/`| where`), each refusing a construct it can't express by name rather
+   than importing a query that silently matches nothing. Both are wired into the CLI
+   (`--kql`, `--spl`, mirroring `--sigma` + `--baseline`) and the browser Detection
+   Lab's language toggle (Sigma / KQL / SPL), so an engineer scores *their* rule
+   unchanged. *Remaining:* Elastic EQL/ES|QL, the other widespread dialect. *Built on*
+   the rule model and the Sigma importer (`packages/fabric/src/sigma.ts`).
 
 3. **Add the domains real detections live in.** Email (headers/links/attachments),
    cloud/SaaS audit (OAuth, IAM, control plane), DNS/proxy, and Sysmon-fidelity

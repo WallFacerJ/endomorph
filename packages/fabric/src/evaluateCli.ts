@@ -58,6 +58,10 @@ import {
 } from "./kql.js";
 
 import {
+  importSplRules,
+} from "./spl.js";
+
+import {
   resolveFromRoot,
 } from "./workspaceRoot.js";
 
@@ -450,6 +454,58 @@ function main(): void {
     );
 
     for (const skip of importedKql.skipped) {
+      process.stdout.write(
+        `  SKIPPED ${skip.source}: ${skip.reason}
+`,
+      );
+    }
+
+    process.stdout.write("\n");
+  }
+
+  const splIndex = argv.indexOf("--spl");
+
+  const splDir =
+    splIndex >= 0
+      ? argv[splIndex + 1]
+      : undefined;
+
+  if (splDir) {
+    const splRoot =
+      resolveFromRoot(splDir);
+
+    if (!existsSync(splRoot)) {
+      throw new Error(
+        `SPL directory not found: ${splRoot}`,
+      );
+    }
+
+    const splDocuments = readdirSync(
+      splRoot,
+    )
+      .filter((name) =>
+        name.endsWith(".spl"),
+      )
+      .map((name) => ({
+        source: name,
+        query: readFileSync(
+          `${splRoot}/${name}`,
+          "utf8",
+        ),
+      }));
+
+    const importedSpl =
+      importSplRules(splDocuments);
+
+    rules = [...importedSpl.rules];
+
+    process.stdout.write(
+      `SPL import from ${splDir}
+  imported ${importedSpl.rules.length}, skipped ${importedSpl.skipped.length}
+`,
+    );
+
+    for (const skip of importedSpl.skipped) {
       process.stdout.write(
         `  SKIPPED ${skip.source}: ${skip.reason}
 `,

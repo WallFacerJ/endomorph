@@ -8,6 +8,7 @@ import {
   buildScenarioCorpus,
   scoreSigmaAgainstCorpus,
   scoreKqlAgainstCorpus,
+  scoreSplAgainstCorpus,
 } from "./detectionReview";
 
 import type {
@@ -118,7 +119,38 @@ const EXAMPLES: readonly RuleExample[] = [
   },
 ];
 
-type RuleLanguage = "sigma" | "kql";
+type RuleLanguage =
+  | "sigma"
+  | "kql"
+  | "spl";
+
+/** The same lessons again, written as Splunk searches for the largest SIEM's authors. */
+const SPL_EXAMPLES: readonly RuleExample[] = [
+  {
+    id: "spl-encoded",
+    label:
+      "Encoded PowerShell — a clean hit",
+    yaml: `// title: Encoded PowerShell
+// technique: T1059.001
+index=edr sourcetype=sysmon Image="*powershell.exe" CommandLine="*-enc*"`,
+  },
+  {
+    id: "spl-any",
+    label:
+      "Any PowerShell — right technique, noisy rule",
+    yaml: `// title: Any PowerShell launch
+// technique: T1059.001
+index=edr sourcetype=sysmon Image="*powershell.exe"`,
+  },
+  {
+    id: "spl-wrong",
+    label:
+      "Encoded, wrong flag — a rule that misses",
+    yaml: `// title: Encoded command, long form
+// technique: T1059.001
+index=edr CommandLine="*-EncodedCommand*"`,
+  },
+];
 
 /** The same lessons as the Sigma examples, written in Kusto for Sentinel/Defender authors. */
 const KQL_EXAMPLES: readonly RuleExample[] = [
@@ -303,20 +335,23 @@ export function CustomRuleTester({
   const [language, setLanguage] =
     useState<RuleLanguage>("sigma");
 
-  const activeExamples =
-    language === "kql"
+  const examplesFor = (
+    lang: RuleLanguage,
+  ): readonly RuleExample[] =>
+    lang === "kql"
       ? KQL_EXAMPLES
-      : EXAMPLES;
+      : lang === "spl"
+        ? SPL_EXAMPLES
+        : EXAMPLES;
+
+  const activeExamples =
+    examplesFor(language);
 
   const switchLanguage = (
     next: RuleLanguage,
   ) => {
     setLanguage(next);
-    setYaml(
-      (next === "kql"
-        ? KQL_EXAMPLES
-        : EXAMPLES)[0].yaml,
-    );
+    setYaml(examplesFor(next)[0].yaml);
     setReview(null);
     setError(null);
     setExpanded(null);
@@ -333,10 +368,15 @@ export function CustomRuleTester({
               records,
               yaml,
             )
-          : scoreSigmaAgainstCorpus(
-              records,
-              yaml,
-            ),
+          : language === "spl"
+            ? scoreSplAgainstCorpus(
+                records,
+                yaml,
+              )
+            : scoreSigmaAgainstCorpus(
+                records,
+                yaml,
+              ),
       );
     } catch (caught) {
       setReview(null);
@@ -397,6 +437,22 @@ export function CustomRuleTester({
           >
             KQL
           </button>
+          <button
+            type="button"
+            className={
+              language === "spl"
+                ? "rule-tester-lang active"
+                : "rule-tester-lang"
+            }
+            aria-pressed={
+              language === "spl"
+            }
+            onClick={() =>
+              switchLanguage("spl")
+            }
+          >
+            SPL
+          </button>
         </div>
         <h3>
           Score a rule against this
@@ -410,8 +466,13 @@ export function CustomRuleTester({
           <strong>counted</strong>, not
           estimated &mdash; the thing a
           captured dataset cannot give
-          you. Paste a Sigma rule, score
-          it against the{" "}
+          you. Paste a{" "}
+          {language === "kql"
+            ? "KQL"
+            : language === "spl"
+              ? "Splunk"
+              : "Sigma"}{" "}
+          rule, score it against the{" "}
           {records.length.toLocaleString()}{" "}
           labelled records, and open a rule
           to see the exact benign events it
@@ -427,7 +488,9 @@ export function CustomRuleTester({
         >
           {language === "kql"
             ? "KQL query"
-            : "Sigma rule"}
+            : language === "spl"
+              ? "SPL search"
+              : "Sigma rule"}
         </label>
 
         <select
@@ -509,7 +572,13 @@ export function CustomRuleTester({
           <div className="rule-tester-skipped">
             <p>
               <strong>Not scored.</strong>{" "}
-              The supported Sigma subset
+              The supported{" "}
+              {language === "kql"
+                ? "KQL"
+                : language === "spl"
+                  ? "SPL"
+                  : "Sigma"}{" "}
+              subset
               could not express this rule
               &mdash; reported rather than
               matched silently, because a
