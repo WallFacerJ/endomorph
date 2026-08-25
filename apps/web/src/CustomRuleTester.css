@@ -258,3 +258,80 @@
   cursor: pointer;
   max-width: 60%;
 }
+
+/*
+  Modern refinements. Token-based so they read correctly both inside the lab's
+  committed dark identity (violet accent, light-on-dark borders) and inside the
+  investigation app's own theme, where the same tokens resolve to its palette.
+*/
+.rule-tester-head h3 {
+  letter-spacing: -0.015em;
+  font-size: 1.2rem;
+}
+
+.rule-tester-input {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  background: var(--pm-panel-subtle, var(--panel-strong));
+  border-radius: 11px;
+  line-height: 1.65;
+  padding: 14px 16px;
+}
+
+.rule-tester-example {
+  border-radius: 9px;
+}
+
+.rule-tester-score {
+  background: linear-gradient(
+    180deg,
+    var(--pm-accent),
+    var(--pm-accent-strong, var(--pm-accent))
+  );
+  color: var(--pm-bg);
+  border-radius: 9px;
+  padding: 9px 20px;
+  box-shadow: 0 6px 20px var(--pm-glow, transparent);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.rule-tester-score:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px var(--pm-glow, transparent);
+  filter: none;
+}
+
+.rule-tester-reset {
+  border-radius: 9px;
+}
+
+.rule-tester-table thead th {
+  border-bottom: 1px solid
+    var(--pm-border-strong, var(--border));
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+}
+
+.rule-tester-num {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+.rule-tester-row-clickable:hover {
+  background: var(--pm-accent-soft, var(--panel-hover));
+}
+
+.rule-tester-chip {
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+.rule-tester-match-type,
+.rule-tester-match-detail {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+.rule-tester-caret {
+  color: var(--pm-accent, var(--muted));
+}
