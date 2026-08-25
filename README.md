@@ -319,6 +319,12 @@ pnpm evaluate:baseline                                  # record current perform
 pnpm evaluate -- --baseline rules/detection-baseline.json   # fail if it regresses
 ```
 
+The same loop gates a detection-rules repository in CI — score your Sigma rules on every pull request and fail on regression. See [docs/detection-as-code.md](docs/detection-as-code.md) and the adaptable [workflow](.github/workflows/detection-ci.example.yml).
+
+```bash
+pnpm evaluate -- --sigma path/to/your/rules --baseline detection-baseline.json
+```
+
 ```
 Baseline comparison against rules/detection-baseline.json
   REGRESSION   dormant-account-revival: Rule account-reenabled no longer fires

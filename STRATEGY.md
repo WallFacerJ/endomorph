@@ -149,3 +149,42 @@ trust. Monetise what infrastructure cannot cheaply copy: eval-at-scale, private
 digital twins of a customer's estate, and hosted continuous rule scoring. The
 investigation console stays the thing that makes it tangible in a demo, and the
 door into a training product later, once there is a company to build it.
+
+
+## Build program — "increase value and usefulness" (sequenced)
+
+After validation, these are the value levers in priority order. Each notes what
+it builds on so it is not a green field.
+
+1. **Detection-as-code CI — DONE.** Scoring a whole Sigma folder (`--sigma`) and
+   gating on regression (`--baseline`) already worked; `docs/detection-as-code.md`
+   and `.github/workflows/detection-ci.example.yml` package it so a detection-rules
+   repo can adopt it. *Remaining:* publish the generator (npm or a container) so
+   the CI job does not have to build from source.
+
+2. **Meet engineers in their own language.** Most write Splunk SPL, Elastic
+   EQL/ES|QL, or Sentinel KQL, not Sigma. Add importers/adapters so they can
+   score *their* rules. Widest-reach unlock. *Builds on* the rule model and the
+   Sigma importer (`packages/fabric/src/sigma.ts`).
+
+3. **Add the domains real detections live in.** Email (headers/links/attachments),
+   cloud/SaaS audit (OAuth, IAM, control plane), DNS/proxy, and Sysmon-fidelity
+   Windows event codes. Each unlocks many ATT&CK techniques and more addressable
+   teams; the noise floor guides each domain's FP realism. Biggest moat-deepener
+   (roadmap Phase 3).
+
+4. **Point it at your own org.** Surface the existing `--profile` flag as a
+   product feature so a team gets a corpus shaped like their estate. The
+   digital-twin/enterprise wedge.
+
+5. **AI detection-agent eval.** Use the labelled corpus as a ground-truth eval
+   set for LLM-generated detections and AI SOC agents. Timely, and exactly what
+   ground-truth-by-construction is for.
+
+6. **Distribution/friction.** A 10-second landing page, shareable result
+   permalinks, a coverage badge for a detection repo README, and shipping the
+   generator + scorer as an npm package/API.
+
+Still deferred: interactive Range (containers/VMs) and the multi-user enterprise
+control plane — capital-intensive, in arenas incumbents own, wrong until a
+customer pulls.

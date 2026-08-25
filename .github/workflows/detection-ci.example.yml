@@ -1,0 +1,66 @@
+# Detection-as-code CI — score your Sigma rules against the Endomorph benchmark.
+#
+# Copy this into your *detection-rules* repository as
+# .github/workflows/detection-ci.yml, then:
+#   1. set RULES_DIR to your Sigma folder,
+#   2. generate and commit a baseline once:
+#        (clone endomorph, build it, then)
+#        node packages/fabric/dist/evaluateCli.js \
+#          --sigma /path/to/your/rules --json detection-baseline.json
+#      and copy detection-baseline.json into your repo,
+#   3. push. Every pull request is now scored, and a regression fails the build.
+#
+# It pins Endomorph to a tag so the corpus your rules are judged against does not
+# move underneath you between runs.
+name: Detection CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+env:
+  RULES_DIR: rules # <-- your Sigma rules folder, relative to this repo
+  ENDOMORPH_REF: main # <-- pin to a release tag for a stable benchmark
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out your detection rules
+        uses: actions/checkout@v4
+        with:
+          path: rules-repo
+
+      - name: Check out Endomorph
+        uses: actions/checkout@v4
+        with:
+          repository: WallFacerJ/endomorph
+          ref: ${{ env.ENDOMORPH_REF }}
+          path: endomorph
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: endomorph/pnpm-lock.yaml
+
+      - name: Build the generator
+        working-directory: endomorph
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @endomorph/fabric build
+
+      - name: Score the ruleset against the benchmark, gate on regression
+        working-directory: endomorph
+        run: |
+          node packages/fabric/dist/evaluateCli.js \
+            --sigma "$GITHUB_WORKSPACE/rules-repo/${RULES_DIR}" \
+            --baseline "$GITHUB_WORKSPACE/rules-repo/detection-baseline.json"
+        # Exits non-zero when a rule stops detecting a technique it used to
+        # catch, failing the pull request. Notices (a rule got noisier) are
+        # printed but do not fail.
