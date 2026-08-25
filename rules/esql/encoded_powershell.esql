@@ -1,0 +1,4 @@
+// title: Encoded PowerShell Command Line
+// technique: T1059.001
+FROM logs-endpoint
+| WHERE process.name LIKE "*powershell.exe" AND process.command_line LIKE "*-enc*"

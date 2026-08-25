@@ -162,8 +162,8 @@ it builds on so it is not a green field.
    repo can adopt it. *Remaining:* publish the generator (npm or a container) so
    the CI job does not have to build from source.
 
-2. **Meet engineers in their own language — KQL + SPL + EQL DONE.** Most write
-   Splunk SPL, Elastic EQL, or Sentinel KQL, not Sigma. *Done:* `kql.ts` imports
+2. **Meet engineers in their own language — KQL + SPL + EQL + ES|QL DONE.** Most write
+   Splunk SPL, Elastic EQL/ES|QL, or Sentinel KQL, not Sigma. *Done:* `kql.ts` imports
    Sentinel/Defender KQL (`where` predicates), `spl.ts` imports Splunk SPL
    (base-search wildcards, IN-lists, `| search`/`| where`), and `eql.ts` imports
    Elastic EQL (`<category> where <condition>`, ECS-native so field names map
@@ -173,8 +173,9 @@ it builds on so it is not a green field.
    browser Detection Lab's language toggle (Sigma / KQL / SPL / EQL), so an engineer
    scores *their* rule unchanged. Demonstrated equivalence: the domain-admin
    detection expressed in all three dialects scores an identical 1.000/1.000.
-   *Remaining:* Elastic ES|QL, if demand appears. *Built on* the rule model and the
-   Sigma importer (`packages/fabric/src/sigma.ts`).
+   `esql.ts` completes the set with Elastic's piped ES|QL (`FROM ... | WHERE ...`),
+   and all five languages are a toggle in the browser lab. *Built on* the rule model
+   and the Sigma importer (`packages/fabric/src/sigma.ts`).
 
 3. **Add the domains real detections live in — MAIL + CLOUD + DNS DONE.** Email
    (headers/links/attachments), cloud/SaaS audit (OAuth, IAM, control plane),

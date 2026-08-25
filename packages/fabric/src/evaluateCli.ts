@@ -66,6 +66,10 @@ import {
 } from "./eql.js";
 
 import {
+  importEsqlRules,
+} from "./esql.js";
+
+import {
   resolveFromRoot,
 } from "./workspaceRoot.js";
 
@@ -573,6 +577,58 @@ function main(): void {
     );
 
     for (const skip of importedEql.skipped) {
+      process.stdout.write(
+        `  SKIPPED ${skip.source}: ${skip.reason}
+`,
+      );
+    }
+
+    process.stdout.write("\n");
+  }
+
+  const esqlIndex = argv.indexOf("--esql");
+
+  const esqlDir =
+    esqlIndex >= 0
+      ? argv[esqlIndex + 1]
+      : undefined;
+
+  if (esqlDir) {
+    const esqlRoot =
+      resolveFromRoot(esqlDir);
+
+    if (!existsSync(esqlRoot)) {
+      throw new Error(
+        `ES|QL directory not found: ${esqlRoot}`,
+      );
+    }
+
+    const esqlDocuments = readdirSync(
+      esqlRoot,
+    )
+      .filter((name) =>
+        name.endsWith(".esql"),
+      )
+      .map((name) => ({
+        source: name,
+        query: readFileSync(
+          `${esqlRoot}/${name}`,
+          "utf8",
+        ),
+      }));
+
+    const importedEsql =
+      importEsqlRules(esqlDocuments);
+
+    rules = [...importedEsql.rules];
+
+    process.stdout.write(
+      `ES|QL import from ${esqlDir}
+  imported ${importedEsql.rules.length}, skipped ${importedEsql.skipped.length}
+`,
+    );
+
+    for (const skip of importedEsql.skipped) {
       process.stdout.write(
         `  SKIPPED ${skip.source}: ${skip.reason}
 `,

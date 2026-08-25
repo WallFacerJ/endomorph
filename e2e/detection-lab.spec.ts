@@ -543,3 +543,45 @@ test("switching to EQL scores an Elastic query against the same corpus", async (
       .first(),
   ).toContainText("T1059.001");
 });
+
+test("switching to ES|QL scores an Elastic piped query against the same corpus", async ({
+  page,
+}) => {
+  // ES|QL is Elastic's piped query language. Switching the language loads an
+  // ES|QL example and scores its WHERE filter against the same labelled records.
+  await page.goto("/?lab");
+
+  const tester = page.getByRole(
+    "region",
+    {
+      name: "Test your own detection rule",
+    },
+  );
+
+  await tester.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  await tester
+    .getByRole("button", { name: "ES|QL" })
+    .click();
+
+  await expect(
+    tester.getByRole("textbox"),
+  ).toHaveValue(/FROM logs/);
+
+  await tester
+    .getByRole("button", {
+      name: "Score rule",
+    })
+    .click();
+
+  await expect(
+    tester
+      .locator(
+        ".rule-tester-table tbody tr",
+      )
+      .first(),
+  ).toContainText("T1059.001");
+});

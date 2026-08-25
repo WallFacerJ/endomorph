@@ -15,7 +15,7 @@ variation + a scoring harness + zero infra. The investigation console stays the
 demo that makes it tangible, and the door into a training product later.
 
 At a glance: **9 intrusions · 31 ATT&CK techniques · ~42.4k labelled events ·
-4 rule languages · 7 event domains · 0 infrastructure.**
+5 rule languages · 7 event domains · 0 infrastructure.**
 
 ### Lane 1 — Shipped (the wedge is real)
 
@@ -51,7 +51,9 @@ At a glance: **9 intrusions · 31 ATT&CK techniques · ~42.4k labelled events ·
 5. **Grow ATT&CK coverage deliberately** — more intrusions, pure event modelling.
 6. **Seeded attack variation** — vary the attack (evasion levels), not just the
    enterprise; stresses whether a rule generalises.
-7. **Elastic ES|QL** — completes the vendor-language set (small).
+7. **Elastic ES|QL — DONE.** Completed the vendor-language set: `esql.ts` imports
+   the `WHERE` filter of a piped ES|QL query; all five languages (Sigma / KQL / SPL /
+   EQL / ES|QL) are a browser-lab toggle.
 
 ### Lane 3 — Later (enterprise north star, deferred until a customer pulls)
 
