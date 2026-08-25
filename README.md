@@ -67,7 +67,9 @@ Content is data, not code. An attack plan declares its steps, techniques, and qu
 
 **Hosted app:** https://wallfacerj.github.io/endomorph/
 
-**Detection lab:** https://wallfacerj.github.io/endomorph/?lab — for detection engineers, not trainees: pick a generated scenario, see how a sample ruleset scores against its labelled corpus, then paste your own Sigma rule and get precision and recall counted against ground truth. No investigation to play through.
+**Detection lab:** https://wallfacerj.github.io/endomorph/?lab — for detection engineers, not trainees: pick a generated scenario, see how a sample ruleset scores against its labelled corpus, then paste your own rule — in **Sigma, KQL, SPL, or EQL** — and get precision and recall counted against ground truth, with a drill-down into the exact benign events it fired on and the malicious ones it missed. A scored rule is a shareable link. No investigation to play through.
+
+The app root is a short landing page explaining what Endomorph is, with doors into the lab and an investigation; every deep link (`?scenario=`, `?mode=`, `?lab`) still goes straight where it did.
 
 The hosted build is deployed from `main` with GitHub Pages. If the deployment is temporarily unavailable, use the local quick start below.
 
@@ -98,7 +100,8 @@ Endomorph includes:
 - transparent objective score, response-quality penalty, and final score;
 - a read-only finalized case until reset;
 - post-finalization instructor ground-truth review;
-- an in-app detection lab: paste a Sigma rule after finalizing and score it against the scenario's labelled corpus, with counted precision and recall;
+- an in-app detection lab, with its own front door at `?lab`: paste a rule in **Sigma, KQL, SPL, or EQL** and score it against the scenario's labelled corpus, with counted precision and recall, a false-positive/missed-event drill-down, and shareable result links;
+- a coverage-badge SVG (`--badge`) and an AI-detection eval harness (`--ai-eval` / `--rubric`) for grading generated detections against ground truth;
 - nine scenarios selectable in the UI, three hand-authored and six generated;
 - two persisted professional interface styles: **Midnight SOC** and **Graphite**;
 - deterministic replay/unit/integration coverage plus browser-level Playwright tests;
@@ -267,6 +270,8 @@ pnpm evaluate -- --report coverage.html      # client-facing ATT&CK coverage rep
 pnpm evaluate -- --cohort-tool cohort.html   # instructor tool for comparing results
 pnpm evaluate -- --profile client.json       # generate an estate shaped like a client's
 pnpm evaluate -- --export out/corpus --format splunk --index endomorph
+pnpm evaluate -- --sigma rules/sigma --badge coverage.svg   # README coverage badge
+pnpm evaluate -- --ai-eval eval-set          # export a graded eval set for detection agents
 ```
 
 **`--report`** writes a self-contained page: an ATT&CK matrix of what the
@@ -291,7 +296,7 @@ format, which is the entire reason to move a corpus into somebody else's
 platform: analysts can practise in the tool they use daily and engineers can
 score their own rules there, because the answers came along.
 
-### Sigma rules
+### Bring your own rules — Sigma, KQL, SPL, EQL
 
 Real Sigma YAML imports directly:
 
@@ -309,6 +314,37 @@ Sigma import from rules/sigma
 Sigma names fields the way Windows and Sysmon logs do; the corpus is ECS-shaped, so importing translates vocabularies (`Image|endswith` → `process.executable`) and maps `attack.t1059.001` tags to techniques. Supported: selections, negated filters, value lists under a modifier, `1 of selection_*`, and the `contains` / `startswith` / `endswith` / `re` modifiers.
 
 `rules/sigma-compat/` holds rules written in genuine SigmaHQ idiom rather than tailored to this importer, so the compatibility claim is measured rather than asserted. **Four of six import**; the two refusals are honest — the corpus models neither parent process images nor Windows event IDs, so `ParentImage` and `EventID` have nowhere truthful to go.
+
+#### Other query languages (KQL, SPL, EQL)
+
+Most engineers don't write Sigma. The evaluator imports the *filtering* part of a query in three more dialects and scores it identically, so an author brings their own rule unchanged:
+
+```bash
+pnpm evaluate -- --kql rules/kql   # Microsoft Sentinel / Defender (Kusto)
+pnpm evaluate -- --spl rules/spl   # Splunk (base-search wildcards, | search / | where)
+pnpm evaluate -- --eql rules/eql   # Elastic (<category> where <condition>, ECS-native)
+```
+
+The same detection expressed in KQL, SPL, and EQL scores an identical 1.000/1.000 — the importers agree because they compile to one internal rule. As with Sigma, a construct a subset can't express — a transforming command, a sequence, mixed AND/OR, an unmapped field — is refused **by name with a reason**, never imported as a query that silently matches nothing. All four languages are also a toggle in the browser Detection Lab.
+
+#### Grading generated detections (AI eval)
+
+Because the labels are ground truth, the corpus is an eval set for generated detections — from a person, an LLM, or an AI SOC agent. `--ai-eval` exports label-stripped telemetry plus a task prompt and a separate hidden answer key; `--rubric` grades a scored ruleset pass/fail per technique against a recall/precision bar:
+
+```bash
+pnpm evaluate -- --ai-eval eval-set          # export the tasks an agent detects on
+pnpm evaluate -- --sigma candidate --rubric  # -> "15/30 techniques detected to standard"
+```
+
+See [docs/ai-detection-eval.md](docs/ai-detection-eval.md).
+
+#### A coverage badge for a rules repo
+
+```bash
+pnpm evaluate -- --sigma rules/sigma --badge coverage.svg
+```
+
+A self-contained SVG (no external references) showing how many benchmark techniques the ruleset covers — commit it, or regenerate it from CI so it moves with the rules.
 
 #### Detection regression testing
 
