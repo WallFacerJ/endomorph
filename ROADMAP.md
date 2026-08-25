@@ -1,5 +1,71 @@
 # Endomorph Roadmap
 
+> **Current working roadmap — as of 2026-08-25.** This section is the plan we are
+> actually executing; it reconciles the `STRATEGY.md` build program (the wedge)
+> with the enterprise phases below (the north star). The phased enterprise vision
+> that follows is the longer-horizon ambition, deliberately deferred.
+
+## The bet
+
+**Lead with detection engineering, not training.** The defensible edge is that
+*ground truth is known by construction* — labelled, seeded, ATT&CK-mapped
+telemetry with realistic false-positive noise, scoreable in a browser with zero
+infrastructure. No competitor combines ground truth + benign noise + seeded
+variation + a scoring harness + zero infra. The investigation console stays the
+demo that makes it tangible, and the door into a training product later.
+
+At a glance: **7 intrusions · 24 ATT&CK techniques · ~32.6k labelled events ·
+4 rule languages · 5 event domains · 0 infrastructure.**
+
+### Lane 1 — Shipped (the wedge is real)
+
+- **Deterministic generator + labelled corpus** — every event benign/malicious and
+  ATT&CK-mapped, seeded, exports ECS / OCSF / Splunk. *Done.*
+- **Detection-eval harness** — counted precision/recall/coverage, cross-seed
+  `robustness`, and a `noise-floor` that measures FP realism (20/24 techniques
+  buried among 10x+ look-alikes). *Done.*
+- **Browser Detection Lab (`?lab`)** — score a pasted rule in under two seconds,
+  drill into the exact benign hits and missed events, share the result as a link. *Done.*
+- **Rule importers — Sigma, KQL, SPL, EQL** — write in your own language; each
+  compiles to one internal rule and refuses what it can't express by name. *Done.*
+- **Detection-as-code CI + coverage badge** — `--sigma/--kql/--spl/--eql` +
+  `--baseline` regression gate + `--badge`. *Done.*
+- **AI detection-eval harness** — `--ai-eval` exports label-stripped tasks + hidden
+  key; `--rubric` grades generated detections *N/M techniques to standard*. *Done.*
+- **Event domains** — endpoint, identity, network, file, **mail** (mail added a
+  credential-phishing intrusion + techniques T1566.002, T1204.001). *Done.*
+- **Landing page + benchmark v1.0 generation.** *Done.*
+
+### Lane 2 — Now → Next (sharpen the wedge, priority order)
+
+1. **Publish benchmark v1.0 as a citable release.** *Gated on `gh` auth.* Artifacts
+   build clean; cutting the release makes it a dataset others cite, not a command.
+2. **More event domains — the deepest moat.** Cloud / SaaS audit (OAuth, IAM,
+   control plane) first, then DNS / proxy. Mail proved the pattern.
+3. **Point it at your own org.** Surface `--profile` as a product feature — the
+   digital-twin wedge, determinism intact.
+4. **Ship the generator + scorer as an npm package / API.** *Gated on npm auth.*
+5. **Grow ATT&CK coverage deliberately** — more intrusions, pure event modelling.
+6. **Seeded attack variation** — vary the attack (evasion levels), not just the
+   enterprise; stresses whether a rule generalises.
+7. **Elastic ES|QL** — completes the vendor-language set (small).
+
+### Lane 3 — Later (enterprise north star, deferred until a customer pulls)
+
+Interactive Range (Phase 2) · scenario/adversary engine (Phase 4) · enterprise
+control plane (Phase 5) · replay/branch/compare (Phase 6) · Forge authoring
+(Phase 7) · AI proving ground (Phase 9). Detailed below.
+
+### Guardrails
+
+Breadth is the enemy · defend determinism + FP realism · validate the buyer before
+building · synthetic & isolated only (never a credential-harvesting product,
+code-execution service, or tool aimed at real targets).
+
+---
+
+# Enterprise north star (the full ambition)
+
 Endomorph v1 proved the deterministic scenario/runtime architecture. Tester feedback and competitive research now justify a broader product goal: **build a deterministic cyber-operations digital twin and enterprise cyber-readiness platform, not a shallow training website.**
 
 See `COMPETITIVE_RESEARCH.md` and `ENTERPRISE_VISION.md` for the market evidence and product north star.
