@@ -237,7 +237,7 @@ test("the result reports coverage and names what was missed", async ({
 test("the default scenario is a generated one", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?app");
 
   // The hand-authored v1 scenarios carry no ATT&CK mapping, no questions,
   // and no analytical reasoning. Landing a first-time visitor on one showed
@@ -357,7 +357,7 @@ test("the result explains what other response paths would have scored", async ({
 test("the scenario selector separates generated from hand-authored", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?app");
 
   const selector = page.getByRole(
     "combobox",

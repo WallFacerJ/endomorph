@@ -1,0 +1,305 @@
+/*
+  The landing page shares the Detection Lab's committed dark identity -- the same
+  near-black violet surface, Inter + JetBrains Mono -- so the front door and the
+  tool behind it read as one product. A single deliberate theme, so colours and
+  background are all painted explicitly rather than inherited from the host.
+*/
+.landing {
+  --bg: #08090c;
+  --panel: #101116;
+  --panel-solid: #14151b;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --text: #ededf1;
+  --text-strong: #ffffff;
+  --muted: #9698a4;
+  --subtle: #6a6c78;
+  --accent: #8b7cf6;
+  --accent-strong: #6d5ef7;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 620px;
+  z-index: -1;
+  background:
+    radial-gradient(
+      55% 100% at 50% -10%,
+      rgba(124, 94, 247, 0.26),
+      transparent 70%
+    ),
+    radial-gradient(
+      42% 80% at 82% -5%,
+      rgba(59, 130, 246, 0.12),
+      transparent 60%
+    );
+  pointer-events: none;
+}
+
+.landing-hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 96px 24px 48px;
+  text-align: center;
+}
+
+.landing-eyebrow {
+  margin: 0 0 20px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.landing-title {
+  margin: 0 0 22px;
+  font-size: clamp(2.1rem, 5.2vw, 3.4rem);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: var(--text-strong);
+  text-wrap: balance;
+}
+
+.landing-lede {
+  margin: 0 auto;
+  max-width: 62ch;
+  font-size: clamp(1.02rem, 1.7vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.landing-lede strong {
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.landing-lede em {
+  font-style: normal;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.landing-cta {
+  margin: 36px 0 0;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.landing-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.landing-btn-primary {
+  background: var(--accent-strong);
+  color: #0a0710;
+  box-shadow: 0 12px 34px rgba(124, 94, 247, 0.32);
+}
+
+.landing-btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.07);
+}
+
+.landing-btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+
+.landing-btn-ghost:hover {
+  border-color: var(--accent);
+  background: rgba(139, 124, 246, 0.08);
+}
+
+.landing-stats {
+  margin: 56px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-stat {
+  padding: 22px 8px;
+}
+
+.landing-stat-figure {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  font-weight: 600;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.landing-stat-label {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  color: var(--subtle);
+  letter-spacing: 0.01em;
+}
+
+.landing-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 24px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.landing-diffs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 48px 0 0;
+}
+
+.landing-diff {
+  padding: 24px 22px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.landing-diff h2 {
+  margin: 0 0 10px;
+  font-size: 1.02rem;
+  font-weight: 650;
+  color: var(--text-strong);
+  letter-spacing: -0.01em;
+}
+
+.landing-diff p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.landing-lang {
+  margin: 64px 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+.landing-lang-copy h2 {
+  margin: 0 0 12px;
+  font-size: clamp(1.3rem, 2.6vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
+  text-wrap: balance;
+}
+
+.landing-lang-copy p {
+  margin: 0 0 16px;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.landing-inline-link {
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.landing-inline-link:hover {
+  text-decoration: underline;
+}
+
+.landing-code {
+  margin: 0;
+  padding: 22px 20px;
+  background: var(--panel-solid);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow-x: auto;
+}
+
+.landing-code code {
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: #cfc7ff;
+  white-space: pre;
+}
+
+.landing-footer {
+  margin-top: auto;
+  padding: 56px 24px 40px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--subtle);
+}
+
+.landing-footer span {
+  max-width: 44ch;
+}
+
+.landing-footer a {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.landing-footer a:hover {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .landing-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .landing-diffs {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-lang {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-btn {
+    transition: none;
+  }
+}

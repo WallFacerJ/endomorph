@@ -174,9 +174,7 @@ export function DetectionLabPage() {
 
           <a
             className="lab-to-app"
-            href={
-              import.meta.env.BASE_URL
-            }
+            href={`${import.meta.env.BASE_URL}?app`}
           >
             Investigate instead →
           </a>

@@ -3,16 +3,27 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { DetectionLabPage } from './DetectionLabPage.tsx'
+import { LandingPage } from './LandingPage.tsx'
 
-// The detection lab has its own front door at `?lab`, so a detection engineer
-// can reach the rule scorer without playing an investigation first, while the
-// default experience stays investigation-first.
-const isLab = new URLSearchParams(
+// Three front doors, decided by the URL:
+//   ?lab            -> the Detection Lab (score a rule against ground truth)
+//   any param       -> the investigation app (?scenario, ?mode, or a bare ?app)
+//   no params at all -> the landing page, the ten-second explanation of what
+//                       Endomorph is, with doors into the other two.
+// Keying the app on "any param present" means every existing deep link
+// (?scenario=..., ?mode=...) still lands in the app unchanged.
+const params = new URLSearchParams(
   window.location.search,
-).has('lab')
+)
+
+const page = params.has('lab')
+  ? <DetectionLabPage />
+  : [...params.keys()].length > 0
+    ? <App />
+    : <LandingPage />
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {isLab ? <DetectionLabPage /> : <App />}
+    {page}
   </StrictMode>,
 )

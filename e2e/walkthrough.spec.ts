@@ -65,7 +65,7 @@ test("instructors get the walkthrough during the investigation", async ({
 test("students do not get the walkthrough before finalizing", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?app");
 
   await expect(
     page.getByRole("button", {
