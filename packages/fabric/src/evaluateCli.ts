@@ -78,6 +78,13 @@ import {
 } from "./coverageBadge.js";
 
 import {
+  gradeReport,
+  stripLabels,
+  buildTaskPrompt,
+  DEFAULT_CRITERIA,
+} from "./detectionEval.js";
+
+import {
   renderCohortReview,
 } from "./cohortReview.js";
 
@@ -883,6 +890,179 @@ function main(): void {
   }
 
   /*
+    AI-eval mode: the labelled corpus reframed as a graded eval set for
+    generated detections. For each plan it writes the telemetry with every
+    ground-truth label stripped (what a detection agent is allowed to see), the
+    task prompt naming the techniques to write for, and -- separately -- a hidden
+    answer key. An agent generates rules from the telemetry + prompt; those
+    rules are then scored back with --sigma/--kql/--spl/--eql and graded with
+    --rubric. This is what ground-truth-by-construction is for.
+  */
+  const aiEvalDir = flag("ai-eval");
+
+  if (aiEvalDir !== undefined) {
+    const outDir =
+      resolveFromRoot(aiEvalDir);
+
+    mkdirSync(outDir, { recursive: true });
+
+    const enterprise =
+      generateEnterprise(
+        profileOverrides
+          ? { ...profileOverrides, seed }
+          : { seed },
+      );
+
+    const background =
+      generateBackgroundActivity(
+        enterprise,
+        { days: 3 },
+      );
+
+    process.stdout.write(
+      `Endomorph detection eval set\n  seed ${seed}  |  ${ATTACK_PLANS.length} tasks  |  labels stripped from telemetry\n\n`,
+    );
+
+    const key: {
+      planId: string;
+      malicious: {
+        eventId: string;
+        technique: string | undefined;
+      }[];
+    }[] = [];
+
+    const tasks: {
+      planId: string;
+      planName: string;
+      telemetry: string;
+      prompt: string;
+      recordCount: number;
+      maliciousCount: number;
+      techniques: {
+        id: string;
+        name: string;
+        tactic: string;
+      }[];
+    }[] = [];
+
+    for (const plan of ATTACK_PLANS) {
+      const incident = generateIncident(
+        enterprise,
+        { planId: plan.id },
+      );
+
+      const detection =
+        incident.events[
+          incident.events.length - 1
+        ].timestamp;
+
+      const events = [
+        ...background.filter(
+          (event) =>
+            event.timestamp <= detection,
+        ),
+        ...incident.events,
+      ].sort((left, right) =>
+        left.timestamp.localeCompare(
+          right.timestamp,
+        ),
+      );
+
+      const corpus = buildCorpus(
+        enterprise,
+        events,
+        incident,
+      );
+
+      const telemetryFile = `${plan.id}.telemetry.ndjson`;
+
+      writeFileSync(
+        join(outDir, telemetryFile),
+        corpus.records
+          .map((record) =>
+            JSON.stringify(
+              stripLabels(record),
+            ),
+          )
+          .join("\n") + "\n",
+        "utf8",
+      );
+
+      const techniques =
+        corpus.manifest.techniques.map(
+          (technique) => ({
+            id: technique.id,
+            name: technique.name,
+            tactic: technique.tactic,
+          }),
+        );
+
+      const promptFile = `${plan.id}.prompt.md`;
+
+      const prompt = buildTaskPrompt(
+        plan.name,
+        telemetryFile,
+        corpus.manifest.recordCount,
+        techniques,
+      );
+
+      writeFileSync(
+        join(outDir, promptFile),
+        prompt,
+        "utf8",
+      );
+
+      key.push({
+        planId: plan.id,
+        malicious: corpus.records
+          .filter(
+            (record) =>
+              record["label.malicious"],
+          )
+          .map((record) => ({
+            eventId: record["event.id"],
+            technique:
+              record["label.technique"],
+          })),
+      });
+
+      tasks.push({
+        planId: plan.id,
+        planName: plan.name,
+        telemetry: telemetryFile,
+        prompt: promptFile,
+        recordCount:
+          corpus.manifest.recordCount,
+        maliciousCount:
+          corpus.manifest.maliciousCount,
+        techniques,
+      });
+
+      process.stdout.write(
+        `  ${plan.id}  ${corpus.manifest.recordCount} events, ${corpus.manifest.maliciousCount} malicious, ${techniques.length} technique(s)\n`,
+      );
+    }
+
+    writeFileSync(
+      join(outDir, "answer-key.json"),
+      `${JSON.stringify(key, null, 2)}\n`,
+      "utf8",
+    );
+
+    writeFileSync(
+      join(outDir, "eval.json"),
+      `${JSON.stringify({ seed, generator: "endomorph-fabric", tasks }, null, 2)}\n`,
+      "utf8",
+    );
+
+    process.stdout.write(
+      `\n  eval set written to ${aiEvalDir}/ (telemetry, prompts, answer-key.json, eval.json)\n  grade a candidate ruleset with:  evaluate --sigma <rules> --rubric\n\n`,
+    );
+
+    return;
+  }
+
+  /*
     Noise-floor mode: the measured answer to "your false positives won't
     transfer because the benign traffic is too clean". For each technique, how
     many benign events share its event types -- the false positives an
@@ -1222,6 +1402,36 @@ function main(): void {
 
     process.stdout.write(
       `Coverage badge written to ${badgePath} (${summary.totals.coveredTechniques}/${summary.totals.totalTechniques} techniques)\n\n`,
+    );
+  }
+
+  if (argv.includes("--rubric")) {
+    const minRecall = Number(
+      flag("min-recall") ??
+        DEFAULT_CRITERIA.minRecall,
+    );
+    const minPrecision = Number(
+      flag("min-precision") ??
+        DEFAULT_CRITERIA.minPrecision,
+    );
+
+    const scorecard = gradeReport(summary, {
+      minRecall,
+      minPrecision,
+    });
+
+    process.stdout.write(
+      `AI detection scorecard  (bar: recall >= ${minRecall}, precision >= ${minPrecision})\n`,
+    );
+
+    for (const grade of scorecard.techniques) {
+      process.stdout.write(
+        `  ${grade.pass ? "PASS" : "MISS"}  ${pad(grade.technique, 12)}${pad(grade.planId, 26)}${grade.reason}\n`,
+      );
+    }
+
+    process.stdout.write(
+      `\n  ${scorecard.passed}/${scorecard.total} techniques detected to standard (${(scorecard.passRate * 100).toFixed(0)}%)\n\n`,
     );
   }
 

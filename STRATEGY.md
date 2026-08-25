@@ -186,9 +186,17 @@ it builds on so it is not a green field.
    product feature so a team gets a corpus shaped like their estate. The
    digital-twin/enterprise wedge.
 
-5. **AI detection-agent eval.** Use the labelled corpus as a ground-truth eval
-   set for LLM-generated detections and AI SOC agents. Timely, and exactly what
-   ground-truth-by-construction is for.
+5. **AI detection-agent eval — DONE (harness).** Use the labelled corpus as a
+   ground-truth eval set for LLM-generated detections and AI SOC agents. *Done:*
+   `--ai-eval <dir>` exports, per intrusion, the telemetry with every `label.*`
+   field stripped (what an agent sees), a task prompt naming the techniques, and
+   a separate hidden answer key; `--rubric` grades a scored ruleset pass/fail per
+   technique against a recall/precision bar (`--min-recall`/`--min-precision`) and
+   prints the headline *N/M techniques detected to standard*. `docs/ai-detection-eval.md`
+   documents the loop. This grades detections from any source — person, LLM, or AI
+   SOC agent. *Remaining:* running an actual model against the set is downstream of
+   Endomorph (it needs an API); the harness is the part ground-truth-by-construction
+   uniquely provides. Built on `detectionEval.ts` + the existing scorer.
 
 6. **Distribution/friction — permalinks + badge DONE.** *Done:* the Detection
    Lab now emits **shareable result permalinks** (language + rule encoded in the
