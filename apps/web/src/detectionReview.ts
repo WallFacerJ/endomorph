@@ -14,6 +14,10 @@ import {
 } from "@endomorph/fabric";
 
 import type {
+  EvasionLevel,
+} from "@endomorph/fabric";
+
+import type {
   CorpusRecord,
   CoverageReport,
 } from "@endomorph/fabric";
@@ -281,6 +285,8 @@ export interface ProfileCorpusOptions {
   readonly headcount: number;
   readonly domain: string;
   readonly planId: string;
+  /** How hard the attacker is trying to evade. Defaults to "standard". */
+  readonly evasion?: EvasionLevel;
 }
 
 export interface ProfileCorpusResult {
@@ -310,7 +316,11 @@ export function generateProfileCorpus(
 
   const incident = generateIncident(
     enterprise,
-    { planId: options.planId },
+    {
+      planId: options.planId,
+      evasion:
+        options.evasion ?? "standard",
+    },
   );
 
   const detection =

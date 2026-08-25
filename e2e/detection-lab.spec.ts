@@ -585,3 +585,61 @@ test("switching to ES|QL scores an Elastic piped query against the same corpus",
       .first(),
   ).toContainText("T1059.001");
 });
+
+test("the digital-twin panel can generate a stealth corpus that evades a command-line rule", async ({
+  page,
+}) => {
+  // Generate a macro intrusion at stealth in the browser, then score the default
+  // encoded-PowerShell Sigma rule against it: the stealth command drops the -enc
+  // flag, so the rule misses (recall 0).
+  await page.goto("/?lab");
+
+  const panel = page.locator(".org-panel");
+  await panel.scrollIntoViewIfNeeded();
+
+  await panel
+    .getByLabel("Intrusion")
+    .selectOption({
+      label:
+        "Phishing attachment with macro execution",
+    });
+
+  await panel
+    .getByLabel("Evasion")
+    .selectOption("stealth");
+
+  await panel
+    .getByRole("button", {
+      name: "Generate corpus",
+    })
+    .click();
+
+  const tester = panel.getByRole(
+    "region",
+    {
+      name: "Test your own detection rule",
+    },
+  );
+
+  await tester.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  await tester
+    .getByRole("button", {
+      name: "Score rule",
+    })
+    .click();
+
+  // The encoded-PowerShell rule misses the stealth variant: recall 0.0%.
+  await expect(
+    tester
+      .locator(
+        ".rule-tester-table tbody tr",
+      )
+      .first(),
+  ).toContainText("0.0%", {
+    timeout: 20000,
+  });
+});

@@ -4,6 +4,10 @@ import {
   ATTACK_PLANS,
 } from "@endomorph/fabric";
 
+import type {
+  EvasionLevel,
+} from "@endomorph/fabric";
+
 import {
   generateProfileCorpus,
 } from "./detectionReview";
@@ -40,6 +44,8 @@ export function OrgProfilePanel() {
   const [planId, setPlanId] = useState(
     ATTACK_PLANS[0].id,
   );
+  const [evasion, setEvasion] =
+    useState<EvasionLevel>("standard");
 
   const [result, setResult] =
     useState<ProfileCorpusResult | null>(
@@ -71,6 +77,7 @@ export function OrgProfilePanel() {
             domain:
               domain.trim() || "acme.test",
             planId,
+            evasion,
           }),
         );
       } catch (caught) {
@@ -108,7 +115,13 @@ export function OrgProfilePanel() {
           entirely in the browser, then
           score your rules against
           telemetry shaped like your
-          environment. The same profile and
+          environment. Set{" "}
+          <em>evasion</em> to{" "}
+          <em>stealth</em> to render the
+          same intrusion with the loud,
+          keyable details removed — a rule
+          that catches the standard variant
+          may miss it. The same profile and
           seed reproduce the same corpus,
           byte for byte.
         </p>
@@ -189,6 +202,28 @@ export function OrgProfilePanel() {
                 {plan.name}
               </option>
             ))}
+          </select>
+        </label>
+
+        <label className="org-field org-field-narrow">
+          <span>Evasion</span>
+          <select
+            value={evasion}
+            onChange={(event) =>
+              setEvasion(
+                event.target.value ===
+                  "stealth"
+                  ? "stealth"
+                  : "standard",
+              )
+            }
+          >
+            <option value="standard">
+              Standard
+            </option>
+            <option value="stealth">
+              Stealth
+            </option>
           </select>
         </label>
 
