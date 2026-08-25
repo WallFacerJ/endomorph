@@ -7,6 +7,8 @@ const C2_DOMAIN = "sync-telemetry.top";
 const EXFIL_HOST = "paste.anon-share.top";
 const MALWARE_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Gh0st/2.1";
+const STEALTH_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36";
 
 /**
  * Malicious download, web command-and-control, and HTTP exfiltration.
@@ -90,7 +92,7 @@ export const WEB_C2_PLAN: AttackPlan = {
         `Regular requests from ${cast.subjectDevice.hostname} to ${C2_DOMAIN}, all carrying a user agent no browser on the estate sends.`,
       reasoning: () =>
         "Beaconing over HTTPS looks like any web traffic until you read the request header: the user agent is hardcoded into the malware and does not match any real browser or the versions deployed across the estate. That single field is the separator here — the destination rotates and the timing can be jittered, but the client identifies itself the same way every time. Pivot on the user agent across every host, because it finds the other infections the destination alone would miss.",
-      build: (cast) => ({
+      build: (cast, _index, evasion) => ({
         type: "WEB_REQUEST",
         source: "web",
         subjectId: cast.subjectDevice.id,
@@ -99,7 +101,12 @@ export const WEB_C2_PLAN: AttackPlan = {
           url: `https://${C2_DOMAIN}/gate.php`,
           domain: C2_DOMAIN,
           method: "GET",
-          userAgent: MALWARE_UA,
+          // A hardcoded user agent is the loud signal; the stealth variant
+          // mimics a real browser, so a rule keyed on the malware UA misses it.
+          userAgent:
+            evasion === "stealth"
+              ? STEALTH_UA
+              : MALWARE_UA,
           statusCode: 200,
           bytesIn: 512,
           sourceIp: cast.subjectIp,
@@ -117,7 +124,7 @@ export const WEB_C2_PLAN: AttackPlan = {
         `A single large HTTP POST from ${cast.subjectDevice.hostname} to ${EXFIL_HOST}, uploading far more than any form submission would. This is the business impact.`,
       reasoning: () =>
         "This is the exfiltration, and it hides in plain sight among ordinary POSTs — a login, a form, an API call. What separates it is the pairing of destination and volume: an anonymous paste-and-share service, and an upload of megabytes where a form sends kilobytes. Measure what could have left by the byte count, and treat the destination as an indicator, but understand the data is already gone; the response now is about the credential and the host, not the upload.",
-      build: (cast) => ({
+      build: (cast, _index, evasion) => ({
         type: "WEB_REQUEST",
         source: "web",
         subjectId: cast.subjectDevice.id,
@@ -126,7 +133,10 @@ export const WEB_C2_PLAN: AttackPlan = {
           url: `https://${EXFIL_HOST}/upload`,
           domain: EXFIL_HOST,
           method: "POST",
-          userAgent: MALWARE_UA,
+          userAgent:
+            evasion === "stealth"
+              ? STEALTH_UA
+              : MALWARE_UA,
           statusCode: 201,
           bytesOut: 9_437_184,
           sourceIp: cast.subjectIp,

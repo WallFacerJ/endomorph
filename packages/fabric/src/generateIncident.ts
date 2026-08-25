@@ -14,6 +14,10 @@ import {
   ATTACK_PLANS,
 } from "./attackPlanLibrary.js";
 
+import type {
+  EvasionLevel,
+} from "./attackPlan.js";
+
 import {
   selectAttackPlan,
   type AttackPlan,
@@ -111,6 +115,9 @@ export interface IncidentOptions {
 
   /** Plans to choose from. Defaults to the shipped library. */
   readonly plans?: readonly AttackPlan[];
+
+  /** How hard the attacker is trying to evade. Defaults to "standard". */
+  readonly evasion?: EvasionLevel;
 }
 
 export const DEFAULT_INCIDENT_OPTIONS: IncidentOptions =
@@ -419,7 +426,11 @@ export function generateIncident(
           : `incident-${step.id}`;
 
       events.push({
-        ...step.build(cast, index),
+        ...step.build(
+          cast,
+          index,
+          options.evasion ?? "standard",
+        ),
         id: eventId,
         timestamp: isoAt(
           startMilliseconds,

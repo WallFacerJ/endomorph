@@ -688,6 +688,11 @@ function main(): void {
   */
   const profilePath = flag("profile");
 
+  const evasion =
+    flag("evasion") === "stealth"
+      ? ("stealth" as const)
+      : ("standard" as const);
+
   const profileOverrides = profilePath
     ? parseEnterpriseProfile(
         JSON.parse(
@@ -834,7 +839,7 @@ function main(): void {
     for (const plan of ATTACK_PLANS) {
       const incident = generateIncident(
         enterprise,
-        { planId: plan.id },
+        { planId: plan.id, evasion },
       );
 
       const detection =
@@ -1004,7 +1009,7 @@ function main(): void {
     for (const plan of ATTACK_PLANS) {
       const incident = generateIncident(
         enterprise,
-        { planId: plan.id },
+        { planId: plan.id, evasion },
       );
 
       const detection =
@@ -1155,7 +1160,7 @@ function main(): void {
     for (const plan of ATTACK_PLANS) {
       const incident = generateIncident(
         enterprise,
-        { planId: plan.id },
+        { planId: plan.id, evasion },
       );
 
       const detection =
@@ -1240,7 +1245,7 @@ function main(): void {
   for (const plan of ATTACK_PLANS) {
     const incident = generateIncident(
       enterprise,
-      { planId: plan.id },
+      { planId: plan.id, evasion },
     );
 
     const detection =

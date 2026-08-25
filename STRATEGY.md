@@ -111,10 +111,16 @@ cluster no other product is strong across:
    identity-federation audit — pure events, no interactive infra). Serves the
    benchmark's technique coverage *and* the console's "incident crosses four+
    domains" goal at once.
-6. **Seeded attack variation (Phase 4, lite).** Vary the *attack*, not just the
-   enterprise: the same plan at different evasion levels. Multiplies benchmark
-   size and training replayability with zero infrastructure, and directly
-   stresses whether a rule generalises.
+6. **Seeded attack variation — DONE (core).** Vary the *attack*, not just the
+   enterprise: an `evasion` level (`standard` / `stealth`) threads through the
+   incident renderer and the plan `build` functions, so the same technique renders
+   with the loud, keyable details removed at stealth (an obfuscated flag instead of
+   `-enc`, a real browser user agent instead of a hardcoded one). `--evasion stealth`
+   drives it from the CLI. The lesson is measured: the macro plan's encoded-PowerShell
+   rule drops from recall 1.000 to 0.000 at stealth while the behavioural lineage rule
+   (a word processor spawned a scripting host) holds at 1.000, because the attacker
+   cannot evade it without abandoning the technique. *Remaining:* evasion-aware variants
+   for more plans, and a cross-evasion robustness report.
 
 ### Later — defer (capital-intensive; incumbents already win)
 

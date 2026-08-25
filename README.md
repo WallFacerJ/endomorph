@@ -238,6 +238,24 @@ Each seed is an independently generated enterprise: different staff, hosts, and 
 
 The verdict is on detection consistency; the false-positive columns carry the noise story separately, so `naive-beacon` reads as stable-but-deafening while a memorised rule reads as clean-but-fragile. `--robustness` exits non-zero when any rule is fragile, so a CI gate can hold a ruleset to generalising rather than to passing one lucky seed. This is the measurement a fixed dataset cannot make, and the reason a generated corpus is worth more than a captured one for detection work.
 
+### Does the rule survive the attacker trying? (seeded attack variation)
+
+Varying the enterprise stresses whether a rule generalises across *worlds*;
+varying the attack stresses whether it generalises across *tradecraft*. An
+evasion level renders the same technique with the loud, keyable details removed:
+
+```bash
+pnpm evaluate -- --evasion stealth    # score against the stealth variant of each intrusion
+```
+
+At `stealth` the macro plan's PowerShell obfuscates its flag (`-e` rather than
+`-enc`) and drops the hidden window, so the command-line rule keyed on `-enc`
+falls from **recall 1.000 to 0.000** — while the behavioural lineage rule (a word
+processor spawned a scripting host) **holds at 1.000**, because the attacker
+cannot evade it without abandoning the technique. That contrast is the whole
+argument for writing behavioural detections, made into a number rather than an
+assertion.
+
 ### Are the false positives realistic? Measured, not asserted.
 
 The standing objection to synthetic detection data is that its false positives do not transfer: if the benign traffic is too clean, a rule scores zero false positives here and drowns in production. Endomorph answers that with a number rather than a promise.
