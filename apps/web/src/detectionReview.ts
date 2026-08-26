@@ -666,3 +666,244 @@ export function parseRuleset(
 
   return { rules, skipped };
 }
+
+/**
+ * What a technique actually looks like in the corpus -- the ground-truth
+ * malicious events that demonstrate it -- plus a copyable starter Sigma rule.
+ *
+ * This is what turns an amber gap in the coverage heatmap into an action: the
+ * analyst sees the exact events they need to catch and gets a scaffold to start
+ * from, rather than guessing. Only a ground-truth corpus can point at "these
+ * specific events are the technique" with certainty.
+ */
+export interface TechniqueField {
+  readonly key: string;
+  readonly value: string;
+}
+
+export interface TechniqueExample {
+  readonly eventType: string;
+  readonly detail: string;
+}
+
+export interface TechniqueEvidence {
+  readonly technique: string;
+  readonly name?: string;
+  readonly examples: readonly TechniqueExample[];
+  readonly fields: readonly TechniqueField[];
+  readonly starterSigma: string;
+}
+
+const EVIDENCE_FIELDS: readonly string[] = [
+  "event.type",
+  "process.executable",
+  "process.command_line",
+  "process.parent.executable",
+  "account.name",
+  "host.name",
+  "source.ip",
+  "destination.ip",
+  "destination.port",
+  "url.original",
+  "url.domain",
+  "http.request.method",
+  "user_agent.original",
+  "dns.question.name",
+  "dns.question.type",
+  "cloud.action",
+  "cloud.service",
+  "cloud.resource",
+  "email.from.address",
+  "email.subject",
+  "file.name",
+  "iam.role",
+  "event.outcome",
+];
+
+function evidenceDetail(
+  record: CorpusRecord,
+): string {
+  const get = (key: string) =>
+    (
+      record as unknown as Record<
+        string,
+        unknown
+      >
+    )[key];
+
+  return (
+    (get("process.command_line") as
+      | string
+      | undefined) ??
+    (get("url.original") as
+      | string
+      | undefined) ??
+    (get("dns.question.name") as
+      | string
+      | undefined) ??
+    ([
+      get("cloud.service"),
+      get("cloud.action"),
+      get("cloud.resource"),
+    ]
+      .filter(Boolean)
+      .join(" ") ||
+      undefined) ??
+    (get("email.subject") as
+      | string
+      | undefined) ??
+    (get("account.name") as
+      | string
+      | undefined) ??
+    (get("event.reason") as
+      | string
+      | undefined) ??
+    (get("event.type") as string)
+  );
+}
+
+function basename(path: string): string {
+  const cut = Math.max(
+    path.lastIndexOf("\\"),
+    path.lastIndexOf("/"),
+  );
+  return cut >= 0
+    ? path.slice(cut + 1)
+    : path;
+}
+
+function starterSigma(
+  technique: string,
+  name: string | undefined,
+  record: CorpusRecord,
+): string {
+  const get = (key: string) =>
+    (
+      record as unknown as Record<
+        string,
+        unknown
+      >
+    )[key] as string | undefined;
+
+  const eventType =
+    get("event.type") ?? "";
+
+  const lines = [
+    `title: ${name ?? technique} (starter)`,
+    "logsource:",
+    "  product: endomorph",
+    "detection:",
+    "  selection:",
+    `    event.type: '${eventType}'`,
+  ];
+
+  // Add the most specific signal field available as a second condition.
+  const command = get(
+    "process.command_line",
+  );
+  const executable = get(
+    "process.executable",
+  );
+  const dns = get("dns.question.name");
+  const cloud = get("cloud.action");
+  const ua = get("user_agent.original");
+  const url = get("url.domain");
+  const sender = get("email.from.address");
+  const role = get("iam.role");
+
+  if (command && executable) {
+    lines.push(
+      `    process.executable|endswith: '${basename(executable)}'`,
+    );
+  } else if (dns) {
+    lines.push(
+      `    dns.question.name|contains: '${dns.slice(0, 30)}'`,
+    );
+  } else if (cloud) {
+    lines.push(
+      `    cloud.action: '${cloud}'`,
+    );
+  } else if (ua) {
+    lines.push(
+      `    user_agent.original|contains: '${ua.slice(0, 24)}'`,
+    );
+  } else if (url) {
+    lines.push(
+      `    url.domain: '${url}'`,
+    );
+  } else if (sender) {
+    lines.push(
+      `    email.from.address: '${sender}'`,
+    );
+  } else if (role) {
+    lines.push(`    iam.role: '${role}'`);
+  }
+
+  lines.push(
+    "  condition: selection",
+    `tags: [attack.${technique.toLowerCase()}]`,
+    "# Starter scaffold from the ground-truth event -- tune the values.",
+  );
+
+  return lines.join("\n");
+}
+
+export function techniqueEvidence(
+  techniqueId: string,
+  seed = 20260820,
+): TechniqueEvidence {
+  const { catalog, plans } =
+    corporaFor(seed);
+
+  const malicious: CorpusRecord[] = [];
+  for (const plan of plans) {
+    for (const record of plan.records) {
+      if (
+        record["label.malicious"] &&
+        record["label.technique"] ===
+          techniqueId
+      ) {
+        malicious.push(record);
+      }
+    }
+  }
+
+  const examples: TechniqueExample[] =
+    malicious.slice(0, 3).map((record) => ({
+      eventType:
+        record["event.type"] ?? "",
+      detail: evidenceDetail(record),
+    }));
+
+  const first = malicious[0];
+
+  const fields: TechniqueField[] = first
+    ? EVIDENCE_FIELDS.map((key) => ({
+        key,
+        value: String(
+          (
+            first as unknown as Record<
+              string,
+              unknown
+            >
+          )[key] ?? "",
+        ),
+      })).filter(
+        (field) => field.value !== "",
+      )
+    : [];
+
+  return {
+    technique: techniqueId,
+    name: catalog.get(techniqueId)?.name,
+    examples,
+    fields,
+    starterSigma: first
+      ? starterSigma(
+          techniqueId,
+          catalog.get(techniqueId)?.name,
+          first,
+        )
+      : "",
+  };
+}

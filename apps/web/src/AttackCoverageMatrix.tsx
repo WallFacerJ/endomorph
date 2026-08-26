@@ -6,11 +6,13 @@ import {
 import {
   computeAttackCoverage,
   parseRuleset,
+  techniqueEvidence,
 } from "./detectionReview";
 
 import type {
   AttackCoverage,
   RulesetLanguage,
+  TechniqueEvidence,
 } from "./detectionReview";
 
 import "./AttackCoverageMatrix.css";
@@ -75,9 +77,15 @@ function tacticLabel(tactic: string): string {
 function CoverageView({
   coverage,
   label,
+  onSelect,
+  selected,
 }: {
   readonly coverage: AttackCoverage;
   readonly label: string;
+  readonly onSelect: (
+    id: string,
+  ) => void;
+  readonly selected: string | null;
 }) {
   const percent = Math.round(
     (coverage.covered /
@@ -141,17 +149,28 @@ function CoverageView({
                       tactic.tactic,
                   )
                   .map((technique) => (
-                    <div
+                    <button
+                      type="button"
                       key={technique.id}
                       className={`cov-cell ${
                         technique.covered
                           ? "covered"
                           : "uncovered"
+                      } ${
+                        selected ===
+                        technique.id
+                          ? "selected"
+                          : ""
                       }`}
+                      onClick={() =>
+                        onSelect(
+                          technique.id,
+                        )
+                      }
                       title={
                         technique.covered
-                          ? `${technique.id} ${technique.name} — detected by ${technique.detectingRules.join(", ")}`
-                          : `${technique.id} ${technique.name} — no rule detects this`
+                          ? `${technique.id} ${technique.name}: detected by ${technique.detectingRules.join(", ")}`
+                          : `${technique.id} ${technique.name}: no rule detects this. Click to see what it looks like.`
                       }
                     >
                       <span className="cov-cell-id">
@@ -160,7 +179,7 @@ function CoverageView({
                       <span className="cov-cell-name">
                         {technique.name}
                       </span>
-                    </div>
+                    </button>
                   ))}
               </div>
             ),
@@ -224,6 +243,28 @@ export function AttackCoverageMatrix() {
 
   const active =
     source === "custom" ? custom : shipped;
+
+  const [selected, setSelected] =
+    useState<string | null>(null);
+  const [evidence, setEvidence] =
+    useState<TechniqueEvidence | null>(
+      null,
+    );
+  const [copied, setCopied] =
+    useState(false);
+
+  const selectTechnique = (
+    id: string,
+  ) => {
+    if (selected === id) {
+      setSelected(null);
+      setEvidence(null);
+      return;
+    }
+    setSelected(id);
+    setCopied(false);
+    setEvidence(techniqueEvidence(id));
+  };
 
   return (
     <section
@@ -369,7 +410,97 @@ export function AttackCoverageMatrix() {
               ? "techniques your ruleset covers"
               : "techniques covered"
           }
+          onSelect={selectTechnique}
+          selected={selected}
         />
+      )}
+
+      {evidence && (
+        <div className="cov-evidence">
+          <div className="cov-evidence-head">
+            <span className="cov-evidence-id">
+              {evidence.technique}
+            </span>
+            <span className="cov-evidence-name">
+              {evidence.name}
+            </span>
+            <button
+              type="button"
+              className="cov-evidence-close"
+              aria-label="Close"
+              onClick={() => {
+                setSelected(null);
+                setEvidence(null);
+              }}
+            >
+              ✕
+            </button>
+          </div>
+
+          <p className="cov-evidence-sub">
+            What this technique looks like
+            in the corpus, so you know
+            exactly what to detect:
+          </p>
+          <ul className="cov-evidence-list">
+            {evidence.examples.map(
+              (example, index) => (
+                <li key={index}>
+                  <code className="cov-evidence-type">
+                    {example.eventType}
+                  </code>
+                  <span className="cov-evidence-detail">
+                    {example.detail}
+                  </span>
+                </li>
+              ),
+            )}
+          </ul>
+
+          {evidence.starterSigma && (
+            <div className="cov-evidence-rule">
+              <div className="cov-evidence-rule-head">
+                <span>
+                  Starter Sigma rule
+                </span>
+                <button
+                  type="button"
+                  className="cov-evidence-copy"
+                  onClick={() => {
+                    void navigator.clipboard
+                      .writeText(
+                        evidence.starterSigma,
+                      )
+                      .then(() => {
+                        setCopied(true);
+                        window.setTimeout(
+                          () =>
+                            setCopied(
+                              false,
+                            ),
+                          2000,
+                        );
+                      })
+                      .catch(() => {
+                        setCopied(false);
+                      });
+                  }}
+                >
+                  {copied
+                    ? "Copied"
+                    : "Copy"}
+                </button>
+              </div>
+              <pre className="cov-evidence-pre">
+                <code>
+                  {
+                    evidence.starterSigma
+                  }
+                </code>
+              </pre>
+            </div>
+          )}
+        </div>
       )}
     </section>
   );

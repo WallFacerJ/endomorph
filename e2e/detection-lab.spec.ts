@@ -764,3 +764,44 @@ test("the coverage dashboard scores your own pasted ruleset", async ({
       .first(),
   ).toBeVisible();
 });
+
+test("clicking a technique reveals its ground-truth evidence and a starter rule", async ({
+  page,
+}) => {
+  await page.goto("/?lab");
+
+  const cov = page.locator(".cov");
+  await cov
+    .locator(".cov-matrix")
+    .waitFor({
+      state: "visible",
+      timeout: 20000,
+    });
+
+  await cov
+    .locator(".cov-cell.uncovered")
+    .first()
+    .click();
+
+  const evidence = cov.locator(
+    ".cov-evidence",
+  );
+  await expect(evidence).toBeVisible();
+
+  // It shows example events and a copyable starter Sigma rule.
+  await expect(
+    evidence
+      .locator(".cov-evidence-type")
+      .first(),
+  ).toBeVisible();
+  await expect(
+    evidence.locator(
+      ".cov-evidence-pre",
+    ),
+  ).toContainText("detection:");
+  await expect(
+    evidence.getByRole("button", {
+      name: "Copy",
+    }),
+  ).toBeVisible();
+});
