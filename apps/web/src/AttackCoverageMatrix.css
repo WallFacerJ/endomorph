@@ -401,3 +401,24 @@
   color: #cfc7ff;
   white-space: pre;
 }
+
+.cov-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 4px;
+  flex-wrap: wrap;
+}
+.cov-toolbar .cov-source { margin: 0; }
+.cov-download {
+  margin-left: auto;
+  border: 1px solid var(--pm-border-strong, var(--pm-border));
+  background: transparent;
+  color: var(--pm-text);
+  font-size: 0.84rem;
+  padding: 7px 15px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.cov-download:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.cov-download:disabled { opacity: 0.5; cursor: default; }

@@ -805,3 +805,32 @@ test("clicking a technique reveals its ground-truth evidence and a starter rule"
     }),
   ).toBeVisible();
 });
+
+test("the coverage dashboard exports a downloadable report", async ({
+  page,
+}) => {
+  await page.goto("/?lab");
+
+  const cov = page.locator(".cov");
+  await cov
+    .locator(".cov-matrix")
+    .waitFor({
+      state: "visible",
+      timeout: 20000,
+    });
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    cov
+      .getByRole("button", {
+        name: "Download report",
+      })
+      .click(),
+  ]);
+
+  expect(
+    download.suggestedFilename(),
+  ).toBe(
+    "endomorph-coverage-report.html",
+  );
+});

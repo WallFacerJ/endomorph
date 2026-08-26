@@ -907,3 +907,135 @@ export function techniqueEvidence(
       : "",
   };
 }
+
+const REPORT_TACTIC_LABELS: Readonly<
+  Record<string, string>
+> = {
+  initial_access: "Initial Access",
+  execution: "Execution",
+  persistence: "Persistence",
+  privilege_escalation:
+    "Privilege Escalation",
+  defense_evasion: "Defense Evasion",
+  credential_access:
+    "Credential Access",
+  discovery: "Discovery",
+  lateral_movement: "Lateral Movement",
+  collection: "Collection",
+  command_and_control:
+    "Command and Control",
+  exfiltration: "Exfiltration",
+  impact: "Impact",
+};
+
+function esc(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/**
+ * A self-contained, printable detection-coverage report, generated from a
+ * coverage result. This is the artifact a detection manager exports and takes
+ * to leadership: the same ground-truth number the dashboard shows, on a clean
+ * page that opens and prints anywhere with no dependency on this app.
+ */
+export function coverageReportHtml(
+  coverage: AttackCoverage,
+  sourceLabel: string,
+): string {
+  const pct = Math.round(
+    (coverage.covered /
+      Math.max(1, coverage.total)) *
+      100,
+  );
+  const generatedAt = new Date()
+    .toISOString()
+    .slice(0, 10);
+
+  const tacticRows = coverage.tactics
+    .map((tactic) => {
+      const tPct = Math.round(
+        (tactic.covered /
+          Math.max(1, tactic.total)) *
+          100,
+      );
+      const techniques = coverage.techniques
+        .filter(
+          (technique) =>
+            technique.tactic ===
+            tactic.tactic,
+        )
+        .map(
+          (technique) =>
+            `<span class="tech ${technique.covered ? "cov" : "gap"}">${esc(technique.id)}</span>`,
+        )
+        .join("");
+      return `<tr>
+        <th>${esc(REPORT_TACTIC_LABELS[tactic.tactic] ?? tactic.tactic)}</th>
+        <td class="num">${tactic.covered}/${tactic.total}</td>
+        <td class="barcell"><span class="bar"><span class="fill" style="width:${tPct}%"></span></span></td>
+        <td class="techs">${techniques}</td>
+      </tr>`;
+    })
+    .join("");
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detection Coverage Report</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: #1a1c22; background: #fff; margin: 0; padding: 40px; line-height: 1.5; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.7rem; margin: 0 0 4px; }
+  .meta { color: #6a6c78; font-size: 0.85rem; margin: 0 0 24px; }
+  .headline { display: flex; align-items: baseline; gap: 14px; border-top: 3px solid #6d5ef7; padding-top: 18px; margin-bottom: 6px; }
+  .headline .big { font-size: 2.4rem; font-weight: 700; }
+  .headline .of { color: #9698a4; font-size: 1.4rem; }
+  .headline .pct { margin-left: auto; font-size: 1.4rem; font-weight: 700; color: #1a9e6a; }
+  .sub { color: #6a6c78; margin: 0 0 22px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ececf0; vertical-align: top; }
+  thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6a6c78; border-bottom: 2px solid #d8d8de; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; color: #3a3c46; }
+  .bar { display: inline-block; width: 90px; height: 8px; background: #ececf0; border-radius: 5px; overflow: hidden; vertical-align: middle; }
+  .fill { display: block; height: 100%; background: #1a9e6a; }
+  .techs { line-height: 2; }
+  .tech { font-family: ui-monospace, Menlo, monospace; font-size: 0.72rem; padding: 2px 6px; border-radius: 5px; margin: 0 3px 3px 0; display: inline-block; }
+  .tech.cov { background: #d9f5e8; color: #12784f; }
+  .tech.gap { background: #fdecd0; color: #9a6a12; }
+  .legend { margin: 18px 0 0; font-size: 0.8rem; color: #6a6c78; }
+  .legend .tech { font-size: 0.7rem; }
+  footer { margin-top: 30px; padding-top: 14px; border-top: 1px solid #ececf0; font-size: 0.78rem; color: #9698a4; }
+  @media print { body { padding: 0; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Detection Coverage Report</h1>
+    <p class="meta">${esc(sourceLabel)} &middot; scored against the Endomorph benchmark &middot; ${generatedAt}</p>
+
+    <div class="headline">
+      <span class="big">${coverage.covered}<span class="of"> / ${coverage.total}</span></span>
+      <span class="pct">${pct}%</span>
+    </div>
+    <p class="sub">ATT&amp;CK techniques detected, counted from ground truth across every intrusion in the corpus.</p>
+
+    <table>
+      <thead>
+        <tr><th>Tactic</th><th>Covered</th><th>Coverage</th><th>Techniques (green covered, amber gap)</th></tr>
+      </thead>
+      <tbody>${tacticRows}</tbody>
+    </table>
+
+    <p class="legend">A technique is <span class="tech cov">covered</span> when a rule detects it on at least one intrusion, and a <span class="tech gap">gap</span> when the corpus contains it but no rule catches it.</p>
+
+    <footer>Generated by Endomorph. Every event was labelled benign or malicious by the generator before it was written, so this coverage is counted, not estimated.</footer>
+  </div>
+</body>
+</html>`;
+}

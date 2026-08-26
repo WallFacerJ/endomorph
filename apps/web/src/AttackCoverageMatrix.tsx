@@ -7,6 +7,7 @@ import {
   computeAttackCoverage,
   parseRuleset,
   techniqueEvidence,
+  coverageReportHtml,
 } from "./detectionReview";
 
 import type {
@@ -244,6 +245,32 @@ export function AttackCoverageMatrix() {
   const active =
     source === "custom" ? custom : shipped;
 
+  const downloadReport = () => {
+    if (!active) {
+      return;
+    }
+    const html = coverageReportHtml(
+      active,
+      source === "custom"
+        ? "Your ruleset"
+        : "Shipped ruleset",
+    );
+    const blob = new Blob([html], {
+      type: "text/html",
+    });
+    const url =
+      URL.createObjectURL(blob);
+    const link =
+      document.createElement("a");
+    link.href = url;
+    link.download =
+      "endomorph-coverage-report.html";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const [selected, setSelected] =
     useState<string | null>(null);
   const [evidence, setEvidence] =
@@ -291,36 +318,47 @@ export function AttackCoverageMatrix() {
         </p>
       </div>
 
-      <div
-        className="cov-source"
-        role="group"
-        aria-label="Coverage source"
-      >
+      <div className="cov-toolbar">
+        <div
+          className="cov-source"
+          role="group"
+          aria-label="Coverage source"
+        >
+          <button
+            type="button"
+            className={
+              source === "shipped"
+                ? "cov-source-btn active"
+                : "cov-source-btn"
+            }
+            onClick={() =>
+              setSource("shipped")
+            }
+          >
+            Shipped ruleset
+          </button>
+          <button
+            type="button"
+            className={
+              source === "custom"
+                ? "cov-source-btn active"
+                : "cov-source-btn"
+            }
+            onClick={() =>
+              setSource("custom")
+            }
+          >
+            Your ruleset
+          </button>
+        </div>
+
         <button
           type="button"
-          className={
-            source === "shipped"
-              ? "cov-source-btn active"
-              : "cov-source-btn"
-          }
-          onClick={() =>
-            setSource("shipped")
-          }
+          className="cov-download"
+          onClick={downloadReport}
+          disabled={!active}
         >
-          Shipped ruleset
-        </button>
-        <button
-          type="button"
-          className={
-            source === "custom"
-              ? "cov-source-btn active"
-              : "cov-source-btn"
-          }
-          onClick={() =>
-            setSource("custom")
-          }
-        >
-          Your ruleset
+          Download report
         </button>
       </div>
 
