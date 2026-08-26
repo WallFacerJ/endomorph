@@ -834,3 +834,35 @@ test("the coverage dashboard exports a downloadable report", async ({
     "endomorph-coverage-report.html",
   );
 });
+
+test("the lab exports the scenario corpus in a SIEM format", async ({
+  page,
+}) => {
+  await page.goto("/?lab");
+
+  const cx = page.locator(".cx");
+  await cx.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  await cx
+    .getByLabel("Export format")
+    .selectOption("splunk");
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    cx
+      .getByRole("button", {
+        name: "Download corpus",
+      })
+      .click(),
+  ]);
+
+  expect(
+    download.suggestedFilename(),
+  ).toContain("splunk");
+  expect(
+    download.suggestedFilename(),
+  ).toContain(".ndjson");
+});

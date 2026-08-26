@@ -33,6 +33,10 @@ import {
   AttackStoryboard,
 } from "./AttackStoryboard";
 
+import {
+  CorpusExport,
+} from "./CorpusExport";
+
 import type {
   ScenarioDefinition,
 } from "./simulationAdapter";
@@ -213,6 +217,15 @@ export function DetectionLabPage() {
           <>
             <AttackStoryboard
               scenario={scenario}
+            />
+            <CorpusExport
+              scenario={scenario}
+              scenarioLabel={
+                LAB_SCENARIOS.find(
+                  (option) =>
+                    option.path === path,
+                )?.label ?? "endomorph"
+              }
             />
             <DetectionReviewPanel
               review={review}

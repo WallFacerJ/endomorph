@@ -1,0 +1,59 @@
+.cx {
+  max-width: 1040px;
+  margin: 0 auto 18px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  border: 1px solid var(--pm-border);
+  border-radius: 12px;
+  background: var(--pm-panel, rgba(255, 255, 255, 0.02));
+}
+.cx-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 300px;
+}
+.cx-label {
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--pm-text-strong, var(--pm-text));
+}
+.cx-sub {
+  font-size: 0.85rem;
+  color: var(--pm-muted);
+  max-width: 60ch;
+}
+.cx-sub strong { color: var(--pm-text); }
+.cx-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cx-format {
+  padding: 9px 11px;
+  border-radius: 9px;
+  border: 1px solid var(--pm-border-strong, var(--pm-border));
+  background: var(--pm-control, rgba(255, 255, 255, 0.03));
+  color: var(--pm-text);
+  font-size: 0.86rem;
+  font-family: inherit;
+}
+.cx-format:focus {
+  outline: 2px solid var(--pm-focus, var(--accent));
+  outline-offset: 1px;
+}
+.cx-download {
+  border: 0;
+  background: var(--accent);
+  color: var(--pm-bg, #06121f);
+  font-weight: 650;
+  font-size: 0.88rem;
+  padding: 9px 18px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.cx-download:hover { filter: brightness(1.08); }
