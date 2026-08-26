@@ -4,6 +4,10 @@
 > actually executing; it reconciles the `STRATEGY.md` build program (the wedge)
 > with the enterprise phases below (the north star). The phased enterprise vision
 > that follows is the longer-horizon ambition, deliberately deferred.
+>
+> For the **commercial** roadmap — the full path from this wedge to a sellable
+> enterprise product (nine capability pillars, four horizons, pricing, GTM) — see
+> [PRODUCT_ROADMAP.md](PRODUCT_ROADMAP.md).
 
 ## The bet
 
