@@ -13,7 +13,7 @@ Horizon key: **H1** Foundation (0–3mo) · **H2** Commercialize (3–9mo) ·
 **H3** Enterprise (9–18mo) · **H4** Platform (18mo+).
 Priority key: **P0** load-bearing · **P1** important · **P2** valuable.
 
-Today: 10 intrusions · 33 ATT&CK techniques · 8 event domains · 5 rule languages ·
+Today: 11 intrusions · 37 ATT&CK techniques · 8 event domains · 5 rule languages ·
 digital twin · AI-eval harness · seeded attack variation.
 
 ---
@@ -78,7 +78,7 @@ detection-content marketplace, managed detection-quality service, training/cyber
 ### 1 · Detection data & content
 *Done when the corpus is broad, fresh, vendor-native, and citable enough to be an industry standard.*
 
-- **[H1·P0]** Deepen ATT&CK coverage from 33 toward the top ~150–200 techniques by real-world prevalence (Red Canary / CISA / Sigma), across all 14 tactics.
+- **[H1·P0]** Deepen ATT&CK coverage from 37 toward the top ~150–200 techniques by real-world prevalence (Red Canary / CISA / Sigma), across all 14 tactics.
 - **[H1·P0]** Vendor-native schema export — Splunk CIM, Sentinel/ASIM, Elastic ECS, OCSF, Chronicle UDM (today ECS-shaped).
 - **[H1·P1]** Versioned, citable benchmark releases — SemVer, changelog, permalinks, DOI.
 - **[H2·P0]** New domains — AD/LDAP audit, macOS + Linux endpoint, Kubernetes/container, SaaS audit (M365, Google, Okta, Salesforce), NetFlow/PCAP, WAF/CASB.

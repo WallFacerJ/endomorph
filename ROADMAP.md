@@ -18,7 +18,7 @@ infrastructure. No competitor combines ground truth + benign noise + seeded
 variation + a scoring harness + zero infra. The investigation console stays the
 demo that makes it tangible, and the door into a training product later.
 
-At a glance: **10 intrusions · 33 ATT&CK techniques · ~47.4k labelled events ·
+At a glance: **11 intrusions · 37 ATT&CK techniques · ~52k labelled events ·
 5 rule languages · 8 event domains · 0 infrastructure.**
 
 ### Lane 1 — Shipped (the wedge is real)

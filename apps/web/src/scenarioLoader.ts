@@ -110,6 +110,12 @@ export const SHIPPED_SCENARIOS:
         "Malicious download & web C2 (advanced)",
       group: "generated",
     },
+    {
+      path: "/scenarios/generated-ransomware.json",
+      label:
+        "Ransomware deployment (advanced)",
+      group: "generated",
+    },
   ];
 
 /**

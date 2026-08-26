@@ -78,17 +78,17 @@ cluster no other product is strong across:
    job, and a hosted version would run it server-side.
 2. **Publish a stable benchmark corpus.** *Generation done:* `pnpm benchmark`
    writes the labelled telemetry as versioned ECS/OCSF NDJSON plus a manifest —
-   "the Endomorph Detection Benchmark v1.0: 10 intrusions, 33 techniques, 47.4k
+   "the Endomorph Detection Benchmark v1.0: 11 intrusions, 37 techniques, 52k
    records, seeded." Remaining is *distribution*: put v1.0 somewhere citable (a
    tagged GitHub release or a public URL) so it becomes a standard others point
    back to, not just a command they could run.
 3. **Grow ATT&CK coverage deliberately.** Technique breadth is the number
-   detection engineers judge a corpus on. Ten plans now, with mail/phishing, cloud control-plane, DNS, and web/proxy domains added; each new
+   detection engineers judge a corpus on. Eleven plans now, spanning through the Impact tactic (ransomware) with mail/phishing, cloud, DNS, and web/proxy domains; each new
    plan is pure event modelling, no infrastructure. (The benchmark manifest now
-   makes the number — 33 techniques — visible and diffable.)
+   makes the number — 37 techniques — visible and diffable.)
 4. **Make FP realism a measured headline.** *Done:* `pnpm noise-floor` reports,
    per technique, how many benign events share its event types — the
-   false-positive floor for an unspecific rule. At the shipped seed 26/33
+   false-positive floor for an unspecific rule. At the shipped seed 30/37
    techniques are buried among 10x+ benign look-alikes, a floor a corpus with
    separable malicious traffic cannot offer.
 

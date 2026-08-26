@@ -30,6 +30,10 @@ import {
   WEB_C2_PLAN,
 } from "./attackPlanWebC2.js";
 
+import {
+  RANSOMWARE_PLAN,
+} from "./attackPlanRansomware.js";
+
 /**
  * The shipped plan library.
  *
@@ -1002,4 +1006,5 @@ export const ATTACK_PLANS: readonly AttackPlan[] =
     CLOUD_CONSENT_PLAN,
     DNS_TUNNEL_PLAN,
     WEB_C2_PLAN,
+    RANSOMWARE_PLAN,
   ];

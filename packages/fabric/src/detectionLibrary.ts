@@ -542,6 +542,22 @@ export const WEB_MALWARE_UA_RULE: DetectionRule =
     ],
   };
 
+export const SHADOW_COPY_DELETION_RULE: DetectionRule =
+  {
+    id: "shadow-copy-deletion",
+    name: "Volume shadow copies deleted (ransomware precursor)",
+    technique: "T1490",
+    severity: "high",
+    selections: [
+      {
+        "process.command_line": {
+          regex:
+            "vssadmin.*delete.*shadow",
+        },
+      },
+    ],
+  };
+
 export const DETECTION_RULES: readonly DetectionRule[] =
   [
     PASSWORD_SPRAY_RULE,
@@ -566,4 +582,5 @@ export const DETECTION_RULES: readonly DetectionRule[] =
     CLOUD_EXFIL_RULE,
     DNS_EXFIL_RULE,
     WEB_MALWARE_UA_RULE,
+    SHADOW_COPY_DELETION_RULE,
   ];

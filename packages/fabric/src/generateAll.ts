@@ -127,6 +127,15 @@ const BUILDS: readonly ScenarioBuild[] = [
     plan: "web-c2",
     days: 3,
   },
+  {
+    out: "apps/web/public/scenarios/generated-ransomware.json",
+    id: "scenario-generated-ransomware-001",
+    name: "Generated enterprise: human-operated ransomware deployment",
+    description:
+      "The end of the kill chain: a scheduled task for persistence, endpoint protection disabled, every volume shadow copy destroyed, then mass encryption. The shadow-copy deletion is the last high-fidelity chance to contain before the files are gone.",
+    plan: "ransomware-deployment",
+    days: 3,
+  },
 ];
 
 function findWorkspaceRoot(): string {
