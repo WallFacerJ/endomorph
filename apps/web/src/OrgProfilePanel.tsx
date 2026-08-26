@@ -211,10 +211,8 @@ export function OrgProfilePanel() {
             value={evasion}
             onChange={(event) =>
               setEvasion(
-                event.target.value ===
-                  "stealth"
-                  ? "stealth"
-                  : "standard",
+                event.target
+                  .value as EvasionLevel,
               )
             }
           >

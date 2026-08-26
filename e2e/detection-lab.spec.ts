@@ -632,14 +632,18 @@ test("the digital-twin panel can generate a stealth corpus that evades a command
     })
     .click();
 
-  // The encoded-PowerShell rule misses the stealth variant: recall 0.0%.
+  // The encoded-PowerShell rule misses the stealth variant. Assert the recall
+  // cell (the last column) is exactly 0.0% -- a substring match on the whole row
+  // would also pass on 10.0%..100.0%, defeating the point of the test.
   await expect(
     tester
       .locator(
         ".rule-tester-table tbody tr",
       )
-      .first(),
-  ).toContainText("0.0%", {
+      .first()
+      .locator("td")
+      .last(),
+  ).toHaveText("0.0%", {
     timeout: 20000,
   });
 });

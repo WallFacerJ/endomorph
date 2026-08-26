@@ -318,8 +318,8 @@ export function generateProfileCorpus(
     enterprise,
     {
       planId: options.planId,
-      evasion:
-        options.evasion ?? "standard",
+      // generateIncident defaults evasion to "standard"; pass it through.
+      evasion: options.evasion,
     },
   );
 
