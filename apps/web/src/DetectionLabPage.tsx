@@ -29,6 +29,10 @@ import {
   AttackCoverageMatrix,
 } from "./AttackCoverageMatrix";
 
+import {
+  AttackStoryboard,
+} from "./AttackStoryboard";
+
 import type {
   ScenarioDefinition,
 } from "./simulationAdapter";
@@ -207,6 +211,9 @@ export function DetectionLabPage() {
 
         {scenario && review && (
           <>
+            <AttackStoryboard
+              scenario={scenario}
+            />
             <DetectionReviewPanel
               review={review}
             />

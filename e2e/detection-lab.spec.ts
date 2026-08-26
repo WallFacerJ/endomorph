@@ -685,3 +685,40 @@ test("the lab shows an ATT&CK coverage heatmap computed from ground truth", asyn
       .first(),
   ).toContainText("/");
 });
+
+test("the attack storyboard plays the intrusion scene by scene", async ({
+  page,
+}) => {
+  await page.goto("/?lab");
+
+  const story = page.locator(".story");
+  await story.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  // Opens on the first scene.
+  await expect(story).toContainText(
+    "Step 1 /",
+  );
+
+  // The kill-chain rail and a play control are present.
+  await expect(
+    story.locator(".story-rail-node").first(),
+  ).toBeVisible();
+  await expect(
+    story.getByRole("button", {
+      name: /Play the attack/,
+    }),
+  ).toBeVisible();
+
+  // Advancing moves to the next scene.
+  await story
+    .getByRole("button", {
+      name: "Next step",
+    })
+    .click();
+  await expect(story).toContainText(
+    "Step 2 /",
+  );
+});
