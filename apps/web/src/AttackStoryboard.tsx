@@ -13,7 +13,7 @@ import "./AttackStoryboard.css";
 /**
  * The attack, as a movie.
  *
- * A scenario's ground truth is an ordered kill chain -- each step already has a
+ * A scenario's ground truth is an ordered kill chain, each step already has a
  * title, a technique, and a line of narration explaining what happened and why
  * it matters. This plays that chain like a storyboard: one scene at a time,
  * auto-advancing, with the ATT&CK tactics lighting up as the intrusion moves
@@ -134,7 +134,7 @@ export function AttackStoryboard({
   }, [playing, current, scenes.length]);
 
   // Order the rail by when each tactic first appears in *this* attack, not by
-  // the canonical ATT&CK order -- a real intrusion doesn't visit tactics in
+  // the canonical ATT&CK order, a real intrusion doesn't visit tactics in
   // textbook sequence, and the storyboard tells this attack's story.
   const { tacticsInPlay, firstIndex } =
     useMemo(() => {

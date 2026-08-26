@@ -29,7 +29,7 @@ interface CaseReportPanelProps {
  *
  * Deliberately copy-and-select rather than a download. The product ships as
  * a single self-contained page, and in that sandbox a download the page
- * starts itself never reaches the viewer -- the link is inert and nothing
+ * starts itself never reaches the viewer, the link is inert and nothing
  * says why. A button that appears to work and does nothing is worse than no
  * button.
  *
@@ -105,7 +105,7 @@ export function CaseReportPanel({
             is the same run structured, for
             an instructor collecting
             several or a hiring process
-            comparing candidates &mdash; it
+            comparing candidates, it
             carries the seed, so two
             results are only comparable
             when they came from the same
@@ -192,7 +192,7 @@ export function CaseReportPanel({
           <input
             type="text"
             value={label}
-            placeholder="Optional — so an instructor can tell results apart"
+            placeholder="Optional, so an instructor can tell results apart"
             onChange={(event) => {
               setLabel(
                 event.target.value,

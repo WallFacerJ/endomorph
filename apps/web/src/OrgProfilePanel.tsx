@@ -27,7 +27,7 @@ import "./OrgProfilePanel.css";
  *
  * Everything else in the lab scores against the shipped Acme world. This runs
  * the same deterministic generator in the browser against a client profile --
- * the org's name, size, domain, and a seed -- so a detection engineer can see
+ * the org's name, size, domain, and a seed, so a detection engineer can see
  * how their rules do against telemetry shaped like their environment, and prove
  * to themselves that the shipped numbers were not an artifact of one world. The
  * same profile and seed always reproduce the same corpus.
@@ -111,7 +111,7 @@ export function OrgProfilePanel() {
           generated Acme world. Here you
           generate a fresh one from a
           profile of <em>your</em> estate
-          — its name, size, and domain —
+         , its name, size, and domain , 
           entirely in the browser, then
           score your rules against
           telemetry shaped like your
@@ -119,7 +119,7 @@ export function OrgProfilePanel() {
           <em>evasion</em> to{" "}
           <em>stealth</em> to render the
           same intrusion with the loud,
-          keyable details removed — a rule
+          keyable details removed, a rule
           that catches the standard variant
           may miss it. The same profile and
           seed reproduce the same corpus,
@@ -262,7 +262,7 @@ export function OrgProfilePanel() {
             {result.sampleHost && (
               <>
                 {" "}
-                — e.g. host{" "}
+               , e.g. host{" "}
                 <code>
                   {result.sampleHost}
                 </code>

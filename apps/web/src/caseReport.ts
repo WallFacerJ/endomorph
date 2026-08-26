@@ -137,7 +137,7 @@ export function buildCaseReport(
       "Response objectives",
       state.outcome.objectives.map(
         (objective) =>
-          `- [${objective.met ? "x" : " "}] ${objective.label} — ${objective.description}`,
+          `- [${objective.met ? "x" : " "}] ${objective.label}, ${objective.description}`,
       ),
     ),
   );
@@ -172,7 +172,7 @@ export function buildCaseReport(
         (record) =>
           `- **${formatTimestamp(
             record.timestamp,
-          )}** — ${record.eventType} — ${record.message}`,
+          )}**, ${record.eventType}, ${record.message}`,
       ),
     ),
   );
@@ -184,7 +184,7 @@ export function buildCaseReport(
         (decision) =>
           `- **${decision.summary}**${
             decision.rationale
-              ? ` — ${decision.rationale}`
+              ? `, ${decision.rationale}`
               : ""
           }`,
       ),
@@ -210,7 +210,7 @@ export function buildCaseReport(
           (response) =>
             `- **${response.label}** (−${response.penalty})${
               response.rationale
-                ? ` — ${response.rationale}`
+                ? `, ${response.rationale}`
                 : ""
             }`,
         ),

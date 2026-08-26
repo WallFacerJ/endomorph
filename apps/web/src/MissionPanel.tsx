@@ -15,12 +15,12 @@ import "./MissionPanel.css";
  * satisfied it: response objectives under the timeline, question progress in
  * the brief, evidence count in the case. An analyst was reported as being
  * unable to tell Guided from Professional at all, and then that "the
- * objectives are just spread out through the tabs" -- both are the same
+ * objectives are just spread out through the tabs", both are the same
  * finding. Scattered across six views, a checklist is not a checklist.
  *
  * Every item is derived from state the run already keeps. Nothing here is a
  * separate progress model that could drift from what the consoles show, and
- * nothing is marked done because a view was visited -- only because the work
+ * nothing is marked done because a view was visited, only because the work
  * left an artifact behind.
  */
 
@@ -86,7 +86,7 @@ export function MissionPanel({
           <p className="t-note">
             Each item checks itself off
             when the work leaves
-            something behind &mdash; an
+            something behind, an
             answer, collected evidence, a
             recorded decision. Nothing is
             marked done for opening a

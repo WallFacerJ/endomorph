@@ -57,7 +57,7 @@ import type {
  *
  * Second extraction from App, after the case view. This one owns the brief,
  * the correlated timeline, the response surface, and everything the run
- * reports at finalization -- coverage, question score, counterfactuals, and
+ * reports at finalization, coverage, question score, counterfactuals, and
  * instructor review.
  *
  * Presentation only, like CaseWorkspace: all state stays in App, so evidence
@@ -137,7 +137,7 @@ export function InvestigationWorkspace({
   /*
     The same defect the SIEM had, in the view next to it: a row per event.
 
-    On a generated scenario that is 20,053 rows -- 200,743 DOM nodes, a page
+    On a generated scenario that is 20,053 rows, 200,743 DOM nodes, a page
     2.4 million pixels tall, and five seconds to open the view. Nobody
     scrolls two and a half thousand screens of telemetry, so the cost bought
     nothing.
@@ -219,7 +219,7 @@ export function InvestigationWorkspace({
               on a scenario with no questions the two views were identical.
 
               Finalize used to sit here. The brief now renders above it --
-              an ATT&CK matrix and six questions tall -- which pushed the
+              an ATT&CK matrix and six questions tall, which pushed the
               action that completes the run below the fold. It lives in the
               header instead, where it is always reachable and sits beside
               the other run-level control.
@@ -262,7 +262,7 @@ export function InvestigationWorkspace({
                 Response operations are
                 performed from the
                 console that owns them
-                &mdash; endpoint actions
+               , endpoint actions
                 in <strong>Endpoint</strong>,
                 account and session
                 actions in{" "}
@@ -328,25 +328,25 @@ export function InvestigationWorkspace({
               <article className="summary-card">
                 <span>Account</span>
                 <strong>
-                  {account?.username ?? "—"}
+                  {account?.username ?? ", "}
                 </strong>
                 <small>
-                  Status: {account?.status ?? "—"}
+                  Status: {account?.status ?? ", "}
                 </small>
               </article>
               <article className="summary-card">
                 <span>Endpoint</span>
                 <strong>
-                  {device?.hostname ?? "—"}
+                  {device?.hostname ?? ", "}
                 </strong>
                 <small>
-                  {device?.operatingSystem ?? "—"}
+                  {device?.operatingSystem ?? ", "}
                 </small>
               </article>
               <article className="summary-card">
                 <span>Session</span>
                 <strong>
-                  {session?.status ?? "—"}
+                  {session?.status ?? ", "}
                 </strong>
                 <small>
                   {session?.id ?? "No session"}

@@ -14,7 +14,7 @@ const POWERSHELL =
  * reward an analyst who examines authentication carefully; this one defeats
  * that habit too.
  *
- * The signal happened before any sign-in -- an account belonging to someone
+ * The signal happened before any sign-in, an account belonging to someone
  * who no longer works here was re-enabled. It is a single event with no
  * volume behind it, which is precisely why threshold detection misses it.
  */

@@ -14,7 +14,7 @@ const STEALTH_UA =
  * Malicious download, web command-and-control, and HTTP exfiltration.
  *
  * The raw connection log shows a host talking to an address on port 443; the
- * proxy shows what the raw log cannot -- the URL of a payload downloaded over
+ * proxy shows what the raw log cannot, the URL of a payload downloaded over
  * HTTP, the hardcoded user agent a malware family beacons with, and the large
  * POST that carries data out to a paste site. Each is a line in the proxy log
  * and invisible to a connection-only view, and each is the kind of signal a web
@@ -31,7 +31,7 @@ export const WEB_C2_PLAN: AttackPlan = {
   name: "Malicious download, web C2, and HTTP exfiltration",
   difficulty: "advanced",
   lesson:
-    "This intrusion is written for the proxy log, not the connection log: a connection-only view sees a host talking to a few addresses on 443 and nothing more. The proxy sees the request -- a payload downloaded over HTTP from a fresh lookalike host, a beacon carrying a user agent no real browser sends, and a large POST to an anonymous paste service. Each hides among ordinary web traffic and is separated by what it asks for, so a rule that reads the URL and the user agent catches it while one that alerts on 'a web request' drowns.",
+    "This intrusion is written for the proxy log, not the connection log: a connection-only view sees a host talking to a few addresses on 443 and nothing more. The proxy sees the request, a payload downloaded over HTTP from a fresh lookalike host, a beacon carrying a user agent no real browser sends, and a large POST to an anonymous paste service. Each hides among ordinary web traffic and is separated by what it asks for, so a rule that reads the URL and the user agent catches it while one that alerts on 'a web request' drowns.",
   requires: {},
 
   techniques: [
@@ -60,9 +60,9 @@ export const WEB_C2_PLAN: AttackPlan = {
       techniqueId: "T1105",
       advanceBy: 4,
       significance: (cast) =>
-        `${cast.subjectDevice.hostname} downloaded an executable from ${DOWNLOAD_HOST} over plain HTTP — a host registered days ago and serving a single file.`,
+        `${cast.subjectDevice.hostname} downloaded an executable from ${DOWNLOAD_HOST} over plain HTTP, a host registered days ago and serving a single file.`,
       reasoning: () =>
-        "A download on its own is the most ordinary web event there is; what marks this one is the host and the object. The domain is a fresh registration impersonating an update service, and the object is an executable served over plain HTTP rather than from a signed, known distribution point. Carry the host forward as an indicator and pivot on it across the proxy log — anyone else who fetched from it pulled the same payload, and the file's hash is what you will hunt for on disk.",
+        "A download on its own is the most ordinary web event there is; what marks this one is the host and the object. The domain is a fresh registration impersonating an update service, and the object is an executable served over plain HTTP rather than from a signed, known distribution point. Carry the host forward as an indicator and pivot on it across the proxy log, anyone else who fetched from it pulled the same payload, and the file's hash is what you will hunt for on disk.",
       build: (cast) => ({
         type: "WEB_REQUEST",
         source: "web",
@@ -91,7 +91,7 @@ export const WEB_C2_PLAN: AttackPlan = {
       significance: (cast) =>
         `Regular requests from ${cast.subjectDevice.hostname} to ${C2_DOMAIN}, all carrying a user agent no browser on the estate sends.`,
       reasoning: () =>
-        "Beaconing over HTTPS looks like any web traffic until you read the request header: the user agent is hardcoded into the malware and does not match any real browser or the versions deployed across the estate. That single field is the separator here — the destination rotates and the timing can be jittered, but the client identifies itself the same way every time. Pivot on the user agent across every host, because it finds the other infections the destination alone would miss.",
+        "Beaconing over HTTPS looks like any web traffic until you read the request header: the user agent is hardcoded into the malware and does not match any real browser or the versions deployed across the estate. That single field is the separator here, the destination rotates and the timing can be jittered, but the client identifies itself the same way every time. Pivot on the user agent across every host, because it finds the other infections the destination alone would miss.",
       build: (cast, _index, evasion) => ({
         type: "WEB_REQUEST",
         source: "web",
@@ -123,7 +123,7 @@ export const WEB_C2_PLAN: AttackPlan = {
       significance: (cast) =>
         `A single large HTTP POST from ${cast.subjectDevice.hostname} to ${EXFIL_HOST}, uploading far more than any form submission would. This is the business impact.`,
       reasoning: () =>
-        "This is the exfiltration, and it hides in plain sight among ordinary POSTs — a login, a form, an API call. What separates it is the pairing of destination and volume: an anonymous paste-and-share service, and an upload of megabytes where a form sends kilobytes. Measure what could have left by the byte count, and treat the destination as an indicator, but understand the data is already gone; the response now is about the credential and the host, not the upload.",
+        "This is the exfiltration, and it hides in plain sight among ordinary POSTs, a login, a form, an API call. What separates it is the pairing of destination and volume: an anonymous paste-and-share service, and an upload of megabytes where a form sends kilobytes. Measure what could have left by the byte count, and treat the destination as an indicator, but understand the data is already gone; the response now is about the credential and the host, not the upload.",
       build: (cast, _index, evasion) => ({
         type: "WEB_REQUEST",
         source: "web",

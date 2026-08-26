@@ -191,7 +191,7 @@ export function buildTaskPrompt(
   const list = techniques
     .map(
       (technique) =>
-        `- ${technique.id} — ${technique.name} (${technique.tactic})`,
+        `- ${technique.id}, ${technique.name} (${technique.tactic})`,
     )
     .join("\n");
 

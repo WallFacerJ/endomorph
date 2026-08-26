@@ -24,7 +24,7 @@ const STEPS: ReadonlyArray<{
   {
     where: "Alerts",
     action:
-      "Read the alert. It names a host and an account, and almost nothing else — that is the point.",
+      "Read the alert. It names a host and an account, and almost nothing else, that is the point.",
   },
   {
     where: "Brief",
@@ -34,7 +34,7 @@ const STEPS: ReadonlyArray<{
   {
     where: "SIEM Search",
     action:
-      "Find a value worth pivoting on — an address, a hostname, a command — and query it. The stream is far too large to scroll.",
+      "Find a value worth pivoting on, an address, a hostname, a command, and query it. The stream is far too large to scroll.",
   },
   {
     where: "Endpoint / Identity",
@@ -72,7 +72,7 @@ export function FirstRun({
           <p className="first-run-copy">
             Roughly thirty minutes if
             you work it properly. There
-            is no single correct path —
+            is no single correct path , 
             these are the tools and
             what each is for.
           </p>

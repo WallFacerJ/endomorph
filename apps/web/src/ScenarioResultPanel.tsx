@@ -22,7 +22,7 @@ interface ScenarioResultPanelProps {
    *
    * Objective scoring answers whether the world ended in the right state.
    * It cannot separate an analyst who scoped the intrusion from one who read
-   * the alert, guessed correctly, and stopped -- both land the same score.
+   * the alert, guessed correctly, and stopped, both land the same score.
    * Coverage answers that, and names what was missed so the number is
    * explainable rather than opaque.
    */
@@ -259,7 +259,7 @@ export function ScenarioResultPanel({
       )}
 
       <p className="result-note">
-        Final score equals objective completion minus authored response-quality penalties, clamped to 0–100. Evidence and finding counts are report context and do not affect the score.
+        Final score equals objective completion minus authored response-quality penalties, clamped to 0-100. Evidence and finding counts are report context and do not affect the score.
       </p>
     </section>
   );

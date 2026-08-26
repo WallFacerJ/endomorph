@@ -282,7 +282,7 @@ test("loading an example rule fills the box and scores it", async ({
     })
     .selectOption({
       label:
-        "Any PowerShell — right technique, noisy rule",
+        "Any PowerShell, right technique, noisy rule",
     });
 
   await expect(

@@ -108,7 +108,7 @@ function createInput(
     collectedEventIds: [],
 
     formatTimestamp: (value) =>
-      value ?? "—",
+      value ?? ", ",
 
     ...overrides,
   };

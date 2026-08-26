@@ -6,7 +6,7 @@ import "./LandingPage.css";
  * The app root used to drop a first-time visitor straight into an investigation
  * with no explanation of what Endomorph is or why the data is different from any
  * other SOC exercise. This is the ten-second pitch instead: what it is, the one
- * claim that matters (ground truth by construction), and two doors -- score a
+ * claim that matters (ground truth by construction), and two doors, score a
  * rule in the lab, or play an investigation. Shown only at the bare root; any
  * `?scenario`/`?mode`/`?app` param still goes straight to the app, and `?lab`
  * to the lab, so no existing link changes.
@@ -20,17 +20,17 @@ interface Stat {
 }
 
 const STATS: readonly Stat[] = [
-  { figure: "6", label: "intrusions" },
+  { figure: "11", label: "intrusions" },
   {
-    figure: "22",
+    figure: "37",
     label: "ATT&CK techniques",
   },
   {
-    figure: "27,893",
+    figure: "52k",
     label: "labelled events",
   },
   {
-    figure: "4",
+    figure: "5",
     label: "rule languages",
   },
 ];
@@ -45,7 +45,7 @@ const DIFFERENTIATORS: readonly Differentiator[] =
     {
       title:
         "Ground truth by construction",
-      body: "Every event is labelled benign or malicious and mapped to a technique — decided by the generator before the event was written, not guessed afterwards.",
+      body: "Every event is labelled benign or malicious and mapped to a technique, decided by the generator before the event was written, not guessed afterwards.",
     },
     {
       title:
@@ -54,7 +54,7 @@ const DIFFERENTIATORS: readonly Differentiator[] =
     },
     {
       title: "Zero infrastructure",
-      body: "It all runs in this browser tab from a seed — no hosts to stand up, no agents to deploy, and the same seed regenerates the same world.",
+      body: "It all runs in this browser tab from a seed, no hosts to stand up, no agents to deploy, and the same seed regenerates the same world.",
     },
   ];
 
@@ -78,7 +78,7 @@ export function LandingPage() {
           detection rule, the precision
           and recall are{" "}
           <strong>counted</strong> from
-          ground truth — not estimated
+          ground truth, not estimated
           from a capture nobody fully
           labelled.
         </p>

@@ -299,7 +299,7 @@ Analysts must be able to enter isolated synthetic/virtualized systems, inspect f
 
 ## 4. Distinct professional security applications
 
-SIEM, EDR, identity, email security, cloud security, network telemetry, threat intelligence, sandboxing, case management, and incident command should feel like different tools with different workflows—not reskinned cards showing the same event list.
+SIEM, EDR, identity, email security, cloud security, network telemetry, threat intelligence, sandboxing, case management, and incident command should feel like different tools with different workflows, not reskinned cards showing the same event list.
 
 ## 5. Case management as an operational graph
 

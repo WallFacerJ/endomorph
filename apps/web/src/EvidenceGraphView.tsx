@@ -22,7 +22,7 @@ import "./EvidenceGraphView.css";
  * carries the relationships, and a reader asked to hold twelve pairs in
  * their head to see that shape is doing the drawing themselves.
  *
- * The layout is deterministic -- entities are placed by kind around a ring,
+ * The layout is deterministic, entities are placed by kind around a ring,
  * ordered as the graph delivers them. No force simulation. That is partly
  * this product's whole premise, and partly practical: a physics layout
  * settles somewhere slightly different on every render, so an analyst who
@@ -63,7 +63,7 @@ interface EvidenceGraphViewProps {
   /**
    * Criticality per entity id, when the scenario carries asset context. The
    * case graph is where the analyst reasons about what the intrusion
-   * touched, so the weight of each entity belongs here too -- a severe node
+   * touched, so the weight of each entity belongs here too, a severe node
    * in the evidence is a different finding from a low one.
    */
   readonly criticalityById?: ReadonlyMap<
@@ -259,7 +259,7 @@ export function EvidenceGraphView({
               onClick={() =>
                 onSelect(node)
               }
-              title={`${node.label} — ${node.eventIds.length} collected event(s)`}
+              title={`${node.label}, ${node.eventIds.length} collected event(s)`}
             >
               <Icon
                 name={

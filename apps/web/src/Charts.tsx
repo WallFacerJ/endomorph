@@ -13,7 +13,7 @@ import "./Charts.css";
  * charts need.
  *
  * They are instruments rather than illustrations. No animation, no gradients
- * for their own sake, tabular figures, and a fixed baseline -- an analyst
+ * for their own sake, tabular figures, and a fixed baseline, an analyst
  * reads a shape and a magnitude off these, so the shape must not change for
  * decorative reasons.
  */
@@ -97,7 +97,7 @@ export function EventVolume({
               Keyed by position, not by label. bucketByTime labels each
               bucket with the ISO timestamp at its left edge, and on a narrow
               event window several adjacent edges round to the same
-              millisecond -- so labels collide and React saw duplicate keys.
+              millisecond, so labels collide and React saw duplicate keys.
               The buckets are a fixed-length positional array; their index is
               their identity.
             */
@@ -148,9 +148,9 @@ interface FacetDatum {
  * Counts with a bar behind them.
  *
  * These were a plain two-column list of numbers, which is readable but makes
- * the reader do the comparison. The proportion is the useful part -- that
+ * the reader do the comparison. The proportion is the useful part, that
  * endpoint telemetry outweighs everything else by an order of magnitude is
- * the reason an unusual process is hard to see -- so it is drawn.
+ * the reason an unusual process is hard to see, so it is drawn.
  */
 export function FacetBars({
   data,

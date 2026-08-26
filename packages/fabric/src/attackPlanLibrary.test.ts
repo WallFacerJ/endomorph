@@ -292,8 +292,8 @@ describe("attack plan library", () => {
       derived from the alert alone." Both halves of that are testable, and
       the second half was not true.
 
-      Three questions were answered verbatim by their own alert text -- the
-      re-enabled account, and two hostnames -- which made them a test of
+      Three questions were answered verbatim by their own alert text, the
+      re-enabled account, and two hostnames, which made them a test of
       reading rather than of investigating, under a heading that says
       "Answer from evidence, not from the alert".
     */
@@ -407,7 +407,7 @@ describe("attack plan library", () => {
       /*
         Its whole reason for existing. Every other plan in the library
         reaches a host, so an analyst who works them learns to pivot to the
-        endpoint and is right five times out of five -- which stops it being
+        endpoint and is right five times out of five, which stops it being
         a decision. This intrusion has no process tree, no command line and
         no device on any of its events, and the Endpoint console has nothing
         to show because there is genuinely nothing there.
@@ -467,7 +467,7 @@ describe("attack plan library", () => {
       // keyed on a Windows event id would silently miss the whole incident
       // because event codes are only emitted for Windows hosts.
       //
-      // Invisible under the default seed, which happens to be Windows -- so
+      // Invisible under the default seed, which happens to be Windows, so
       // this sweeps rather than sampling one.
       for (
         let seed = 1;

@@ -11,29 +11,29 @@ against it.
 ## The decision
 
 **Lead with detection engineering, not training.** Endomorph's defensible moat
-is not the analyst console — every competitor has one, and the strong ones have
+is not the analyst console, every competitor has one, and the strong ones have
 far more content, brand, certifications, and infrastructure. The moat is that
 **ground truth is known by construction**: reproducible, seed-varied,
 per-event-labelled, ATT&CK-mapped telemetry with realistic false-positive noise,
 exportable and scoreable, running in a browser with zero infrastructure.
 
-The investigation console remains — as the demo that makes the data tangible and
-the on-ramp to a training product later — but it is not the product to win on.
+The investigation console remains, as the demo that makes the data tangible and
+the on-ramp to a training product later, but it is not the product to win on.
 
 ## Why: two arenas, not one
 
 The market Endomorph *looks* like it is in is not the market it can win.
 
-**Arena A — SOC training and cyber ranges.** TryHackMe, Hack The Box,
+**Arena A, SOC training and cyber ranges.** TryHackMe, Hack The Box,
 CyberDefenders, LetsDefend, RangeForce, Immersive, Cyberbit, SimSpace. They win
-on content breadth, brand, certs, real infrastructure, and team features — all
+on content breadth, brand, certs, real infrastructure, and team features, all
 of which take teams and capital and years to seed. A solo project cannot
 out-content this arena. Endomorph's only edge here is real but narrow:
 unmemorisable, infinitely-varied scenarios where theirs are hand-authored,
 finite, and leak to write-ups. Playing to win here is the losing race
 `COMPETITIVE_RESEARCH.md` already warned against.
 
-**Arena B — detection data and validation.** Atomic Red Team, Caldera, Splunk
+**Arena B, detection data and validation.** Atomic Red Team, Caldera, Splunk
 Attack Range, DetectionLab, the BAS vendors (AttackIQ / SafeBreach / Cymulate),
 and public datasets (CIC-IDS, Mordor). Everyone here generates or ships
 telemetry, but each is weak at the specific job: emulators need real hosts and
@@ -42,8 +42,8 @@ controls through agents; public datasets are static, dated, and trivially
 separable. **None combines ground truth + benign noise + seeded variation + a
 scoring harness + zero infra.** That cluster is Endomorph, and only Endomorph.
 
-The two capabilities Endomorph concedes — hands-on depth (real shells) and
-content breadth — are exactly the ones that cost teams and capital to close,
+The two capabilities Endomorph concedes, hands-on depth (real shells) and
+content breadth, are exactly the ones that cost teams and capital to close,
 which is why chasing them is the wrong fight.
 
 ## The capability moat
@@ -51,25 +51,25 @@ which is why chasing them is the wrong fight.
 The full comparison is in the strategy artifact; the short version is the column
 cluster no other product is strong across:
 
-- **ground truth by construction** — every event labelled benign/malicious and
+- **ground truth by construction**, every event labelled benign/malicious and
   mapped to a technique, decided before it was written;
-- **seeded variation** — change the seed and the enterprise changes while the
+- **seeded variation**, change the seed and the enterprise changes while the
   technique holds;
-- **false-positive realism** — benign activity that produces the same shapes as
+- **false-positive realism**, benign activity that produces the same shapes as
   attacks (the "beacon must not be the loudest on its host" invariant);
-- **a scoring harness** — precision, recall, technique coverage, and now
+- **a scoring harness**, precision, recall, technique coverage, and now
   cross-seed robustness;
-- **zero infrastructure** — runs in a browser tab; a single-file offline bundle.
+- **zero infrastructure**, runs in a browser tab; a single-file offline bundle.
 
 ## Next steps, in priority order
 
-### Now — sharpen the wedge (weeks, solo-doable)
+### Now, sharpen the wedge (weeks, solo-doable)
 
 1. **Make the eval loop a product, not a CLI.** Bring-your-own-Sigma →
    precision/recall/FP/coverage. *Done:* `pnpm evaluate:robustness` scores a
    ruleset across many seeded enterprises and reports whether each rule
    generalises (stable) or memorised one world (fragile). And the hosted app now
-   has a **browser Detection Lab** with its own front door at `?lab` — a
+   has a **browser Detection Lab** with its own front door at `?lab`, a
    detection engineer opens the link, picks a scenario, and scores a pasted
    Sigma rule against the labelled corpus in under two seconds, no investigation
    to play through and no repo checkout. The pitch is now a thing they just did.
@@ -77,7 +77,7 @@ cluster no other product is strong across:
    regenerates a full enterprise, too slow for a UI); it stays a CLI/backend
    job, and a hosted version would run it server-side.
 2. **Publish a stable benchmark corpus.** *Generation done:* `pnpm benchmark`
-   writes the labelled telemetry as versioned ECS/OCSF NDJSON plus a manifest —
+   writes the labelled telemetry as versioned ECS/OCSF NDJSON plus a manifest , 
    "the Endomorph Detection Benchmark v1.0: 11 intrusions, 37 techniques, 52k
    records, seeded." Remaining is *distribution*: put v1.0 somewhere citable (a
    tagged GitHub release or a public URL) so it becomes a standard others point
@@ -85,15 +85,15 @@ cluster no other product is strong across:
 3. **Grow ATT&CK coverage deliberately.** Technique breadth is the number
    detection engineers judge a corpus on. Eleven plans now, spanning through the Impact tactic (ransomware) with mail/phishing, cloud, DNS, and web/proxy domains; each new
    plan is pure event modelling, no infrastructure. (The benchmark manifest now
-   makes the number — 37 techniques — visible and diffable.)
+   makes the number, 37 techniques, visible and diffable.)
 4. **Make FP realism a measured headline.** *Done:* `pnpm noise-floor` reports,
-   per technique, how many benign events share its event types — the
+   per technique, how many benign events share its event types, the
    false-positive floor for an unspecific rule. At the shipped seed 30/37
    techniques are buried among 10x+ benign look-alikes, a floor a corpus with
    separable malicious traffic cannot offer.
 
    *The tool's first finding, now acted on:* it flagged two exposed
-   identity-lifecycle techniques (T1098, T1098.003) — the background never
+   identity-lifecycle techniques (T1098, T1098.003), the background never
    performed benign account-enables or role grants, so a rule keyed on them
    scored a perfect precision it would never see in production. Benign
    `ACCOUNT_ENABLED` / `ROLE_GRANTED` activity was added to
@@ -105,13 +105,13 @@ cluster no other product is strong across:
    the measure → find weakness → improve loop the noise floor exists to drive,
    and it now has one full turn on record.
 
-### Next — deepen where it compounds both audiences (months)
+### Next, deepen where it compounds both audiences (months)
 
 5. **One cross-domain incident into a new event domain** (cloud or
-   identity-federation audit — pure events, no interactive infra). Serves the
+   identity-federation audit, pure events, no interactive infra). Serves the
    benchmark's technique coverage *and* the console's "incident crosses four+
    domains" goal at once.
-6. **Seeded attack variation — DONE (core).** Vary the *attack*, not just the
+6. **Seeded attack variation, DONE (core).** Vary the *attack*, not just the
    enterprise: an `evasion` level (`standard` / `stealth`) threads through the
    incident renderer and the plan `build` functions, so the same technique renders
    with the loud, keyable details removed at stealth (an obfuscated flag instead of
@@ -122,13 +122,13 @@ cluster no other product is strong across:
    cannot evade it without abandoning the technique. *Remaining:* evasion-aware variants
    for more plans, and a cross-evasion robustness report.
 
-### Later — defer (capital-intensive; incumbents already win)
+### Later, defer (capital-intensive; incumbents already win)
 
-7. **Interactive Range — containers / microVMs.** The most expensive item, in
+7. **Interactive Range, containers / microVMs.** The most expensive item, in
    the exact arena HTB / RangeForce / SimSpace already own. The synthetic host
    model gives ~80% of the investigative value at 0% of the cost. Build only
    when a paying customer requires real shells.
-8. **Enterprise control plane — server, tenants, SSO, teams.** Necessary to sell
+8. **Enterprise control plane, server, tenants, SSO, teams.** Necessary to sell
    to organisations, pure cost until there is one to sell to. Start only with a
    design partner pulling for it.
 
@@ -157,23 +157,23 @@ investigation console stays the thing that makes it tangible in a demo, and the
 door into a training product later, once there is a company to build it.
 
 
-## Build program — "increase value and usefulness" (sequenced)
+## Build program, "increase value and usefulness" (sequenced)
 
 After validation, these are the value levers in priority order. Each notes what
 it builds on so it is not a green field.
 
-1. **Detection-as-code CI — DONE.** Scoring a whole Sigma folder (`--sigma`) and
+1. **Detection-as-code CI, DONE.** Scoring a whole Sigma folder (`--sigma`) and
    gating on regression (`--baseline`) already worked; `docs/detection-as-code.md`
    and `.github/workflows/detection-ci.example.yml` package it so a detection-rules
    repo can adopt it. *Remaining:* publish the generator (npm or a container) so
    the CI job does not have to build from source.
 
-2. **Meet engineers in their own language — KQL + SPL + EQL + ES|QL DONE.** Most write
+2. **Meet engineers in their own language, KQL + SPL + EQL + ES|QL DONE.** Most write
    Splunk SPL, Elastic EQL/ES|QL, or Sentinel KQL, not Sigma. *Done:* `kql.ts` imports
    Sentinel/Defender KQL (`where` predicates), `spl.ts` imports Splunk SPL
    (base-search wildcards, IN-lists, `| search`/`| where`), and `eql.ts` imports
    Elastic EQL (`<category> where <condition>`, ECS-native so field names map
-   almost one-to-one) — each refusing a construct it can't express by name rather
+   almost one-to-one), each refusing a construct it can't express by name rather
    than importing a query that silently matches nothing. All three are wired into
    the CLI (`--kql`, `--spl`, `--eql`, mirroring `--sigma` + `--baseline`) and the
    browser Detection Lab's language toggle (Sigma / KQL / SPL / EQL), so an engineer
@@ -183,7 +183,7 @@ it builds on so it is not a green field.
    and all five languages are a toggle in the browser lab. *Built on* the rule model
    and the Sigma importer (`packages/fabric/src/sigma.ts`).
 
-3. **Add the domains real detections live in — MAIL + CLOUD + DNS DONE.** Email
+3. **Add the domains real detections live in, MAIL + CLOUD + DNS DONE.** Email
    (headers/links/attachments), cloud/SaaS audit (OAuth, IAM, control plane),
    DNS/proxy, and Sysmon-fidelity Windows event codes. *Done:* a mail domain --
    an `EMAIL_RECEIVED` event modelled end-to-end (schema, projections, corpus
@@ -206,19 +206,19 @@ it builds on so it is not a green field.
    product feature so a team gets a corpus shaped like their estate. The
    digital-twin/enterprise wedge.
 
-5. **AI detection-agent eval — DONE (harness).** Use the labelled corpus as a
+5. **AI detection-agent eval, DONE (harness).** Use the labelled corpus as a
    ground-truth eval set for LLM-generated detections and AI SOC agents. *Done:*
    `--ai-eval <dir>` exports, per intrusion, the telemetry with every `label.*`
    field stripped (what an agent sees), a task prompt naming the techniques, and
    a separate hidden answer key; `--rubric` grades a scored ruleset pass/fail per
    technique against a recall/precision bar (`--min-recall`/`--min-precision`) and
    prints the headline *N/M techniques detected to standard*. `docs/ai-detection-eval.md`
-   documents the loop. This grades detections from any source — person, LLM, or AI
+   documents the loop. This grades detections from any source, person, LLM, or AI
    SOC agent. *Remaining:* running an actual model against the set is downstream of
    Endomorph (it needs an API); the harness is the part ground-truth-by-construction
    uniquely provides. Built on `detectionEval.ts` + the existing scorer.
 
-6. **Distribution/friction — permalinks + badge DONE.** *Done:* the Detection
+6. **Distribution/friction, permalinks + badge DONE.** *Done:* the Detection
    Lab now emits **shareable result permalinks** (language + rule encoded in the
    URL; opening one auto-scores against the corpus), and the evaluator has a
    `--badge <file>` flag that writes a self-contained **coverage badge** SVG a
@@ -226,5 +226,5 @@ it builds on so it is not a green field.
    shipping the generator + scorer as an npm package/API.
 
 Still deferred: interactive Range (containers/VMs) and the multi-user enterprise
-control plane — capital-intensive, in arenas incumbents own, wrong until a
+control plane, capital-intensive, in arenas incumbents own, wrong until a
 customer pulls.

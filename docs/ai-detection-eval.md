@@ -1,6 +1,6 @@
 # Grade generated detections against ground truth
 
-The labelled corpus is a ready-made **eval set for generated detections** —
+The labelled corpus is a ready-made **eval set for generated detections** , 
 whether a person, an LLM, or an AI SOC agent wrote them. Because every event's
 malicious/benign label was decided by the generator before the event was
 written, a candidate rule's precision and recall are *counted*, and a pass/fail
@@ -17,14 +17,14 @@ pnpm evaluate -- --ai-eval eval-set
 
 For each of the eleven intrusions this writes, into `eval-set/`:
 
-- `<plan>.telemetry.ndjson` — the telemetry **with every `label.*` field
+- `<plan>.telemetry.ndjson`, the telemetry **with every `label.*` field
   removed**. This is all a detection agent is allowed to see; the answer is not
   sitting in the data.
-- `<plan>.prompt.md` — the task: what the telemetry is, the ATT&CK techniques to
+- `<plan>.prompt.md`, the task: what the telemetry is, the ATT&CK techniques to
   write detections for, and how the output is scored.
-- `answer-key.json` — the hidden ground truth (which event ids are malicious, and
+- `answer-key.json`, the hidden ground truth (which event ids are malicious, and
   their technique). Kept separate so it never leaks into the agent's input.
-- `eval.json` — the manifest tying the tasks together.
+- `eval.json`, the manifest tying the tasks together.
 
 Hand an agent a `*.telemetry.ndjson` and its `*.prompt.md`; collect the Sigma (or
 KQL / SPL / EQL) rules it writes.
@@ -52,6 +52,6 @@ recall and precision bars; it **misses** when the rule is too thin (low recall),
 too noisy (low precision), or absent. Tune the bar with `--min-recall` and
 `--min-precision`.
 
-The headline — *N / M techniques detected to standard* — is a single comparable
+The headline, *N / M techniques detected to standard*, is a single comparable
 number for one agent, one model, or one prompt versus another, measured against
 ground truth rather than a human's read of a handful of alerts.

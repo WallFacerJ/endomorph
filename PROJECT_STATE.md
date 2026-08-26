@@ -208,7 +208,7 @@ Expected future technologies will be selected per the enterprise roadmap, with s
 At the beginning of future development sessions, read:
 
 1. `PROJECT_STATE.md`
-2. `STRATEGY.md` — the current bet: lead with detection engineering, keep the console as the demo
+2. `STRATEGY.md`, the current bet: lead with detection engineering, keep the console as the demo
 3. `ENTERPRISE_VISION.md`
 4. `COMPETITIVE_RESEARCH.md`
 5. `ROADMAP.md`

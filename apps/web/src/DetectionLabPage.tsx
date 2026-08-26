@@ -46,7 +46,7 @@ import "./DetectionLabPage.css";
  *
  * The in-investigation version of this sits behind finalizing, for a good
  * reason: during a run the labels are the answer. But a detection engineer is
- * not doing the run -- they are testing a rule -- and making them play an
+ * not doing the run, they are testing a rule, and making them play an
  * investigation to reach the scorer is friction that stops the one audience
  * the wedge is for. This page skips the investigation entirely: pick a
  * scenario, see how the shipped ruleset scores against it, and bring your own

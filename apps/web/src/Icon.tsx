@@ -8,7 +8,7 @@
  *
  * All of them are stroked, on a 24-unit grid, drawn in `currentColor` so a
  * chip or a button controls its own icon colour. They are decorative by
- * default -- `aria-hidden` -- because in every place they are used here the
+ * default, `aria-hidden`, because in every place they are used here the
  * adjacent text already names the thing. Pass a `title` only where an icon
  * stands alone.
  */

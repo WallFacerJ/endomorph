@@ -15,7 +15,7 @@ const GRANTED_ROLE =
  * standing. All five of the others reach a host: a process starts, a command
  * line is written, a file is read from a workstation. An analyst who works
  * them learns to pivot to the endpoint, and that habit is right five times
- * out of five -- so it stops being a decision.
+ * out of five, so it stops being a decision.
  *
  * This intrusion never touches an endpoint. There is no process tree to
  * read, no parent image, no command line, and the Endpoint console has
@@ -33,7 +33,7 @@ export const CLOUD_ROLE_PLAN: AttackPlan =
     name: "MFA fatigue into a directory role grant",
     difficulty: "advanced",
     lesson:
-      "Not every intrusion reaches a host. This one has no process tree, no command line and nothing on the endpoint at all -- the Endpoint console is empty because there is genuinely nothing there. The chain is a valid password, a user worn down into approving a multi-factor prompt, and a privileged role granted to an account that never had it. Watch what changes in the directory, not only what runs.",
+      "Not every intrusion reaches a host. This one has no process tree, no command line and nothing on the endpoint at all, the Endpoint console is empty because there is genuinely nothing there. The chain is a valid password, a user worn down into approving a multi-factor prompt, and a privileged role granted to an account that never had it. Watch what changes in the directory, not only what runs.",
     requires: {
       restrictedFile: true,
     },
@@ -96,7 +96,7 @@ export const CLOUD_ROLE_PLAN: AttackPlan =
         significance: (cast) =>
           `Successful sign-in for ${cast.subjectAccount.username} from ${cast.externalIp}, immediately after the run of denials. This is the compromise point.`,
         reasoning: () =>
-          "This is the moment to anchor scope on, and the one the account holder can usually confirm: they remember being pestered. Everything the account does after this timestamp is suspect and everything before it is probably genuine. Note that nothing about this event is anomalous on its own -- valid credential, valid second factor, successful sign-in -- which is exactly why it has to be read together with what came immediately before it.",
+          "This is the moment to anchor scope on, and the one the account holder can usually confirm: they remember being pestered. Everything the account does after this timestamp is suspect and everything before it is probably genuine. Note that nothing about this event is anomalous on its own, valid credential, valid second factor, successful sign-in, which is exactly why it has to be read together with what came immediately before it.",
         build: (cast) => ({
           type: "AUTH_LOGIN_SUCCEEDED",
           source: "identity",
@@ -119,7 +119,7 @@ export const CLOUD_ROLE_PLAN: AttackPlan =
         techniqueId: "T1078.004",
         advanceBy: 2,
         significance: () =>
-          "Session established against the identity provider. No workstation is involved -- this is a browser somewhere else.",
+          "Session established against the identity provider. No workstation is involved, this is a browser somewhere else.",
         reasoning: () =>
           "Note what this session is not attached to: there is no device on it, because the sign-in did not come from a managed one. That absence is worth naming explicitly, since the reflex at this point is to go and look at the user's workstation, and the workstation has nothing to do with any of this. Carry the session id forward instead; it is what ties the directory changes that follow to this sign-in rather than to the account generally.",
         build: (cast) => ({
@@ -145,7 +145,7 @@ export const CLOUD_ROLE_PLAN: AttackPlan =
         significance: (cast) =>
           `${GRANTED_ROLE} granted to ${cast.subjectAccount.username}, an account that has never held it. This is the finding.`,
         reasoning: () =>
-          "This is the step that turns a compromised sign-in into a durable foothold, and it is the one that survives the response most people reach for first: resetting the password removes the attacker's way in and leaves the role exactly where it is. Establish who performed the grant and whether a change ticket exists, then check every other account that holds the same role -- an operator who has taken one grant has no reason to have taken only one. Treat the role as the thing to remove, not the session.",
+          "This is the step that turns a compromised sign-in into a durable foothold, and it is the one that survives the response most people reach for first: resetting the password removes the attacker's way in and leaves the role exactly where it is. Establish who performed the grant and whether a change ticket exists, then check every other account that holds the same role, an operator who has taken one grant has no reason to have taken only one. Treat the role as the thing to remove, not the session.",
         build: (cast) => ({
           type: "ROLE_GRANTED",
           source: "identity",
@@ -171,7 +171,7 @@ export const CLOUD_ROLE_PLAN: AttackPlan =
         significance: (cast) =>
           `${cast.targetFile.name} read by ${cast.subjectAccount.username} minutes after the grant. The role is what made it reachable.`,
         reasoning: () =>
-          "The access itself is authorised -- the role grants it, which is the point of taking the role -- so nothing here will have alerted. What makes it the business impact is the sequence: the privilege that permits this read is minutes old and was taken by the account that used it. Check whether this account ever legitimately touched this material before, because a first-time read by a brand-new privilege is a very different claim from an unusual one, and you will be asked which you are making.",
+          "The access itself is authorised, the role grants it, which is the point of taking the role, so nothing here will have alerted. What makes it the business impact is the sequence: the privilege that permits this read is minutes old and was taken by the account that used it. Check whether this account ever legitimately touched this material before, because a first-time read by a brand-new privilege is a very different claim from an unusual one, and you will be asked which you are making.",
         build: (cast) => ({
           type: "FILE_ACCESSED",
           source: "file_server",

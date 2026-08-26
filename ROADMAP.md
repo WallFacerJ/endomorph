@@ -1,18 +1,18 @@
 # Endomorph Roadmap
 
-> **Current working roadmap — as of 2026-08-25.** This section is the plan we are
+> **Current working roadmap, as of 2026-08-25.** This section is the plan we are
 > actually executing; it reconciles the `STRATEGY.md` build program (the wedge)
 > with the enterprise phases below (the north star). The phased enterprise vision
 > that follows is the longer-horizon ambition, deliberately deferred.
 >
-> For the **commercial** roadmap — the full path from this wedge to a sellable
-> enterprise product (nine capability pillars, four horizons, pricing, GTM) — see
+> For the **commercial** roadmap, the full path from this wedge to a sellable
+> enterprise product (nine capability pillars, four horizons, pricing, GTM), see
 > [PRODUCT_ROADMAP.md](PRODUCT_ROADMAP.md).
 
 ## The bet
 
 **Lead with detection engineering, not training.** The defensible edge is that
-*ground truth is known by construction* — labelled, seeded, ATT&CK-mapped
+*ground truth is known by construction*, labelled, seeded, ATT&CK-mapped
 telemetry with realistic false-positive noise, scoreable in a browser with zero
 infrastructure. No competitor combines ground truth + benign noise + seeded
 variation + a scoring harness + zero infra. The investigation console stays the
@@ -21,48 +21,48 @@ demo that makes it tangible, and the door into a training product later.
 At a glance: **11 intrusions · 37 ATT&CK techniques · ~52k labelled events ·
 5 rule languages · 8 event domains · 0 infrastructure.**
 
-### Lane 1 — Shipped (the wedge is real)
+### Lane 1, Shipped (the wedge is real)
 
-- **Deterministic generator + labelled corpus** — every event benign/malicious and
+- **Deterministic generator + labelled corpus**, every event benign/malicious and
   ATT&CK-mapped, seeded, exports ECS / OCSF / Splunk. *Done.*
-- **Detection-eval harness** — counted precision/recall/coverage, cross-seed
+- **Detection-eval harness**, counted precision/recall/coverage, cross-seed
   `robustness`, and a `noise-floor` that measures FP realism (20/24 techniques
   buried among 10x+ look-alikes). *Done.*
-- **Browser Detection Lab (`?lab`)** — score a pasted rule in under two seconds,
+- **Browser Detection Lab (`?lab`)**, score a pasted rule in under two seconds,
   drill into the exact benign hits and missed events, share the result as a link. *Done.*
-- **Rule importers — Sigma, KQL, SPL, EQL** — write in your own language; each
+- **Rule importers, Sigma, KQL, SPL, EQL**, write in your own language; each
   compiles to one internal rule and refuses what it can't express by name. *Done.*
-- **Detection-as-code CI + coverage badge** — `--sigma/--kql/--spl/--eql` +
+- **Detection-as-code CI + coverage badge**, `--sigma/--kql/--spl/--eql` +
   `--baseline` regression gate + `--badge`. *Done.*
-- **AI detection-eval harness** — `--ai-eval` exports label-stripped tasks + hidden
+- **AI detection-eval harness**, `--ai-eval` exports label-stripped tasks + hidden
   key; `--rubric` grades generated detections *N/M techniques to standard*. *Done.*
-- **Event domains** — endpoint, identity, network, file, **mail**, **cloud**, **DNS**,
+- **Event domains**, endpoint, identity, network, file, **mail**, **cloud**, **DNS**,
   **web/proxy**. Recent: credential phishing (mail), an OAuth-consent control-plane
   intrusion (cloud), DNS tunnelling/DGA, and a web download/C2/exfil intrusion
   (T1105/T1071.001/T1567.002). *Done.*
 - **Landing page + benchmark v1.0 generation.** *Done.*
 
-### Lane 2 — Now → Next (sharpen the wedge, priority order)
+### Lane 2, Now → Next (sharpen the wedge, priority order)
 
 1. **Publish benchmark v1.0 as a citable release.** *Gated on `gh` auth.* Artifacts
    build clean; cutting the release makes it a dataset others cite, not a command.
-2. **More event domains — the deepest moat.** Mail, cloud/SaaS control-plane, DNS,
+2. **More event domains, the deepest moat.** Mail, cloud/SaaS control-plane, DNS,
    and web/proxy are shipped; **Sysmon-fidelity Windows codes** are the main gap left.
    Each new domain unlocks many ATT&CK techniques and more addressable teams.
-3. **Point it at your own org.** Surface `--profile` as a product feature — the
+3. **Point it at your own org.** Surface `--profile` as a product feature, the
    digital-twin wedge, determinism intact.
 4. **Ship the generator + scorer as an npm package / API.** *Gated on npm auth.*
-5. **Grow ATT&CK coverage deliberately** — more intrusions, pure event modelling.
-6. **Seeded attack variation — DONE (core).** An `evasion` level (standard/stealth)
+5. **Grow ATT&CK coverage deliberately**, more intrusions, pure event modelling.
+6. **Seeded attack variation, DONE (core).** An `evasion` level (standard/stealth)
    threads through the incident renderer and plan `build` functions; `--evasion stealth`
    renders the same technique with the keyable details removed. Measured lesson: a
    command-line rule drops to recall 0.000 at stealth while a behavioural lineage rule
    holds at 1.000. *Remaining:* evasion-aware variants for more plans.
-7. **Elastic ES|QL — DONE.** Completed the vendor-language set: `esql.ts` imports
+7. **Elastic ES|QL, DONE.** Completed the vendor-language set: `esql.ts` imports
    the `WHERE` filter of a piped ES|QL query; all five languages (Sigma / KQL / SPL /
    EQL / ES|QL) are a browser-lab toggle.
 
-### Lane 3 — Later (enterprise north star, deferred until a customer pulls)
+### Lane 3, Later (enterprise north star, deferred until a customer pulls)
 
 Interactive Range (Phase 2) · scenario/adversary engine (Phase 4) · enterprise
 control plane (Phase 5) · replay/branch/compare (Phase 6) · Forge authoring

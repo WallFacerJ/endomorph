@@ -12,7 +12,7 @@ import {
  * Renders children into a separate browser window.
  *
  * A walkthrough is something you work *alongside* the investigation, not
- * inside it -- on a second monitor, or projected while a class follows on
+ * inside it, on a second monitor, or projected while a class follows on
  * their own screens. Rendering through a portal rather than duplicating the
  * component keeps one source of state, so the detached window stays in sync
  * with the run without any message passing.

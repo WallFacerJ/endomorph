@@ -38,7 +38,7 @@ import "./EdrWorkspace.css";
  *
  * The row is scanned, not read: a full image path pushes the address and
  * the timestamp off the line. The path stays in the detail pane, where an
- * analyst who needs to check the directory can find it -- and the
+ * analyst who needs to check the directory can find it, and the
  * directory is often the whole finding.
  */
 function processName(image: string): string {
@@ -64,8 +64,8 @@ interface EdrWorkspaceProps {
   /**
    * The world, for resolving identifiers to the names people use.
    *
-   * The console showed raw entity ids -- "file-deployment-keys-txt",
-   * "account-rosa.rahman" -- where an analyst expects "deployment-keys.txt"
+   * The console showed raw entity ids, "file-deployment-keys-txt",
+   * "account-rosa.rahman", where an analyst expects "deployment-keys.txt"
    * and "rosa.rahman@acme.test". One of the investigation questions asks
    * which document was read and accepts the file's name, so the console was
    * asking the analyst to guess a transformation rather than read a value.
@@ -124,7 +124,7 @@ function basename(path: string): string {
 
 /*
   Constructed once. Building an Intl.DateTimeFormat is expensive, and this was
-  building a fresh one for every timestamp rendered -- which, on a scenario
+  building a fresh one for every timestamp rendered, which, on a scenario
   with twenty thousand events, was three seconds of the finalize interaction
   by itself, more than any other single thing the app did.
 */
@@ -263,8 +263,8 @@ export function EdrWorkspace({
   /*
     Activity per device, bucketed once.
 
-    Every row previously showed the same two facts -- "active" and a process
-    count that barely varies -- so 147 endpoints looked identical and there
+    Every row previously showed the same two facts, "active" and a process
+    count that barely varies, so 147 endpoints looked identical and there
     was nothing to steer by. The shape says when a host was busy, which is
     the thing an analyst actually scans an inventory for.
 
@@ -656,15 +656,15 @@ export function EdrWorkspace({
             <div className="edr-endpoint-facts">
               <span>
                 <small>OS</small>
-                <strong>{selectedDevice?.operatingSystem ?? "—"}</strong>
+                <strong>{selectedDevice?.operatingSystem ?? ", "}</strong>
               </span>
               <span>
                 <small>IP</small>
-                <strong>{selectedDevice?.ipAddresses.join(", ") || "—"}</strong>
+                <strong>{selectedDevice?.ipAddresses.join(", ") || ", "}</strong>
               </span>
               <span>
                 <small>Status</small>
-                <strong>{investigation.endpoint?.status ?? selectedDevice?.status ?? "—"}</strong>
+                <strong>{investigation.endpoint?.status ?? selectedDevice?.status ?? ", "}</strong>
               </span>
               {(() => {
                 const selectedAsset =
@@ -780,7 +780,7 @@ export function EdrWorkspace({
                     <code>
                       {node.parentImage
                         ? basename(node.parentImage)
-                        : "—"}
+                        : ", "}
                     </code>
                     {node.process.parentProcessId && (
                       <code className="edr-process-parent-pid">
@@ -788,7 +788,7 @@ export function EdrWorkspace({
                       </code>
                     )}
                   </span>
-                  <span>{node.process.accountId ?? "—"}</span>
+                  <span>{node.process.accountId ?? ", "}</span>
                   <time>{formatTimestamp(node.process.timestamp)}</time>
                 </button>
               ))}
@@ -819,7 +819,7 @@ export function EdrWorkspace({
                   </span>
                   <span className="edr-flow-arrow">→</span>
                   <span>
-                    <strong>{connection.destinationIp}:{connection.destinationPort ?? "—"}</strong>
+                    <strong>{connection.destinationIp}:{connection.destinationPort ?? ", "}</strong>
                     <small>
                       {connection.image
                         ? processName(connection.image)
@@ -869,7 +869,7 @@ export function EdrWorkspace({
                           activity.accountId,
                         )) ??
                         activity.accountId ??
-                        "—"}
+                        ", "}
                     </strong>
                     <small>account</small>
                   </span>
@@ -930,11 +930,11 @@ export function EdrWorkspace({
               </div>
               <dl className="edr-detail-fields">
                 <div><dt>Image</dt><dd>{selectedProcess.image}</dd></div>
-                <div><dt>Command line</dt><dd><code>{selectedProcess.commandLine ?? "—"}</code></dd></div>
+                <div><dt>Command line</dt><dd><code>{selectedProcess.commandLine ?? ", "}</code></dd></div>
                 <div><dt>PID</dt><dd>{selectedProcess.processId}</dd></div>
-                <div><dt>Parent</dt><dd>{selectedProcess.parentImage ?? "—"}</dd></div>
-                <div><dt>Parent PID</dt><dd>{selectedProcess.parentProcessId ?? "—"}</dd></div>
-                <div><dt>Account</dt><dd>{selectedProcess.accountId ?? "—"}</dd></div>
+                <div><dt>Parent</dt><dd>{selectedProcess.parentImage ?? ", "}</dd></div>
+                <div><dt>Parent PID</dt><dd>{selectedProcess.parentProcessId ?? ", "}</dd></div>
+                <div><dt>Account</dt><dd>{selectedProcess.accountId ?? ", "}</dd></div>
                 <div><dt>Started</dt><dd>{selectedProcess.timestamp}</dd></div>
               </dl>
               <DetailActionBar
@@ -950,12 +950,12 @@ export function EdrWorkspace({
             <>
               <div className="edr-detail-heading">
                 <p className="eyebrow">Network detail</p>
-                <h4>{selectedNetwork.destinationIp}:{selectedNetwork.destinationPort ?? "—"}</h4>
+                <h4>{selectedNetwork.destinationIp}:{selectedNetwork.destinationPort ?? ", "}</h4>
                 <code>{selectedNetwork.eventId}</code>
               </div>
               <dl className="edr-detail-fields">
-                <div><dt>Source</dt><dd>{selectedNetwork.sourceIp}:{selectedNetwork.sourcePort ?? "—"}</dd></div>
-                <div><dt>Destination</dt><dd>{selectedNetwork.destinationIp}:{selectedNetwork.destinationPort ?? "—"}</dd></div>
+                <div><dt>Source</dt><dd>{selectedNetwork.sourceIp}:{selectedNetwork.sourcePort ?? ", "}</dd></div>
+                <div><dt>Destination</dt><dd>{selectedNetwork.destinationIp}:{selectedNetwork.destinationPort ?? ", "}</dd></div>
                 <div><dt>Protocol</dt><dd>{selectedNetwork.protocol.toUpperCase()}</dd></div>
                 <div>
                   <dt>Process</dt>
@@ -966,7 +966,7 @@ export function EdrWorkspace({
                             ? ` (pid ${selectedNetwork.processId})`
                             : ""
                         }`
-                      : "Not attributed — seen by a network sensor, off the host"}
+                      : "Not attributed, seen by a network sensor, off the host"}
                   </dd>
                 </div>
                 <div><dt>Observed</dt><dd>{selectedNetwork.timestamp}</dd></div>
@@ -993,7 +993,7 @@ export function EdrWorkspace({
               </div>
               <dl className="edr-detail-fields">
                 <div><dt>Operation</dt><dd>{selectedFile.operation}</dd></div>
-                <div><dt>Account</dt><dd>{(selectedFile.accountId && accountNames.get(selectedFile.accountId)) ?? selectedFile.accountId ?? "—"}</dd></div>
+                <div><dt>Account</dt><dd>{(selectedFile.accountId && accountNames.get(selectedFile.accountId)) ?? selectedFile.accountId ?? ", "}</dd></div>
                 <div><dt>Observed</dt><dd>{selectedFile.timestamp}</dd></div>
               </dl>
               <DetailActionBar

@@ -516,7 +516,7 @@ function connectionRows(
     )
     .map((group) => ({
       primary: `${group.destination}:${
-        group.port ?? "—"
+        group.port ?? ", "
       }`,
 
       /*

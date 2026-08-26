@@ -45,8 +45,8 @@ interface IdentityWorkspaceProps {
 
   /**
    * Business context per entity, when the scenario carries it. On the
-   * identity console it is the privileged accounts -- the ones marked severe
-   * -- that most need to stand out from ordinary staff logins.
+   * identity console it is the privileged accounts, the ones marked severe
+   *, that most need to stand out from ordinary staff logins.
    */
   assets?: readonly AssetContext[];
 }
@@ -75,7 +75,7 @@ type SelectedIdentityEvent = {
 
 /*
   Constructed once. Building an Intl.DateTimeFormat is expensive, and this was
-  building a fresh one for every timestamp rendered -- which, on a scenario
+  building a fresh one for every timestamp rendered, which, on a scenario
   with twenty thousand events, was three seconds of the finalize interaction
   by itself, more than any other single thing the app did.
 */
@@ -153,7 +153,7 @@ export function IdentityWorkspace({
 
     A directory row showed a name, a department and three counts, and 120 of
     them looked the same. When an account was active is the thing that lets
-    an analyst spot the one that behaved unlike the rest -- a service account
+    an analyst spot the one that behaved unlike the rest, a service account
     that runs at 03:00 every night against a person who works office hours.
   */
   const activityByAccount = useMemo(() => {
@@ -602,18 +602,18 @@ export function IdentityWorkspace({
                                 ? "success"
                                 : `failure · ${activity.reason}`,
                             ],
-                            ["Source IP", activity.sourceIp ?? "—"],
+                            ["Source IP", activity.sourceIp ?? ", "],
                             [
                               "Device",
                               deviceId
                                 ? world.devices[deviceId]?.hostname ?? deviceId
-                                : "—",
+                                : ", ",
                             ],
                             [
                               "Application",
                               applicationId
                                 ? world.applications[applicationId]?.name ?? applicationId
-                                : "—",
+                                : ", ",
                             ],
                             ["Timestamp", activity.timestamp],
                           ],
@@ -627,16 +627,16 @@ export function IdentityWorkspace({
                       }>
                         {succeeded ? "SUCCESS" : "FAILED"}
                       </span>
-                      <code>{activity.sourceIp ?? "—"}</code>
+                      <code>{activity.sourceIp ?? ", "}</code>
                       <span>
                         {deviceId
                           ? world.devices[deviceId]?.hostname ?? deviceId
-                          : "—"}
+                          : ", "}
                       </span>
                       <span>
                         {applicationId
                           ? world.applications[applicationId]?.name ?? applicationId
-                          : "—"}
+                          : ", "}
                       </span>
                       <time>{formatTimestamp(activity.timestamp)}</time>
                     </button>
@@ -671,10 +671,10 @@ export function IdentityWorkspace({
                       fields: [
                         ["Session ID", context.session.id],
                         ["Status", context.session.status],
-                        ["Device", context.device?.hostname ?? context.session.deviceId ?? "—"],
-                        ["Application", context.application?.name ?? context.session.applicationId ?? "—"],
+                        ["Device", context.device?.hostname ?? context.session.deviceId ?? ", "],
+                        ["Application", context.application?.name ?? context.session.applicationId ?? ", "],
                         ["Started", context.session.startedAt],
-                        ["Ended", context.session.endedAt ?? "—"],
+                        ["Ended", context.session.endedAt ?? ", "],
                       ],
                     });
                   }}
@@ -683,7 +683,7 @@ export function IdentityWorkspace({
                     <strong>{context.session.id}</strong>
                     <small>{context.application?.name ?? "Unknown application"}</small>
                   </span>
-                  <span>{context.device?.hostname ?? context.session.deviceId ?? "—"}</span>
+                  <span>{context.device?.hostname ?? context.session.deviceId ?? ", "}</span>
                   <span className={`session-state ${context.session.status}`}>
                     {context.session.status}
                   </span>
@@ -697,7 +697,7 @@ export function IdentityWorkspace({
             <div className="identity-session-list">
               {investigation.accountStatusActivity.length === 0 ? (
                 <div className="identity-empty-state">
-                  No lifecycle changes are recorded for this account in the current run &mdash; no status change, and no role granted or removed.
+                  No lifecycle changes are recorded for this account in the current run, no status change, and no role granted or removed.
                 </div>
               ) : investigation.accountStatusActivity.map(
                 (activity) => (
@@ -726,7 +726,7 @@ export function IdentityWorkspace({
                           ...(activity.kind === "role_granted"
                             ? ([["Role", activity.role]] as [string, string][])
                             : []),
-                          ["Reason", activity.reason ?? "—"],
+                          ["Reason", activity.reason ?? ", "],
                           ["Timestamp", activity.timestamp],
                         ],
                       })

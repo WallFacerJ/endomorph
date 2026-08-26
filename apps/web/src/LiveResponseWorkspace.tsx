@@ -143,7 +143,7 @@ interface LiveResponseWorkspaceProps {
    * Scenario response operations. The header calls this console the one that
    * decides whether a machine goes back to its owner, so the containment that
    * follows from looking belongs here, not on a console the analyst has to
-   * leave for -- the same response-in-context rule the endpoint and identity
+   * leave for, the same response-in-context rule the endpoint and identity
    * consoles already follow.
    */
   readonly actions: readonly ScenarioAction[];
@@ -157,7 +157,7 @@ interface LiveResponseWorkspaceProps {
   /**
    * Business context per entity, when the scenario carries it. Shown on the
    * host status so the containment decision is made knowing what the host is
-   * worth -- isolating a severe-criticality Finance workstation and a
+   * worth, isolating a severe-criticality Finance workstation and a
    * print-room machine are not the same call.
    */
   readonly assets?: readonly AssetContext[];
@@ -251,7 +251,7 @@ export function LiveResponseWorkspace({
 
     /*
       offsetTop is already relative to the container, which is positioned for
-      exactly that reason -- subtracting the container's own offsetTop as well
+      exactly that reason, subtracting the container's own offsetTop as well
       scrolled to a point above the target and left the selection off screen.
     */
     container.scrollTop =
@@ -695,7 +695,7 @@ function LiveRow({
 
             A state with no reasoning attached is an assertion, and an analyst
             who cannot see how a verdict was reached learns to accept verdicts
-            -- the opposite of the habit this product exists to build.
+           , the opposite of the habit this product exists to build.
           */}
           {row.basis && (
             <p className="live-row-basis">

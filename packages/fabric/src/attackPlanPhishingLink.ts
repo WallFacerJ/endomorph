@@ -15,7 +15,7 @@ const BROWSER =
  * Credential phishing by link.
  *
  * The macro plan taught that an intrusion need not begin at a login; this one
- * teaches the domain the corpus could not express at all until now -- mail. The
+ * teaches the domain the corpus could not express at all until now, mail. The
  * chain begins with a message, and the message is the evidence: a lookalike
  * sender domain, an urgency lure, and a link to a credential-harvesting page
  * that is not the real sign-in host. The victim clicks, their password is
@@ -23,7 +23,7 @@ const BROWSER =
  * credential and no malware anywhere.
  *
  * The lesson is that the earliest and cheapest place to catch this is the mail
- * itself -- but only with a rule specific enough to clear the benign external
+ * itself, but only with a rule specific enough to clear the benign external
  * mail that shares its shape, which the background now generates. A rule that
  * fires on "an external email with a link" drowns; one that reads the link's
  * destination does not.
@@ -34,7 +34,7 @@ export const PHISHING_LINK_PLAN: AttackPlan =
     name: "Credential phishing by link",
     difficulty: "standard",
     lesson:
-      "This intrusion begins in mail, a domain no host-centric investigation will surface: there is no malware, no anomalous process, and the eventual login uses a valid credential. The evidence is the message -- a lookalike sender domain and a link to a host that is not the real sign-in page -- and the login that follows it from an unfamiliar address. Catch it at the mail, but only with a rule that reads the link rather than the mere presence of one, because ordinary external mail carries links too.",
+      "This intrusion begins in mail, a domain no host-centric investigation will surface: there is no malware, no anomalous process, and the eventual login uses a valid credential. The evidence is the message, a lookalike sender domain and a link to a host that is not the real sign-in page, and the login that follows it from an unfamiliar address. Catch it at the mail, but only with a rule that reads the link rather than the mere presence of one, because ordinary external mail carries links too.",
     requires: {},
 
     techniques: [
@@ -65,7 +65,7 @@ export const PHISHING_LINK_PLAN: AttackPlan =
         significance: (cast) =>
           `${cast.subject.displayName} received a mailbox-quota warning from ${PHISH_SENDER}, with a link to ${PHISH_HOST}. It is one of many external messages delivered this morning.`,
         reasoning: () =>
-          "Do not flag this on the strength of it being external and carrying a link -- ordinary vendor and newsletter mail is exactly that, and a rule built on the pair fires all day. What separates this message is the destination of the link: the sender impersonates the sign-in provider, but the host is a lookalike registered to capture credentials, not the real one. Read the link's host, compare it to the genuine sign-in domain, and carry the address forward -- it is what you will hunt for in the proxy logs to find everyone else who clicked.",
+          "Do not flag this on the strength of it being external and carrying a link, ordinary vendor and newsletter mail is exactly that, and a rule built on the pair fires all day. What separates this message is the destination of the link: the sender impersonates the sign-in provider, but the host is a lookalike registered to capture credentials, not the real one. Read the link's host, compare it to the genuine sign-in domain, and carry the address forward, it is what you will hunt for in the proxy logs to find everyone else who clicked.",
         build: (cast) => ({
           type: "EMAIL_RECEIVED",
           source: "mail",
@@ -94,7 +94,7 @@ export const PHISHING_LINK_PLAN: AttackPlan =
         significance: (cast) =>
           `A browser on ${cast.subjectDevice.hostname} made an outbound HTTPS connection to ${PHISH_HOST} moments after the email arrived.`,
         reasoning: () =>
-          "This is the click, and it converts a delivered lure into an actioned one -- the difference between a message that was blocked or ignored and a credential that is now in someone else's hands. The connection itself looks like any other web request; what makes it matter is the destination and the timing, seconds after the mail. Establish whether credentials were entered before assuming the worst, but treat the account as at risk from here, and pivot on the host to find every other click.",
+          "This is the click, and it converts a delivered lure into an actioned one, the difference between a message that was blocked or ignored and a credential that is now in someone else's hands. The connection itself looks like any other web request; what makes it matter is the destination and the timing, seconds after the mail. Establish whether credentials were entered before assuming the worst, but treat the account as at risk from here, and pivot on the host to find every other click.",
         build: (cast) => ({
           type: "NETWORK_CONNECTION",
           source: "network",
@@ -119,7 +119,7 @@ export const PHISHING_LINK_PLAN: AttackPlan =
         significance: (cast) =>
           `A successful sign-in for ${cast.subjectAccount.username} from ${cast.externalIp}, an address this account has never used, minutes after the click.`,
         reasoning: () =>
-          "This is the payoff, and it is a valid-accounts login: the credential is real, the multi-factor step was either absent or satisfied by the same phishing page, and nothing about the authentication is malformed. What is anomalous is the context -- a new source address, and a sequence that starts at a lure the same account received minutes earlier. Correlate the sign-in back to the mail and the click; individually each is weak, together they are the intrusion. Revoke the session and reset the credential, because unlike a host compromise there is nothing on a machine to isolate.",
+          "This is the payoff, and it is a valid-accounts login: the credential is real, the multi-factor step was either absent or satisfied by the same phishing page, and nothing about the authentication is malformed. What is anomalous is the context, a new source address, and a sequence that starts at a lure the same account received minutes earlier. Correlate the sign-in back to the mail and the click; individually each is weak, together they are the intrusion. Revoke the session and reset the credential, because unlike a host compromise there is nothing on a machine to isolate.",
         build: (cast) => ({
           type: "AUTH_LOGIN_SUCCEEDED",
           source: "identity",
@@ -196,7 +196,7 @@ export const PHISHING_LINK_PLAN: AttackPlan =
       `${cast.subject.displayName} received a credential-phishing email from ${PHISH_SENDER} impersonating Microsoft 365, with a link to the lookalike host ${PHISH_HOST}. A browser on ${cast.subjectDevice.hostname} connected to that host, and minutes later ${cast.subjectAccount.username} signed in successfully from ${cast.externalIp}, an address the account had never used. No malware ran and the credential was valid; the intrusion lived entirely in mail and identity.`,
 
     containment: {
-      // Nothing on a host to isolate -- the compromise is a stolen credential.
+      // Nothing on a host to isolate, the compromise is a stolen credential.
       isolateDevice: false,
       disableAccount: true,
       revokeSession: true,

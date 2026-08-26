@@ -18,8 +18,8 @@ const ATTACHMENT =
  * Macro execution from a phishing attachment.
  *
  * The fifth lesson, and the one the other four leave open. Every existing
- * plan opens with an identity event -- a spray, an administrative sign-in, a
- * service account authenticating, a re-enabled account -- so an analyst who
+ * plan opens with an identity event, a spray, an administrative sign-in, a
+ * service account authenticating, a re-enabled account, so an analyst who
  * learns "start in Identity, find the anomalous authentication" is never
  * wrong here, and learns a habit that will fail them on the single most
  * common intrusion in the world.
@@ -40,7 +40,7 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
     name: "Phishing attachment with macro execution",
     difficulty: "standard",
     lesson:
-      "Not every intrusion begins at a login. Here the account is the genuine employee's, signed in from their own device at their usual hour, and no authentication in the incident is anomalous -- so an investigation that starts in Identity and works outward finds nothing to explain. The chain begins with a process, and the evidence is lineage: powershell.exe is ordinary, and powershell.exe launched by a word processor is not.",
+      "Not every intrusion begins at a login. Here the account is the genuine employee's, signed in from their own device at their usual hour, and no authentication in the incident is anomalous, so an investigation that starts in Identity and works outward finds nothing to explain. The chain begins with a process, and the evidence is lineage: powershell.exe is ordinary, and powershell.exe launched by a word processor is not.",
     requires: {
       windowsWorkstation: true,
       restrictedFile: true,
@@ -89,7 +89,7 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
         significance: (cast) =>
           `${cast.subject.displayName} opened ${ATTACHMENT} from Outlook. On its own this is one of several thousand documents opened across the estate today.`,
         reasoning: () =>
-          "Resist marking this as the finding just because it turned out to be the first step; at the time it was indistinguishable from ordinary work, and a detection built on it would flag every attachment anyone opens. The one detail worth carrying forward is the extension -- .docm is a macro-enabled document, which most business correspondence has no reason to be -- but that is a weak signal on its own and belongs in a hunt rather than an alert. You will usually reach this event by working backwards from the execution, not by noticing it first.",
+          "Resist marking this as the finding just because it turned out to be the first step; at the time it was indistinguishable from ordinary work, and a detection built on it would flag every attachment anyone opens. The one detail worth carrying forward is the extension, .docm is a macro-enabled document, which most business correspondence has no reason to be, but that is a weak signal on its own and belongs in a hunt rather than an alert. You will usually reach this event by working backwards from the execution, not by noticing it first.",
         build: (cast) => ({
           type: "PROCESS_STARTED",
           source: "edr",
@@ -115,7 +115,7 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
         significance: () =>
           `Encoded PowerShell launched with a hidden window, and its parent is ${ATTACHMENT}'s WINWORD.EXE. No business process on this estate starts a scripting host from a word processor.`,
         reasoning: () =>
-          "This is the finding, and it is a lineage finding rather than a command-line one. Encoded and hidden PowerShell is suspicious anywhere, but on its own it still competes with administrative tooling that legitimately hides windows and passes encoded arguments; the estate runs scheduled PowerShell all day. What has no legitimate counterpart is the parent. Office applications open, render and print documents -- nothing in that job requires spawning an interpreter -- so the pairing of a document host with a scripting host is close to unambiguous, which is rare and worth using. Confirm the parent's own image rather than trusting the pid, then go back to what that parent opened.",
+          "This is the finding, and it is a lineage finding rather than a command-line one. Encoded and hidden PowerShell is suspicious anywhere, but on its own it still competes with administrative tooling that legitimately hides windows and passes encoded arguments; the estate runs scheduled PowerShell all day. What has no legitimate counterpart is the parent. Office applications open, render and print documents, nothing in that job requires spawning an interpreter, so the pairing of a document host with a scripting host is close to unambiguous, which is rare and worth using. Confirm the parent's own image rather than trusting the pid, then go back to what that parent opened.",
         build: (cast, _index, evasion) => ({
           type: "PROCESS_STARTED",
           source: "edr",
@@ -124,7 +124,7 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
             deviceId: cast.subjectDevice.id,
             processId: "3204",
             image: POWERSHELL,
-            // A command-line rule keys on the loud shape -- the `-enc` flag and
+            // A command-line rule keys on the loud shape, the `-enc` flag and
             // a hidden window. The stealth variant obfuscates the flag (`-e`)
             // and drops the hidden window, so a rule pinned to `-enc` misses it
             // while the lineage rule (a word processor spawned a scripting host)
@@ -150,7 +150,7 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
         significance: (cast) =>
           `Outbound HTTPS to ${cast.c2Ip}, repeating at a regular interval after the macro ran.`,
         reasoning: () =>
-          "Port 443 to an external address is the most ordinary traffic in the environment and the destination is not what makes this notable -- the regularity is. Human browsing is bursty and irregular; a fixed interval means software, and software that starts talking to a new address seconds after an interpreter launched is the software that interpreter fetched. Pivot on the address across every host before you close this one: the value of a command and control address is that it identifies the other machines you did not know were involved.",
+          "Port 443 to an external address is the most ordinary traffic in the environment and the destination is not what makes this notable, the regularity is. Human browsing is bursty and irregular; a fixed interval means software, and software that starts talking to a new address seconds after an interpreter launched is the software that interpreter fetched. Pivot on the address across every host before you close this one: the value of a command and control address is that it identifies the other machines you did not know were involved.",
         build: (cast, index) => ({
           type: "NETWORK_CONNECTION",
           source: "network",
@@ -180,7 +180,7 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
         significance: () =>
           "A registry Run key written from the same PowerShell session, so the payload survives a restart.",
         reasoning: () =>
-          "Persistence is what separates an incident you can close by rebooting from one you cannot, so this step changes the response rather than the diagnosis. Note that it also changes the containment question: isolating the host stops the beacon but leaves the key in place, and the machine will start talking again the moment it is returned to the network. Whatever you decide, record the key's value -- it names the payload, and the payload is what you will hunt for on every other host.",
+          "Persistence is what separates an incident you can close by rebooting from one you cannot, so this step changes the response rather than the diagnosis. Note that it also changes the containment question: isolating the host stops the beacon but leaves the key in place, and the machine will start talking again the moment it is returned to the network. Whatever you decide, record the key's value, it names the payload, and the payload is what you will hunt for on every other host.",
         build: (cast) => ({
           type: "PROCESS_STARTED",
           source: "edr",
@@ -208,7 +208,7 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
         significance: () =>
           "LSASS memory dumped through rundll32 and a signed Windows library. This is an attempt to take credentials off the host.",
         reasoning: () =>
-          "Read this as a scope change rather than another indicator. Everything before it concerns one machine; this step is an attempt to obtain credentials that work on others, and you must now assume that every credential cached on this host is compromised -- including any administrator who has logged in here recently, which is the detail that turns a single-workstation incident into an estate-wide one. Check which accounts had sessions on this host, and treat the answer as your containment scope. Note also that the tooling is entirely signed and built in, so allow-listing by publisher would not have stopped it.",
+          "Read this as a scope change rather than another indicator. Everything before it concerns one machine; this step is an attempt to obtain credentials that work on others, and you must now assume that every credential cached on this host is compromised, including any administrator who has logged in here recently, which is the detail that turns a single-workstation incident into an estate-wide one. Check which accounts had sessions on this host, and treat the answer as your containment scope. Note also that the tooling is entirely signed and built in, so allow-listing by publisher would not have stopped it.",
         build: (cast) => ({
           type: "PROCESS_STARTED",
           source: "edr",
@@ -236,7 +236,7 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
         significance: (cast) =>
           `${cast.targetFile.name} read from ${cast.subjectDevice.hostname}. This is the business impact.`,
         reasoning: () =>
-          "This is the step the business will ask about first, and the one where precision matters most. The account genuinely had access, so the question is not whether the read was permitted but whether the person made it -- and by this point in the timeline the answer is that a process running under their name did, which is a different claim you must be careful to make correctly. Establish whether the file left the host before describing this as a loss; reading and exfiltration are separate events and only one of them is reportable.",
+          "This is the step the business will ask about first, and the one where precision matters most. The account genuinely had access, so the question is not whether the read was permitted but whether the person made it, and by this point in the timeline the answer is that a process running under their name did, which is a different claim you must be careful to make correctly. Establish whether the file left the host before describing this as a loss; reading and exfiltration are separate events and only one of them is reportable.",
         build: (cast) => ({
           type: "FILE_ACCESSED",
           source: "file_server",
@@ -335,7 +335,7 @@ export const MACRO_EXECUTION_PLAN: AttackPlan =
     alertStepIds: ["macro-spawn"],
 
     summary: (cast) =>
-      `${cast.subject.displayName} opened ${ATTACHMENT} on ${cast.subjectDevice.hostname} while already signed in from their usual address. The document's macro launched encoded PowerShell, which beaconed to ${cast.c2Ip}, wrote a Run key for persistence, dumped LSASS memory through rundll32 and a signed Windows library, and read ${cast.targetFile.name}. No authentication in this incident is anomalous, because the attacker never authenticated -- they executed inside a session the genuine user had already opened.`,
+      `${cast.subject.displayName} opened ${ATTACHMENT} on ${cast.subjectDevice.hostname} while already signed in from their usual address. The document's macro launched encoded PowerShell, which beaconed to ${cast.c2Ip}, wrote a Run key for persistence, dumped LSASS memory through rundll32 and a signed Windows library, and read ${cast.targetFile.name}. No authentication in this incident is anomalous, because the attacker never authenticated, they executed inside a session the genuine user had already opened.`,
 
     containment: {
       isolateDevice: true,

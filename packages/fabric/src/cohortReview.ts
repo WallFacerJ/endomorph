@@ -81,7 +81,7 @@ export function renderCohortReview(): string {
 <main>
   <h1>Cohort review</h1>
   <p class="lede">
-    Paste the assessment records your analysts exported &mdash; one JSON object per line,
+    Paste the assessment records your analysts exported, one JSON object per line,
     or a JSON array. Nothing is uploaded; this page reads what you paste and nothing else.
   </p>
 
@@ -97,7 +97,7 @@ export function renderCohortReview(): string {
 
   <footer>
     Endomorph cohort review. Results are only comparable when they share a scenario,
-    a seed and an assistance level &mdash; this page says so rather than assuming it.
+    a seed and an assistance level, this page says so rather than assuming it.
   </footer>
 </main>
 

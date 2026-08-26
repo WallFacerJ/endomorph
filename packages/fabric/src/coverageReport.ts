@@ -312,7 +312,7 @@ export function renderCoverageReport(
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Detection coverage — ${escapeHtml(
+<title>Detection coverage, ${escapeHtml(
     rulesetName,
   )}</title>
 <style>
@@ -421,7 +421,7 @@ export function renderCoverageReport(
                 technique.id,
               )}</code> ${escapeHtml(
                 technique.name,
-              )} — seen in ${escapeHtml(
+              )}, seen in ${escapeHtml(
                 technique.plans.join(", "),
               )}</li>`,
           )

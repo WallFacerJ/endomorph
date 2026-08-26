@@ -53,7 +53,7 @@ export function DetectionReviewPanel({
 
   /*
     A rule whose technique this incident never demonstrates had nothing to
-    find, so it is not a miss -- but it still charged for whatever it raised.
+    find, so it is not a miss, but it still charged for whatever it raised.
     Recall is vacuously perfect in that case, by the evaluator's deliberate
     choice, and printing "100%" next to zero true positives reads as a
     success. Those rows say so instead.
@@ -95,7 +95,7 @@ export function DetectionReviewPanel({
             exact: they are counted, not
             sampled or estimated. You
             worked this incident by hand
-            &mdash; this is what the
+           , this is what the
             automated detections would
             have given you.
           </p>
@@ -201,7 +201,7 @@ export function DetectionReviewPanel({
                 <td>
                   <code>
                     {evaluation.technique ??
-                      "—"}
+                      ", "}
                   </code>
                 </td>
 
@@ -294,7 +294,7 @@ export function DetectionReviewPanel({
               .join(", ")}
             . A rule that targets a
             technique present here and
-            matched none of it &mdash;
+            matched none of it , 
             which reads as coverage on a
             dashboard and is not.
           </p>

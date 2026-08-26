@@ -19,13 +19,13 @@ import type {
  *
  * The first version of this generator hard-coded one intrusion. Changing the
  * seed produced different names and addresses but always the same chain, the
- * same techniques, and the same questions -- an analyst learned nothing the
+ * same techniques, and the same questions, an analyst learned nothing the
  * second time. Depth without variety.
  *
  * A plan declares its steps, its ATT&CK mapping, and its questions. The
  * renderer resolves a cast from the generated enterprise and plays the plan
  * against it. Adding an intrusion means adding data, not editing the
- * renderer -- which is also what makes the library safely extensible by
+ * renderer, which is also what makes the library safely extensible by
  * generation rather than by hand: a plan is validated structurally and then
  * proven by the same determinism and coherence tests every other plan passes.
  */
@@ -55,8 +55,8 @@ export type PlanDifficulty =
  * Varying the enterprise stresses whether a rule generalises across worlds;
  * varying the attack stresses whether it generalises across tradecraft. A
  * `stealth` variant renders the same technique with the loud, keyable details
- * removed -- an obfuscated flag instead of `-enc`, a real browser user agent
- * instead of a hardcoded one -- so a rule pinned to the noisy shape misses it
+ * removed, an obfuscated flag instead of `-enc`, a real browser user agent
+ * instead of a hardcoded one, so a rule pinned to the noisy shape misses it
  * while a behavioural rule still holds.
  */
 export type EvasionLevel =
@@ -80,7 +80,7 @@ export interface IncidentCast {
   /**
    * A disabled or dormant account belonging to someone else.
    *
-   * The generator creates these as ordinary noise -- staff who left, or
+   * The generator creates these as ordinary noise, staff who left, or
    * accounts that fell out of use. A plan can reach for one when the lesson
    * is about identity lifecycle rather than authentication.
    */

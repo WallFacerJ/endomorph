@@ -38,7 +38,7 @@ export interface ReplayScrubberProps {
    * Event density across the run, one value per slice.
    *
    * The track was a flat bar, so dragging it gave no sense of what was being
-   * scrubbed past -- 12,000 events and 200 look identical on a plain range
+   * scrubbed past, 12,000 events and 200 look identical on a plain range
    * input. The density is the environment's working rhythm, which is what
    * makes a quiet stretch or a burst worth stopping on.
    */
@@ -61,7 +61,7 @@ function formatTime(
   timestamp: string | undefined,
 ): string {
   if (!timestamp) {
-    return "—";
+    return ", ";
   }
 
   return `${timestamp.slice(0, 10)} ${timestamp.slice(11, 19)}`;

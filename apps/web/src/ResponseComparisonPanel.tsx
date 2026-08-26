@@ -10,7 +10,7 @@ import "./ResponseComparisonPanel.css";
  * Rewinding shows what the incident looked like earlier. This answers the
  * question that actually changes behaviour: what would have happened if I
  * had decided differently. Because the runtime is deterministic and actions
- * are declarative, every figure here is exact rather than estimated -- the
+ * are declarative, every figure here is exact rather than estimated, the
  * same scoring function run over a different sequence.
  */
 

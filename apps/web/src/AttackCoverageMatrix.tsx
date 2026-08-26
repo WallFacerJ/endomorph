@@ -21,7 +21,7 @@ import "./AttackCoverageMatrix.css";
  * Detection posture at a glance: an ATT&CK heatmap of what a ruleset catches
  * across every intrusion.
  *
- * By default it scores the shipped ruleset -- the demo. But the real product
+ * By default it scores the shipped ruleset, the demo. But the real product
  * value is the "Your ruleset" mode: paste a whole detection repo (many rules
  * separated by `---`, in any of the five languages) and get *your* ATT&CK
  * coverage, computed from ground truth in the browser. A technique is covered
@@ -355,7 +355,7 @@ export function AttackCoverageMatrix() {
             ))}
           </div>
           <p className="cov-custom-hint">
-            Paste your detection repo —
+            Paste your detection repo , 
             multiple rules separated by a
             line of{" "}
             <code>---</code>. Scored across

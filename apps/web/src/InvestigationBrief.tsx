@@ -70,7 +70,7 @@ export interface InvestigationBriefProps {
   /**
    * Whether the technique identities may be shown during the run.
    *
-   * Naming them up front tells an analyst what to go hunting for -- knowing
+   * Naming them up front tells an analyst what to go hunting for, knowing
    * that LSASS dumping is in scope is most of the work of finding it. A real
    * analyst gets an alert, not a technique list, so Professional counts them
    * while the run is live and names them in the after-action review.
@@ -216,7 +216,7 @@ export function InvestigationBrief({
               {techniques.length} ATT&amp;CK
               techniques. Which ones is
               withheld while the run is
-              live &mdash; naming them
+              live, naming them
               tells you what to hunt for,
               and an alert never does.
               They are listed in full once

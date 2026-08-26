@@ -1,6 +1,6 @@
 # Endomorph
 
-**A deterministic generator of labelled enterprise security telemetry — attack and benign — with ground truth known by construction, so detections can be *measured* instead of estimated.**
+**A deterministic generator of labelled enterprise security telemetry, attack and benign, with ground truth known by construction, so detections can be *measured* instead of estimated.**
 
 **[Open the Detection Lab →](https://wallfacerj.github.io/endomorph/?lab)** · [Investigate an incident →](https://wallfacerj.github.io/endomorph/) · runs in a browser tab, no signup, no infrastructure.
 
@@ -8,11 +8,11 @@ A corpus captured from a real network has to be labelled by hand, and the labels
 
 ## What you can do with it
 
-- **Score a detection rule against ground truth.** Paste **Sigma, KQL, SPL, EQL, or ES|QL** into the browser [Detection Lab](https://wallfacerj.github.io/endomorph/?lab) and get counted precision, recall, and ATT&CK coverage in under two seconds — with a drill-down into the exact benign events it fired on and the malicious ones it missed. A scored rule is a shareable link.
-- **Gate a detection-rules repo in CI.** Score a whole ruleset on every pull request, fail on regression against a baseline, and emit a coverage badge for the README — [detection-as-code](docs/detection-as-code.md).
-- **Benchmark against a stable corpus.** Eleven seeded intrusions, 37 ATT&CK techniques (through Impact — ransomware), ~52k labelled events across endpoint, identity, network, DNS, web/proxy, file, mail, and cloud control-plane telemetry, with realistic false-positive noise — exportable as ECS / OCSF / Splunk.
-- **Grade AI-generated detections.** The labelled corpus is a ground-truth eval set: [`--ai-eval`](docs/ai-detection-eval.md) hands an agent label-stripped tasks, and `--rubric` grades what it writes back — *N/M techniques detected to standard*.
-- **Investigate the incidents by hand.** A full analyst console — SIEM, EDR, identity, live response, and an incident-command Case — over the same generated world, for training that cannot be memorised because changing the seed changes the enterprise while the reasoning holds.
+- **Score a detection rule against ground truth.** Paste **Sigma, KQL, SPL, EQL, or ES|QL** into the browser [Detection Lab](https://wallfacerj.github.io/endomorph/?lab) and get counted precision, recall, and ATT&CK coverage in under two seconds, with a drill-down into the exact benign events it fired on and the malicious ones it missed. A scored rule is a shareable link.
+- **Gate a detection-rules repo in CI.** Score a whole ruleset on every pull request, fail on regression against a baseline, and emit a coverage badge for the README, [detection-as-code](docs/detection-as-code.md).
+- **Benchmark against a stable corpus.** Eleven seeded intrusions, 37 ATT&CK techniques (through Impact, ransomware), ~52k labelled events across endpoint, identity, network, DNS, web/proxy, file, mail, and cloud control-plane telemetry, with realistic false-positive noise, exportable as ECS / OCSF / Splunk.
+- **Grade AI-generated detections.** The labelled corpus is a ground-truth eval set: [`--ai-eval`](docs/ai-detection-eval.md) hands an agent label-stripped tasks, and `--rubric` grades what it writes back, *N/M techniques detected to standard*.
+- **Investigate the incidents by hand.** A full analyst console, SIEM, EDR, identity, live response, and an incident-command Case, over the same generated world, for training that cannot be memorised because changing the seed changes the enterprise while the reasoning holds.
 
 Everything is deterministic and runs in the browser; the same seed reproduces the same world byte-for-byte.
 
@@ -40,7 +40,7 @@ Sibling streams cannot disturb each other and fork order is irrelevant. Raising 
 flowchart TD
     seed["seed + profile"] --> fabric
 
-    subgraph fabric["packages/fabric — generator"]
+    subgraph fabric["packages/fabric, generator"]
         cursor["RandomCursor<br/>splittable PRNG"]
         topo["topology<br/>444 entities"]
         base["5 days of<br/>benign activity"]
@@ -54,7 +54,7 @@ flowchart TD
     corpus --> detect["detection evaluation<br/>TP / FP / coverage"]
     scenario --> sim
 
-    subgraph sim["packages/simulation — runtime"]
+    subgraph sim["packages/simulation, runtime"]
         store["append-only<br/>event store"]
         proj["projections"]
         store --> proj
@@ -66,15 +66,15 @@ flowchart TD
     proj --> case["Incident command"]
 ```
 
-Everything downstream is derived. The SIEM, endpoint, and identity consoles are **projections of one event history**, not separate datasets — which is why a pivot in one tool lands on the same event in another, and why the incident-command graph can assemble itself from whatever evidence the analyst collected.
+Everything downstream is derived. The SIEM, endpoint, and identity consoles are **projections of one event history**, not separate datasets, which is why a pivot in one tool lands on the same event in another, and why the incident-command graph can assemble itself from whatever evidence the analyst collected.
 
-Content is data, not code. An attack plan declares its steps, techniques, and questions; the renderer plays it against whatever enterprise the seed produced. Adding an intrusion means adding a plan — and because plans pass through Zod validation, semantic reference checks, the runtime's own event validator, and the determinism suite, **generated content cannot corrupt the runtime**.
+Content is data, not code. An attack plan declares its steps, techniques, and questions; the renderer plays it against whatever enterprise the seed produced. Adding an intrusion means adding a plan, and because plans pass through Zod validation, semantic reference checks, the runtime's own event validator, and the determinism suite, **generated content cannot corrupt the runtime**.
 
 ## Try Endomorph
 
 **Hosted app:** https://wallfacerj.github.io/endomorph/
 
-**Detection lab:** https://wallfacerj.github.io/endomorph/?lab — for detection engineers, not trainees: pick a generated scenario, see how a sample ruleset scores against its labelled corpus, then paste your own rule — in **Sigma, KQL, SPL, EQL, or ES|QL** — and get precision and recall counted against ground truth, with a drill-down into the exact benign events it fired on and the malicious ones it missed. A scored rule is a shareable link. No investigation to play through.
+**Detection lab:** https://wallfacerj.github.io/endomorph/?lab, for detection engineers, not trainees: pick a generated scenario, see how a sample ruleset scores against its labelled corpus, then paste your own rule, in **Sigma, KQL, SPL, EQL, or ES|QL**, and get precision and recall counted against ground truth, with a drill-down into the exact benign events it fired on and the malicious ones it missed. A scored rule is a shareable link. No investigation to play through.
 
 The app root is a short landing page explaining what Endomorph is, with doors into the lab and an investigation; every deep link (`?scenario=`, `?mode=`, `?lab`) still goes straight where it did.
 
@@ -89,7 +89,7 @@ pnpm bundle:standalone                       # every scenario, one HTML file
 pnpm --filter @endomorph/fabric bundle:standalone --   --scenarios=generated-enterprise,generated-macro    # a subset
 ```
 
-`dist-standalone/endomorph.html` opens in a browser with no server and no network access — scenarios are gzipped and inlined, and the bundler verifies there are no external references. `--scenarios` names the ones to carry, for hosts with a size ceiling the product does not control; the point is that dropping a scenario stays an explicit decision rather than a silent cap on the plan library.
+`dist-standalone/endomorph.html` opens in a browser with no server and no network access, scenarios are gzipped and inlined, and the bundler verifies there are no external references. `--scenarios` names the ones to carry, for hosts with a size ceiling the product does not control; the point is that dropping a scenario stays an explicit decision rather than a silent cap on the plan library.
 
 ## What ships today
 
@@ -143,37 +143,37 @@ Each generated incident is built to defeat the habit the previous one rewards, w
 
 **Service account abuse** breaks it again. The credential is valid and the traffic is internal, but the account is being used from a host it has never authenticated from.
 
-**Dormant account revived** is not about authentication at all — a single identity lifecycle change, with no volume behind it for a threshold to catch.
+**Dormant account revived** is not about authentication at all, a single identity lifecycle change, with no volume behind it for a threshold to catch.
 
 **Phishing macro execution** begins with a process rather than a login. The account is the real employee's, signed in from their own device, and no authentication in the incident is anomalous, so an investigation that starts in Identity finds nothing to explain.
 
-**Directory role elevation** never touches an endpoint at all — no process tree, no command line — so an analyst who has learned to pivot to the host finds a console with genuinely nothing in it.
+**Directory role elevation** never touches an endpoint at all, no process tree, no command line, so an analyst who has learned to pivot to the host finds a console with genuinely nothing in it.
 
-**Credential phishing by link** is the first plan to exercise the mail domain, and it lives entirely in mail and identity: a lookalike-sender lure, a click to a credential-harvesting host, and a valid-credential login from a new address. There is no malware and no anomalous process — the earliest place to catch it is the message, but only with a rule specific enough to clear the ordinary external mail the background now carries.
+**Credential phishing by link** is the first plan to exercise the mail domain, and it lives entirely in mail and identity: a lookalike-sender lure, a click to a credential-harvesting host, and a valid-credential login from a new address. There is no malware and no anomalous process, the earliest place to catch it is the message, but only with a rule specific enough to clear the ordinary external mail the background now carries.
 
-**OAuth consent to cloud data theft** never touches a host at all: a user consents to a malicious application, and from the returned token an attacker mints a credential, enumerates storage, and copies data to an external account. The only record is the cloud audit log, and the earliest signal — the consent grant — is the one that looks most like ordinary administration, separated from a legitimate consent by the app's publisher and the scopes it asked for rather than the act of consenting.
+**OAuth consent to cloud data theft** never touches a host at all: a user consents to a malicious application, and from the returned token an attacker mints a credential, enumerates storage, and copies data to an external account. The only record is the cloud audit log, and the earliest signal, the consent grant, is the one that looks most like ordinary administration, separated from a legitimate consent by the app's publisher and the scopes it asked for rather than the act of consenting.
 
-**DNS tunnelling & exfiltration** is invisible to every console except the resolver log: no process is anomalous, no sign-in is out of place, and the traffic is ordinary port-53 lookups. A beacon resolves a rotating set of algorithmically-generated domains and then tunnels data out inside enormous TXT query names — so a rule that reads the *shape* of the name (its entropy and length) catches it, while one that alerts on "a DNS query" drowns in tens of thousands of benign lookups.
+**DNS tunnelling & exfiltration** is invisible to every console except the resolver log: no process is anomalous, no sign-in is out of place, and the traffic is ordinary port-53 lookups. A beacon resolves a rotating set of algorithmically-generated domains and then tunnels data out inside enormous TXT query names, so a rule that reads the *shape* of the name (its entropy and length) catches it, while one that alerts on "a DNS query" drowns in tens of thousands of benign lookups.
 
-**Malicious download & web C2** is written for the proxy log rather than the connection log: a connection-only view sees a host talking to a few addresses on 443 and nothing more. The proxy sees the request — a payload downloaded over plain HTTP from a fresh lookalike host, a beacon carrying a user agent no real browser sends, and a large POST to an anonymous paste service — so the shipped connection-based beacon rules miss it entirely, and only a rule that reads the URL and the user agent catches it.
+**Malicious download & web C2** is written for the proxy log rather than the connection log: a connection-only view sees a host talking to a few addresses on 443 and nothing more. The proxy sees the request, a payload downloaded over plain HTTP from a fresh lookalike host, a beacon carrying a user agent no real browser sends, and a large POST to an anonymous paste service, so the shipped connection-based beacon rules miss it entirely, and only a rule that reads the URL and the user agent catches it.
 
-**Ransomware deployment** is the only intrusion that reaches the Impact tactic, and its lesson is timing: a scheduled task, endpoint protection disabled, and every volume shadow copy destroyed all precede the encryption, and the shadow-copy deletion — which nothing legitimate does on a workstation — is the last high-fidelity chance to contain before the files are gone.
+**Ransomware deployment** is the only intrusion that reaches the Impact tactic, and its lesson is timing: a scheduled task, endpoint protection disabled, and every volume shadow copy destroyed all precede the encryption, and the shadow-copy deletion, which nothing legitimate does on a workstation, is the last high-fidelity chance to contain before the files are gone.
 
 An analyst who works all eleven cannot come away with a checklist, which is the point: any single heuristic fails on at least one of them.
 
-Generated scenarios are **build artifacts, not source** — `pnpm build` produces them and they are not committed.
+Generated scenarios are **build artifacts, not source**, `pnpm build` produces them and they are not committed.
 
 Use the **Scenario** selector in the application to switch between them. Direct deep links using `?scenario=/scenarios/<file>.json` are also supported for local/custom authoring.
 
 ## Live response
 
-Every other console answers a historical question: what did this host do. A responder deciding whether to pull a machine off the network has a different one, and asks it of the machine — is that process still running, is the persistence still installed, who is signed in at this moment. Telemetry says a run key was written at 14:02; live response says it is still there now, and that is what decides whether the machine goes back to its owner.
+Every other console answers a historical question: what did this host do. A responder deciding whether to pull a machine off the network has a different one, and asks it of the machine, is that process still running, is the persistence still installed, who is signed in at this moment. Telemetry says a run key was written at 14:02; live response says it is still there now, and that is what decides whether the machine goes back to its owner.
 
 Five commands, each labelled with the question it answers rather than the listing it produces: processes, connections, persistence, logons and file changes.
 
 It invents nothing. Every fact is derived from events already in the corpus and already visible in the endpoint console, and only the framing changes. A live-response view that knew things the telemetry did not would be handing over the answer, and analysts would learn to run it first and think second.
 
-**Persistence is an odd-one-out exercise, not a presence check.** Every host in the estate carries three to seven legitimate autorun entries — sync clients, chat, updaters, the asset agent — held as state on the device itself. Without that baseline the compromised machine was the only one in the estate with anything in the list, and "does this host have persistence" would have been the whole investigation. With it, the planted entry sits in alphabetical order directly beneath the real one:
+**Persistence is an odd-one-out exercise, not a presence check.** Every host in the estate carries three to seven legitimate autorun entries, sync clients, chat, updaters, the asset agent, held as state on the device itself. Without that baseline the compromised machine was the only one in the estate with anything in the list, and "does this host have persistence" would have been the whole investigation. With it, the planted entry sits in alphabetical order directly beneath the real one:
 
 ```
 OneDrive       HKCU\...\CurrentVersion\Run   "C:\Program Files\Microsoft OneDrive\OneDrive.exe" /background
@@ -183,11 +183,11 @@ Teams          HKCU\...\CurrentVersion\Run   "C:\Program Files\Microsoft Teams\c
 
 An installer and a foothold write the same kind of record. Only the name and the directory tell them apart, which is the thing worth practising.
 
-**It says when it does not know.** The sensor records process start and not process exit, so a process is called *running* only where something was attributed to it recently, *exited* only where the program is one that does its work and returns, and *unknown* otherwise — with the reason on every row. Real live response has exactly these gaps, and three states with their reasoning teach the job better than two states and a guess.
+**It says when it does not know.** The sensor records process start and not process exit, so a process is called *running* only where something was attributed to it recently, *exited* only where the program is one that does its work and returns, and *unknown* otherwise, with the reason on every row. Real live response has exactly these gaps, and three states with their reasoning teach the job better than two states and a guess.
 
 **Any host is selectable, deliberately.** An analyst who has only ever run a command on a compromised machine has no idea which part of the output was the finding. Running the same command against a machine you suspect and one you do not is how you learn what ordinary looks like.
 
-**Containment does not cut you off.** Analysts routinely believe isolating a host loses them access to it and hesitate over containment for that reason. The agent channel is what survives — that is the point of containment — and the console says so at the moment somebody is deciding.
+**Containment does not cut you off.** Analysts routinely believe isolating a host loses them access to it and hesitate over containment for that reason. The agent channel is what survives, that is the point of containment, and the console says so at the moment somebody is deciding.
 
 Because it reads the replayed event window rather than the whole corpus, rewinding the scrubber and running a command again shows what the host would have said then. "Was the persistence there yet when the alert fired" is answerable.
 
@@ -214,13 +214,13 @@ External credential compromise  (credential-compromise)
   UNCOVERED            T1005, T1021.002, T1071.001
 ```
 
-Two of the shipped rules are deliberately imperfect, and the numbers say so. `naive-powershell` alerts on every PowerShell launch and scores **0.019 precision** — 1 true positive against 51 false. `external-auth-success` scores perfectly on the credential-compromise plan and **detects nothing at all** on the service-account plan, because that intrusion never leaves the corporate network.
+Two of the shipped rules are deliberately imperfect, and the numbers say so. `naive-powershell` alerts on every PowerShell launch and scores **0.019 precision**, 1 true positive against 51 false. `external-auth-success` scores perfectly on the credential-compromise plan and **detects nothing at all** on the service-account plan, because that intrusion never leaves the corporate network.
 
 Corpora export as newline-delimited JSON in Elastic Common Schema field names, with a manifest recording the seed, the plan, technique counts, and the malicious ratio.
 
 ### Does the rule generalise, or did it memorise?
 
-A score against one world is worth less than it looks. A rule keyed on the exact address an intrusion happened to use scores a perfect recall on that world and catches nothing on the next one — and a captured corpus, having exactly one world, can never tell the two apart. A generated one can:
+A score against one world is worth less than it looks. A rule keyed on the exact address an intrusion happened to use scores a perfect recall on that world and catches nothing on the next one, and a captured corpus, having exactly one world, can never tell the two apart. A generated one can:
 
 ```bash
 pnpm evaluate:robustness                 # score the ruleset across 20 seeded enterprises
@@ -253,7 +253,7 @@ pnpm evaluate -- --evasion stealth    # score against the stealth variant of eac
 
 At `stealth` the macro plan's PowerShell obfuscates its flag (`-e` rather than
 `-enc`) and drops the hidden window, so the command-line rule keyed on `-enc`
-falls from **recall 1.000 to 0.000** — while the behavioural lineage rule (a word
+falls from **recall 1.000 to 0.000**, while the behavioural lineage rule (a word
 processor spawned a scripting host) **holds at 1.000**, because the attacker
 cannot evade it without abandoning the technique. That contrast is the whole
 argument for writing behavioural detections, made into a number rather than an
@@ -290,9 +290,9 @@ pnpm noise-floor    # for each technique, how many benign events share its event
   2 are exposed (no benign event of their type -- a corpus with many of these would be too clean to trust).
 ```
 
-Encoded PowerShell hides among 863 benign process starts; the C2 beacon among 1,700 benign connections. That is the false-positive floor for an unspecific rule keyed on the behaviour — a floor a corpus with separable malicious traffic cannot offer, because there is nothing benign to be confused with. It is a floor, not a verdict: a specific rule does better, and closing that gap is the detection engineer's job — but the floor establishes there is a gap to close.
+Encoded PowerShell hides among 863 benign process starts; the C2 beacon among 1,700 benign connections. That is the false-positive floor for an unspecific rule keyed on the behaviour, a floor a corpus with separable malicious traffic cannot offer, because there is nothing benign to be confused with. It is a floor, not a verdict: a specific rule does better, and closing that gap is the detection engineer's job, but the floor establishes there is a gap to close.
 
-The report is honest about its own gaps, too. The **exposed** techniques above are identity-lifecycle actions the background never performs benignly, so a rule keyed on "a role was granted" catches the intrusion with zero false positives — realistic for role grants, which are rare, but a signal that those techniques are easy here for a reason worth checking rather than trusting.
+The report is honest about its own gaps, too. The **exposed** techniques above are identity-lifecycle actions the background never performs benignly, so a rule keyed on "a role was granted" catches the intrusion with zero false positives, realistic for role grants, which are rare, but a signal that those techniques are easy here for a reason worth checking rather than trusting.
 
 ### The benchmark as one artifact
 
@@ -310,7 +310,7 @@ Endomorph Detection Benchmark v1.0
   51961 records, 83 malicious (0.160%), 37 techniques across 11 plans
 ```
 
-The manifest carries aggregate counts, the union of techniques with how many plans exercise each and — from the noise floor — how buried each is, and a per-plan index pointing at the files. So the artifact says not only what it covers but how hard each technique is to detect cleanly, without a second command. The corpus files are byte-deterministic for a given seed, so two people who generate `v1.0` at the shipped seed hold identical telemetry — which is what lets a score computed against it mean the same thing to both of them.
+The manifest carries aggregate counts, the union of techniques with how many plans exercise each and, from the noise floor, how buried each is, and a per-plan index pointing at the files. So the artifact says not only what it covers but how hard each technique is to detect cleanly, without a second command. The corpus files are byte-deterministic for a given seed, so two people who generate `v1.0` at the shipped seed hold identical telemetry, which is what lets a score computed against it mean the same thing to both of them.
 
 ### Deliverables and operator flags
 
@@ -332,7 +332,7 @@ that used it, and rules ranked by the false positives they produced. It opens
 from an email attachment with no network access.
 
 **`--cohort-tool`** writes a page an instructor keeps. Analysts paste the
-assessment records their runs exported and get a comparison — including which
+assessment records their runs exported and get a comparison, including which
 question the group collectively missed, which names a gap in the teaching
 rather than in a person. Nothing is uploaded.
 
@@ -342,13 +342,13 @@ environment: department names, host codes, subnets and naming convention. See
 Determinism survives the reshaping, so a client-specific corpus is still
 reproducible.
 
-**`--format`** targets the platform the corpus is going into — `splunk`,
+**`--format`** targets the platform the corpus is going into, `splunk`,
 `elastic`, `sentinel` or neutral `ecs`. Labels travel with the data in every
 format, which is the entire reason to move a corpus into somebody else's
 platform: analysts can practise in the tool they use daily and engineers can
 score their own rules there, because the answers came along.
 
-### Bring your own rules — Sigma, KQL, SPL, EQL, ES|QL
+### Bring your own rules, Sigma, KQL, SPL, EQL, ES|QL
 
 Real Sigma YAML imports directly:
 
@@ -365,7 +365,7 @@ Sigma import from rules/sigma
 
 Sigma names fields the way Windows and Sysmon logs do; the corpus is ECS-shaped, so importing translates vocabularies (`Image|endswith` → `process.executable`) and maps `attack.t1059.001` tags to techniques. Supported: selections, negated filters, value lists under a modifier, `1 of selection_*`, and the `contains` / `startswith` / `endswith` / `re` modifiers.
 
-`rules/sigma-compat/` holds rules written in genuine SigmaHQ idiom rather than tailored to this importer, so the compatibility claim is measured rather than asserted. **Four of six import**; the two refusals are honest — the corpus models neither parent process images nor Windows event IDs, so `ParentImage` and `EventID` have nowhere truthful to go.
+`rules/sigma-compat/` holds rules written in genuine SigmaHQ idiom rather than tailored to this importer, so the compatibility claim is measured rather than asserted. **Four of six import**; the two refusals are honest, the corpus models neither parent process images nor Windows event IDs, so `ParentImage` and `EventID` have nowhere truthful to go.
 
 #### Other query languages (KQL, SPL, EQL, ES|QL)
 
@@ -378,11 +378,11 @@ pnpm evaluate -- --eql rules/eql     # Elastic EQL (<category> where <condition>
 pnpm evaluate -- --esql rules/esql   # Elastic ES|QL (FROM ... | WHERE ..., ECS-native)
 ```
 
-The same detection expressed in KQL, SPL, EQL, and ES|QL scores an identical 1.000/1.000 — the importers agree because they compile to one internal rule. As with Sigma, a construct a subset can't express — a transforming command, a sequence, mixed AND/OR, an unmapped field — is refused **by name with a reason**, never imported as a query that silently matches nothing. All five languages are also a toggle in the browser Detection Lab.
+The same detection expressed in KQL, SPL, EQL, and ES|QL scores an identical 1.000/1.000, the importers agree because they compile to one internal rule. As with Sigma, a construct a subset can't express, a transforming command, a sequence, mixed AND/OR, an unmapped field, is refused **by name with a reason**, never imported as a query that silently matches nothing. All five languages are also a toggle in the browser Detection Lab.
 
 #### Grading generated detections (AI eval)
 
-Because the labels are ground truth, the corpus is an eval set for generated detections — from a person, an LLM, or an AI SOC agent. `--ai-eval` exports label-stripped telemetry plus a task prompt and a separate hidden answer key; `--rubric` grades a scored ruleset pass/fail per technique against a recall/precision bar:
+Because the labels are ground truth, the corpus is an eval set for generated detections, from a person, an LLM, or an AI SOC agent. `--ai-eval` exports label-stripped telemetry plus a task prompt and a separate hidden answer key; `--rubric` grades a scored ruleset pass/fail per technique against a recall/precision bar:
 
 ```bash
 pnpm evaluate -- --ai-eval eval-set          # export the tasks an agent detects on
@@ -397,7 +397,7 @@ See [docs/ai-detection-eval.md](docs/ai-detection-eval.md).
 pnpm evaluate -- --sigma rules/sigma --badge coverage.svg
 ```
 
-A self-contained SVG (no external references) showing how many benchmark techniques the ruleset covers — commit it, or regenerate it from CI so it moves with the rules.
+A self-contained SVG (no external references) showing how many benchmark techniques the ruleset covers, commit it, or regenerate it from CI so it moves with the rules.
 
 #### Detection regression testing
 
@@ -408,7 +408,7 @@ pnpm evaluate:baseline                                  # record current perform
 pnpm evaluate -- --baseline rules/detection-baseline.json   # fail if it regresses
 ```
 
-The same loop gates a detection-rules repository in CI — score your Sigma rules on every pull request and fail on regression. See [docs/detection-as-code.md](docs/detection-as-code.md) and the adaptable [workflow](.github/workflows/detection-ci.example.yml).
+The same loop gates a detection-rules repository in CI, score your Sigma rules on every pull request and fail on regression. See [docs/detection-as-code.md](docs/detection-as-code.md) and the adaptable [workflow](.github/workflows/detection-ci.example.yml).
 
 ```bash
 pnpm evaluate -- --sigma path/to/your/rules --baseline detection-baseline.json
@@ -422,23 +422,23 @@ Baseline comparison against rules/detection-baseline.json
 Detection coverage regressed against the baseline.
 ```
 
-Non-zero exit, so it gates CI — and it does, on every push.
+Non-zero exit, so it gates CI, and it does, on every push.
 
 Because the corpus is generated from a fixed seed, the comparison is **exact**: two runs produce identical numbers, so any difference is attributable to a rule change rather than to sampling. That is the property a captured corpus cannot offer.
 
-It fails on lost technique coverage and on a rule that stops firing — the second matters because a coverage count alone hides it, since another rule can cover the same technique while a specific one quietly dies.
+It fails on lost technique coverage and on a rule that stops firing, the second matters because a coverage count alone hides it, since another rule can cover the same technique while a specific one quietly dies.
 
-Everything else is reported as a **notice**: it prints, and it does not fail. Added false positives are a notice because trading noise for recall is a legitimate call an author may be making deliberately. So is a rule that starts matching *more* — usually the goal, but the same signature is produced by a corpus change nobody intended, and it should never happen silently. So is a new plan no rule covers.
+Everything else is reported as a **notice**: it prints, and it does not fail. Added false positives are a notice because trading noise for recall is a legitimate call an author may be making deliberately. So is a rule that starts matching *more*, usually the goal, but the same signature is produced by a corpus change nobody intended, and it should never happen silently. So is a new plan no rule covers.
 
 A notice is not an improvement, and the distinction is the point: a rule that got noisier used to be reported in the same word as good news, which is a way of telling someone that reliably stops them looking.
 
 #### The loop this enables
 
-Adding the fourth attack plan showed the shipped ruleset detecting **nothing** on it — `techniques covered 0/4` — because no rule watched identity lifecycle. Two rules later (`account_reenabled`, `disabled_account_enumeration`) it reads `2/4`.
+Adding the fourth attack plan showed the shipped ruleset detecting **nothing** on it, `techniques covered 0/4`, because no rule watched identity lifecycle. Two rules later (`account_reenabled`, `disabled_account_enumeration`) it reads `2/4`.
 
 That is the whole argument for generating the corpus: the gap was a measurement, not a hunch, and closing it was verifiable.
 
-The same loop runs in the other direction. The noise floor (above) flagged the identity-lifecycle techniques as *exposed* — the background never re-enabled an account or granted a role benignly, so `account_reenabled` scored a perfect 1.000 precision it would never see in production. Adding a handful of benign re-enables and non-privileged role grants to the background dropped that rule to a realistic ~0.3, because keying on "an account was enabled" catches the ones that are supposed to happen too. `privileged-role-grant` held at 1.000, because it keys on administrative roles and the benign grants were not — which is the lesson made concrete: specificity is what separates a usable rule from a noisy one, and the corpus now contains the noise that proves it.
+The same loop runs in the other direction. The noise floor (above) flagged the identity-lifecycle techniques as *exposed*, the background never re-enabled an account or granted a role benignly, so `account_reenabled` scored a perfect 1.000 precision it would never see in production. Adding a handful of benign re-enables and non-privileged role grants to the background dropped that rule to a realistic ~0.3, because keying on "an account was enabled" catches the ones that are supposed to happen too. `privileged-role-grant` held at 1.000, because it keys on administrative roles and the benign grants were not, which is the lesson made concrete: specificity is what separates a usable rule from a noisy one, and the corpus now contains the noise that proves it.
 
 **Anything the subset cannot express is refused, never skipped.** A rule that silently matches nothing is indistinguishable from coverage until an incident is missed, so aggregations, cross-selection disjunctions, and unmapped fields raise an error naming the reason. A test asserts every shipped rule fires against at least one corpus.
 
@@ -478,15 +478,15 @@ Register a new file in `apps/web/src/scenarioLoader.ts` to make it appear in the
 
 The generator produces **five consecutive days**, and the intrusion lands on the last one. Every earlier day is untouched baseline.
 
-That is what makes an observation anomalous rather than merely unusual-looking. Each staff member keeps stable habits across the history — the same workstation, the same source address, a habitual handful of applications, a recognisable arrival time — and varies only within them. Weekends are quiet.
+That is what makes an observation anomalous rather than merely unusual-looking. Each staff member keeps stable habits across the history, the same workstation, the same source address, a habitual handful of applications, a recognisable arrival time, and varies only within them. Weekends are quiet.
 
 So when the compromised account signs in from `91.219.236.18`, an analyst can establish that the account has *never* used that address, on any prior day. Against a single day of telemetry that question has no answer.
 
-Try it: open the generated scenario, go to **SIEM Search**, and query `sourceIp:91.219.236.18`. Five events out of 17,904 — four failed sign-ins, then a success.
+Try it: open the generated scenario, go to **SIEM Search**, and query `sourceIp:91.219.236.18`. Five events out of 17,904, four failed sign-ins, then a success.
 
 ### How determinism is guaranteed
 
-Generation draws from a **splittable random cursor** rather than a single sequential stream. A cursor is addressed by its fork path — `staff/finance/member-3` — not by how many values have been drawn before it. Sibling streams cannot disturb each other, and fork order does not matter.
+Generation draws from a **splittable random cursor** rather than a single sequential stream. A cursor is addressed by its fork path, `staff/finance/member-3`, not by how many values have been drawn before it. Sibling streams cannot disturb each other, and fork order does not matter.
 
 The practical consequence: raising `--headcount` by one adds a person without rewriting anyone else's name, device, or account. Editing content does not resequence the world.
 
@@ -504,13 +504,13 @@ Neither Guided nor Professional reveals ground truth or authored response-qualit
 
 ## Replay
 
-Every console is a projection of one append-only event log, so point-in-time replay is a prefix replay rather than stored snapshots. Scrub the timeline and the SIEM, endpoint, identity, and case views all show that moment together — rewind past the alert and watch the intrusion arrive instead of reconstructing it backwards from the end.
+Every console is a projection of one append-only event log, so point-in-time replay is a prefix replay rather than stored snapshots. Scrub the timeline and the SIEM, endpoint, identity, and case views all show that moment together, rewind past the alert and watch the intrusion arrive instead of reconstructing it backwards from the end.
 
 Response actions are disabled while rewound. Acting on a past state would either rewrite history or silently apply to the present, and both are worse than refusing.
 
 ### Counterfactuals
 
-Rewinding shows what the incident looked like earlier. The question that changes behaviour is what would have happened if you had decided differently — and because the runtime is deterministic and response actions are declarative, that is *computed*, not simulated.
+Rewinding shows what the incident looked like earlier. The question that changes behaviour is what would have happened if you had decided differently, and because the runtime is deterministic and response actions are declarative, that is *computed*, not simulated.
 
 At finalization the result reports what the best available sequence would have scored and attributes a delta to each individual decision:
 
@@ -526,13 +526,13 @@ Order matters, materially: re-enabling an account after disabling it undoes the 
 
 Switch the **Role** control to Instructor and open **Walkthrough**. It reconstructs the incident step by step from ground truth: what happened, which console to look in, the ATT&CK technique, and a query to try.
 
-Steps reveal one at a time on an explicit click — collapsed steps show only the console name, so the shape of the incident is visible without the content. **Pop out** detaches it into a separate window for a second monitor or a projector, rendered through a portal so it stays in sync with the run.
+Steps reveal one at a time on an explicit click, collapsed steps show only the console name, so the shape of the incident is visible without the content. **Pop out** detaches it into a separate window for a second monitor or a projector, rendered through a portal so it stays in sync with the run.
 
 Students get the walkthrough after finalizing; instructors get it during.
 
 ## Professional and guided modes
 
-Runs default to **professional**: no live objective checklist and no running score while you work. The evidence, tools, and response actions are identical — only the answer key is absent. Assessment appears in full once you finalize.
+Runs default to **professional**: no live objective checklist and no running score while you work. The evidence, tools, and response actions are identical, only the answer key is absent. Assessment appears in full once you finalize.
 
 **Guided** restores the checklist and running score for onboarding, layered onto the same environment rather than a separate, simpler product. Switch with the **Mode** control; the choice persists across reloads.
 
@@ -612,11 +612,11 @@ Endomorph is for synthetic simulation only. It is not a phishing kit, credential
 
 ## Repository map
 
-- `apps/web` — React + TypeScript + Vite analyst/instructor experience
-- `packages/domain` — canonical synthetic enterprise domain models
-- `packages/schema` — versioned external/scenario validation contracts
-- `packages/simulation` — deterministic world/event/replay/projection/scenario runtime
-- `packages/fabric` — the generator: splittable RNG, topology, background activity, the attack-plan library, labelled corpus export, detection-rule evaluation, and the CLIs
-- `e2e` — Playwright browser regression tests
+- `apps/web`, React + TypeScript + Vite analyst/instructor experience
+- `packages/domain`, canonical synthetic enterprise domain models
+- `packages/schema`, versioned external/scenario validation contracts
+- `packages/simulation`, deterministic world/event/replay/projection/scenario runtime
+- `packages/fabric`, the generator: splittable RNG, topology, background activity, the attack-plan library, labelled corpus export, detection-rule evaluation, and the CLIs
+- `e2e`, Playwright browser regression tests
 
 For architectural continuity and future work, see [PROJECT_STATE.md](PROJECT_STATE.md), [ROADMAP.md](ROADMAP.md), and [ARCHITECTURE.md](ARCHITECTURE.md).

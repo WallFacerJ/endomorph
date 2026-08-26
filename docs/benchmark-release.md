@@ -1,6 +1,6 @@
 # Endomorph Detection Benchmark v1.0
 
-Labelled enterprise security telemetry with **ground truth known by construction** — a
+Labelled enterprise security telemetry with **ground truth known by construction**, a
 detection-rule benchmark you can score against with real numbers instead of an
 estimate.
 
@@ -13,13 +13,13 @@ seed.
 ## What's in it
 
 - **11 intrusions**, each a separate ECS-shaped NDJSON file.
-- **51,961 records**, of which **83 are malicious** — a **0.16% malicious
+- **51,961 records**, of which **83 are malicious**, a **0.16% malicious
   ratio**, realistically skewed, not a balanced toy set.
 - **37 distinct ATT&CK techniques** across the set (through the Impact tactic), spanning endpoint, identity, network, DNS, web/proxy, file, mail, and cloud control-plane telemetry.
 - Generated at **seed 20260820**, so the files are **byte-deterministic**: anyone
   who regenerates v1.0 at this seed holds identical telemetry, and a score
   computed against it means the same thing to everyone.
-- `benchmark.json` — a manifest with aggregate counts, the technique list with
+- `benchmark.json`, a manifest with aggregate counts, the technique list with
   how many intrusions exercise each, and, per technique, its **noise floor**:
   how many benign events share its event types (the false-positive floor for an
   unspecific rule).
@@ -43,7 +43,7 @@ buried each technique is, so you can check:
   ~1,700 benign connections; encoded PowerShell (T1059.001) and domain-group
   discovery (T1069.002) among ~860 benign process starts each.
 - **Easiest:** the identity-lifecycle techniques (T1098 account re-enable,
-  T1098.003 role grant) sit among only a handful of benign look-alikes — rare
+  T1098.003 role grant) sit among only a handful of benign look-alikes, rare
   by nature, but a signal that a rule keyed on them will look better here than
   it should. The manifest names them so you can weight accordingly.
 
@@ -59,7 +59,7 @@ label.plan        the intrusion id
 ```
 
 Score your detection logic by running it over the records and comparing what it
-flags against `label.malicious` — true positives, false positives, and, scoped
+flags against `label.malicious`, true positives, false positives, and, scoped
 to `label.technique`, false negatives. A rule that flags a record where
 `label.malicious` is false is eating a false positive you can now count exactly.
 

@@ -233,7 +233,7 @@ const navGroups: ReadonlyArray<{
 
 /*
   Constructed once. Building an Intl.DateTimeFormat is expensive, and this was
-  building a fresh one for every timestamp rendered -- which, on a scenario
+  building a fresh one for every timestamp rendered, which, on a scenario
   with twenty thousand events, was three seconds of the finalize interaction
   by itself, more than any other single thing the app did.
 */
@@ -252,7 +252,7 @@ function formatTimestamp(
   timestamp: string | undefined,
 ): string {
   if (!timestamp) {
-    return "—";
+    return ", ";
   }
 
   return CLOCK_FORMAT.format(
@@ -397,8 +397,8 @@ function ScenarioWorkspace({
     ],
   );
 
-  // The slider stays responsive while the projection rebuild -- roughly
-  // 55ms at 4k events, more at 18k -- lags a frame behind.
+  // The slider stays responsive while the projection rebuild, roughly
+  // 55ms at 4k events, more at 18k, lags a frame behind.
   const deferredReplayPosition =
     useDeferredValue(replayPosition);
 
@@ -648,7 +648,7 @@ function ScenarioWorkspace({
   /*
     The same pure function the case view uses, over the same inputs. It walks
     only the collected evidence, which is small, and being pure of identical
-    inputs it cannot disagree with the copy the case draws -- which is why
+    inputs it cannot disagree with the copy the case draws, which is why
     this is a second call rather than a prop threaded through two components
     that do not otherwise need it.
   */
@@ -998,7 +998,7 @@ function ScenarioWorkspace({
                         A scenario without questions has nothing to record,
                         and the view falls back to the same content as the
                         brief. Offering a nav entry that leads somewhere
-                        identical is worse than not offering it -- the v1
+                        identical is worse than not offering it, the v1
                         scenarios carry no questions, so this is a real case
                         rather than a defensive one.
                       */
@@ -1141,7 +1141,7 @@ function ScenarioWorkspace({
           {/*
             Run actions and setup controls are separate rows. Interleaved in
             one wrapping flex row, three control groups plus four actions
-            pushed Finalize below the fold at 1280x720 -- the action that
+            pushed Finalize below the fold at 1280x720, the action that
             completes the run, off-screen on an ordinary laptop.
           */}
           <div className="topbar-actions">
@@ -1159,7 +1159,7 @@ function ScenarioWorkspace({
             {/*
               Always available, in every mode. The checklist is how an
               analyst knows what the run is asking of them, which is not a
-              form of assistance -- Professional withholds the answers, not
+              form of assistance, Professional withholds the answers, not
               the assignment.
             */}
             <button
@@ -1519,7 +1519,7 @@ function ScenarioWorkspace({
                 {/*
                   The shared chip, so a critical alert here reads the same as
                   a critical anything anywhere else in the console. Severity
-                  takes semantic colour and never the theme accent -- an
+                  takes semantic colour and never the theme accent, an
                   alert must not look like a selected tab.
                 */}
                 <span
@@ -1566,7 +1566,7 @@ function ScenarioWorkspace({
                     User
                   </span>
                   <strong>
-                    {user?.displayName ?? "—"}
+                    {user?.displayName ?? ", "}
                   </strong>
                 </div>
                 <div>
@@ -1578,7 +1578,7 @@ function ScenarioWorkspace({
                     Endpoint
                   </span>
                   <strong>
-                    {device?.hostname ?? "—"}
+                    {device?.hostname ?? ", "}
                   </strong>
                 </div>
                 <div>
@@ -1590,7 +1590,7 @@ function ScenarioWorkspace({
                     Account
                   </span>
                   <strong>
-                    {account?.username ?? "—"}
+                    {account?.username ?? ", "}
                   </strong>
                 </div>
                 <div>

@@ -46,7 +46,7 @@ interface SiemWorkspaceProps {
    * The world, for showing names rather than identifiers.
    *
    * The subject column printed "device-hr-lt-028" where the rest of the
-   * product -- the alert, the endpoint console, the questions -- all say
+   * product, the alert, the endpoint console, the questions, all say
    * "HR-LT-028". Pivoting between consoles means recognising the same entity
    * in each, and a different spelling in every view is exactly the friction
    * that makes it feel like a different system each time.
@@ -120,7 +120,7 @@ function quoteValue(value: string): string {
 
 /*
   Constructed once. Building an Intl.DateTimeFormat is expensive, and this was
-  building a fresh one for every timestamp rendered -- which, on a scenario
+  building a fresh one for every timestamp rendered, which, on a scenario
   with twenty thousand events, was three seconds of the finalize interaction
   by itself, more than any other single thing the app did.
 */
@@ -346,8 +346,8 @@ export function SiemWorkspace({
 
   /*
     How normal this result is. The scenarios ask for exactly this in their
-    reasoning -- has the account used this address before, has it ever
-    touched this document -- and the only way to answer it was to scroll.
+    reasoning, has the account used this address before, has it ever
+    touched this document, and the only way to answer it was to scroll.
   */
   const baseline = useMemo(
     () =>
@@ -713,7 +713,7 @@ export function SiemWorkspace({
                           record.subjectId,
                         )) ??
                         record.subjectId ??
-                        "—"}
+                        ", "}
                     </td>
                     <td className="siem-message-cell">
                       {record.message}
@@ -814,7 +814,7 @@ export function SiemWorkspace({
                 </div>
                 <div>
                   <dt>Actor</dt>
-                  <dd>{selectedRecord.actorId ?? "—"}</dd>
+                  <dd>{selectedRecord.actorId ?? ", "}</dd>
                 </div>
                 <div>
                   <dt>Subject</dt>
@@ -824,12 +824,12 @@ export function SiemWorkspace({
                         selectedRecord.subjectId,
                       )) ??
                       selectedRecord.subjectId ??
-                      "—"}
+                      ", "}
                   </dd>
                 </div>
                 <div>
                   <dt>Severity</dt>
-                  <dd>{selectedRecord.severity ?? "—"}</dd>
+                  <dd>{selectedRecord.severity ?? ", "}</dd>
                 </div>
               </dl>
 

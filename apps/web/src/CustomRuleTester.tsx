@@ -36,7 +36,7 @@ import "./CustomRuleTester.css";
  * captured corpus cannot offer: because the generator planted every malicious
  * event, a rule the analyst brings gets a precision and recall that are
  * counted, not estimated. And because every record is labelled, a false
- * positive is not a mystery to argue about -- the exact benign events the rule
+ * positive is not a mystery to argue about, the exact benign events the rule
  * caught can be shown, which is the question a detection engineer actually has.
  */
 
@@ -61,7 +61,7 @@ interface RuleExample {
 
 /**
  * A few rules that show the range of what scoring against ground truth
- * reveals -- a clean hit, a precise-but-noisy rule, a plausible rule that
+ * reveals, a clean hit, a precise-but-noisy rule, a plausible rule that
  * misses, and a rule noisy on a different domain. Verified to produce exactly
  * these outcomes against the default scenario's corpus, so a visitor who does
  * not want to hand-write Sigma can click through and see the point.
@@ -70,13 +70,13 @@ const EXAMPLES: readonly RuleExample[] = [
   {
     id: "encoded-ps",
     label:
-      "Encoded PowerShell — a clean hit",
+      "Encoded PowerShell, a clean hit",
     yaml: STARTER_RULE,
   },
   {
     id: "any-ps",
     label:
-      "Any PowerShell — right technique, noisy rule",
+      "Any PowerShell, right technique, noisy rule",
     yaml: [
       "title: Any PowerShell launch",
       "logsource:",
@@ -92,7 +92,7 @@ const EXAMPLES: readonly RuleExample[] = [
   {
     id: "wrong-flag",
     label:
-      "Encoded, wrong flag — a rule that misses",
+      "Encoded, wrong flag, a rule that misses",
     yaml: [
       "title: Encoded command, long form",
       "logsource:",
@@ -108,7 +108,7 @@ const EXAMPLES: readonly RuleExample[] = [
   {
     id: "failed-auth",
     label:
-      "Any failed sign-in — noisy on identity",
+      "Any failed sign-in, noisy on identity",
     yaml: [
       "title: Any failed sign-in",
       "logsource:",
@@ -135,7 +135,7 @@ const ESQL_EXAMPLES: readonly RuleExample[] = [
   {
     id: "esql-encoded",
     label:
-      "Encoded PowerShell — a clean hit",
+      "Encoded PowerShell, a clean hit",
     yaml: `// title: Encoded PowerShell
 // technique: T1059.001
 FROM logs-endpoint
@@ -145,7 +145,7 @@ FROM logs-endpoint
   {
     id: "esql-any",
     label:
-      "Any PowerShell — right technique, noisy rule",
+      "Any PowerShell, right technique, noisy rule",
     yaml: `// title: Any PowerShell launch
 // technique: T1059.001
 FROM logs-endpoint
@@ -154,7 +154,7 @@ FROM logs-endpoint
   {
     id: "esql-wrong",
     label:
-      "Encoded, wrong flag — a rule that misses",
+      "Encoded, wrong flag, a rule that misses",
     yaml: `// title: Encoded command, long form
 // technique: T1059.001
 FROM logs-endpoint
@@ -167,7 +167,7 @@ const EQL_EXAMPLES: readonly RuleExample[] = [
   {
     id: "eql-encoded",
     label:
-      "Encoded PowerShell — a clean hit",
+      "Encoded PowerShell, a clean hit",
     yaml: `// title: Encoded PowerShell
 // technique: T1059.001
 process where process.name : "*powershell.exe"
@@ -176,7 +176,7 @@ process where process.name : "*powershell.exe"
   {
     id: "eql-any",
     label:
-      "Any PowerShell — right technique, noisy rule",
+      "Any PowerShell, right technique, noisy rule",
     yaml: `// title: Any PowerShell launch
 // technique: T1059.001
 process where process.name : "*powershell.exe"`,
@@ -184,7 +184,7 @@ process where process.name : "*powershell.exe"`,
   {
     id: "eql-wrong",
     label:
-      "Encoded, wrong flag — a rule that misses",
+      "Encoded, wrong flag, a rule that misses",
     yaml: `// title: Encoded command, long form
 // technique: T1059.001
 process where process.command_line : "*-EncodedCommand*"`,
@@ -196,7 +196,7 @@ const SPL_EXAMPLES: readonly RuleExample[] = [
   {
     id: "spl-encoded",
     label:
-      "Encoded PowerShell — a clean hit",
+      "Encoded PowerShell, a clean hit",
     yaml: `// title: Encoded PowerShell
 // technique: T1059.001
 index=edr sourcetype=sysmon Image="*powershell.exe" CommandLine="*-enc*"`,
@@ -204,7 +204,7 @@ index=edr sourcetype=sysmon Image="*powershell.exe" CommandLine="*-enc*"`,
   {
     id: "spl-any",
     label:
-      "Any PowerShell — right technique, noisy rule",
+      "Any PowerShell, right technique, noisy rule",
     yaml: `// title: Any PowerShell launch
 // technique: T1059.001
 index=edr sourcetype=sysmon Image="*powershell.exe"`,
@@ -212,7 +212,7 @@ index=edr sourcetype=sysmon Image="*powershell.exe"`,
   {
     id: "spl-wrong",
     label:
-      "Encoded, wrong flag — a rule that misses",
+      "Encoded, wrong flag, a rule that misses",
     yaml: `// title: Encoded command, long form
 // technique: T1059.001
 index=edr CommandLine="*-EncodedCommand*"`,
@@ -224,7 +224,7 @@ const KQL_EXAMPLES: readonly RuleExample[] = [
   {
     id: "kql-encoded",
     label:
-      "Encoded PowerShell — a clean hit",
+      "Encoded PowerShell, a clean hit",
     yaml: `// title: Encoded PowerShell
 // technique: T1059.001
 DeviceProcessEvents
@@ -234,7 +234,7 @@ DeviceProcessEvents
   {
     id: "kql-any",
     label:
-      "Any PowerShell — right technique, noisy rule",
+      "Any PowerShell, right technique, noisy rule",
     yaml: `// title: Any PowerShell launch
 // technique: T1059.001
 DeviceProcessEvents
@@ -243,7 +243,7 @@ DeviceProcessEvents
   {
     id: "kql-wrong",
     label:
-      "Encoded, wrong flag — a rule that misses",
+      "Encoded, wrong flag, a rule that misses",
     yaml: `// title: Encoded command, long form
 // technique: T1059.001
 DeviceProcessEvents
@@ -336,8 +336,8 @@ function percent(value: number): string {
 
 /**
  * A one-line description of a matched record, reaching for whichever field
- * actually says what happened -- the command line for a process, the flow for
- * a connection, the role for a grant -- so a matched event reads as an event
+ * actually says what happened, the command line for a process, the flow for
+ * a connection, the role for a grant, so a matched event reads as an event
  * rather than an id.
  */
 function summarise(
@@ -754,7 +754,7 @@ export function CustomRuleTester({
           bring gets a precision and
           recall that are{" "}
           <strong>counted</strong>, not
-          estimated &mdash; the thing a
+          estimated, the thing a
           captured dataset cannot give
           you. Paste a{" "}
           {language === "kql"
@@ -896,7 +896,7 @@ export function CustomRuleTester({
                       : "Sigma"}{" "}
               subset
               could not express this rule
-              &mdash; reported rather than
+             , reported rather than
               matched silently, because a
               rule that quietly matches
               nothing looks exactly like
@@ -1029,7 +1029,7 @@ export function CustomRuleTester({
                             <td>
                               <code>
                                 {evaluation.technique ??
-                                  "—"}
+                                  ", "}
                               </code>
                             </td>
                             <td className="rule-tester-num">
@@ -1073,7 +1073,7 @@ export function CustomRuleTester({
                                 {evaluation.falsePositives >
                                   0 && (
                                   <MatchRows
-                                    label="False positives — benign events this rule caught"
+                                    label="False positives, benign events this rule caught"
                                     kind="fp"
                                     records={
                                       falsePositives
@@ -1086,7 +1086,7 @@ export function CustomRuleTester({
                                 {evaluation.falseNegatives >
                                   0 && (
                                   <MatchRows
-                                    label="Missed — malicious events it did not catch"
+                                    label="Missed, malicious events it did not catch"
                                     kind="fn"
                                     records={
                                       missed
