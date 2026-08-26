@@ -25,6 +25,10 @@ import {
   OrgProfilePanel,
 } from "./OrgProfilePanel";
 
+import {
+  AttackCoverageMatrix,
+} from "./AttackCoverageMatrix";
+
 import type {
   ScenarioDefinition,
 } from "./simulationAdapter";
@@ -186,6 +190,8 @@ export function DetectionLabPage() {
       </header>
 
       <main className="lab-main">
+        <AttackCoverageMatrix />
+
         {loading && (
           <p className="lab-status">
             Compiling the scenario and

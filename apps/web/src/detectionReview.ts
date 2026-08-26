@@ -1,7 +1,6 @@
 import {
   DETECTION_RULES,
   buildCorpusRecords,
-  evaluateRuleset,
   importSigmaRules,
   importKqlRules,
   importSplRules,
@@ -11,6 +10,8 @@ import {
   generateBackgroundActivity,
   generateIncident,
   buildCorpus,
+  evaluateRuleset,
+  ATTACK_PLANS,
 } from "@endomorph/fabric";
 
 import type {
@@ -360,5 +361,192 @@ export function generateProfileCorpus(
     sampleUser: records.find(
       (record) => record["user.name"],
     )?.["user.name"],
+  };
+}
+
+/**
+ * ATT&CK coverage of the shipped ruleset across every intrusion.
+ *
+ * Runs the deterministic generator once, plays each attack plan against it, and
+ * asks which techniques the shipped detections actually catch (recall > 0 on any
+ * plan). This is the detection-posture-at-a-glance the coverage dashboard renders
+ * -- computed from ground truth in the browser, not asserted.
+ */
+export interface TechniqueCoverage {
+  readonly id: string;
+  readonly name: string;
+  readonly tactic: string;
+  readonly covered: boolean;
+  readonly detectingRules: readonly string[];
+}
+
+export interface TacticCoverage {
+  readonly tactic: string;
+  readonly covered: number;
+  readonly total: number;
+}
+
+export interface AttackCoverage {
+  readonly techniques: readonly TechniqueCoverage[];
+  readonly tactics: readonly TacticCoverage[];
+  readonly covered: number;
+  readonly total: number;
+}
+
+const TACTIC_ORDER: readonly string[] = [
+  "initial_access",
+  "execution",
+  "persistence",
+  "privilege_escalation",
+  "defense_evasion",
+  "credential_access",
+  "discovery",
+  "lateral_movement",
+  "collection",
+  "command_and_control",
+  "exfiltration",
+  "impact",
+];
+
+export function computeAttackCoverage(
+  seed = 20260820,
+): AttackCoverage {
+  const enterprise = generateEnterprise({
+    seed,
+  });
+
+  const background =
+    generateBackgroundActivity(
+      enterprise,
+      { days: 3 },
+    );
+
+  const catalog = new Map<
+    string,
+    { name: string; tactic: string }
+  >();
+
+  const detecting = new Map<
+    string,
+    Set<string>
+  >();
+
+  for (const plan of ATTACK_PLANS) {
+    for (const technique of plan.techniques) {
+      if (!catalog.has(technique.id)) {
+        catalog.set(technique.id, {
+          name: technique.name,
+          tactic: technique.tactic,
+        });
+      }
+    }
+
+    const incident = generateIncident(
+      enterprise,
+      { planId: plan.id },
+    );
+
+    const detection =
+      incident.events[
+        incident.events.length - 1
+      ].timestamp;
+
+    const events = [
+      ...background.filter(
+        (event) =>
+          event.timestamp <= detection,
+      ),
+      ...incident.events,
+    ].sort((left, right) =>
+      left.timestamp.localeCompare(
+        right.timestamp,
+      ),
+    );
+
+    const corpus = buildCorpus(
+      enterprise,
+      events,
+      incident,
+    );
+
+    for (const evaluation of evaluateRuleset(
+      DETECTION_RULES,
+      corpus.records,
+    ).evaluations) {
+      if (
+        evaluation.recall > 0 &&
+        evaluation.technique
+      ) {
+        const set =
+          detecting.get(
+            evaluation.technique,
+          ) ?? new Set<string>();
+        set.add(evaluation.ruleId);
+        detecting.set(
+          evaluation.technique,
+          set,
+        );
+      }
+    }
+  }
+
+  const techniques: TechniqueCoverage[] =
+    [...catalog.entries()]
+      .map(([id, meta]) => ({
+        id,
+        name: meta.name,
+        tactic: meta.tactic,
+        covered: detecting.has(id),
+        detectingRules: [
+          ...(detecting.get(id) ??
+            new Set<string>()),
+        ],
+      }))
+      .sort((left, right) => {
+        const order =
+          TACTIC_ORDER.indexOf(
+            left.tactic,
+          ) -
+          TACTIC_ORDER.indexOf(
+            right.tactic,
+          );
+        return order !== 0
+          ? order
+          : left.id.localeCompare(
+              right.id,
+            );
+      });
+
+  const tacticsPresent = [
+    ...new Set(
+      techniques.map((t) => t.tactic),
+    ),
+  ].sort(
+    (a, b) =>
+      TACTIC_ORDER.indexOf(a) -
+      TACTIC_ORDER.indexOf(b),
+  );
+
+  const tactics: TacticCoverage[] =
+    tacticsPresent.map((tactic) => {
+      const inTactic = techniques.filter(
+        (t) => t.tactic === tactic,
+      );
+      return {
+        tactic,
+        covered: inTactic.filter(
+          (t) => t.covered,
+        ).length,
+        total: inTactic.length,
+      };
+    });
+
+  return {
+    techniques,
+    tactics,
+    covered: techniques.filter(
+      (t) => t.covered,
+    ).length,
+    total: techniques.length,
   };
 }

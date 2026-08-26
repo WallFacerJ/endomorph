@@ -647,3 +647,41 @@ test("the digital-twin panel can generate a stealth corpus that evades a command
     timeout: 20000,
   });
 });
+
+test("the lab shows an ATT&CK coverage heatmap computed from ground truth", async ({
+  page,
+}) => {
+  await page.goto("/?lab");
+
+  const matrix = page.locator(
+    ".cov-matrix",
+  );
+  await matrix.waitFor({
+    state: "visible",
+    timeout: 20000,
+  });
+
+  // The summary reads "<covered> / <total>".
+  await expect(
+    page.locator(".cov-big-fig"),
+  ).toContainText("/");
+
+  // Both covered techniques (green) and gaps (amber) are present.
+  await expect(
+    page
+      .locator(".cov-cell.covered")
+      .first(),
+  ).toBeVisible();
+  await expect(
+    page
+      .locator(".cov-cell.uncovered")
+      .first(),
+  ).toBeVisible();
+
+  // Tactic columns carry a per-tactic count like "2/4".
+  await expect(
+    page
+      .locator(".cov-col-count")
+      .first(),
+  ).toContainText("/");
+});
