@@ -21,6 +21,7 @@ import type {
 import type {
   CorpusRecord,
   CoverageReport,
+  DetectionRule,
 } from "@endomorph/fabric";
 
 import type {
@@ -408,9 +409,34 @@ const TACTIC_ORDER: readonly string[] = [
   "impact",
 ];
 
-export function computeAttackCoverage(
-  seed = 20260820,
-): AttackCoverage {
+interface PlanCorpus {
+  readonly records: readonly CorpusRecord[];
+}
+
+interface Corpora {
+  readonly catalog: Map<
+    string,
+    { name: string; tactic: string }
+  >;
+  readonly plans: readonly PlanCorpus[];
+}
+
+// Generating the enterprise and every plan's corpus is the expensive part; the
+// ruleset scored against it is not. Cache the corpora by seed so scoring a
+// custom ruleset after the shipped one is effectively instant.
+const corpusCache = new Map<
+  number,
+  Corpora
+>();
+
+function corporaFor(
+  seed: number,
+): Corpora {
+  const cached = corpusCache.get(seed);
+  if (cached) {
+    return cached;
+  }
+
   const enterprise = generateEnterprise({
     seed,
   });
@@ -426,10 +452,7 @@ export function computeAttackCoverage(
     { name: string; tactic: string }
   >();
 
-  const detecting = new Map<
-    string,
-    Set<string>
-  >();
+  const plans: PlanCorpus[] = [];
 
   for (const plan of ATTACK_PLANS) {
     for (const technique of plan.techniques) {
@@ -463,15 +486,36 @@ export function computeAttackCoverage(
       ),
     );
 
-    const corpus = buildCorpus(
-      enterprise,
-      events,
-      incident,
-    );
+    plans.push({
+      records: buildCorpus(
+        enterprise,
+        events,
+        incident,
+      ).records,
+    });
+  }
 
+  const result = { catalog, plans };
+  corpusCache.set(seed, result);
+  return result;
+}
+
+export function computeAttackCoverage(
+  rules: readonly DetectionRule[] = DETECTION_RULES,
+  seed = 20260820,
+): AttackCoverage {
+  const { catalog, plans } =
+    corporaFor(seed);
+
+  const detecting = new Map<
+    string,
+    Set<string>
+  >();
+
+  for (const plan of plans) {
     for (const evaluation of evaluateRuleset(
-      DETECTION_RULES,
-      corpus.records,
+      rules,
+      plan.records,
     ).evaluations) {
       if (
         evaluation.recall > 0 &&
@@ -489,7 +533,6 @@ export function computeAttackCoverage(
       }
     }
   }
-
   const techniques: TechniqueCoverage[] =
     [...catalog.entries()]
       .map(([id, meta]) => ({
@@ -549,4 +592,77 @@ export function computeAttackCoverage(
     ).length,
     total: techniques.length,
   };
+}
+
+export type RulesetLanguage =
+  | "sigma"
+  | "kql"
+  | "spl"
+  | "eql"
+  | "esql";
+
+export interface RulesetParseResult {
+  readonly rules: readonly DetectionRule[];
+  readonly skipped: readonly {
+    readonly source: string;
+    readonly reason: string;
+  }[];
+}
+
+/**
+ * Parse a whole ruleset a user pastes -- many rules separated by a line of
+ * `---` -- in the chosen language, so their real detection repo can be scored
+ * for ATT&CK coverage, not just one rule at a time.
+ */
+export function parseRuleset(
+  text: string,
+  language: RulesetLanguage,
+): RulesetParseResult {
+  const blocks = text
+    .split(/^\s*---\s*$/m)
+    .map((block) => block.trim())
+    .filter((block) => block.length > 0);
+
+  const rules: DetectionRule[] = [];
+  const skipped: {
+    source: string;
+    reason: string;
+  }[] = [];
+
+  blocks.forEach((block, index) => {
+    const source = `rule ${index + 1}`;
+
+    const result =
+      language === "sigma"
+        ? importSigmaRules([
+            { source, yaml: block },
+          ])
+        : language === "kql"
+          ? importKqlRules([
+              { source, query: block },
+            ])
+          : language === "spl"
+            ? importSplRules([
+                { source, query: block },
+              ])
+            : language === "eql"
+              ? importEqlRules([
+                  { source, query: block },
+                ])
+              : importEsqlRules([
+                  { source, query: block },
+                ]);
+
+    for (const rule of result.rules) {
+      rules.push(rule);
+    }
+    for (const skip of result.skipped) {
+      skipped.push({
+        source: skip.source,
+        reason: skip.reason,
+      });
+    }
+  });
+
+  return { rules, skipped };
 }

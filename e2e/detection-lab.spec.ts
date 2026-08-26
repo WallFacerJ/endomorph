@@ -722,3 +722,45 @@ test("the attack storyboard plays the intrusion scene by scene", async ({
     "Step 2 /",
   );
 });
+
+test("the coverage dashboard scores your own pasted ruleset", async ({
+  page,
+}) => {
+  await page.goto("/?lab");
+
+  const cov = page.locator(".cov");
+  await cov
+    .locator(".cov-matrix")
+    .waitFor({
+      state: "visible",
+      timeout: 20000,
+    });
+
+  // Switch to the bring-your-own-ruleset mode and score the prefilled example.
+  await cov
+    .getByRole("button", {
+      name: "Your ruleset",
+    })
+    .click();
+  await cov
+    .getByRole("button", {
+      name: "Compute my coverage",
+    })
+    .click();
+
+  // The example ruleset covers a handful of techniques out of the full corpus,
+  // and at least one covered cell and one gap are rendered.
+  await expect(
+    cov.locator(".cov-big-fig"),
+  ).toContainText("/", {
+    timeout: 20000,
+  });
+  await expect(
+    cov.locator(".cov-cell.covered").first(),
+  ).toBeVisible();
+  await expect(
+    cov
+      .locator(".cov-cell.uncovered")
+      .first(),
+  ).toBeVisible();
+});

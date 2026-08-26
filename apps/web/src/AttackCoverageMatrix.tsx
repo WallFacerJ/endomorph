@@ -5,23 +5,26 @@ import {
 
 import {
   computeAttackCoverage,
+  parseRuleset,
 } from "./detectionReview";
 
 import type {
   AttackCoverage,
+  RulesetLanguage,
 } from "./detectionReview";
 
 import "./AttackCoverageMatrix.css";
 
 /**
- * Detection posture at a glance: an ATT&CK heatmap of what the shipped ruleset
- * actually catches across every intrusion.
+ * Detection posture at a glance: an ATT&CK heatmap of what a ruleset catches
+ * across every intrusion.
  *
- * This is the number a detection manager reports and a CISO takes to the board
- * -- and here it is computed from ground truth in the browser, not asserted. A
- * technique is "covered" when a shipped rule detects it (recall > 0) on at least
- * one intrusion; the rest are present in the corpus but unmatched, which is a
- * gap the analyst can see rather than discover during an incident.
+ * By default it scores the shipped ruleset -- the demo. But the real product
+ * value is the "Your ruleset" mode: paste a whole detection repo (many rules
+ * separated by `---`, in any of the five languages) and get *your* ATT&CK
+ * coverage, computed from ground truth in the browser. A technique is covered
+ * when a rule detects it (recall > 0) on at least one intrusion; the rest are
+ * gaps the analyst can see rather than discover during an incident.
  */
 
 const TACTIC_LABELS: Readonly<
@@ -44,42 +47,183 @@ const TACTIC_LABELS: Readonly<
   impact: "Impact",
 };
 
+const EXAMPLE_RULESET = `title: Encoded PowerShell
+detection:
+  selection:
+    process.command_line|contains: '-enc'
+  condition: selection
+tags: [attack.t1059.001]
+---
+title: Shadow copy deletion
+detection:
+  selection:
+    process.command_line|re: 'vssadmin.*delete.*shadow'
+  condition: selection
+tags: [attack.t1490]
+---
+title: Password spray
+detection:
+  selection:
+    event.type: 'AUTH_LOGIN_FAILED'
+  condition: selection
+tags: [attack.t1110.003]`;
+
 function tacticLabel(tactic: string): string {
+  return TACTIC_LABELS[tactic] ?? tactic;
+}
+
+function CoverageView({
+  coverage,
+  label,
+}: {
+  readonly coverage: AttackCoverage;
+  readonly label: string;
+}) {
+  const percent = Math.round(
+    (coverage.covered /
+      Math.max(1, coverage.total)) *
+      100,
+  );
+
   return (
-    TACTIC_LABELS[tactic] ?? tactic
+    <>
+      <div className="cov-summary">
+        <div className="cov-big">
+          <span className="cov-big-fig">
+            {coverage.covered}
+            <span className="cov-big-of">
+              {" "}
+              / {coverage.total}
+            </span>
+          </span>
+          <span className="cov-big-lab">
+            {label}
+          </span>
+        </div>
+        <div className="cov-bar-wrap">
+          <div className="cov-bar-track">
+            <div
+              className="cov-bar-fill"
+              style={{
+                width: `${percent}%`,
+              }}
+            />
+          </div>
+          <span className="cov-bar-pct">
+            {percent}%
+          </span>
+        </div>
+      </div>
+
+      <div className="cov-matrix-scroll">
+        <div className="cov-matrix">
+          {coverage.tactics.map(
+            (tactic) => (
+              <div
+                key={tactic.tactic}
+                className="cov-col"
+              >
+                <div className="cov-col-head">
+                  <span className="cov-col-name">
+                    {tacticLabel(
+                      tactic.tactic,
+                    )}
+                  </span>
+                  <span className="cov-col-count">
+                    {tactic.covered}/
+                    {tactic.total}
+                  </span>
+                </div>
+                {coverage.techniques
+                  .filter(
+                    (technique) =>
+                      technique.tactic ===
+                      tactic.tactic,
+                  )
+                  .map((technique) => (
+                    <div
+                      key={technique.id}
+                      className={`cov-cell ${
+                        technique.covered
+                          ? "covered"
+                          : "uncovered"
+                      }`}
+                      title={
+                        technique.covered
+                          ? `${technique.id} ${technique.name} — detected by ${technique.detectingRules.join(", ")}`
+                          : `${technique.id} ${technique.name} — no rule detects this`
+                      }
+                    >
+                      <span className="cov-cell-id">
+                        {technique.id}
+                      </span>
+                      <span className="cov-cell-name">
+                        {technique.name}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            ),
+          )}
+        </div>
+      </div>
+    </>
   );
 }
 
 export function AttackCoverageMatrix() {
-  const [coverage, setCoverage] =
+  const [shipped, setShipped] =
     useState<AttackCoverage | null>(null);
+
+  const [source, setSource] = useState<
+    "shipped" | "custom"
+  >("shipped");
+
+  const [language, setLanguage] =
+    useState<RulesetLanguage>("sigma");
+  const [ruleText, setRuleText] =
+    useState(EXAMPLE_RULESET);
+  const [custom, setCustom] =
+    useState<AttackCoverage | null>(null);
+  const [skipped, setSkipped] = useState<
+    number
+  >(0);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-
-    // Defer so the "Computing…" state paints before the synchronous sweep
-    // (generate once, play every plan, score the shipped ruleset).
     const id = window.setTimeout(() => {
       const result =
         computeAttackCoverage();
       if (!cancelled) {
-        setCoverage(result);
+        setShipped(result);
       }
     }, 20);
-
     return () => {
       cancelled = true;
       window.clearTimeout(id);
     };
   }, []);
 
-  const percent = coverage
-    ? Math.round(
-        (coverage.covered /
-          Math.max(1, coverage.total)) *
-          100,
-      )
-    : 0;
+  const score = () => {
+    setBusy(true);
+    window.setTimeout(() => {
+      const parsed = parseRuleset(
+        ruleText,
+        language,
+      );
+      setSkipped(parsed.skipped.length);
+      setCustom(
+        computeAttackCoverage(
+          parsed.rules,
+        ),
+      );
+      setBusy(false);
+    }, 20);
+  };
+
+  const active =
+    source === "custom" ? custom : shipped;
 
   return (
     <section
@@ -91,120 +235,141 @@ export function AttackCoverageMatrix() {
           Detection posture
         </p>
         <h3>
-          What the shipped ruleset covers,
-          by ATT&amp;CK technique
+          What a ruleset covers, by
+          ATT&amp;CK technique
         </h3>
         <p className="cov-lede">
           Coverage counted from ground
-          truth across every intrusion: a
-          technique is{" "}
+          truth across every intrusion:{" "}
           <span className="cov-swatch covered" />{" "}
-          covered when a shipped rule
-          detects it, and{" "}
+          covered when a rule detects the
+          technique,{" "}
           <span className="cov-swatch uncovered" />{" "}
           a gap when the corpus contains it
           but no rule catches it.
         </p>
       </div>
 
-      {!coverage && (
+      <div
+        className="cov-source"
+        role="group"
+        aria-label="Coverage source"
+      >
+        <button
+          type="button"
+          className={
+            source === "shipped"
+              ? "cov-source-btn active"
+              : "cov-source-btn"
+          }
+          onClick={() =>
+            setSource("shipped")
+          }
+        >
+          Shipped ruleset
+        </button>
+        <button
+          type="button"
+          className={
+            source === "custom"
+              ? "cov-source-btn active"
+              : "cov-source-btn"
+          }
+          onClick={() =>
+            setSource("custom")
+          }
+        >
+          Your ruleset
+        </button>
+      </div>
+
+      {source === "custom" && (
+        <div className="cov-custom">
+          <div className="cov-custom-langs">
+            {(
+              [
+                "sigma",
+                "kql",
+                "spl",
+                "eql",
+                "esql",
+              ] as const
+            ).map((lang) => (
+              <button
+                key={lang}
+                type="button"
+                className={
+                  language === lang
+                    ? "cov-lang active"
+                    : "cov-lang"
+                }
+                onClick={() =>
+                  setLanguage(lang)
+                }
+              >
+                {lang === "esql"
+                  ? "ES|QL"
+                  : lang.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <p className="cov-custom-hint">
+            Paste your detection repo —
+            multiple rules separated by a
+            line of{" "}
+            <code>---</code>. Scored across
+            all {shipped?.total ?? 37}{" "}
+            techniques in the corpus.
+          </p>
+          <textarea
+            className="cov-textarea"
+            spellCheck={false}
+            rows={10}
+            value={ruleText}
+            onChange={(event) =>
+              setRuleText(
+                event.target.value,
+              )
+            }
+          />
+          <div className="cov-custom-actions">
+            <button
+              type="button"
+              className="cov-score"
+              onClick={score}
+              disabled={busy}
+            >
+              {busy
+                ? "Scoring…"
+                : "Compute my coverage"}
+            </button>
+            {custom && skipped > 0 && (
+              <span className="cov-skip">
+                {skipped} rule(s) could not
+                be imported and were skipped.
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {!active && (
         <p className="cov-status">
-          Computing coverage across all
-          intrusions…
+          {source === "custom"
+            ? "Paste a ruleset and compute its coverage."
+            : "Computing coverage across all intrusions…"}
         </p>
       )}
 
-      {coverage && (
-        <>
-          <div className="cov-summary">
-            <div className="cov-big">
-              <span className="cov-big-fig">
-                {coverage.covered}
-                <span className="cov-big-of">
-                  {" "}
-                  / {coverage.total}
-                </span>
-              </span>
-              <span className="cov-big-lab">
-                techniques covered
-              </span>
-            </div>
-            <div className="cov-bar-wrap">
-              <div className="cov-bar-track">
-                <div
-                  className="cov-bar-fill"
-                  style={{
-                    width: `${percent}%`,
-                  }}
-                />
-              </div>
-              <span className="cov-bar-pct">
-                {percent}%
-              </span>
-            </div>
-          </div>
-
-          <div className="cov-matrix-scroll">
-            <div className="cov-matrix">
-              {coverage.tactics.map(
-                (tactic) => (
-                  <div
-                    key={tactic.tactic}
-                    className="cov-col"
-                  >
-                    <div className="cov-col-head">
-                      <span className="cov-col-name">
-                        {tacticLabel(
-                          tactic.tactic,
-                        )}
-                      </span>
-                      <span className="cov-col-count">
-                        {tactic.covered}/
-                        {tactic.total}
-                      </span>
-                    </div>
-                    {coverage.techniques
-                      .filter(
-                        (technique) =>
-                          technique.tactic ===
-                          tactic.tactic,
-                      )
-                      .map(
-                        (technique) => (
-                          <div
-                            key={
-                              technique.id
-                            }
-                            className={`cov-cell ${
-                              technique.covered
-                                ? "covered"
-                                : "uncovered"
-                            }`}
-                            title={
-                              technique.covered
-                                ? `${technique.id} ${technique.name} — detected by ${technique.detectingRules.join(", ")}`
-                                : `${technique.id} ${technique.name} — no shipped rule detects this`
-                            }
-                          >
-                            <span className="cov-cell-id">
-                              {
-                                technique.id
-                              }
-                            </span>
-                            <span className="cov-cell-name">
-                              {
-                                technique.name
-                              }
-                            </span>
-                          </div>
-                        ),
-                      )}
-                  </div>
-                ),
-              )}
-            </div>
-          </div>
-        </>
+      {active && (
+        <CoverageView
+          coverage={active}
+          label={
+            source === "custom"
+              ? "techniques your ruleset covers"
+              : "techniques covered"
+          }
+        />
       )}
     </section>
   );
