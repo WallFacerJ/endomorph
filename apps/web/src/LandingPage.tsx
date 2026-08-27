@@ -20,13 +20,13 @@ interface Stat {
 }
 
 const STATS: readonly Stat[] = [
-  { figure: "11", label: "intrusions" },
+  { figure: "12", label: "intrusions" },
   {
-    figure: "37",
+    figure: "41",
     label: "ATT&CK techniques",
   },
   {
-    figure: "52k",
+    figure: "57k",
     label: "labelled events",
   },
   {

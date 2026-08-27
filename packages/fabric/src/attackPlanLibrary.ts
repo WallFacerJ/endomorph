@@ -34,6 +34,10 @@ import {
   RANSOMWARE_PLAN,
 } from "./attackPlanRansomware.js";
 
+import {
+  KERBEROAST_PLAN,
+} from "./attackPlanKerberoast.js";
+
 /**
  * The shipped plan library.
  *
@@ -1007,4 +1011,5 @@ export const ATTACK_PLANS: readonly AttackPlan[] =
     DNS_TUNNEL_PLAN,
     WEB_C2_PLAN,
     RANSOMWARE_PLAN,
+    KERBEROAST_PLAN,
   ];

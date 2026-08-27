@@ -10,14 +10,14 @@ A corpus captured from a real network has to be labelled by hand, and the labels
 
 - **Score a detection rule against ground truth.** Paste **Sigma, KQL, SPL, EQL, or ES|QL** into the browser [Detection Lab](https://wallfacerj.github.io/endomorph/?lab) and get counted precision, recall, and ATT&CK coverage in under two seconds, with a drill-down into the exact benign events it fired on and the malicious ones it missed. A scored rule is a shareable link.
 - **Gate a detection-rules repo in CI.** Score a whole ruleset on every pull request, fail on regression against a baseline, and emit a coverage badge for the README, [detection-as-code](docs/detection-as-code.md).
-- **Benchmark against a stable corpus.** Eleven seeded intrusions, 37 ATT&CK techniques (through Impact, ransomware), ~52k labelled events across endpoint, identity, network, DNS, web/proxy, file, mail, and cloud control-plane telemetry, with realistic false-positive noise, exportable as ECS / OCSF / Splunk.
+- **Benchmark against a stable corpus.** Twelve seeded intrusions, 41 ATT&CK techniques (through Impact, ransomware), ~57k labelled events across endpoint, identity, network, DNS, web/proxy, file, mail, and cloud control-plane telemetry, with realistic false-positive noise, exportable as ECS / OCSF / Splunk.
 - **Grade AI-generated detections.** The labelled corpus is a ground-truth eval set: [`--ai-eval`](docs/ai-detection-eval.md) hands an agent label-stripped tasks, and `--rubric` grades what it writes back, *N/M techniques detected to standard*.
 - **Investigate the incidents by hand.** A full analyst console, SIEM, EDR, identity, live response, and an incident-command Case, over the same generated world, for training that cannot be memorised because changing the seed changes the enterprise while the reasoning holds.
 
 Everything is deterministic and runs in the browser; the same seed reproduces the same world byte-for-byte.
 
 ```
-pnpm evaluate     # score the shipped ruleset against eleven ATT&CK-mapped intrusions
+pnpm evaluate     # score the shipped ruleset against twelve ATT&CK-mapped intrusions
 pnpm dev          # investigate one of them in the analyst console
 ```
 
@@ -109,7 +109,7 @@ Endomorph includes:
 - post-finalization instructor ground-truth review;
 - an in-app detection lab, with its own front door at `?lab`: paste a rule in **Sigma, KQL, SPL, EQL, or ES|QL** and score it against the scenario's labelled corpus, with counted precision and recall, a false-positive/missed-event drill-down, and shareable result links;
 - a coverage-badge SVG (`--badge`) and an AI-detection eval harness (`--ai-eval` / `--rubric`) for grading generated detections against ground truth;
-- fourteen scenarios selectable in the UI, three hand-authored and eleven generated, spanning endpoint, identity, network, DNS, web/proxy, file, mail, and cloud control-plane telemetry, through the Impact tactic (ransomware);
+- fifteen scenarios selectable in the UI, three hand-authored and twelve generated, spanning endpoint, identity, network, DNS, web/proxy, file, mail, and cloud control-plane telemetry, through the Impact tactic (ransomware);
 - two persisted professional interface styles: **Midnight SOC** and **Graphite**;
 - deterministic replay/unit/integration coverage plus browser-level Playwright tests;
 - a deterministic enterprise generator (`packages/fabric`) producing hundreds of coherent entities and thousands of benign events from a seed.
@@ -132,6 +132,7 @@ Endomorph includes:
 | **Generated: DNS tunnelling & exfiltration** | 444 | ~12.7k | A host beacons over DNS to algorithmically-generated domains and tunnels data out inside oversized TXT query names. No process or sign-in is anomalous; it lives only in the resolver log. |
 | **Generated: malicious download & web C2** | 444 | ~12.7k | A payload downloaded over plain HTTP, a beacon carrying a user agent no real browser sends, and a large POST to an anonymous paste service. A connection log sees only traffic on 443; the proxy sees the intrusion. |
 | **Generated: ransomware deployment** | 444 | ~12.7k | The end of the kill chain: a scheduled task, endpoint protection disabled, every shadow copy destroyed, then mass encryption. The shadow-copy deletion is the last high-fidelity chance to contain. |
+| **Generated: Active Directory credential theft** | 444 | ~12.7k | Kerberoasting, then a DCSync that replicates the directory from a workstation, then a forged golden ticket. It all runs inside valid Kerberos; a DCSync from a non-domain-controller is the near-unambiguous signal. |
 
 The selector groups them, because they are not the same kind of thing. Generated scenarios carry ATT&CK mapping, scored investigation questions, and analytical reasoning on every walkthrough step; the hand-authored v1 scenarios predate the generator and are kept because they are small and fast.
 
@@ -159,7 +160,9 @@ Each generated incident is built to defeat the habit the previous one rewards, w
 
 **Ransomware deployment** is the only intrusion that reaches the Impact tactic, and its lesson is timing: a scheduled task, endpoint protection disabled, and every volume shadow copy destroyed all precede the encryption, and the shadow-copy deletion, which nothing legitimate does on a workstation, is the last high-fidelity chance to contain before the files are gone.
 
-An analyst who works all eleven cannot come away with a checklist, which is the point: any single heuristic fails on at least one of them.
+**Active Directory credential theft** runs entirely inside valid Kerberos, so no failed login surfaces it: service tickets any user may request, an offline crack no sensor sees, a directory replication that mimics a domain controller, and a forged ticket that is cryptographically valid. The structural giveaway is that directory replication (DCSync) should only ever come from a domain controller, so a DCSync from a workstation is where the detection belongs.
+
+An analyst who works all twelve cannot come away with a checklist, which is the point: any single heuristic fails on at least one of them.
 
 Generated scenarios are **build artifacts, not source**, `pnpm build` produces them and they are not committed.
 
@@ -286,7 +289,7 @@ pnpm noise-floor    # for each technique, how many benign events share its event
   T1110.003   4     29                  7.3x           AUTH_LOGIN_FAILED
   T1098.003   1     0                   0 (exposed)    ROLE_GRANTED
 
-  30/37 techniques are buried among 10x or more benign look-alikes;
+  34/41 techniques are buried among 10x or more benign look-alikes;
   2 are exposed (no benign event of their type -- a corpus with many of these would be too clean to trust).
 ```
 
@@ -307,7 +310,7 @@ A pile of NDJSON files is data; a benchmark is data with a manifest that says wh
 Endomorph Detection Benchmark v1.0
   seed 20260820  |  format ecs  |  6 plans
   ...
-  51961 records, 83 malicious (0.160%), 37 techniques across 11 plans
+  56613 records, 88 malicious (0.155%), 41 techniques across 12 plans
 ```
 
 The manifest carries aggregate counts, the union of techniques with how many plans exercise each and, from the noise floor, how buried each is, and a per-plan index pointing at the files. So the artifact says not only what it covers but how hard each technique is to detect cleanly, without a second command. The corpus files are byte-deterministic for a given seed, so two people who generate `v1.0` at the shipped seed hold identical telemetry, which is what lets a score computed against it mean the same thing to both of them.

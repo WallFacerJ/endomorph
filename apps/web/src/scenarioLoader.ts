@@ -116,6 +116,12 @@ export const SHIPPED_SCENARIOS:
         "Ransomware deployment (advanced)",
       group: "generated",
     },
+    {
+      path: "/scenarios/generated-kerberoast.json",
+      label:
+        "Active Directory credential theft (advanced)",
+      group: "generated",
+    },
   ];
 
 /**

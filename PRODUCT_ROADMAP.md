@@ -78,7 +78,7 @@ detection-content marketplace, managed detection-quality service, training/cyber
 ### 1 · Detection data & content
 *Done when the corpus is broad, fresh, vendor-native, and citable enough to be an industry standard.*
 
-- **[H1·P0]** Deepen ATT&CK coverage from 37 toward the top ~150-200 techniques by real-world prevalence (Red Canary / CISA / Sigma), across all 14 tactics.
+- **[H1·P0]** Deepen ATT&CK coverage from 41 toward the top ~150-200 techniques by real-world prevalence (Red Canary / CISA / Sigma), across all 14 tactics.
 - **[H1·P0]** Vendor-native schema export, Splunk CIM, Sentinel/ASIM, Elastic ECS, OCSF, Chronicle UDM (today ECS-shaped).
 - **[H1·P1]** Versioned, citable benchmark releases, SemVer, changelog, permalinks, DOI.
 - **[H2·P0]** New domains, AD/LDAP audit, macOS + Linux endpoint, Kubernetes/container, SaaS audit (M365, Google, Okta, Salesforce), NetFlow/PCAP, WAF/CASB.

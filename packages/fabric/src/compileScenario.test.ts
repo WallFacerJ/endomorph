@@ -25,6 +25,11 @@ const compiled = compileScenario({
   name: "Generated account compromise",
   description:
     "A compromised Finance account inside a generated enterprise.",
+  // Pin the plan so the default seed-chosen plan (which shifts as plans are
+  // added) cannot change what this shared fixture compiles.
+  incident: {
+    planId: "credential-compromise",
+  },
 });
 
 describe("compileScenario", () => {

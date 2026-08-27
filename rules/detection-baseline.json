@@ -1,7 +1,7 @@
 {
   "generator": "endomorph-fabric",
   "seed": 20260820,
-  "ruleCount": 23,
+  "ruleCount": 24,
   "plans": [
     {
       "planId": "credential-compromise",
@@ -1018,12 +1018,91 @@
           "recall": 1
         }
       ]
+    },
+    {
+      "planId": "ad-credential-theft",
+      "planName": "Active Directory credential theft (Kerberoasting to DCSync)",
+      "recordCount": 4652,
+      "maliciousCount": 5,
+      "coveredTechniques": [
+        "T1003.006"
+      ],
+      "uncoveredTechniques": [
+        "T1550.003",
+        "T1558.001",
+        "T1558.003"
+      ],
+      "rules": [
+        {
+          "ruleId": "naive-powershell",
+          "technique": "T1059.001",
+          "truePositives": 1,
+          "falsePositives": 49,
+          "falseNegatives": 0,
+          "precision": 0.02,
+          "recall": 1
+        },
+        {
+          "ruleId": "smb-lateral",
+          "technique": "T1021.002",
+          "truePositives": 0,
+          "falsePositives": 15,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "account-reenabled",
+          "technique": "T1098",
+          "truePositives": 0,
+          "falsePositives": 2,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "run-key-persistence",
+          "technique": "T1547.001",
+          "truePositives": 0,
+          "falsePositives": 1,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "naive-beacon",
+          "technique": "T1071.001",
+          "truePositives": 0,
+          "falsePositives": 722,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "beacon-unknown-destination",
+          "technique": "T1071.001",
+          "truePositives": 0,
+          "falsePositives": 98,
+          "falseNegatives": 0,
+          "precision": 0,
+          "recall": 1
+        },
+        {
+          "ruleId": "dcsync-from-workstation",
+          "technique": "T1003.006",
+          "truePositives": 1,
+          "falsePositives": 0,
+          "falseNegatives": 0,
+          "precision": 1,
+          "recall": 1
+        }
+      ]
     }
   ],
   "totals": {
-    "coveredTechniques": 21,
-    "totalTechniques": 47,
-    "truePositives": 59,
-    "falsePositives": 9779
+    "coveredTechniques": 22,
+    "totalTechniques": 51,
+    "truePositives": 61,
+    "falsePositives": 10666
   }
 }

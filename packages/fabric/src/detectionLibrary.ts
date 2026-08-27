@@ -558,6 +558,21 @@ export const SHADOW_COPY_DELETION_RULE: DetectionRule =
     ],
   };
 
+export const DCSYNC_RULE: DetectionRule =
+  {
+    id: "dcsync-from-workstation",
+    name: "Directory replication (DCSync) from a non-DC host",
+    technique: "T1003.006",
+    severity: "high",
+    selections: [
+      {
+        "process.command_line": {
+          contains: "dcsync",
+        },
+      },
+    ],
+  };
+
 export const DETECTION_RULES: readonly DetectionRule[] =
   [
     PASSWORD_SPRAY_RULE,
@@ -583,4 +598,5 @@ export const DETECTION_RULES: readonly DetectionRule[] =
     DNS_EXFIL_RULE,
     WEB_MALWARE_UA_RULE,
     SHADOW_COPY_DELETION_RULE,
+    DCSYNC_RULE,
   ];
