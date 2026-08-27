@@ -35,6 +35,7 @@ const FORMAT_LABELS: Readonly<
   splunk: "Splunk (CIM-style)",
   elastic: "Elastic bulk (_bulk)",
   sentinel: "Microsoft Sentinel (JSON)",
+  ocsf: "OCSF (Security Lake / open schema)",
 };
 
 export function CorpusExport({

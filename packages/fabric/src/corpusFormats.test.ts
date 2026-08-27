@@ -62,6 +62,7 @@ describe("corpus export formats", () => {
       "splunk",
       "elastic",
       "sentinel",
+      "ocsf",
     ] as const) {
       const output = formatCorpus(
         records,
@@ -190,5 +191,128 @@ describe("corpus export formats", () => {
         }
       ).time,
     ).toBe(0);
+  });
+});
+
+interface OcsfRow {
+  class_uid: number;
+  class_name: string;
+  category_uid: number;
+  type_uid: number;
+  time: number;
+  severity_id: number;
+  user?: { name?: string };
+  actor?: { user?: { name?: string } };
+  process?: { cmd_line?: string };
+  finding_info?: { title?: string };
+  unmapped: Record<string, unknown>;
+}
+
+const ocsfRows = (
+  input: readonly CorpusRecord[],
+): OcsfRow[] =>
+  formatCorpus(input, { format: "ocsf" })
+    .trim()
+    .split("\n")
+    .map(
+      (line) =>
+        JSON.parse(line) as OcsfRow,
+    );
+
+describe("OCSF export", () => {
+  it("places each family in its OCSF class", () => {
+    const [heartbeat, process] =
+      ocsfRows(records);
+
+    // A process start is System Activity / Process Activity (1007), and the
+    // type_uid is the class times 100 plus the activity id.
+    expect(process.class_uid).toBe(1007);
+    expect(process.class_name).toBe(
+      "Process Activity",
+    );
+    expect(process.category_uid).toBe(1);
+    expect(process.type_uid).toBe(100700);
+
+    // Endpoint telemetry with no richer family still lands in the same class.
+    expect(heartbeat.class_uid).toBe(1007);
+  });
+
+  it("maps an alert to a Detection Finding", () => {
+    const [finding] = ocsfRows([
+      {
+        "@timestamp":
+          "2026-08-22T16:00:00.000Z",
+        "event.id": "alert-1",
+        "event.kind": "alert",
+        "event.type": "ALERT_CREATED",
+        "event.module": "endpoint",
+        "rule.name":
+          "Domain credential theft",
+        "event.severity": "critical",
+        "label.malicious": true,
+      } as unknown as CorpusRecord,
+    ]);
+
+    expect(finding.class_uid).toBe(2004);
+    expect(finding.class_name).toBe(
+      "Detection Finding",
+    );
+    expect(finding.category_uid).toBe(2);
+    // Critical is 5 on the OCSF 0 to 6 severity scale.
+    expect(finding.severity_id).toBe(5);
+    expect(
+      finding.finding_info?.title,
+    ).toBe("Domain credential theft");
+  });
+
+  it("carries the principal where each class expects it", () => {
+    const [login] = ocsfRows([
+      {
+        "@timestamp":
+          "2026-08-22T09:00:00.000Z",
+        "event.id": "login-1",
+        "event.kind": "event",
+        "event.type": "AUTH_LOGIN_FAILED",
+        "event.module": "authentication",
+        "user.name": "j.doe",
+        "label.malicious": false,
+      } as unknown as CorpusRecord,
+    ]);
+
+    // Authentication puts the user at the top level; other classes nest it
+    // under actor.
+    expect(login.user?.name).toBe("j.doe");
+    expect(login.actor).toBeUndefined();
+
+    const [process] = ocsfRows([
+      {
+        ...records[1],
+        "user.name": "svc-backup",
+      } as unknown as CorpusRecord,
+    ]);
+    expect(process.actor?.user?.name).toBe(
+      "svc-backup",
+    );
+  });
+
+  it("keeps ground truth in the OCSF unmapped object", () => {
+    const [, process] = ocsfRows(records);
+
+    // unmapped is exactly where OCSF puts attributes outside the schema, so
+    // the labels travel without making the record invalid OCSF.
+    expect(
+      process.unmapped["label.malicious"],
+    ).toBe(true);
+    expect(
+      process.unmapped["label.technique"],
+    ).toBe("T1059.001");
+  });
+
+  it("uses epoch milliseconds for time", () => {
+    const [heartbeat] = ocsfRows(records);
+
+    expect(heartbeat.time).toBe(
+      Date.parse("2026-08-20T08:00:00.000Z"),
+    );
   });
 });

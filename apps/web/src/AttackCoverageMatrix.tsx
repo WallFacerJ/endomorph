@@ -393,11 +393,11 @@ export function AttackCoverageMatrix() {
             ))}
           </div>
           <p className="cov-custom-hint">
-            Paste your detection repo , 
+            Paste your detection repo, with
             multiple rules separated by a
             line of{" "}
             <code>---</code>. Scored across
-            all {shipped?.total ?? 37}{" "}
+            all {shipped?.total ?? 41}{" "}
             techniques in the corpus.
           </p>
           <textarea
