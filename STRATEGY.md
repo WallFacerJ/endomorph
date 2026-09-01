@@ -180,7 +180,7 @@ it builds on so it is not a green field.
    scores *their* rule unchanged. Demonstrated equivalence: the domain-admin
    detection expressed in all three dialects scores an identical 1.000/1.000.
    `esql.ts` completes the set with Elastic's piped ES|QL (`FROM ... | WHERE ...`),
-   and all five languages are a toggle in the browser lab. *Built on* the rule model
+   and all six languages are a toggle in the browser lab. *Built on* the rule model
    and the Sigma importer (`packages/fabric/src/sigma.ts`).
 
 3. **Add the domains real detections live in, MAIL + CLOUD + DNS DONE.** Email

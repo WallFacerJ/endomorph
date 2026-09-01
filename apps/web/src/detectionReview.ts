@@ -6,6 +6,7 @@ import {
   importSplRules,
   importEqlRules,
   importEsqlRules,
+  importYaralRules,
   generateEnterprise,
   generateBackgroundActivity,
   generateIncident,
@@ -257,6 +258,28 @@ export function scoreEsqlAgainstCorpus(
   const { rules, skipped } =
     importEsqlRules([
       { source: "pasted rule", query },
+    ]);
+
+  return {
+    report: evaluateRuleset(
+      rules,
+      records,
+    ),
+    recordCount: records.length,
+    maliciousCount:
+      maliciousCountOf(records),
+    imported: rules.length,
+    skipped,
+  };
+}
+
+export function scoreYaralAgainstCorpus(
+  records: readonly CorpusRecord[],
+  text: string,
+): CustomRuleReview {
+  const { rules, skipped } =
+    importYaralRules([
+      { source: "pasted rule", text },
     ]);
 
   return {
@@ -599,7 +622,8 @@ export type RulesetLanguage =
   | "kql"
   | "spl"
   | "eql"
-  | "esql";
+  | "esql"
+  | "yaral";
 
 export interface RulesetParseResult {
   readonly rules: readonly DetectionRule[];
@@ -649,9 +673,13 @@ export function parseRuleset(
               ? importEqlRules([
                   { source, query: block },
                 ])
-              : importEsqlRules([
-                  { source, query: block },
-                ]);
+              : language === "esql"
+                ? importEsqlRules([
+                    { source, query: block },
+                  ])
+                : importYaralRules([
+                    { source, text: block },
+                  ]);
 
     for (const rule of result.rules) {
       rules.push(rule);

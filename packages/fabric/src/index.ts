@@ -21,5 +21,6 @@ export * from "./kql.js";
 export * from "./spl.js";
 export * from "./eql.js";
 export * from "./esql.js";
+export * from "./yaral.js";
 export * from "./detectionEval.js";
 export * from "./coverageBadge.js";

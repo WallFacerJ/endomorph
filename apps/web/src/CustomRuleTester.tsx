@@ -13,6 +13,7 @@ import {
   scoreSplAgainstCorpus,
   scoreEqlAgainstCorpus,
   scoreEsqlAgainstCorpus,
+  scoreYaralAgainstCorpus,
 } from "./detectionReview";
 
 import type {
@@ -128,7 +129,8 @@ type RuleLanguage =
   | "kql"
   | "spl"
   | "eql"
-  | "esql";
+  | "esql"
+  | "yaral";
 
 /** The same lessons again, written as Elastic ES|QL (the piped query language). */
 const ESQL_EXAMPLES: readonly RuleExample[] = [
@@ -159,6 +161,52 @@ FROM logs-endpoint
 // technique: T1059.001
 FROM logs-endpoint
 | WHERE process.command_line LIKE "*-EncodedCommand*"`,
+  },
+];
+
+/** The same lessons again, written as Chronicle YARA-L for Google SecOps authors. */
+const YARAL_EXAMPLES: readonly RuleExample[] = [
+  {
+    id: "yaral-encoded",
+    label:
+      "Encoded PowerShell, a clean hit",
+    yaml: `rule encoded_powershell {
+  meta:
+    technique = "T1059.001"
+  events:
+    $e.metadata.event_type = "PROCESS_LAUNCH"
+    $e.principal.process.file.full_path = /powershell\\.exe$/ nocase
+    $e.principal.process.command_line = /-enc/ nocase
+  condition:
+    $e
+}`,
+  },
+  {
+    id: "yaral-any",
+    label:
+      "Any PowerShell, right technique, noisy rule",
+    yaml: `rule any_powershell {
+  meta:
+    technique = "T1059.001"
+  events:
+    $e.metadata.event_type = "PROCESS_LAUNCH"
+    $e.principal.process.file.full_path = /powershell\\.exe$/ nocase
+  condition:
+    $e
+}`,
+  },
+  {
+    id: "yaral-wrong",
+    label:
+      "Encoded, wrong flag, a rule that misses",
+    yaml: `rule encoded_long_form {
+  meta:
+    technique = "T1059.001"
+  events:
+    $e.principal.process.command_line = /-EncodedCommand/ nocase
+  condition:
+    $e
+}`,
   },
 ];
 
@@ -323,7 +371,8 @@ function readSharedRule(): SharedRule | null {
       lang === "kql" ||
       lang === "spl" ||
       lang === "eql" ||
-      lang === "esql"
+      lang === "esql" ||
+      lang === "yaral"
         ? lang
         : "sigma",
     text,
@@ -515,7 +564,9 @@ export function CustomRuleTester({
           ? EQL_EXAMPLES
           : lang === "esql"
             ? ESQL_EXAMPLES
-            : EXAMPLES;
+            : lang === "yaral"
+              ? YARAL_EXAMPLES
+              : EXAMPLES;
 
   const activeExamples =
     examplesFor(language);
@@ -556,10 +607,15 @@ export function CustomRuleTester({
                     records,
                     yaml,
                   )
-                : scoreSigmaAgainstCorpus(
-                    records,
-                    yaml,
-                  ),
+                : language === "yaral"
+                  ? scoreYaralAgainstCorpus(
+                      records,
+                      yaml,
+                    )
+                  : scoreSigmaAgainstCorpus(
+                      records,
+                      yaml,
+                    ),
       );
     } catch (caught) {
       setReview(null);
@@ -606,10 +662,15 @@ export function CustomRuleTester({
                     records,
                     shared.text,
                   )
-                : scoreSigmaAgainstCorpus(
-                    records,
-                    shared.text,
-                  ),
+                : shared.language === "yaral"
+                  ? scoreYaralAgainstCorpus(
+                      records,
+                      shared.text,
+                    )
+                  : scoreSigmaAgainstCorpus(
+                      records,
+                      shared.text,
+                    ),
       );
     } catch (caught) {
       setError(
@@ -743,6 +804,22 @@ export function CustomRuleTester({
           >
             ES|QL
           </button>
+          <button
+            type="button"
+            className={
+              language === "yaral"
+                ? "rule-tester-lang active"
+                : "rule-tester-lang"
+            }
+            aria-pressed={
+              language === "yaral"
+            }
+            onClick={() =>
+              switchLanguage("yaral")
+            }
+          >
+            YARA-L
+          </button>
         </div>
         <h3>
           Score a rule against this
@@ -765,7 +842,9 @@ export function CustomRuleTester({
                 ? "Elastic EQL"
                 : language === "esql"
                   ? "Elastic ES|QL"
-                  : "Sigma"}{" "}
+                  : language === "yaral"
+                    ? "Chronicle YARA-L"
+                    : "Sigma"}{" "}
           rule, score it against the{" "}
           {records.length.toLocaleString()}{" "}
           labelled records, and open a rule
@@ -788,7 +867,9 @@ export function CustomRuleTester({
                 ? "EQL query"
                 : language === "esql"
                   ? "ES|QL query"
-                  : "Sigma rule"}
+                  : language === "yaral"
+                    ? "YARA-L rule"
+                    : "Sigma rule"}
         </label>
 
         <select
@@ -893,11 +974,12 @@ export function CustomRuleTester({
                     ? "EQL"
                     : language === "esql"
                       ? "ES|QL"
-                      : "Sigma"}{" "}
-              subset
-              could not express this rule
-             , reported rather than
-              matched silently, because a
+                      : language === "yaral"
+                        ? "YARA-L"
+                        : "Sigma"}{" "}
+              subset could not express this
+              rule, so it is reported rather
+              than matched silently, because a
               rule that quietly matches
               nothing looks exactly like
               one that works:

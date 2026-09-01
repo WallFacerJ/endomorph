@@ -24,7 +24,7 @@ import "./AttackCoverageMatrix.css";
  *
  * By default it scores the shipped ruleset, the demo. But the real product
  * value is the "Your ruleset" mode: paste a whole detection repo (many rules
- * separated by `---`, in any of the five languages) and get *your* ATT&CK
+ * separated by `---`, in any of the six languages) and get *your* ATT&CK
  * coverage, computed from ground truth in the browser. A technique is covered
  * when a rule detects it (recall > 0) on at least one intrusion; the rest are
  * gaps the analyst can see rather than discover during an incident.
@@ -372,6 +372,7 @@ export function AttackCoverageMatrix() {
                 "spl",
                 "eql",
                 "esql",
+                "yaral",
               ] as const
             ).map((lang) => (
               <button
@@ -388,7 +389,9 @@ export function AttackCoverageMatrix() {
               >
                 {lang === "esql"
                   ? "ES|QL"
-                  : lang.toUpperCase()}
+                  : lang === "yaral"
+                    ? "YARA-L"
+                    : lang.toUpperCase()}
               </button>
             ))}
           </div>

@@ -19,7 +19,7 @@ variation + a scoring harness + zero infra. The investigation console stays the
 demo that makes it tangible, and the door into a training product later.
 
 At a glance: **11 intrusions · 37 ATT&CK techniques · ~52k labelled events ·
-5 rule languages · 8 event domains · 0 infrastructure.**
+6 rule languages · 8 event domains · 0 infrastructure.**
 
 ### Lane 1, Shipped (the wedge is real)
 
@@ -32,8 +32,8 @@ At a glance: **11 intrusions · 37 ATT&CK techniques · ~52k labelled events ·
   drill into the exact benign hits and missed events, share the result as a link. *Done.*
 - **Rule importers, Sigma, KQL, SPL, EQL**, write in your own language; each
   compiles to one internal rule and refuses what it can't express by name. *Done.*
-- **Detection-as-code CI + coverage badge**, `--sigma/--kql/--spl/--eql` +
-  `--baseline` regression gate + `--badge`. *Done.*
+- **Detection-as-code CI + coverage badge**, `--sigma/--kql/--spl/--eql/--esql/--yaral`
+  + `--baseline` regression gate + `--badge`. *Done.*
 - **AI detection-eval harness**, `--ai-eval` exports label-stripped tasks + hidden
   key; `--rubric` grades generated detections *N/M techniques to standard*. *Done.*
 - **Event domains**, endpoint, identity, network, file, **mail**, **cloud**, **DNS**,
@@ -59,8 +59,8 @@ At a glance: **11 intrusions · 37 ATT&CK techniques · ~52k labelled events ·
    command-line rule drops to recall 0.000 at stealth while a behavioural lineage rule
    holds at 1.000. *Remaining:* evasion-aware variants for more plans.
 7. **Elastic ES|QL, DONE.** Completed the vendor-language set: `esql.ts` imports
-   the `WHERE` filter of a piped ES|QL query; all five languages (Sigma / KQL / SPL /
-   EQL / ES|QL) are a browser-lab toggle.
+   the `WHERE` filter of a piped ES|QL query; all six languages (Sigma / KQL / SPL /
+   EQL / ES|QL / YARA-L) are a browser-lab toggle.
 
 ### Lane 3, Later (enterprise north star, deferred until a customer pulls)
 

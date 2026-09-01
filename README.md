@@ -8,7 +8,7 @@ A corpus captured from a real network has to be labelled by hand, and the labels
 
 ## What you can do with it
 
-- **Score a detection rule against ground truth.** Paste **Sigma, KQL, SPL, EQL, or ES|QL** into the browser [Detection Lab](https://wallfacerj.github.io/endomorph/?lab) and get counted precision, recall, and ATT&CK coverage in under two seconds, with a drill-down into the exact benign events it fired on and the malicious ones it missed. A scored rule is a shareable link.
+- **Score a detection rule against ground truth.** Paste **Sigma, KQL, SPL, EQL, ES|QL, or Chronicle YARA-L** into the browser [Detection Lab](https://wallfacerj.github.io/endomorph/?lab) and get counted precision, recall, and ATT&CK coverage in under two seconds, with a drill-down into the exact benign events it fired on and the malicious ones it missed. A scored rule is a shareable link.
 - **Gate a detection-rules repo in CI.** Score a whole ruleset on every pull request, fail on regression against a baseline, and emit a coverage badge for the README, [detection-as-code](docs/detection-as-code.md).
 - **Benchmark against a stable corpus.** Twelve seeded intrusions, 41 ATT&CK techniques (through Impact, ransomware), ~57k labelled events across endpoint, identity, network, DNS, web/proxy, file, mail, and cloud control-plane telemetry, with realistic false-positive noise, exportable as ECS / OCSF / Splunk.
 - **Grade AI-generated detections.** The labelled corpus is a ground-truth eval set: [`--ai-eval`](docs/ai-detection-eval.md) hands an agent label-stripped tasks, and `--rubric` grades what it writes back, *N/M techniques detected to standard*.
@@ -74,7 +74,7 @@ Content is data, not code. An attack plan declares its steps, techniques, and qu
 
 **Hosted app:** https://wallfacerj.github.io/endomorph/
 
-**Detection lab:** https://wallfacerj.github.io/endomorph/?lab, for detection engineers, not trainees: pick a generated scenario, see how a sample ruleset scores against its labelled corpus, then paste your own rule, in **Sigma, KQL, SPL, EQL, or ES|QL**, and get precision and recall counted against ground truth, with a drill-down into the exact benign events it fired on and the malicious ones it missed. A scored rule is a shareable link. No investigation to play through.
+**Detection lab:** https://wallfacerj.github.io/endomorph/?lab, for detection engineers, not trainees: pick a generated scenario, see how a sample ruleset scores against its labelled corpus, then paste your own rule, in **Sigma, KQL, SPL, EQL, ES|QL, or Chronicle YARA-L**, and get precision and recall counted against ground truth, with a drill-down into the exact benign events it fired on and the malicious ones it missed. A scored rule is a shareable link. No investigation to play through.
 
 The app root is a short landing page explaining what Endomorph is, with doors into the lab and an investigation; every deep link (`?scenario=`, `?mode=`, `?lab`) still goes straight where it did.
 
@@ -107,7 +107,7 @@ Endomorph includes:
 - transparent objective score, response-quality penalty, and final score;
 - a read-only finalized case until reset;
 - post-finalization instructor ground-truth review;
-- an in-app detection lab, with its own front door at `?lab`: paste a rule in **Sigma, KQL, SPL, EQL, or ES|QL** and score it against the scenario's labelled corpus, with counted precision and recall, a false-positive/missed-event drill-down, and shareable result links;
+- an in-app detection lab, with its own front door at `?lab`: paste a rule in **Sigma, KQL, SPL, EQL, ES|QL, or Chronicle YARA-L** and score it against the scenario's labelled corpus, with counted precision and recall, a false-positive/missed-event drill-down, and shareable result links;
 - a coverage-badge SVG (`--badge`) and an AI-detection eval harness (`--ai-eval` / `--rubric`) for grading generated detections against ground truth;
 - fifteen scenarios selectable in the UI, three hand-authored and twelve generated, spanning endpoint, identity, network, DNS, web/proxy, file, mail, and cloud control-plane telemetry, through the Impact tactic (ransomware);
 - two persisted professional interface styles: **Midnight SOC** and **Graphite**;
@@ -351,7 +351,7 @@ format, which is the entire reason to move a corpus into somebody else's
 platform: analysts can practise in the tool they use daily and engineers can
 score their own rules there, because the answers came along.
 
-### Bring your own rules, Sigma, KQL, SPL, EQL, ES|QL
+### Bring your own rules, Sigma, KQL, SPL, EQL, ES|QL, YARA-L
 
 Real Sigma YAML imports directly:
 
@@ -381,7 +381,7 @@ pnpm evaluate -- --eql rules/eql     # Elastic EQL (<category> where <condition>
 pnpm evaluate -- --esql rules/esql   # Elastic ES|QL (FROM ... | WHERE ..., ECS-native)
 ```
 
-The same detection expressed in KQL, SPL, EQL, and ES|QL scores an identical 1.000/1.000, the importers agree because they compile to one internal rule. As with Sigma, a construct a subset can't express, a transforming command, a sequence, mixed AND/OR, an unmapped field, is refused **by name with a reason**, never imported as a query that silently matches nothing. All five languages are also a toggle in the browser Detection Lab.
+The same detection expressed in KQL, SPL, EQL, ES|QL, and Chronicle YARA-L scores an identical 1.000/1.000, the importers agree because they compile to one internal rule. As with Sigma, a construct a subset can't express, a transforming command, a sequence, mixed AND/OR, an unmapped field, is refused **by name with a reason**, never imported as a query that silently matches nothing. All six languages are also a toggle in the browser Detection Lab.
 
 #### Grading generated detections (AI eval)
 

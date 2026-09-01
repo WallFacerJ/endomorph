@@ -13,7 +13,7 @@ Horizon key: **H1** Foundation (0-3mo) · **H2** Commercialize (3-9mo) ·
 **H3** Enterprise (9-18mo) · **H4** Platform (18mo+).
 Priority key: **P0** load-bearing · **P1** important · **P2** valuable.
 
-Today: 12 intrusions · 41 ATT&CK techniques · 8 event domains · 5 rule languages ·
+Today: 12 intrusions · 41 ATT&CK techniques · 8 event domains · 6 rule languages ·
 5 vendor-native export schemas · digital twin · AI-eval harness · seeded attack variation.
 
 ---
@@ -59,7 +59,7 @@ enterprise controls.
 
 | Tier | For | Includes | Price |
 | --- | --- | --- | --- |
-| **Open Source** | adopt & cite | generator + benchmark, CLI + 5 languages, single-user lab, CI recipe, coverage badge | Free (MIT/Apache) |
+| **Open Source** | adopt & cite | generator + benchmark, CLI + 6 languages, single-user lab, CI recipe, coverage badge | Free (MIT/Apache) |
 | **Team** | self-serve SaaS | hosted lab + saved runs, coverage dashboard & history, SIEM push + CI, digital twin, shared workspaces | per-seat + usage (PLG) |
 | **Enterprise** | sales-assisted | SSO/SCIM/RBAC/audit, continuous validation + alerts, compliance & exec reporting, private/VPC or self-hosted, premium content + SLA | annual contract |
 | **MSSP / OEM** | platform | multi-tenant, white-label reporting, API/SDK volume, vendor detection-testing, revenue-share content | usage / OEM |
@@ -91,7 +91,7 @@ detection-content marketplace, managed detection-quality service, training/cyber
 *Done when a team manages the full detection lifecycle inside it.*
 
 - **[H1·P0]** Coverage analytics, ATT&CK heatmap of a ruleset's coverage, gaps, gaps weighted against a threat profile.
-- **[H1·P1]** More rule languages, Chronicle YARA-L, Panther (Python), Sentinel scheduled analytics, Splunk ESCU/correlation, Suricata/Snort, Zeek, Falco, Sigma-correlation.
+- **[H1·P1]** More rule languages: Chronicle YARA-L ships; Panther (Python), Sentinel scheduled analytics, Splunk ESCU/correlation, Suricata/Snort, Zeek, Falco, Sigma-correlation.
 - **[H2·P0]** Detection lifecycle, catalog with versioning, deep GitHub/GitLab PR checks, drift detection, health over time.
 - **[H2·P1]** Alert-volume & latency estimation, FP clustering, tuning recommendations.
 - **[H2·P2]** Rule translation across languages; AI-assisted authoring from a gap.

@@ -30,7 +30,7 @@ const STATS: readonly Stat[] = [
     label: "labelled events",
   },
   {
-    figure: "5",
+    figure: "6",
     label: "rule languages",
   },
 ];

@@ -70,6 +70,10 @@ import {
 } from "./esql.js";
 
 import {
+  importYaralRules,
+} from "./yaral.js";
+
+import {
   resolveFromRoot,
 } from "./workspaceRoot.js";
 
@@ -638,6 +642,60 @@ function main(): void {
     process.stdout.write("\n");
   }
 
+  const yaralIndex = argv.indexOf("--yaral");
+
+  const yaralDir =
+    yaralIndex >= 0
+      ? argv[yaralIndex + 1]
+      : undefined;
+
+  if (yaralDir) {
+    const yaralRoot =
+      resolveFromRoot(yaralDir);
+
+    if (!existsSync(yaralRoot)) {
+      throw new Error(
+        `YARA-L directory not found: ${yaralRoot}`,
+      );
+    }
+
+    const yaralDocuments = readdirSync(
+      yaralRoot,
+    )
+      .filter(
+        (name) =>
+          name.endsWith(".yaral") ||
+          name.endsWith(".yl"),
+      )
+      .map((name) => ({
+        source: name,
+        text: readFileSync(
+          `${yaralRoot}/${name}`,
+          "utf8",
+        ),
+      }));
+
+    const importedYaral =
+      importYaralRules(yaralDocuments);
+
+    rules = [...importedYaral.rules];
+
+    process.stdout.write(
+      `YARA-L import from ${yaralDir}
+  imported ${importedYaral.rules.length}, skipped ${importedYaral.skipped.length}
+`,
+    );
+
+    for (const skip of importedYaral.skipped) {
+      process.stdout.write(
+        `  SKIPPED ${skip.source}: ${skip.reason}
+`,
+      );
+    }
+
+    process.stdout.write("\n");
+  }
+
   const flag = (name: string) => {
     const index = argv.indexOf(
       `--${name}`,
@@ -956,8 +1014,8 @@ function main(): void {
     ground-truth label stripped (what a detection agent is allowed to see), the
     task prompt naming the techniques to write for, and -- separately -- a hidden
     answer key. An agent generates rules from the telemetry + prompt; those
-    rules are then scored back with --sigma/--kql/--spl/--eql and graded with
-    --rubric. This is what ground-truth-by-construction is for.
+    rules are then scored back with --sigma/--kql/--spl/--eql/--esql/--yaral and
+    graded with --rubric. This is what ground-truth-by-construction is for.
   */
   const aiEvalDir = flag("ai-eval");
 
